@@ -1,10 +1,11 @@
 #!/usr/bin/python
+
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: ___OSSO_CONTACT_NAME___ <___CONTACT_EMAIL___@nokia.com>
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -22,17 +23,35 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Mock for demonstration of OTS Core 
+Mock for demonstration of OTS Core
+
+Rather crude - deliberately so. 
+
+Kept simple to demonstrate high level behaviour 
+and interfaces this is not a replacement for 
+the actual testrunning components!
+
+Runs commands as given by the Test Defintion XML 
+and sends back a results file.
 """
 
 import os
 import time 
 import sys
+import zipfile
 
-from Pyro.ext import remote_nons
+from ots.common.testdefinition.api import TestDefinitionParser
+from ots.worker.responseclient import ResponseClient
+
+DUMMY_RESULTS_FILENAME = "dummy_results_file.xml"
+
+
 
 HOST = "localhost"
-PORT = 1982
+
+##############################
+# HELPERS
+##############################
 
 def _results_xml(filename):
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -40,26 +59,60 @@ def _results_xml(filename):
     f = open(fqname, "r")
     return f.read()
 
+def _run_tests(test_definition_xml):
+    """
+    Executes the test steps from the test_definition_xml
+    """
+    td_parser = TestDefinitionParser(input_xml = test_definition_xml)
+    test_package_data = td_parser.parse_test_definition()
+    set = test_package_data.suites[0].getTestsets()[0]
+    for case in set.getTestcases():
+        for step in case.getSteps():
+            os.system(step)
 
-def main(fqname, sleep, testrun_id):            
-    f = open(fqname, "w")
-    f.write("%s\n"%(time.time()))
-    time.sleep(float(sleep))    
-    f.write("%s\n"%(time.time()))
-    f.close()
+def _get_test_definition_file(package, testrun_id):
+    """
+    Get the Test Definition File from the package 
+    Send back to ots.distributor
+    """
+    file = zipfile.ZipFile(package, "r")
+    name = file.namelist()[0]
+    tdf_xml = file.read(name)
+    return (name, tdf_xml)
 
-    info_service = remote_nons.get_server_object('info', HOST, PORT)
+def _post_results(testrun_id, response_client):
+    """
+    Send the dummy results back to ots.distributor
+    """
+    results_xml = _results_xml(DUMMY_RESULTS_FILENAME)
+    response_client.add_result(DUMMY_RESULTS_FILENAME, 
+                               results_xml)   
 
-    results_storage_service = remote_nons.get_server_object('results_storage',
-							     HOST, 
-  							     PORT)
+#############################
+    
+def main(package, testrun_id):
+    """
+    Unpacks the 'package'. Run the tests
+    Feed the results file and the test definition file back 
+    
+    @type fqname: C{string}
+    @param fqname: The fully qualified name of the package 
+                   (a zipfile for demo purposes) 
+    
+    @type testrun_id: C{int} 
+    @param testrun_id: The id of the testrun    
+    """
 
-    filename = "dummy_results_file.xml"
-    content = _results_xml(filename)
+    testrun_id = int(testrun_id)    
+    response_client = ResponseClient(HOST, testrun_id)
+    response_client.connect()
+    name, tdf_xml = _get_test_definition_file(package, testrun_id)
 
-    results_storage_service.add_result(int(testrun_id), 
-                                       filename, 
-                                       content)          
-        
+    response_client.add_result(name,
+                               tdf_xml)
+
+    _run_tests(tdf_xml)
+    _post_results(testrun_id, response_client)
+
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2])

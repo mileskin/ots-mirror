@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testdefinition version="1.0">
+   <suite name="dummy suite" domain="Test">
+       <description>description</description>
+       <set name="dummy testset" feature="Test">
+           <description>descrition</description>
+           <case name="foo test" type="Functional" level="Component">
+               <step>mkdir dummy1</step>
+           </case>
+       </set>
+   </suite>
+</testdefinition>

@@ -1,0 +1,17 @@
+Source: ots-server
+Maintainer: Teemu Vainio <ext-teemu.a.vainio@nokia.com>
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), python-all-dev (>= 2.3.5-11), debhelper (>= 5.0.38), python-central (>= 0.5.6)
+Standards-Version: 3.7.2
+XS-Python-Version: >=2.5
+
+Package: python-ots-server
+Architecture: all
+Depends: python (>= 2.5), python-amqplib, python-central (>= 0.6.7), python-ots-common
+Recommends: 
+Suggests:
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: OTS Server
+

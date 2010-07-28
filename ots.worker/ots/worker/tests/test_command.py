@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: ___OSSO_CONTACT_NAME___ <___CONTACT_EMAIL___@nokia.com>
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -39,6 +39,10 @@ class TestCommand(unittest.TestCase):
     
     def tearDown(self):
         pass
+
+    def test_str(self):
+        cmd_object = command.Command("echo x")
+        self.assertTrue(str(cmd_object))
 
     def testWrappedCommand(self):
         wrapper = 'wrapper "%s"'

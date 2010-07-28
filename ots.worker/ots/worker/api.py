@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: ___OSSO_CONTACT_NAME___ <___CONTACT_EMAIL___@nokia.com>
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -24,4 +24,8 @@
 The ots.worker API
 """
 
+# Disabling "unused import" warning because this is an API file.
+# pylint: disable-msg=W0611
+
 from ots.worker.worker import worker_factory 
+from ots.worker.responseclient import ResponseClient

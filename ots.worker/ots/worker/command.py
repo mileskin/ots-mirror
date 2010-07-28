@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: ___OSSO_CONTACT_NAME___ <___CONTACT_EMAIL___@nokia.com>
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -73,8 +73,8 @@ class Command(object):
 
 
     def __str__(self):
-        return "Command %s, pid: %d, return_value: %s, stdout: %s, "+\
-            "stderr: %s, execution time: %s" % \
+        return ("Command %s, pid: %d, return_value: %s, stdout: %s, "+\
+            "stderr: %s, execution time: %s") % \
             (str(self.command), self.pid, str(self.return_value), self.stdout,
              self.stderr, str(self.execution_time))
 
@@ -207,9 +207,6 @@ class Command(object):
         self._stop_timers()
         self.return_value = self.process.returncode
         self.execution_time = time.time() - self.start_time
-        self.log.debug(self)        
-
-
 
         if self.hard_timeout_occured:
             raise HardTimeoutException

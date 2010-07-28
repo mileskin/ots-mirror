@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: ___OSSO_CONTACT_NAME___ <___CONTACT_EMAIL___@nokia.com>
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -27,8 +27,8 @@ setup(
     author = "ext-teemu.a.vainio@nokia.com",
     version =  0.1,
     include_package_data = True,
-    packages = ['ots',
-                'ots.worker'],
+    namespace_packages = ['ots'],
+    packages = ['ots.worker'],
     zip_safe = False,
     entry_points={"console_scripts": 
                   ["ots_worker = ots.worker.worker:main"]},

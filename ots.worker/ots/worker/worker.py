@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: ___OSSO_CONTACT_NAME___ <___CONTACT_EMAIL___@nokia.com>
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -21,8 +21,14 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+#Disable spurious pylint warnings
+
+#pylint: disable-msg=E0611
+#pylint: disable-msg=F0401
+
+
 """
-Top level script starts an AMQP server running
+Top level script starts an Worker 
 """
 
 import sys
@@ -34,8 +40,7 @@ import subprocess
 import ConfigParser
 
 from ots.worker.connection import Connection
-from ots.worker.server import Server
-from ots.worker.client import Client
+from ots.worker.task_broker import TaskBroker
 from ots.worker.get_version import get_version 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +50,7 @@ STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
 
 class Worker(object):
     """
-    AMQP server tuned for OTS 
+    Worker class 
     """
 
     def __init__(self, vhost, host, port, username, password, queue, 
@@ -62,34 +67,7 @@ class Worker(object):
         self._routing_key = routing_key 
         self._services_exchange = services_exchange
         self._timeout = None
-   
-    def _init_connection(self):
-        """
-        Initialises a connection object)
-        """
-        self._connection = Connection(self._vhost,
-                                      self._host,
-                                      self._port,
-                                      self._username,
-                                      self._password,
-                                      self._queue,
-                                      self._routing_key,
-                                      self._services_exchange)
-        self._connection.connect()
-
-    def _init_server(self):
-        """
-        Initialises the worker server
-        """
-        self._server = Server(connection = self._connection,
-                              client = self._client)
-
-    def _init_client(self):
-        """
-        Initialises the worker client
-        """
-        self._client = Client(connection=self._connection)
-        
+               
     def start(self):
         """
         Starts the ots worker server running
@@ -98,16 +76,21 @@ class Worker(object):
         # If stop flag is there, remove it
         if os.path.exists(STOP_SIGNAL_FILE):
             os.system("rm -fr "+STOP_SIGNAL_FILE)
-        self._init_connection()
-        self._init_client()
-        self._init_server()
+        self._connection = Connection(self._vhost,
+                                      self._host,
+                                      self._port,
+                                      self._username,
+                                      self._password)
+        self._task_broker = TaskBroker(self._connection, 
+                                       self._queue, 
+                                       self._routing_key,
+                                       self._services_exchange)
         logger.debug("Starting the server. " + \
                          "{vhost:'%s', queue:'%s', routing_key:'%s'}" % 
                      (self._vhost,
                       self._queue,
                       self._routing_key))
-        #Aaaand go....
-        self._server.start()
+        self._task_broker.run()
 
 
 def _init_logging(config_filename = None):
@@ -151,7 +134,7 @@ def _edit_config(config_filename):
     """
     Fire up nano to allow the editing of the config 
     """
-    subprocess.call("nano %s"%(config_filename),shell=True)
+    subprocess.call("nano %s"%(config_filename), shell=True)
 
 def worker_factory(config_filename):
     """
