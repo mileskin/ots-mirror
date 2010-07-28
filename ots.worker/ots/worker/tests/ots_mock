@@ -1,0 +1,65 @@
+#!/usr/bin/python
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: ___OSSO_CONTACT_NAME___ <___CONTACT_EMAIL___@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+
+"""
+Mock for demonstration of OTS Core 
+"""
+
+import os
+import time 
+import sys
+
+from Pyro.ext import remote_nons
+
+HOST = "localhost"
+PORT = 1982
+
+def _results_xml(filename):
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    fqname = os.path.join(dirname, "data", filename)
+    f = open(fqname, "r")
+    return f.read()
+
+
+def main(fqname, sleep, testrun_id):            
+    f = open(fqname, "w")
+    f.write("%s\n"%(time.time()))
+    time.sleep(float(sleep))    
+    f.write("%s\n"%(time.time()))
+    f.close()
+
+    info_service = remote_nons.get_server_object('info', HOST, PORT)
+
+    results_storage_service = remote_nons.get_server_object('results_storage',
+							     HOST, 
+  							     PORT)
+
+    filename = "dummy_results_file.xml"
+    content = _results_xml(filename)
+
+    results_storage_service.add_result(int(testrun_id), 
+                                       filename, 
+                                       content)          
+        
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
