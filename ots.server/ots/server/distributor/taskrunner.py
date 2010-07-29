@@ -28,6 +28,8 @@ Distribution of Tasks to Workers
 import logging
 import sys
 import pickle
+import socket
+import errno
 
 from amqplib import client_0_8 as amqp
 
@@ -36,6 +38,7 @@ from ots.common.protocol import OTSMessageIO, OTSProtocol
 from ots.server.distributor.queue_exists import queue_exists
 from ots.server.distributor.timeout import Timeout
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -349,7 +352,16 @@ class TaskRunner(object):
         Block until  all Tasks are complete
         """
         while 1:
-            self._channel.wait()
+            try:
+                self._channel.wait()
+            except socket.error, e:
+                # interrupted system call exception need to be ignored so that
+                # testruns don't fail on apache graceful restart
+                if e[0] == errno.EINTR:
+                    LOGGER.debug("Interrupted system call. Ignoring...")
+                else:
+                    raise
+
             if len(self._tasks) == 0:
                 break
 
