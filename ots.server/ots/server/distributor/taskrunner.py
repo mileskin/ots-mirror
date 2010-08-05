@@ -25,6 +25,12 @@
 Distribution of Tasks to Workers
 """
 
+#Disable spurious pylint warnings
+
+#pylint: disable-msg=E0611
+#pylint: disable-msg=F0401
+
+
 import logging
 import sys
 import pickle
@@ -33,8 +39,10 @@ import errno
 
 from amqplib import client_0_8 as amqp
 
-from ots.server.distributor.task import Task
 from ots.common.protocol import OTSMessageIO, OTSProtocol
+from ots.common.testrun_queue_name import testrun_queue_name
+
+from ots.server.distributor.task import Task
 from ots.server.distributor.queue_exists import queue_exists
 from ots.server.distributor.timeout import Timeout
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError
@@ -83,22 +91,6 @@ PACKAGELIST_SIGNAL = Signal()
 
 OTS_TESTRUN = "ots_testrun"
 
-
-#FIXME this should be in common and all references in worker removed
-def _testrun_queue_name(testrun_id):
-    """
-    Generate queue name to handle the responses 
-    on the basis of at testrun_id 
-
-    @type testrun_id: C{int}
-    @param testrun_id: The testrun_id
-
-    @rtype message: C{string}
-    @return message: The queue name
-    """
-
-#    return "%s_%s" % (OTS_TESTRUN, testrun_id)
-    return "r%s" % testrun_id
 
 def _init_queue(channel, queue, exchange, routing_key):
     """
@@ -302,7 +294,7 @@ class TaskRunner(object):
         # called from the __init__
         #pylint: disable-msg=W0201
 
-        self._testrun_queue = _testrun_queue_name(self._testrun_id)
+        self._testrun_queue = testrun_queue_name(self._testrun_id)
         self._connection = amqp.Connection(host = self._host, 
                                            userid = self._username,
                                            password = self._password,

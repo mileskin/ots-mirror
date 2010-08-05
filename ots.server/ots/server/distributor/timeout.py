@@ -24,8 +24,18 @@
 """
 This module encapsulates handling of server side timeouts in ots distributor
 """
+
+
 import logging
 import signal
+
+
+#Disable spurious pylint warnings
+
+#pylint: disable-msg=E0611
+#pylint: disable-msg=F0401
+
+
 from ots.server.distributor.exceptions import OtsGlobalTimeoutError
 from ots.server.distributor.exceptions import OtsQueueTimeoutError
 
@@ -105,8 +115,8 @@ class Timeout(object):
         signal.signal(signal.SIGALRM, global_timeout_handler)
         signal.alarm(timeout)
 
-  
-    def stop(self):
+    @staticmethod
+    def stop():
         """Stops all timeouts."""
         signal.alarm(0)
 

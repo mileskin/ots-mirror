@@ -49,6 +49,7 @@ import multiprocessing
 from socket import gethostname
 
 from ots.common.testrun import Testrun
+from ots.common.testrun_queue_name import testrun_queue_name 
 
 from ots.worker.api import worker_factory
 import ots.worker
@@ -56,7 +57,6 @@ import ots.worker.tests
 
 import ots.server.distributor
 from ots.server.distributor.taskrunner import RESULTS_SIGNAL, ERROR_SIGNAL
-from ots.server.distributor.taskrunner import _testrun_queue_name
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.distributor.queue_exists import queue_exists
 from ots.server.distributor.dev_utils.delete_queues import delete_queue
@@ -142,7 +142,7 @@ class TestOTSCore(unittest.TestCase):
         if self.queue:
             delete_queue("localhost", self.queue)
         if self.testrun_id:
-            delete_queue("localhost", _testrun_queue_name(self.testrun_id))
+            delete_queue("localhost", testrun_queue_name(self.testrun_id))
 
     def _queue_exists(self, worker_config_filename):
         config = ConfigParser.ConfigParser()

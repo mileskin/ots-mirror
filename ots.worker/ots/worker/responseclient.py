@@ -24,8 +24,11 @@
 Client that sends response messages back to server over amqp
 """
 import logging
-from ots.common.protocol import OTSMessageIO
+
 from amqplib import client_0_8 as amqp
+
+from ots.common.testrun_queue_name import testrun_queue_name
+from ots.common.protocol import OTSMessageIO
 
 LOGGER = logging.getLogger(__file__)
 
@@ -45,8 +48,7 @@ class ResponseClient(object):
         if response_queue:
             self.response_queue = response_queue
         else:
-            # TODO: read from ots_common
-            self.response_queue = "r"+str(testrun_id) #standard
+            self.response_queue = testrun_queue_name(testrun_id)
         
     def __del__(self):
         """Close amqp connection if they are still open"""

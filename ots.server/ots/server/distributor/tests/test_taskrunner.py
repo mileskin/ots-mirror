@@ -34,7 +34,7 @@ from amqplib import client_0_8 as amqp
 from django.dispatch.dispatcher import Signal
 
 from ots.server.distributor.task import Task
-from ots.server.distributor.taskrunner import TaskRunner, _testrun_queue_name
+from ots.server.distributor.taskrunner import TaskRunner
 from ots.server.distributor.taskrunner import _init_queue, TaskRunnerException
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
     OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
@@ -65,9 +65,6 @@ class TestTaskRunner(unittest.TestCase):
 
     def tearDown(self):
         self.channel.queue_delete(queue = "test_taskrunner", nowait=True)
-
-    def test_testrun_queue_name(self):
-        self.assertEquals("r1", _testrun_queue_name(1))
 
     def test_on_message_status(self):
         task_1 = Task([1, 2], 10)
