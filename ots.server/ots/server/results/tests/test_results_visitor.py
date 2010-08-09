@@ -2,7 +2,7 @@ import unittest
 
 import os
 
-from ots.server.hub.results_visitor import visit_results, ResultsVisitor
+from ots.server.results.results_visitor import visit_results, ResultsVisitor
 
 class TestResultsVisitor(unittest.TestCase):
 
