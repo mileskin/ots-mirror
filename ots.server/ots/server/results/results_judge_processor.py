@@ -1,16 +1,16 @@
 
 from ots.server.results.results_processor_base import ResultsProcessorBase
 from ots.server.results.package import Package
-from ots.server.required_packages import required_packages
-from ots.server.schema import Tags, Values
-from ots.server.testrun_result import TestrunResult
+from ots.server.results.required_packages import required_packages
+from ots.server.results.schema import Tags, Values
+from ots.server.results.testrun_result import TestrunResult
 
 class ResultsJudgeException(Exception):
     pass
 
 class ResultsJudgeProcessor(ResultsProcessorBase):
 
-    def __init__(self, insignificant_tests_matter = False):):
+    def __init__(self, insignificant_tests_matter = False):
         ResultsProcessorBase.__init__(self)
         self._packages = []
         self._active_package = None
@@ -32,8 +32,8 @@ class ResultsJudgeProcessor(ResultsProcessorBase):
 
         missing = False  #FIXME set difference here
         if missing: 
-            missing = ", ".join(missing))
-            raise ResultsJudgeException("Missing from: %s"%(missing) 
+            missing = ", ".join(missing)
+            raise ResultsJudgeException("Missing from: %s"%(missing)) 
 
     #############################################
     # Node Processing 
@@ -57,8 +57,7 @@ class ResultsJudgeProcessor(ResultsProcessorBase):
                            environment):
         #FIXME check that package exists
         package = Package(test_package, 
-                          environment, 
-                          insignificant_tests_matter)
+                          environment)
         self._packages.append(package)
         self._active_package = package
 

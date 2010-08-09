@@ -1,5 +1,5 @@
 
- def required_packages(testrun):
+def required_packages(testrun):
      """
      Generates a list of test packages defined in testrun.
 
