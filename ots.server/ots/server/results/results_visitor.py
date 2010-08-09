@@ -1,9 +1,21 @@
+import os
 
 import xml.etree.cElementTree as ET
+from minixsv import pyxsval as xsv
+
 
 from ots.server.results.results_judge_processor import ResultsJudgeProcessor
 
-
+def validate_xml(results_xml):
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    testdefinition_xsd = os.path.join(dirname,
+                                      "testdefinition-results.xsd")
+    results_xsd = open(testdefinition_xsd).read()
+    etw = xsv.parseAndValidateXmlInputString(results_xml, 
+                                     xsdText = results_xsd)
+   
+    tree = etw.getTree()
+        
 def visit_results(results_xml):
     visitor = ResultsVisitor()
     results_judge_processor = ResultsJudgeProcessor()

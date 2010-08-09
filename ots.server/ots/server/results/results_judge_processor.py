@@ -2,12 +2,34 @@
 from ots.server.results.results_processor_base import ResultsProcessorBase
 from ots.server.results.package import Package
 
-#Fixme. Can we get these from the XSD?
-INSIGNIFICANT = "insignificant"
-RESULTS = "results"
+
+########################################
+# XSD
+########################################
+
+#FIXME. Get these from the XSD
+
+class Tags:
+
+    INSIGNIFICANT = "insignificant"
+    RESULTS = "results"
+    NO_CASES = "NO_CASES"
+    RESULT = "result"
+
+class Values: 
+
+    ERROR = "ERROR"
+    TRUE = "TRUE"
+    PASS = "PASS"
+    FAIL = "FAIL"
+
 
 class ResultsJudgeException(Exception):
     pass
+
+####################################
+# Result Judge Processor
+####################################
 
 class ResultsJudgeProcessor(ResultsProcessorBase):
 
@@ -31,15 +53,9 @@ class ResultsJudgeProcessor(ResultsProcessorBase):
     def _is_significant(element):
         is_significant = True
         items_dict = dict(element.items())
-        if items_dict.has_key(INSIGNIFICANT):
-            insignificant = items_dict[INSIGNIFICANT].lower()
-            if insignificant == "true" or insignificant == "false":
-                is_significant = not (insignificant ==  "true")
-            else:
-                msg = "insignificant attribute must be 'false' or 'true'"\
-                    " but it was %s" % insignificant
-                raise ResultsJudgeException(msg)
-        return is_significant
+        if items_dict.has_key(Tags.INSIGNIFICANT):
+            insignificant = items_dict[Tags.INSIGNIFICANT].lower()
+            return not (insignificant ==  Values.TRUE)
         
     #############################################
     # Node Processing 
@@ -48,7 +64,7 @@ class ResultsJudgeProcessor(ResultsProcessorBase):
     def _preproc_case(self, element): 
         is_significant = self._is_significant(element)
         items_dict = dict(element.items())
-        result = items_dict["result"]
+        result = items_dict[Tags.RESULT]
         if is_significant:
             self._active_package.significant_results.append(result)
         else:

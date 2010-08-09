@@ -2,7 +2,7 @@
 <testresults version="0.1" environment="environment" hwbuild="hwbuild" hwproduct="hwproduct">
   <suite name="dummy suite" level="System">
     <set name="dummy testset" description="description" environment="environment">
-      <case name="foo test" result="PASS">
+      <case name="foo test" result="PASS" insignificant = "true">
         <step command="foo" result="PASS">
 	  <expected_result>0</expected_result>
 	  <return_code>0</return_code>
@@ -10,7 +10,7 @@
           <end>2009-03-16 15:41:57</end>
 	</step>
       </case>
-      <case name="bar test" result ="FAIL">
+      <case name="bar test" result ="FAIL" insignificant = "false">
         <step command="bar" result = "FAIL">
 	  <expected_result>0</expected_result>
 	  <return_code>0</return_code>
