@@ -1,29 +1,16 @@
 import os
 
 import xml.etree.cElementTree as ET
-from minixsv import pyxsval as xsv
 
-
-from ots.server.results.results_judge_processor import ResultsJudgeProcessor
-
-def validate_xml(results_xml):
-    dirname = os.path.dirname(os.path.abspath(__file__))
-    testdefinition_xsd = os.path.join(dirname,
-                                      "testdefinition-results.xsd")
-    results_xsd = open(testdefinition_xsd).read()
-    etw = xsv.parseAndValidateXmlInputString(results_xml, 
-                                     xsdText = results_xsd)
-   
-    tree = etw.getTree()
+from ots.server.results.package_results_processor import PackageResultsProcessor
         
-def visit_results(results_xml):
+def visit_results(results_xml, test_package, environment):
     visitor = ResultsVisitor()
-    results_judge_processor = ResultsJudgeProcessor()
-    #FIXME: Where are the active packages set from
-    results_judge_processor.set_active_package("foo", "bar")
+    results_judge_processor = PackageResultsProcessor(test_package, environment)
     visitor.add_processor(results_judge_processor)
     root = ET.fromstring(results_xml)
     visitor.visit(root)
+    return results_judge_processor.package_results
 
 class ResultsVisitor(object):
     """

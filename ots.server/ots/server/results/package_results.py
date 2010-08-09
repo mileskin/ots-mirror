@@ -1,5 +1,5 @@
 
-class Package(object):
+class PackageResults(object):
     """
     Container for the Package results
     """
