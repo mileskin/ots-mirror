@@ -64,7 +64,7 @@ from ots.server.distributor.dev_utils.delete_queues import delete_queue
 LOGGER = logging.getLogger(__name__)
 
 
-DEBUG = False
+DEBUG = True
 HOST = "localhost"
 
 TDF_TEMPLATE = """<?xml version="1.0" encoding="ISO-8859-1"?>
@@ -122,10 +122,11 @@ class TestOTSCore(unittest.TestCase):
 
         # make sure there is no messages left in the worker queue from previous
         # runs:
-        try:
-            delete_queue("localhost", self.queue)
-        except:
-            pass
+        if not DEBUG:
+            try:
+                delete_queue("localhost", self.queue)
+            except:
+                pass
         self._worker_processes = []
 #        self.assertFalse(self._queue_exists(self._worker_config_filename()),
 #                         "There is another Worker running.")      
@@ -137,9 +138,9 @@ class TestOTSCore(unittest.TestCase):
         for worker_process in self._worker_processes:
             worker_process.terminate()
         time.sleep(2)
-        self._remove_zip_file(TEST_DEFINITION_ZIP)
+        #self._remove_zip_file(TEST_DEFINITION_ZIP)
         self._remove_files_created_by_remote_commands()
-        if self.queue:
+        if self.queue and not DEBUG:
             delete_queue("localhost", self.queue)
         if self.testrun_id:
             delete_queue("localhost", testrun_queue_name(self.testrun_id))
