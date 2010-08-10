@@ -160,8 +160,14 @@ class TaskRunner(object):
         @type routing_key: C{routing_key}
         @param routing_key: AMQP routing_key (device group) 
  
-        @type testrun id: C{int}
-        @param testrun id: The testrun id
+        @type testrun_id: C{int}
+        @param testrun_id: The testrun id
+
+        @type timeout: C{int}
+        @param timeout: Timout in seconds for Task execution
+
+        @type queue_timeout: C{int}
+        @param queue_timeout: Time in seconds Tasks can wait on the queue 
         """
         #AMQP configuration
         self._username = username
@@ -184,7 +190,6 @@ class TaskRunner(object):
         self._queue_timeout = queue_timeout
 
         self.timeout_handler = Timeout(timeout, queue_timeout)
-
 
         # Tells if we are running only a single task
         # Used for backward compatibility
@@ -341,10 +346,11 @@ class TaskRunner(object):
 
     def _wait_for_all_tasks(self):
         """
-        Block until  all Tasks are complete
+        Block until all Tasks are complete
         """
         while 1:
             try:
+                LOGGER.debug("Waiting for message...")
                 self._channel.wait()
             except socket.error, e:
                 # interrupted system call exception need to be ignored so that
@@ -353,10 +359,8 @@ class TaskRunner(object):
                     LOGGER.debug("Interrupted system call. Ignoring...")
                 else:
                     raise
-
             if len(self._tasks) == 0:
                 break
-
     def _close(self):
         """
         Silent close the channel and connection
@@ -413,5 +417,6 @@ class TaskRunner(object):
             self._wait_for_all_tasks()
             LOGGER.info("All Tasks completed")
         finally:
+            LOGGER.debug("stopping...")
             self.timeout_handler.stop()
             self._close()

@@ -119,16 +119,9 @@ class TestOTSCore(unittest.TestCase):
         config = ConfigParser.ConfigParser()
         config.read(self._worker_config_filename())
         self.queue = config.get('Worker','queue')
-
-        # make sure there is no messages left in the worker queue from previous
-        # runs:
-        try:
-            delete_queue("localhost", self.queue)
-        except:
-            pass
         self._worker_processes = []
-#        self.assertFalse(self._queue_exists(self._worker_config_filename()),
-#                         "There is another Worker running.")      
+
+        self._delete_worker_queue()
         self.testrun = Testrun()
 
         self.testrun_id = None
@@ -139,10 +132,17 @@ class TestOTSCore(unittest.TestCase):
         time.sleep(2)
         self._remove_zip_file(TEST_DEFINITION_ZIP)
         self._remove_files_created_by_remote_commands()
-        if self.queue:
-            delete_queue("localhost", self.queue)
+        self._delete_worker_queue()
         if self.testrun_id:
             delete_queue("localhost", testrun_queue_name(self.testrun_id))
+
+    def _delete_worker_queue(self):
+        if self.queue and not DEBUG:
+            try:
+                delete_queue("localhost", self.queue)
+            except:
+                pass
+        
 
     def _queue_exists(self, worker_config_filename):
         config = ConfigParser.ConfigParser()
@@ -318,9 +318,6 @@ class TestOTSCore(unittest.TestCase):
         self.assertEquals(self.cb_called, 1) # Only one of the commands fails
         self.assertTrue(duration < 6) # Should be less than 10 seconds
 
-
-
-
     def test_one_task_one_worker(self):
         """
         Check that the results come back OK from the Worker 
@@ -468,10 +465,10 @@ class TestOTSCore(unittest.TestCase):
             bar = os.path.join(MODULE_DIRNAME, "bar")
             bar_time = os.path.getctime(bar)
             self.assertTrue(abs(foo_time - bar_time) < 0.1 ) 
-            self.assertTrue(time_before_run <
-                            foo_time <= 
-                            bar_time <= 
-                            time_after_run)
+            self.assertTrue(int(time_before_run) <
+                            int(foo_time) <= 
+                            int(bar_time) <= 
+                            int(time_after_run))
 
     #################################
     # HELPERS
