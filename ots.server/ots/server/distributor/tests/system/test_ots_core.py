@@ -64,7 +64,7 @@ from ots.server.distributor.dev_utils.delete_queues import delete_queue
 LOGGER = logging.getLogger(__name__)
 
 
-DEBUG = True
+DEBUG = False
 HOST = "localhost"
 
 TDF_TEMPLATE = """<?xml version="1.0" encoding="ISO-8859-1"?>
