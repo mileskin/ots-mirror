@@ -6,6 +6,7 @@ from ots.common.api import ResultObject
 
 from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
+from ots.server.distributor.api import OtsGlobalTimeoutError
 
 import ots.server.results
 
@@ -49,4 +50,4 @@ class MockTaskRunnerResults(object):
 class MockTaskRunnerTimeout(object):
 
     def run(self):
-        pass
+        raise OtsGlobalTimeoutError("Mock")
