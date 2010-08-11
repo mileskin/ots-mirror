@@ -39,8 +39,8 @@ import errno
 
 from amqplib import client_0_8 as amqp
 
-from ots.common.protocol import OTSMessageIO, OTSProtocol
-from ots.common.testrun_queue_name import testrun_queue_name
+from ots.common.api import OTSMessageIO, OTSProtocol
+from ots.common.api import testrun_queue_name
 
 from ots.server.distributor.task import Task
 from ots.server.distributor.queue_exists import queue_exists

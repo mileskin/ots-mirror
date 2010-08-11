@@ -6,12 +6,12 @@ from ots.server.distributor.api import STATUS_SIGNAL
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
 
-from ots.server.distributor.api import OtsQueueDoesNotExistError, 
+from ots.server.distributor.api import OtsQueueDoesNotExistError
 from ots.server.distributor.api import OtsGlobalTimeoutError
 from ots.server.distributor.api import OtsQueueTimeoutError
 from ots.server.distributor.api import OtsConnectionError
 
-from ots.results.api import visit_results, PackageException
+from ots.server.results.api import visit_results, PackageException
 
 class Testrun(object):
 

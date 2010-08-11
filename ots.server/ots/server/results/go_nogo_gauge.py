@@ -47,7 +47,7 @@ def _check_run_validity(all_executed, packages, host_packages, hw_enabled):
         raise PackageException("Missing from: %s"%(missing)) 
 
 
-def _reduce_package_results(package_results_list)
+def _reduce_package_results(package_results_list):
     ret_val = TestResult.NO_CASES
     self._check_run_validity() 
     results = []

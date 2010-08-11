@@ -34,11 +34,6 @@ LOGGER = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = '0.1dev'
 
-##########################
-# KEYS
-##########################
-
-
 def get_version():
     """
     Returns version of OTSProtocol
