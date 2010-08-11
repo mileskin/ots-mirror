@@ -4,6 +4,7 @@ import time
 from ots.common.api import OTSProtocol, PROTOCOL_VERSION
 from ots.common.api import ResultObject
 
+from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
 from ots.server.distributor.api import OtsGlobalTimeoutError
@@ -51,3 +52,10 @@ class MockTaskRunnerTimeout(object):
 
     def run(self):
         raise OtsGlobalTimeoutError("Mock")
+
+class MockTaskRunnerError(object):
+
+    def run(self):
+        kwargs = {OTSProtocol.ERROR_CODE : 6310,
+                  OTSProtocol.ERROR_INFO : "mock task runner"}
+        ERROR_SIGNAL.send(sender = "MockTaskRunner", **kwargs)

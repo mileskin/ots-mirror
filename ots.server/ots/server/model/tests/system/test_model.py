@@ -1,9 +1,10 @@
 import unittest
 
 from ots.server.distributor.api import OtsGlobalTimeoutError
-from ots.server.model.testrun import Testrun 
+from ots.server.model.testrun import Testrun, TestrunException 
 from ots.server.model.tests.system.mock_taskrunner import MockTaskRunnerResults
 from ots.server.model.tests.system.mock_taskrunner import MockTaskRunnerTimeout
+from ots.server.model.tests.system.mock_taskrunner import MockTaskRunnerError
 
 from ots.server.results.api import TestrunResult
 
@@ -25,6 +26,12 @@ class TestModel(unittest.TestCase):
         run_test = mock_task_runner.run 
         testrun = Testrun(run_test)
         self.assertRaises(OtsGlobalTimeoutError, testrun.run)
+
+    def test_ots_model_taskrunner_error(self):
+        mock_task_runner = MockTaskRunnerError()
+        run_test = mock_task_runner.run
+        testrun = Testrun(run_test)
+        self.assertRaises(TestrunException, testrun.run)
         
 if __name__ == "__main__":
     unittest.main()

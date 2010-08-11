@@ -47,11 +47,11 @@ class Testrun(object):
     def _packagelist_cb(self, signal, packages, sender): 
         self.executed_packages = packages
 
-    def _status_cb(self, signal, state, status_info):
+    def _status_cb(self, signal, state, status_info, sender):
         self.state = state 
         self.status_info = status_info
 
-    def _error_cb(self, signal, error_info, error_code):
+    def _error_cb(self, signal, error_info, error_code, sender):
         msg = "%s: %s"%(error_info, error_code)
         raise TestrunException(msg)
    
