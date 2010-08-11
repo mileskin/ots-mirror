@@ -34,6 +34,11 @@ LOGGER = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = '0.1dev'
 
+##########################
+# KEYS
+##########################
+
+
 def get_version():
     """
     Returns version of OTSProtocol
@@ -70,7 +75,17 @@ class OTSProtocol(object):
     COMMAND_QUIT = 'quit'
     COMMAND_IGNORE = 'ignore'
 
-    MESSAGE_TYPE = "message_type"
+
+    VERSION = 'version'
+    ERROR_INFO = 'error_info'
+    ERROR_CODE = 'error_code'
+    MESSAGE_TYPE = 'message_type'
+    STATE = 'state'
+    STATUS_INFO = 'status_info'
+    ENVIRONMENT = 'environment'
+    PACKAGES = 'packages'
+    RESULT = 'result'
+    
 
     # Different types of messages
     STATE_CHANGE = 'STATE_CHANGE'
@@ -103,10 +118,11 @@ class OTSProtocol(object):
 
 MESSAGE_FORMATS = {OTSProtocol.STATE_CHANGE: (OTSProtocol.TASK_ID,
                                               OTSProtocol.STATUS),
-                   OTSProtocol.RESULT_OBJECT: 'result',
-                   OTSProtocol.TESTRUN_STATUS: ['state', 'status_info'],
-                   OTSProtocol.TESTRUN_ERROR: ['error_info', 'error_code'],
-                   OTSProtocol.TESTPACKAGE_LIST :['environment', 'packages']}
+                   OTSProtocol.RESULT_OBJECT: OTSProtocol.RESULT,
+                   OTSProtocol.TESTRUN_STATUS: [OTSProtocol.STATE, OTSProtocol.STATUS_INFO],
+                   OTSProtocol.TESTRUN_ERROR: [OTSProtocol.ERROR_INFO, 
+                                               OTSProtocol.ERROR_CODE],
+                   OTSProtocol.TESTPACKAGE_LIST :[OTSProtocol.ENVIRONMENT, OTSProtocol.PACKAGES]}
 
 class MessageException(Exception):
     """"MessageException"""
@@ -130,7 +146,7 @@ class OTSMessageIO(object):
         @return: The parameters for running the task
         """
         body = _unpack_message(message)
-        version = body["version"]
+        version = body[OTSProtocol.VERSION]
         command = " ".join(body["command"])
         response_queue = body["response_queue"]
         task_id = body["task_id"]
@@ -171,7 +187,7 @@ class OTSMessageIO(object):
     def unpack_result_message(message):
         """Unpacks elements from result object message"""
         body = _unpack_message(message)
-        version = body["version"]
+        version = body[OTSProtocol.VERSION]
         result = body["result"]
         return result, version
 
@@ -186,9 +202,9 @@ class OTSMessageIO(object):
                               environment)
 
         msg = dict()
-        msg["message_type"] = OTSProtocol.RESULT_OBJECT
-        msg['result'] = result
-        msg['version'] = get_version()
+        msg[OTSProtocol.MESSAGE_TYPE] = OTSProtocol.RESULT_OBJECT
+        msg[OTSProtocol.RESULT] = result
+        msg[OTSProtocol.VERSION] = get_version()
         return _pack_message(msg, 2)
 
     # Unpack/pack methods for testrun status messages
@@ -198,9 +214,9 @@ class OTSMessageIO(object):
     def unpack_testrun_status_message(message):
         """Unpacks elements from testrun status message"""
         body = _unpack_message(message)
-        version = body["version"]
-        state = body["state"]
-        status_info = body["status_info"]
+        version = body[OTSProtocol.VERSION]
+        state = body[OTSProtocol.STATE]
+        status_info = body[OTSProtocol.STATUS_INFO]
         return state, status_info, version
 
     @staticmethod
@@ -208,10 +224,10 @@ class OTSMessageIO(object):
         """Create testrun state change message"""
 
         msg = dict()
-        msg["message_type"] = OTSProtocol.TESTRUN_STATUS
-        msg['state'] = state
-        msg['status_info'] = status_info
-        msg['version'] = get_version()
+        msg[OTSProtocol.MESSAGE_TYPE] = OTSProtocol.TESTRUN_STATUS
+        msg[OTSProtocol.STATE] = state
+        msg[OTSProtocol.STATUS_INFO] = status_info
+        msg[OTSProtocol.VERSION] = get_version()
         return _pack_message(msg, 2)
 
     # Unpack/pack methods for testrun error messages
@@ -221,19 +237,19 @@ class OTSMessageIO(object):
     def unpack_testrun_error_message(message):
         """Unpacks elements from testrun error message"""
         body = _unpack_message(message)
-        error_info = body["error_info"]
-        error_code = body["error_code"]
-        version = body["version"]
+        error_info = body[OTSProtocol.ERROR_INFO]
+        error_code = body[OTSProtocol.ERROR_CODE]
+        version = body[OTSProtocol.VERSION]
         return error_info, error_code, version
 
     @staticmethod
     def pack_testrun_error_message(error_info, error_code):
         """Create error message"""
         msg = dict()
-        msg["message_type"] = OTSProtocol.TESTRUN_ERROR
-        msg['error_info'] = error_info
-        msg['error_code'] = error_code
-        msg['version'] = get_version()
+        msg[OTSProtocol.MESSAGE_TYPE] = OTSProtocol.TESTRUN_ERROR
+        msg[OTSProtocol.ERROR_INFO] = error_info
+        msg[OTSProtocol.ERROR_CODE] = error_code
+        msg[OTSProtocol.VERSION] = get_version()
         return _pack_message(msg, 2)
 
     # Unpack/pack methods for testpackage list  messages
@@ -243,19 +259,19 @@ class OTSMessageIO(object):
     def unpack_testpackage_list_message(message):
         """Unpacks elements from testpackage list message"""
         body = _unpack_message(message)
-        environment = body["environment"]
-        packages = body["packages"]
-        version = body["version"]
+        environment = body[OTSProtocol.ENVIRONMENT]
+        packages = body[OTSProtocol.PACKAGES]
+        version = body[OTSProtocol.VERSION]
         return environment, packages, version
 
     @staticmethod
     def pack_testpackage_list_message(environment, packages):
         """Create message that has list of test packages"""
         msg = dict()
-        msg["message_type"] = OTSProtocol.TESTPACKAGE_LIST
-        msg['environment'] = environment
-        msg['packages'] = packages
-        msg['version'] = get_version()
+        msg[OTSProtocol.MESSAGE_TYPE] = OTSProtocol.TESTPACKAGE_LIST
+        msg[OTSProtocol.ENVIRONMENT] = environment
+        msg[OTSProtocol.PACKAGES] = packages
+        msg[OTSProtocol.VERSION] = get_version()
         return _pack_message(msg, 2)
 
     @staticmethod
@@ -277,15 +293,15 @@ class OTSMessageIO(object):
             err_msg = "Expected dict in message type, received %s" \
                 % (type(body))
             raise MessageException(err_msg)
-        if not "message_type" in body:
+        if not OTSProtocol.MESSAGE_TYPE in body:
             err_msg = "Received bad message. message_type missing"
             raise MessageException(err_msg)
-        if not "version" in body:
+        if not OTSProtocol.VERSION in body:
             err_msg = "Receive bad message. version missing"
             raise MessageException(err_msg)
-        if body['version'] != get_version():
+        if body[OTSProtocol.VERSION] != get_version():
             err_msg = "Peer uses unsupported (%s) version of OTSProtocol!" \
-                % body['version']
+                % body[OTSProtocol.VERSION]
 
         message_type = body[OTSProtocol.MESSAGE_TYPE]
         formats =  MESSAGE_FORMATS[message_type]

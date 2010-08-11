@@ -261,6 +261,9 @@ class TaskRunner(object):
         kwargs = message.copy()
         kwargs.pop(OTSProtocol.MESSAGE_TYPE)
 
+        print 1111111111111111111111111111111111111 
+        print kwargs
+
         if signal == OTSProtocol.RESULT_OBJECT:
             RESULTS_SIGNAL.send(sender = "TaskRunner", **kwargs)
         elif signal == OTSProtocol.TESTRUN_STATUS:
