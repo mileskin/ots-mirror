@@ -15,11 +15,16 @@ from ots.server.results.api import visit_results, PackageException
 from ots.server.results.api import go_nogo_gauge
 from ots.server.results.api import TestrunResult
 
+class TestrunException(Exception):
+    pass
+
 class Testrun(object):
 
     results = []
     environment = None
     executed_packages = {}
+    state = None
+    status_info = None
     
     def __init__(self, 
                  run_test,
@@ -32,48 +37,28 @@ class Testrun(object):
             self.host_packages = []
         self.insignificant_tests_matter = insignificant_tests_matter
 
+    ###########################################
+    # HANDLERS
+    ###########################################
+
     def _results_cb(self, signal, result, sender):
         self.results.append(result)
-
-    def _status_cb(self, signal, **kwargs):
-        testrun.set_state(kwargs[OTSProtocol.STATE], 
-                          kwargs[OTSProtocol.STATUS_INFO])
-
-    def _error_cb(self, signal, **kwargs):
-        testrun.set_result = "ERROR" #FIXME
-        testrun.error_info = kwargs[OTSProtocol.ERROR_INFO]
-        testrun.error_code = kwargs[OTSProtocol.ERROR_CODE]
 
     def _packagelist_cb(self, signal, packages, sender): 
         self.executed_packages = packages
 
-    def run(self):
-        ret_val = TestrunResult.FAIL
+    def _status_cb(self, signal, state, status_info):
+        self.state = state 
+        self.status_info = status_info
 
-        RESULTS_SIGNAL.connect(self._results_cb)
-        STATUS_SIGNAL.connect(self._status_cb)
-        ERROR_SIGNAL.connect(self._error_cb)
-        PACKAGELIST_SIGNAL.connect(self._packagelist_cb)
-
-        try:
-            self._run_test()
-            ret_val = self._go_nogo()
-
-        except OtsQueueDoesNotExistError:
-            pass
-            #error_info = "Device group '%s' does not exist" \
-            #    % (self._device_group)
-            #self.error_info(error_info)
-            #self.result = "ERROR" #FIXME
-            #self.log.exception(error_info)
-
-        except OtsGlobalTimeoutError:
-            pass
-            #testrun.set_error_info(error_info)
-            #testrun.set_result("ERROR")
-
-        return ret_val
+    def _error_cb(self, signal, error_info, error_code):
+        msg = "%s: %s"%(error_info, error_code)
+        raise TestrunException(msg)
    
+    #############################################
+    # HELPERS
+    #############################################
+
     def _package_results_iter(self):
         for result in self.results:
             yield visit_results(result.content, 
@@ -82,6 +67,7 @@ class Testrun(object):
 
     def _go_nogo(self):
         package_results_list = list(self._package_results_iter())    
+        #FIXME WTF are these
         wtf_packages = []
         return go_nogo_gauge(self.executed_packages,
                              wtf_packages,
@@ -89,3 +75,20 @@ class Testrun(object):
                              self.is_hw_testing_enabled,
                              package_results_list,
                              self.insignificant_tests_matter)
+
+    ####################################################
+    # PUBLIC METHOD
+    ####################################################
+
+     
+    def run(self):
+        ret_val = TestrunResult.FAIL
+        RESULTS_SIGNAL.connect(self._results_cb)
+        STATUS_SIGNAL.connect(self._status_cb)
+        ERROR_SIGNAL.connect(self._error_cb)
+        PACKAGELIST_SIGNAL.connect(self._packagelist_cb)
+
+        self._run_test()
+        ret_val = self._go_nogo()
+        return ret_val
+   
