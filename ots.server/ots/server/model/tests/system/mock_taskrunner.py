@@ -5,6 +5,7 @@ from ots.common.api import OTSProtocol, PROTOCOL_VERSION
 from ots.common.api import ResultObject
 
 from ots.server.distributor.api import RESULTS_SIGNAL
+from ots.server.distributor.api import PACKAGELIST_SIGNAL
 
 import ots.server.results
 
@@ -18,13 +19,13 @@ class MockTaskRunnerResults(object):
                                     "tests",
                                     "data", 
                                     "dummy_results_file.xml")
-        results_xml = open(results_file, "r").read()
-
+        return open(results_file, "r").read()
 
     def run(self):
-        time.sleep(1)
+        self._send_testpackages()
+        time.sleep(0.5)
         self._send_result(self.results_xml, "test_1")
-        time.sleep(1)
+        time.sleep(0.5)
         self._send_result(self.results_xml, "test_2")
 
     @staticmethod
@@ -35,8 +36,15 @@ class MockTaskRunnerResults(object):
                               origin = "mock_task_runner",
                               environment = "component_test")
 
-        message = {OTSProtocol.RESULT : result}
-        RESULTS_SIGNAL.send(sender = "MockTaskRunner", **message)
+        kwargs = {OTSProtocol.RESULT : result}
+        RESULTS_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+
+    @staticmethod
+    def _send_testpackages():
+        packages = {"component_test" : ["package_1", "package_2"]}
+        kwargs = {OTSProtocol.PACKAGES : packages}
+        PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+
 
 class MockTaskRunnerTimeout(object):
 

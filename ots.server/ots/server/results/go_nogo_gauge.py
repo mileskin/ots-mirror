@@ -1,10 +1,12 @@
+import re
+
 from ots.server.results.testrun_result import TestrunResult
 
 class PackageException(Exception):
     pass
 
 
-def _required_packages(all_executed, packages, host_packages, hw_enabled):
+def _required_packages(executed, packages, host_packages, hw_enabled):
      """
      Generates a list of test packages defined in testrun.
 
@@ -33,9 +35,9 @@ def _required_packages(all_executed, packages, host_packages, hw_enabled):
 
      return all_packages
 
-def _check_run_validity(all_executed, packages, host_packages, hw_enabled):
+def _check_run_validity(all_executed, wtf_packages, host_packages, hw_enabled):
     required_packages = _required_packages(all_executed, 
-                                           packages, 
+                                           wtf_packages, 
                                            host_packages, 
                                            hw_enabled)
 
@@ -47,14 +49,14 @@ def _check_run_validity(all_executed, packages, host_packages, hw_enabled):
         raise PackageException("Missing from: %s"%(missing)) 
 
 
-def _reduce_package_results(package_results_list):
-    ret_val = TestResult.NO_CASES
-    self._check_run_validity() 
+def _reduce_package_results(package_results_list,
+                            insignificant_tests_matter):
+    ret_val = TestrunResult.NO_CASES
     results = []
     for package_results in package_results_list:
-        results.extend(package.significant_results)
-        if self.insignificant_tests_matter:
-            results.extend(package.insignificant_results)
+        results.extend(package_results.significant_results)
+        if insignificant_tests_matter:
+            results.extend(package_results.insignificant_results)
     if results:
         if results.count(TestrunResult.PASS) == len(results):
             ret_val = TestrunResult.PASS
@@ -64,9 +66,14 @@ def _reduce_package_results(package_results_list):
 
 
 def go_nogo_gauge(all_executed, 
-                  packages, 
+                  wtf_packages, 
                   host_packages, 
-                  hw_enabled,
-                  package_results_list):
-    _check_run_validity(all_executed, packages, host_packages, hw_enabled)
-    return _reduce_package_results(package_results_list)
+                  is_hw_testing_enabled,
+                  package_results_list,
+                  insignificant_tests_matter):
+    _check_run_validity(all_executed, 
+                        wtf_packages, 
+                        host_packages, 
+                        is_hw_testing_enabled)
+    return _reduce_package_results(package_results_list,
+                                   insignificant_tests_matter)
