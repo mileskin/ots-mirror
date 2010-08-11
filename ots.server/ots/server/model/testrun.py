@@ -20,48 +20,48 @@ class Testrun(object):
     error_info = None
     executed_packages = []
 
-    def __init__(self, device_group, timeout, testrun_id):
-        self._taskrunner = taskrunner_factory(device_group,
-                                              timeout,
-                                              testrun_id)
+    def __init__(self, run_test):
+        self._run_test = run_test
 
-    def _results_cb(self, signal, **kwargs):
-        results.append(kwargs['result'])
+    def _results_cb(self, signal, result, sender):
+        
+        self.results.append(result)
 
     def _status_cb(self, signal, **kwargs):
-        testrun.set_state(kwargs['state'], kwargs['status_info'])
+        testrun.set_state(kwargs[OTSProtocol.STATE], 
+                          kwargs[OTSProtocol.STATUS_INFO])
 
     def _error_cb(signal, **kwargs):
         testrun.set_result = "ERROR" #FIXME
-        testrun.error_info = kwargs['error_info']
-        testrun.error_code = kwargs['error_code']
+        testrun.error_info = kwargs[OTSProtocol.ERROR_INFO]
+        testrun.error_code = kwargs[OTSProtocol.ERROR_CODE]
 
     def _packagelist_cb(signal, **kwargs):
-        self.executed_packages.append(kwargs['environment'],
-                                      kwargs['packages'])
+        self.executed_packages.append(kwargs[OTSProtocol.ENVIRONMENT],
+                                      kwargs[OTSProtocol.PACKAGES])
 
        
-    def run(self, cmds):
+    def run(self):
         RESULTS_SIGNAL.connect(self._results_cb)
         STATUS_SIGNAL.connect(self._status_cb)
         ERROR_SIGNAL.connect(self._error_cb)
         PACKAGELIST_SIGNAL.connect(self._packagelist_cb)
 
         try:
-            for cmd in cmds:
-                self._taskrunner.add_task(cmd)
-            self._taskrunner.run()
+            self._run_test()
 
         except OtsQueueDoesNotExistError:
-            error_info = "Device group '%s' does not exist" \
-                % (self._device_group)
-            self.error_info(error_info)
-            self.result = "ERROR" #FIXME
-            self.log.exception(error_info)
+            pass
+            #error_info = "Device group '%s' does not exist" \
+            #    % (self._device_group)
+            #self.error_info(error_info)
+            #self.result = "ERROR" #FIXME
+            #self.log.exception(error_info)
 
         except OtsGlobalTimeoutError:
-            testrun.set_error_info(error_info)
-            testrun.set_result("ERROR")
+            pass
+            #testrun.set_error_info(error_info)
+            #testrun.set_result("ERROR")
         
     def go_nogo(self):
         #Some kind of status check here
