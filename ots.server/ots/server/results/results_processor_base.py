@@ -20,6 +20,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Essentially provides Strategy type behaviour 
+for the `accept` method on a node for the tree
+traversal performed by ResultsVisitor
+"""
+
 def _set_attrs(klass):
     #FIXME set from XSD
     tags = ["testresults", "suite", "set", 
@@ -49,27 +55,62 @@ class ResultsProcessorException(Exception):
     pass
     
 class ResultsProcessorBase(object):
+    """
+    Closely associated with the ResultsVisitor class
+   
+    """
 
     __metaclass__ = ResultsProcessorMeta
 
     @staticmethod
     def _pre_tag_method_name(tag):
+        """
+        @type tag: C{string} 
+        @param tag: The tag name
+
+        @rtype: C{string}
+        @return: The preprocessor method name associated with the tag
+        """
         return "_preproc_%s"%(tag)
 
     @staticmethod
     def _post_tag_method_name(tag):
+        """
+        @type tag: C{string} 
+        @param tag: The tag name
+
+        @rtype: C{string}
+        @return: The postprocessor method name associated with the tag
+        """
         return "_postproc_%s"%(tag)
 
     def _process(self, method_name, *args):
+        """
+        @type method_name: C{string} 
+        @param tag: The name of the method
+
+        Safe dispatches of the method_name for the args
+        """
         if hasattr(self, method_name):
             fn = getattr(self, method_name)
             fn(*args)
-            
-      
-    def pre_process(self, node):
-        method_name = self._pre_tag_method_name(node.tag)
+                  
+    def pre_process(self, element):
+        """
+        @type element: C{Element} 
+        @param element: An ElementTree Element
+
+        Preprocess the element
+        """
+        method_name = self._pre_tag_method_name(element.tag)
         self._process(method_name, node)
 
-    def post_process(self, node):
-        method_name = self._post_tag_method_name(node.tag)
+    def post_process(self, element):
+        """
+        @type element: C{Element} 
+        @param element: An ElementTree Element
+
+        Postprocess the element
+        """
+        method_name = self._post_tag_method_name(element.tag)
         self._process(method_name)

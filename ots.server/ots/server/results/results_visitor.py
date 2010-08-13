@@ -77,7 +77,7 @@ class ResultsVisitor(object):
     def visit(self, element):
         """
         @type element: C{Element} 
-        @param element: An ElementTree Elemment 
+        @param element: An ElementTree Element 
 
         Preorder Tree Traversal doing the 
         'Pre' and 'Post' processing for the processors 
