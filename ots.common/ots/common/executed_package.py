@@ -20,7 +20,25 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.server.results.results_processor_base import ResultsProcessorBase
-from ots.server.results.results_visitor import visit_results, ResultsVisitor
-from ots.server.results.go_nogo_gauge import go_nogo_gauge, PackageException
-from ots.server.results.testrun_result import TestrunResult
+import re
+
+class ExecutedPackage(object):
+    """
+    Container for
+    *all* the Packages executed in the Testrun
+    """
+
+    HOST_TEST_PATTERN = "host.*"
+    HARDWARE = "hardware"
+
+    def __init__(self, environment, packages):
+        self.environment = environment
+        self.packages = packages
+
+    @property    
+    def is_host_test(self):
+        return re.match(self.HOST_TEST_PATTERN, self.environment)
+
+    @property 
+    def is_hardware(self):
+        return self.HARDWARE in self.environment

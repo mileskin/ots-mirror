@@ -1,4 +1,5 @@
-from ots.common.protocol import OTSProtocol
+from ots.common.api import OTSProtocol
+from ots.common.api import ExecutedPackage
 
 from ots.server.distributor.api import taskrunner_factory
 from ots.server.distributor.api import RESULTS_SIGNAL
@@ -15,16 +16,11 @@ from ots.server.results.api import visit_results, PackageException
 from ots.server.results.api import go_nogo_gauge
 from ots.server.results.api import TestrunResult
 
+
 class TestrunException(Exception):
     pass
 
 class Testrun(object):
-
-    results = []
-    environment = None
-    executed_packages = {}
-    state = None
-    status_info = None
     
     def __init__(self, 
                  run_test,
@@ -36,6 +32,12 @@ class Testrun(object):
         if host_packages is None:
             self.host_packages = []
         self.insignificant_tests_matter = insignificant_tests_matter
+        #
+        self.results = []
+        self.environment = None
+        self.executed_packages = {}
+        self.state = None
+        self.status_info = None
 
     ###########################################
     # HANDLERS

@@ -20,7 +20,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.server.results.results_processor_base import ResultsProcessorBase
-from ots.server.results.results_visitor import visit_results, ResultsVisitor
-from ots.server.results.go_nogo_gauge import go_nogo_gauge, PackageException
-from ots.server.results.testrun_result import TestrunResult
+import unittest
+
+class TestGoNoGoGauge(unittest.Testcase):
+    
+    def test_fixme(self):
+        pass
+
+if __name__ == "__main__":
+    unittest.main()

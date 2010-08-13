@@ -1,8 +1,31 @@
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+
 import os
 import time
 
 from ots.common.api import OTSProtocol, PROTOCOL_VERSION
 from ots.common.api import ResultObject
+from ots.common.api import ExecutedPackage
 
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import RESULTS_SIGNAL
@@ -43,8 +66,10 @@ class MockTaskRunnerResults(object):
 
     @staticmethod
     def _send_testpackages():
-        packages = {"component_test" : ["package_1", "package_2"]}
-        kwargs = {OTSProtocol.PACKAGES : packages}
+        #FIXME: Fix this in CITA
+        executed_package = ExecutedPackage("component_test", 
+                                           ["Unknown", "Unknown"])
+        kwargs = {OTSProtocol.PACKAGES : [executed_package]}
         PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
 

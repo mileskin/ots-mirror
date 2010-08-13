@@ -20,7 +20,20 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.server.results.results_processor_base import ResultsProcessorBase
-from ots.server.results.results_visitor import visit_results, ResultsVisitor
-from ots.server.results.go_nogo_gauge import go_nogo_gauge, PackageException
-from ots.server.results.testrun_result import TestrunResult
+class PackageResults(object):
+    """
+    Container for the Packages
+    that have been Executed *and* have Results XMLs 
+    """
+
+    def __init__(self, 
+                 testpackage, 
+                 environment):
+        self.testpackage = testpackage
+        self._environment = environment
+        self.significant_results = []
+        self.insignificant_results = []
+
+    @property 
+    def environment(self):
+        return self._environment

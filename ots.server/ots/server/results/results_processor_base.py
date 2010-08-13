@@ -1,12 +1,33 @@
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
 
 def _set_attrs(klass):
     #FIXME set from XSD
     tags = ["testresults", "suite", "set", 
             "case", "step", "expected_result",
-            "return_code", "start", "end"]
-    def _base_method(self, node):
+            "return_code", "start", "end", 
+            "stdout", "stderr"]
+    def _base_method(self, *args):
         pass 
-        #print "doing nothing in base method", node.tag
     for tag in tags:
         if not hasattr(klass, klass._pre_tag_method_name(tag)):
             setattr(klass, klass._pre_tag_method_name(tag), _base_method)
@@ -23,6 +44,9 @@ class ResultsProcessorMeta(type):
 
     def __init__(cls, name, bases, dct):
         super(ResultsProcessorMeta, cls).__init__(name, bases, dct)
+
+class ResultsProcessorException(Exception):
+    pass
     
 class ResultsProcessorBase(object):
 
@@ -36,18 +60,16 @@ class ResultsProcessorBase(object):
     def _post_tag_method_name(tag):
         return "_postproc_%s"%(tag)
 
-    def _process(self, method_name, node):
+    def _process(self, method_name, *args):
         if hasattr(self, method_name):
             fn = getattr(self, method_name)
-            fn(node)
-        else:
-            msg = "Unexpected tag: '%s'"%(node.tag)
-            raise ResultProcessorException(msg)
-
+            fn(*args)
+            
+      
     def pre_process(self, node):
         method_name = self._pre_tag_method_name(node.tag)
         self._process(method_name, node)
 
     def post_process(self, node):
-        method_name = self._pre_tag_method_name(node.tag)
-        self._process(method_name, node)
+        method_name = self._post_tag_method_name(node.tag)
+        self._process(method_name)
