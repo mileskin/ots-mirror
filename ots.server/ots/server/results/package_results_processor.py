@@ -51,13 +51,14 @@ class PackageResultsProcessor(ResultsProcessorBase):
         @param element: An ElementTree Elemment 
 
         @rtype: C{bool}
-        @return: Is the element markes as `significant`
+        @return: Is the element marked as not `insignificant`
         """
         is_significant = True
         items_dict = dict(element.items())
         if items_dict.has_key(Names.INSIGNIFICANT):
             insignificant = items_dict[Names.INSIGNIFICANT].lower()
-            return not (insignificant ==  TRUE)
+            is_significant = not (insignificant ==  TRUE)
+        return is_significant
 
     #############################################
     # Node Processing 
@@ -66,7 +67,7 @@ class PackageResultsProcessor(ResultsProcessorBase):
     def _preproc_case(self, element):
         """
         @type element: C{Element} 
-        @param element: An ElementTree Elemment 
+        @param element: An ElementTree Element 
  
         Pre-process the `case` node
         """
