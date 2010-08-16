@@ -50,8 +50,10 @@ class ResultsVisitor(ElementTreeVisitor):
     """
     Visitor for the Test Results XML
 
-    Adapted to allow for backward compatibility with 
-    the original pattern
+    Adapted to allow for backward compatibility 
+    with the original pattern
+
+    Closely associated with ResultsProcessorBase
     """
 
     _processors = []
