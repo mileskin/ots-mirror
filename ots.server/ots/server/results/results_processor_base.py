@@ -37,9 +37,6 @@ of the Element that they are processing e.g.
 }}}
 """
 
-
-class ResultsProcessorException(Exception):
-    pass
     
 class ResultsProcessorBase(object):
     """
@@ -58,7 +55,7 @@ class ResultsProcessorBase(object):
         @rtype: C{string}
         @return: The preprocessor method name associated with the tag
         """
-        return "_preproc_%s"%(tag)
+        return "_preproc_%s" % (tag)
 
     @staticmethod
     def _post_tag_method_name(tag):
@@ -69,7 +66,7 @@ class ResultsProcessorBase(object):
         @rtype: C{string}
         @return: The postprocessor method name associated with the tag
         """
-        return "_postproc_%s"%(tag)
+        return "_postproc_%s" % (tag)
 
     def _process(self, method_name, *args):
         """
@@ -79,8 +76,8 @@ class ResultsProcessorBase(object):
         Safe dispatches of the method_name for the args
         """
         if hasattr(self, method_name):
-            fn = getattr(self, method_name)
-            return fn(*args)
+            func = getattr(self, method_name)
+            return func(*args)
                   
     def dispatch_element(self, element):
         """
