@@ -22,6 +22,12 @@
 
 import re
 
+"""
+Provides a container for the Meta Data for a Package that has 
+been executed by a Testrun
+"""
+
+
 class ExecutedPackage(object):
     """
     Container for
@@ -37,8 +43,10 @@ class ExecutedPackage(object):
 
     @property    
     def is_host_test(self):
+        """Was the Package run as a host test"""
         return re.match(self.HOST_TEST_PATTERN, self.environment)
 
     @property 
     def is_hardware(self):
+        """Was the Package run as a hardware test"""
         return self.HARDWARE in self.environment
