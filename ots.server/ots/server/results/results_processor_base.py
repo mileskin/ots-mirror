@@ -103,7 +103,7 @@ class ResultsProcessorBase(object):
         Preprocess the element
         """
         method_name = self._pre_tag_method_name(element.tag)
-        self._process(method_name, node)
+        self._process(method_name, element)
 
     def post_process(self, element):
         """

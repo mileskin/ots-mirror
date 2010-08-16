@@ -27,7 +27,7 @@ ResultsProcessor that populates the PackageResults
 from ots.common.package_results import PackageResults
 
 from ots.server.results.results_processor_base import ResultsProcessorBase
-from ots.server.results.schema import Tags, Values
+from ots.server.results.schema import Names, Values, TRUE, FALSE
 from ots.server.results.testrun_result import TestrunResult
 
 class PackageResultsProcessor(ResultsProcessorBase):
@@ -55,9 +55,9 @@ class PackageResultsProcessor(ResultsProcessorBase):
         """
         is_significant = True
         items_dict = dict(element.items())
-        if items_dict.has_key(Tags.INSIGNIFICANT):
-            insignificant = items_dict[Tags.INSIGNIFICANT].lower()
-            return not (insignificant ==  Values.TRUE)
+        if items_dict.has_key(Names.INSIGNIFICANT):
+            insignificant = items_dict[Names.INSIGNIFICANT].lower()
+            return not (insignificant ==  TRUE)
 
     #############################################
     # Node Processing 
@@ -72,7 +72,7 @@ class PackageResultsProcessor(ResultsProcessorBase):
         """
         is_significant = self._is_significant(element)
         items_dict = dict(element.items())
-        result = items_dict[Tags.RESULT]
+        result = items_dict[Names.RESULT]
         if is_significant:
             self.package_results.significant_results.append(result)
         else:

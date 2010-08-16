@@ -20,6 +20,13 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Possible Testrun outcomes
+
+Class based "enumerate" style type that keeps backward compatibility 
+with string implementation 
+""" 
+
 class TestrunResult:
 
     NO_CASES = "NO_CASES"
