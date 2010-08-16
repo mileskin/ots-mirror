@@ -37,8 +37,9 @@ of the Element that they are processing e.g.
 }}}
 """
 
+from ots.server.results.element_dispatcher_base import ElementDispatcherBase
     
-class ResultsProcessorBase(object):
+class ResultsProcessorBase(ElementDispatcherBase):
     """
     Closely associated with the ResultsVisitor class
    

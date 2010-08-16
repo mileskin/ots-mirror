@@ -21,25 +21,13 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Validate the testresults using the schema defined here:
-
-http://gitorious.org/qa-tools/test-definition/
+ABC for the dispatcher associated with the ElementTreeVisitor
 """
 
-from minixsv import pyxsval as xsv
-
-from ots.server.results.results_schema import SCHEMA_FILENAME 
-
-def validate_xml(results_xml):
+class ElementDispatcherBase(object):
     """
-    @type results_xml: C{string} 
-    @param results_xml: The results xml 
-
-    Postprocess the element
+    ABC
     """
 
-    results_xsd = open(SCHEMA_FILENAME).read()
-    etw = xsv.parseAndValidateXmlInputString(results_xml, 
-                                     xsdText = results_xsd)
-   
-    etw.getTree()
+    def dispatch_element(self, element):
+        raise NotImplementedError

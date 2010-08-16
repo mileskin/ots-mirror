@@ -32,7 +32,11 @@ class ElementTreeVisitor(object):
     _dispatchers = []
 
     def add_dispatcher(self, dispatcher):
-       self._dispatchers.append(dispatcher)
+        """
+        @type dispatcher: C{ElementDispatcherBase
+        @param dispatcher: Dispatch strategy
+        """
+        self._dispatchers.append(dispatcher)
 
     def visit(self, element):
         """

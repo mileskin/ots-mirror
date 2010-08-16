@@ -24,26 +24,19 @@
 Runs an OTS Testrun 
 """
 
-from ots.common.api import OTSProtocol
-from ots.common.api import ExecutedPackage
-
-from ots.server.distributor.api import taskrunner_factory
 from ots.server.distributor.api import RESULTS_SIGNAL
-from ots.server.distributor.api import STATUS_SIGNAL
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
 
-from ots.server.distributor.api import OtsQueueDoesNotExistError
-from ots.server.distributor.api import OtsGlobalTimeoutError
-from ots.server.distributor.api import OtsQueueTimeoutError
-from ots.server.distributor.api import OtsConnectionError
-
-from ots.server.results.api import parse_results, PackageException
+from ots.server.results.api import parse_results
 from ots.server.results.api import go_nogo_gauge
 from ots.server.results.api import TestrunResult
 
 
 class TestrunException(Exception):
+    """
+    Reraise Exceptions from Workers
+    """
     pass
 
 class Testrun(object):
@@ -124,7 +117,8 @@ class Testrun(object):
         self.executed_packages = packages
 
 
-    def _error_cb(self, signal, error_info, error_code, sender):
+    @staticmethod
+    def _error_cb(signal, error_info, error_code, sender):
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
@@ -141,7 +135,7 @@ class Testrun(object):
         Handler for errors
         """
         #FIXME: Use Python Exceptions
-        msg = "%s: %s"%(error_info, error_code)
+        msg = "%s: %s" % (error_info, error_code)
         raise TestrunException(msg)
    
     #############################################
