@@ -21,35 +21,22 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Essentially provides Strategy type behaviour 
+Essentially provides a kind of 'Strategy' behaviour 
 for the `accept` method on a node for the tree
 traversal performed by ResultsVisitor
+
+Sublclasses provide methods that correspond to the name
+of the Element that they are processing e.g.
+
+{{{
+    def _preproc_case(self, element):
+        #pre processes 'case'
+
+    def _postproc_case(self, element):
+        #post processes 'case'
+}}}
 """
 
-def _set_attrs(klass):
-    #FIXME set from XSD
-    tags = ["testresults", "suite", "set", 
-            "case", "step", "expected_result",
-            "return_code", "start", "end", 
-            "stdout", "stderr"]
-    def _base_method(self, *args):
-        pass 
-    for tag in tags:
-        if not hasattr(klass, klass._pre_tag_method_name(tag)):
-            setattr(klass, klass._pre_tag_method_name(tag), _base_method)
-        if not hasattr(klass, klass._post_tag_method_name(tag)):
-            setattr(klass, klass._post_tag_method_name(tag), _base_method)
-
-
-class ResultsProcessorMeta(type):
-    
-    def __new__(cls, name, bases, dct):
-        new = type.__new__(cls, name, bases, dct)
-        _set_attrs(new)
-        return new
-
-    def __init__(cls, name, bases, dct):
-        super(ResultsProcessorMeta, cls).__init__(name, bases, dct)
 
 class ResultsProcessorException(Exception):
     pass
@@ -58,9 +45,9 @@ class ResultsProcessorBase(object):
     """
     Closely associated with the ResultsVisitor class
    
+    Supported implementation relies not only 
+    dispatch of the node but a 'post_processor' step
     """
-
-    __metaclass__ = ResultsProcessorMeta
 
     @staticmethod
     def _pre_tag_method_name(tag):
@@ -100,7 +87,7 @@ class ResultsProcessorBase(object):
         @type element: C{Element} 
         @param element: An ElementTree Element
 
-        Preprocess the element
+        Dispatch the element
         """
         method_name = self._pre_tag_method_name(element.tag)
         self._process(method_name, element)
@@ -110,7 +97,7 @@ class ResultsProcessorBase(object):
         @type element: C{Element} 
         @param element: An ElementTree Element
 
-        Postprocess the element
+        'Postprocess' the element
         """
         method_name = self._post_tag_method_name(element.tag)
         self._process(method_name)
