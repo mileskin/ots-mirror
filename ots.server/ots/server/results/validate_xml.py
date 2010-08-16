@@ -26,7 +26,7 @@ Validate the testresults using the schema defined here:
 http://gitorious.org/qa-tools/test-definition/
 """
 
-TESTDEFINITION_RESULTS_XSD = "testdefinition-results.xsd"
+TEST_DEFINITION_RESULTS_XSD = "testdefinition-results.xsd"
 
 import os
 
@@ -46,4 +46,4 @@ def validate_xml(results_xml):
     etw = xsv.parseAndValidateXmlInputString(results_xml, 
                                      xsdText = results_xsd)
    
-    tree = etw.getTree()
+    etw.getTree()

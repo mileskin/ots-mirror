@@ -33,6 +33,7 @@ import os
 
 import xml.etree.cElementTree as ElementTree
 
+from ots.server.results.validate_xml import validate_xml
 from ots.server.results.visitors import ResultsVisitor 
 from ots.server.results.package_results_processor import PackageResultsProcessor
         
@@ -52,7 +53,7 @@ def parse_results(results_xml, test_package, environment):
 
     Parse the Test results xml
     """
-
+    validate_xml(results_xml)
     visitor = ResultsVisitor()
     results_judge_processor = PackageResultsProcessor(test_package, environment)
     visitor.add_processor(results_judge_processor)
