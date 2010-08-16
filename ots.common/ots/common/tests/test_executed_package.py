@@ -20,30 +20,23 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-Provides a container for the Meta Data for a Package that has 
-been executed by a Testrun
-"""
+import unittest 
 
-class ExecutedPackage(object):
-    """
-    Container class for the Packages executed by the Testrun
-    """
+from ots.common.executed_package import ExecutedPackage
 
-    HOST_TEST_PATTERN = "host.*"
-    HARDWARE = "hardware"
+class TestExecutedPackage(unittest.TestCase):
+    
+    def test_is_host_test(self):
+        ex_pkg = ExecutedPackage("environment", ["pkg1", "pkg2"])
+        self.assertFalse(ex_pkg.is_host_test)
+        ex_pkg = ExecutedPackage("host.environment", ["pkg1", "pkg2"])
+        self.assertTrue(ex_pkg.is_host_test)
 
-    def __init__(self, environment, packages):
-        self.environment = environment
-        self.packages = packages
-
-    @property    
-    def is_host_test(self):
-        """Was the Package run as a host test"""
-        return re.match(self.HOST_TEST_PATTERN, self.environment)
-
-    @property 
-    def is_hardware(self):
-        """Was the Pakage run as a hardware test"""
-        return self.HARDWARE in self.environment
-
+    def test_is_hardware(self):
+        ex_pkg = ExecutedPackage("environment", ["pkg1", "pkg2"])
+        self.assertFalse(ex_pkg.is_hardware)
+        ex_pkg = ExecutedPackage("hardware", ["pkg1", "pkg2"])
+        self.assertTrue(ex_pkg.is_hardware)
+       
+if __name__ == "__main__":
+    unittest.main()
