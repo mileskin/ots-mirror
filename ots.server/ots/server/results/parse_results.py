@@ -22,20 +22,21 @@
 
 
 """
-Visitor for the Test Results XML as defined by
+Parses Test Results XML as defined by
 
 http://gitorious.org/qa-tools/test-definition
 
-Pattern used to maintain backward compatibility
+Implemented using Visitor Pattern to maintain backward compatibility
 """
 
 import os
 
-import xml.etree.cElementTree as ET
+import xml.etree.cElementTree as ElementTree
 
+from ots.server.results.visitors import ResultsVisitor 
 from ots.server.results.package_results_processor import PackageResultsProcessor
         
-def visit_results(results_xml, test_package, environment):
+def parse_results(results_xml, test_package, environment):
     """
     @type results_xml: C{string} 
     @param results_xml: The results xml
@@ -48,43 +49,13 @@ def visit_results(results_xml, test_package, environment):
 
     @rtype: L{ots.common.api.PackageResults}
     @return: A populated PackageResults
+
+    Parse the Test results xml
     """
 
     visitor = ResultsVisitor()
     results_judge_processor = PackageResultsProcessor(test_package, environment)
     visitor.add_processor(results_judge_processor)
-    root = ET.fromstring(results_xml)
+    root = ElementTree.fromstring(results_xml)
     visitor.visit(root)
     return results_judge_processor.package_results
-
-class ResultsVisitor(object):
-    """
-    Extrinsic Visitor for the Test Results XML
-    """
-
-    _processors = []
-
-    def add_processor(self, processor):
-        """
-        @type element: L{ots.server.results.ResultsProcessorBase} 
-        @param element: A results processor
-
-        Add a processor to accept nodes in tree traversal
-        """
-       
-        self._processors.append(processor)
-
-    def visit(self, element):
-        """
-        @type element: C{Element} 
-        @param element: An ElementTree Element 
-
-        Preorder Tree Traversal doing the 
-        'Pre' and 'Post' processing for the processors 
-        """
-        for processor in self._processors:
-            processor.pre_process(element)
-        for child_node in element.getchildren():
-            self.visit(child_node)
-        for processor in self._processors:
-            processor.post_process(element)

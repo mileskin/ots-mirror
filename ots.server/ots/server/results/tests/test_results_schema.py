@@ -20,8 +20,23 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.server.results.results_processor_base import ResultsProcessorBase
-from ots.server.results.visitors import ResultsVisitor
-from ots.server.results.parse_results import parse_results
-from ots.server.results.go_nogo_gauge import go_nogo_gauge, PackageException
-from ots.server.results.testrun_result import TestrunResult
+import unittest 
+
+from ots.server.results.results_schema import Names, Values
+
+class TestSchema(unittest.TestCase):
+
+    def test_name(self):
+        INSIGNIFICANT = "insignificant"
+        RESULT = "result"    
+        self.assertEquals(INSIGNIFICANT, Names.INSIGNIFICANT)
+        self.assertEquals(RESULT, Names.RESULT)
+ 
+    def test_values(self):
+        PASS = "PASS"
+        FAIL = "FAIL"
+        self.assertEquals(PASS, Values.PASS)
+        self.assertEquals(FAIL, Values.FAIL)
+ 
+if __name__ == "__main__":
+    unittest.main()

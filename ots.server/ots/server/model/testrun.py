@@ -38,7 +38,7 @@ from ots.server.distributor.api import OtsGlobalTimeoutError
 from ots.server.distributor.api import OtsQueueTimeoutError
 from ots.server.distributor.api import OtsConnectionError
 
-from ots.server.results.api import visit_results, PackageException
+from ots.server.results.api import parse_results, PackageException
 from ots.server.results.api import go_nogo_gauge
 from ots.server.results.api import TestrunResult
 
@@ -79,6 +79,8 @@ class Testrun(object):
         """
         self._run_test = run_test
         self.is_hw_testing_enabled = is_hw_testing_enabled
+        if hardware_packages is None:
+            self.hardware_packages = []
         if host_packages is None:
             self.host_packages = []
         self.insignificant_tests_matter = insignificant_tests_matter
@@ -175,7 +177,7 @@ class Testrun(object):
         course of running the test
         """
         for result in self.results:
-            yield visit_results(result.content, 
+            yield parse_results(result.content, 
                                 result.testpackage, 
                                 result.environment)
 

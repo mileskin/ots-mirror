@@ -95,7 +95,7 @@ class ResultsProcessorBase(object):
             fn = getattr(self, method_name)
             fn(*args)
                   
-    def pre_process(self, element):
+    def dispatch_element(self, element):
         """
         @type element: C{Element} 
         @param element: An ElementTree Element

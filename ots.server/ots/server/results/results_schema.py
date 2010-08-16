@@ -23,11 +23,15 @@
 
 """
 Provides Class based access to Schema definition
+
+Guarantees single definition of Test Definition Results
 """
 
 import os 
 
 import xml.etree.cElementTree as ElementTree 
+
+from ots.server.results.visitors import ElementTreeVisitor
 
 ##################
 
@@ -66,29 +70,6 @@ class ElementDispatcher(object):
         value = items_dict.get(_VALUE, None)
         if value:
             self.values.append(value)
-
-class ElementTreeVisitor(object):
-    """
-    Extrinsic Visitor for the ElementTree Data Strucuture
-    """
-
-    _dispatchers = []
-
-    def add_dispatcher(self, dispatcher):
-       self._dispatchers.append(dispatcher)
-
-    def visit(self, element):
-        """
-        @type element: C{Element} 
-        @param element: An ElementTree Element 
-
-        Preorder Tree Traversal doing the 
-        'Pre' and 'Post' processing for the processors 
-        """
-        for dispatcher in self._dispatchers:
-            dispatcher.dispatch_element(element)
-        for child_node in element.getchildren():
-            self.visit(child_node)
 
 class TestResultsSchemaMeta(type):
     """
