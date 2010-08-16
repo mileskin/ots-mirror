@@ -80,7 +80,7 @@ class ResultsProcessorBase(object):
         """
         if hasattr(self, method_name):
             fn = getattr(self, method_name)
-            fn(*args)
+            return fn(*args)
                   
     def dispatch_element(self, element):
         """
@@ -90,7 +90,7 @@ class ResultsProcessorBase(object):
         Dispatch the element
         """
         method_name = self._pre_tag_method_name(element.tag)
-        self._process(method_name, element)
+        return self._process(method_name, element)
 
     def post_process(self, element):
         """
@@ -100,4 +100,4 @@ class ResultsProcessorBase(object):
         'Postprocess' the element
         """
         method_name = self._post_tag_method_name(element.tag)
-        self._process(method_name)
+        return self._process(method_name)

@@ -20,23 +20,39 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import unittest
+
+from ots.server.results.results_processor_base import ResultsProcessorBase
 
 class TestResultsProcessorBase(unittest.TestCase):
     
-    def test_pre_tag_method_name(tag):
-        pass
+    def test_pre_tag_method_name(self):
+        name = ResultsProcessorBase._pre_tag_method_name("foo")
+        self.assertEquals("_preproc_foo", name)
 
-    def test_post_tag_method_name(tag):
-        pass
+    def test_post_tag_method_name(self):
+        name = ResultsProcessorBase._post_tag_method_name("foo")
+        self.assertEquals("_postproc_foo", name)
 
-    def test_process(self, method_name, *args):
-        pass
+    def test_process(self):
+        processor = ResultsProcessorBase()
+        processor.foo = lambda x, y: x + y
+        self.assertEquals(3, processor._process("foo", 1, 2))
 
-    def test_pre_process(self, element):
-        pass
+    def test_dispatch_element(self):
+        class ElementStub:
+            tag = "foo"
+        processor = ResultsProcessorBase()
+        processor._preproc_foo = lambda x: "pre" + x.tag 
+        self.assertEquals("prefoo" , processor.dispatch_element(ElementStub()))
 
-    def test_post_process(self, element):
-        pass
+    def test_post_process(self):
+        class ElementStub:
+            tag = "foo"
+        processor = ResultsProcessorBase()
+        processor._postproc_foo = lambda : "post"
+        self.assertEquals("post" , processor.post_process(ElementStub()))
+
 
 if __name__ == "__main__":
     unittest.main()
