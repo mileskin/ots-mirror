@@ -23,15 +23,11 @@
 #FIXME: A WIP
 
 """
-The rules for checking the aggregate packages meet the 
-global pass / fail criteria
+The rules for checking the aggregate packages 
+meet the global pass / fail criteria
 """ 
 
-import re
-
 from ots.server.results.testrun_result import TestrunResult
-
-#FIXME 
 
 HARDWARE = "hardware"
 HOST_HARDWARE = "host_hardware"
@@ -68,50 +64,50 @@ def _required_packages(executed_packages,
                        hardware_packages, 
                        host_packages, 
                        is_hw_enabled):
-     """
-     @type executed_packages: C{list} of L{ots.common.api.ExecutedPackage}  
-     @param executed_package: packages executed on the Testrun 
+    """
+   @type executed_packages: C{list} of L{ots.common.api.ExecutedPackage}  
+    @param executed_package: packages executed on the Testrun 
 
-     @type hardware_packages: C{list}
-     @param hardware_packages: Hardware test packages
+    @type hardware_packages: C{list}
+    @param hardware_packages: Hardware test packages
 
-     @type host_packages: C{list}
-     @param host_packages: Host test packages
+    @type host_packages: C{list}
+    @param host_packages: Host test packages
 
-     @type is_hw_enabled: C{bool}
-     @param is_hw_enabled: Is hardware testing enabled
+    @type is_hw_enabled: C{bool}
+    @param is_hw_enabled: Is hardware testing enabled
 
-     #FIXME Change this datastructure once the intent is established
-     #Not sure why whis isn't just a list of packages
+    #FIXME Change this datastructure once the intent is established
+    #Not sure why whis isn't just a list of packages
 
-     @rtype: C{List} of C{Tuple} consisting of C{string}, C{string}
-     @return: A list of testpackages,environment  ??? 
-     """
-     #FIXME: The logic and intent in the original code is not at all
-     #clear. This mimics the original code as much as possible
-     #but it either needs input from the authors
-     #or (better?) analysis of what is really wanted
+    @rtype: C{List} of C{Tuple} consisting of C{string}, C{string}
+    @return: A list of testpackages,environment  ??? 
+    """
+    #FIXME: The logic and intent in the original code is not at all
+    #clear. This mimics the original code as much as possible
+    #but it either needs input from the authors
+    #or (better?) analysis of what is really wanted
 
-     all_packages = []
+    all_packages = []
 
-     #FIXME Why this repacking?
-     for executed_package in executed_packages:
-         environment = executed_package.environment
-         for package in executed_package.packages:
-             all_packages.append((package, environment))
+    #FIXME Why this repacking?
+    for executed_package in executed_packages:
+        environment = executed_package.environment
+        for package in executed_package.packages:
+            all_packages.append((package, environment))
 
-     if (not _has_host_tested(executed_packages) 
-                           and host_packages 
-                           and is_hw_enabled):
-         for package in host_packages:
-                all_packages.append((package, HOST_HARDWARE))
+    if (not _has_host_tested(executed_packages) 
+                          and host_packages 
+                          and is_hw_enabled):
+        for package in host_packages:
+            all_packages.append((package, HOST_HARDWARE))
 
-     if (not _has_hardware_tested(executed_packages) 
-                      and hardware_packages 
-                      and is_hw_enabled):
-         for hardware_package in packages:
-             all_packages.append((package , HARDWARE))
-     return all_packages
+    if (not _has_hardware_tested(executed_packages) 
+                     and hardware_packages 
+                     and is_hw_enabled):
+        for hardware_package in hardware_packages:
+            all_packages.append((hardware_package , HARDWARE))
+    return all_packages
 
 def _check_run_validity(executed_packages, 
                         hardware_packages, 
@@ -145,7 +141,7 @@ def _check_run_validity(executed_packages,
     if not required_packages:
         raise PackageException("No test packages defined nor found.")
     
-    required_packages_set = set([pkg for pkg,env in required_packages])
+    required_packages_set = set([pkg for pkg, env in required_packages])
     missing = required_packages_set.difference(results_packages)
     if missing: 
         missing = ", ".join(missing)
