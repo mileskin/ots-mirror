@@ -49,11 +49,11 @@ def taskrunner_factory(device_group,
     @rtype timeout: C{int}  
     @return timeout: The timeout
 
-    @type config_file: C{string}  
-    @param config_file: The fqname of the config file
-
     @type testrun_id: C{int}  
     @param testrun_id: The Testrun id 
+
+    @type config_file: C{string}  
+    @param config_file: The fqname of the config file
 
     @rtype taskrunner: L{TaskRunner}  
     @return taskrunner: The TaskRunner

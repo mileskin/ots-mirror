@@ -85,11 +85,9 @@ class Testrun(object):
             self.host_packages = []
         self.insignificant_tests_matter = insignificant_tests_matter
         #
-        self.results = []
-        self.environment = None
-        self.executed_packages = {}
-        self.state = None
-        self.status_info = None
+        self.results = [] #Results from the testrun
+        self.executed_packages = {} #All packages executed by the testrun
+        self.environment = None       
 
     ###########################################
     # HANDLERS
@@ -97,14 +95,14 @@ class Testrun(object):
 
     def _results_cb(self, signal, result, sender):
         """
-        @type signal: FIXME
-        @param signal: FIXME
+        @type signal: L{django.dispatch.dispatcher.Signal}
+        @param signal: The django signal
 
-        @type result: FIXME
-        @type result: FIXME
+        @type result: L{ots.common.api.ResultObject}
+        @param result: The Results Objects
 
-        @type sender: FIXME
-        @type sender: FIXME
+        @type sender: C{str}
+        @param sender: The name of the sender of the Signal
 
         Handler for results
         """
@@ -112,56 +110,37 @@ class Testrun(object):
 
     def _packagelist_cb(self, signal, packages, sender): 
         """
-        @type signal: FIXME
-        @param signal: FIXME
+        @type signal: L{django.dispatch.dispatcher.Signal}
+        @param signal: The django signal
 
-        @type packages: FIXME
-        @type packages: FIXME
+        @type packages: C{list} of C{ots.common.api.ExecutedPackage}
+        @param packages: The packages executed by the Testrun
 
-        @type sender: FIXME
-        @type sender: FIXME
+        @type sender: C{str}
+        @param sender: The name of the sender of the Signal
 
         Handler for package list
         """
         self.executed_packages = packages
 
-    def _status_cb(self, signal, state, status_info, sender):
-        """
-        @type signal: FIXME
-        @param signal: FIXME
-
-        @type state: FIXME
-        @type state: FIXME
-
-        @type status_info: FIXME
-        @type status_info: FIXME
-
-        @type sender: FIXME
-        @type sender: FIXME
-        
-        Handler for status
-        """
-        #FIXME Why?
-        self.state = state 
-        self.status_info = status_info
 
     def _error_cb(self, signal, error_info, error_code, sender):
         """
-        @type signal: FIXME
-        @param signal: FIXME
+        @type signal: L{django.dispatch.dispatcher.Signal}
+        @param signal: The django signal
 
-        @type error_info: FIXME
-        @type error_info: FIXME
+        @type error_info: C{str}
+        @param error_info: Error Message
 
-        @type error_code: FIXME
-        @type error_code: FIXME
+        @type error_code: C{int}
+        @param error_code: Error Code
 
-        @type sender: FIXME
-        @type sender: FIXME
+        @type sender: C{str}
+        @param sender: The name of the sender of the Signal
 
         Handler for errors
         """
-        #FIXME Why?
+        #FIXME: Use Python Exceptions
         msg = "%s: %s"%(error_info, error_code)
         raise TestrunException(msg)
    
@@ -211,7 +190,6 @@ class Testrun(object):
 
         ret_val = TestrunResult.FAIL
         RESULTS_SIGNAL.connect(self._results_cb)
-        STATUS_SIGNAL.connect(self._status_cb)
         ERROR_SIGNAL.connect(self._error_cb)
         PACKAGELIST_SIGNAL.connect(self._packagelist_cb)
 
