@@ -20,6 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Container
+"""
+
 class PackageResults(object):
     """
     Container for the Packages
@@ -36,4 +40,5 @@ class PackageResults(object):
 
     @property 
     def environment(self):
+        """The environment"""
         return self._environment
