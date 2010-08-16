@@ -25,22 +25,35 @@ import unittest
 
 import os
 
-from ots.server.results.results_visitor import visit_results, ResultsVisitor
+import xml.etree.cElementTree as ElementTree
 
-class TestVisitResults(unittest.TestCase):
+from ots.server.results.visitors import ElementTreeVisitor, ResultsVisitor
 
-    def test_visit_results(self):
+class DispatcherStub(object):
+
+    tags = []
+    
+    def dispatch_element(self, element):
+        self.tags.append(element.tag)
+
+class TestElementTreeVisitor(unittest.TestCase):
+
+    def test_visit(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
         results_file = os.path.join(dirname, "data", "dummy_results_file.xml")
         results_xml = open(results_file, "r").read()
-        package_results =  visit_results(results_xml, "foo", "bar")
-        print "sig", package_results.significant_results
-        print "insig", package_results.insignificant_results
-
-class TestResultsVisitor(self):
-
-    def test_add_processor(self):
-        pass
+        root = ElementTree.fromstring(results_xml)
+        visitor = ElementTreeVisitor()
+        dispatcher = DispatcherStub()
+        visitor.add_dispatcher(dispatcher)
+        visitor.visit(root)
+        expected = ["testresults", "suite", "set",
+        "case", "step", "expected_result", "return_code", "start", "end", 
+        "case", "step", "expected_result", "return_code", "start", "end", 
+        "case", "step", "expected_result", "return_code", "start", "end"]
+        self.assertEquals(expected, dispatcher.tags)
+        
+class TestResultsVisitor(unittest.TestCase):
 
     def test_visit(self):
         pass
