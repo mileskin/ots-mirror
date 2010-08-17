@@ -24,7 +24,8 @@
 """
 Provides Class based access to Schema definition
 
-Guarantees single definition of Test Definition Results
+A Laborious guarantee of a single 
+definition of Test Definition Results 
 """
 
 import os 
@@ -102,10 +103,3 @@ class Names(object):
 
     __metaclass__ = TestResultsSchemaMeta
 
-
-class Values(object):
-    """
-    Values of the Schema Tags as Defined in the XSD
-    """
-
-    __metaclass__ = TestResultsSchemaMeta

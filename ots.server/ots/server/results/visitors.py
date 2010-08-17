@@ -26,7 +26,7 @@ Visitors for the Tests Results and Test Definition
 
 class ElementTreeVisitor(object):
     """
-    Extrinsic Visitor for the ElementTree Data Strucuture
+    Extrinsic Visitor for the ElementTree Data Structure
     """
 
     _dispatchers = []
@@ -74,8 +74,8 @@ class ResultsVisitor(ElementTreeVisitor):
         """
         #FIXME This is to maintain a migration path from 
         #the original implementation
-        #Normally the Visitor Pattern would only perform
-        #the dispatch operation on the node
+        #Conventionally the Visitor Pattern 
+        #just dispatches the node
         self._dispatchers.append(processor)
         self._processors.append(processor)
 
@@ -84,9 +84,10 @@ class ResultsVisitor(ElementTreeVisitor):
         @type element: C{Element} 
         @param element: An ElementTree Element 
 
-        Preorder Tree Traversal doing the 
-        'Pre' and 'Post' processing for the processors 
+        Extends the ElementTreeVisitor to perform
+        'post processing' backward compatibility
         """
         ElementTreeVisitor.visit(self, element)
+        #FIXME review the necessity of this
         for processor in self._processors:
             processor.post_process(element)
