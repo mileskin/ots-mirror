@@ -33,5 +33,4 @@ from ots.common.executed_package import ExecutedPackage
 from ots.common.package_results import PackageResults
 #
 
-from ots.common.testrun import Testrun
 from ots.common.testrun_queue_name import testrun_queue_name
