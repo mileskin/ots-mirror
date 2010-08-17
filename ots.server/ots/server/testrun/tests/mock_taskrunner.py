@@ -66,7 +66,6 @@ class MockTaskRunnerResults(object):
 
     @staticmethod
     def _send_testpackages():
-        #FIXME: Fix this in CITA
         executed_package = ExecutedPackage("component_test", 
                                            ["Unknown", "Unknown"])
         kwargs = {OTSProtocol.PACKAGES : [executed_package]}
