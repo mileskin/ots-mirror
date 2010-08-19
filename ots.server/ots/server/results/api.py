@@ -20,6 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Import all ots.server.results modules through here
+"""
+
 from ots.server.results.parse_results import parse_results
 from ots.server.results.go_nogo_gauge import go_nogo_gauge, PackageException
 from ots.server.results.testrun_result import TestrunResult
