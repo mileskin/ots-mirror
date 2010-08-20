@@ -20,23 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import unittest 
+#This shouldn't be necessary 
+#http://bugs.python.org/setuptools/issue36
 
-from ots.server.results.results_schema import Names, Values
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
 
-class TestSchema(unittest.TestCase):
-
-    def test_name(self):
-        INSIGNIFICANT = "insignificant"
-        RESULT = "result"    
-        self.assertEquals(INSIGNIFICANT, Names.INSIGNIFICANT)
-        self.assertEquals(RESULT, Names.RESULT)
- 
-    def test_values(self):
-        PASS = "PASS"
-        FAIL = "FAIL"
-        self.assertEquals(PASS, Values.PASS)
-        self.assertEquals(FAIL, Values.FAIL)
- 
-if __name__ == "__main__":
-    unittest.main()
+__import__('pkg_resources').declare_namespace(__name__)

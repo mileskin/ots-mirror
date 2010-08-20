@@ -26,8 +26,8 @@ ResultsProcessor that populates the PackageResults
 
 from ots.common.api import PackageResults
 
-from ots.server.results.results_processor_base import ResultsProcessorBase
-from ots.server.results.results_schema import Names, TRUE
+from ots.results.results_processor_base import ResultsProcessorBase
+from ots.results.results_schema import Names, TRUE
 
 class PackageResultsProcessor(ResultsProcessorBase):
     """

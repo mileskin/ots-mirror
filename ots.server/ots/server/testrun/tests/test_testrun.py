@@ -29,7 +29,7 @@ from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerResults
 from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerTimeout
 from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerError
 
-from ots.server.results.api import TestrunResult
+from ots.results.api import TestrunResult
 
 class TestTestrun(unittest.TestCase):
 

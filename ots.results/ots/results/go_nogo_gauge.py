@@ -27,7 +27,7 @@ The rules for checking the aggregate packages
 meet the global pass / fail criteria
 """ 
 
-from ots.server.results.testrun_result import TestrunResult
+from ots.results.testrun_result import TestrunResult
 
 HARDWARE = "hardware"
 HOST_HARDWARE = "host_hardware"

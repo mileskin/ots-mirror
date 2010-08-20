@@ -28,9 +28,9 @@ from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
 
-from ots.server.results.api import parse_results
-from ots.server.results.api import go_nogo_gauge
-from ots.server.results.api import TestrunResult
+from ots.results.api import parse_results
+from ots.results.api import go_nogo_gauge
+from ots.results.api import TestrunResult
 
 
 class TestrunException(Exception):
@@ -86,7 +86,7 @@ class Testrun(object):
     # HANDLERS
     ###########################################
 
-    def _results_cb(self, signal, result, sender):
+    def _results_cb(self, signal, result, sender, **kwargs):
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
@@ -101,7 +101,7 @@ class Testrun(object):
         """
         self.results.append(result)
 
-    def _packagelist_cb(self, signal, packages, sender): 
+    def _packagelist_cb(self, signal, packages, sender, **kwargs): 
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
@@ -118,7 +118,7 @@ class Testrun(object):
 
 
     @staticmethod
-    def _error_cb(signal, error_info, error_code, sender):
+    def _error_cb(signal, error_info, error_code, sender, **kwargs):
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal

@@ -22,7 +22,7 @@
 
 import unittest
 
-from ots.server.results.results_processor_base import ResultsProcessorBase
+from ots.results.results_processor_base import ResultsProcessorBase
 
 class TestResultsProcessorBase(unittest.TestCase):
     

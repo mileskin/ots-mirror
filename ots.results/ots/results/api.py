@@ -20,12 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import unittest
+"""
+Import all ots.server.results modules through here
+"""
 
-class TestGoNoGoGauge(unittest.Testcase):
-    
-    def test_fixme(self):
-        pass
-
-if __name__ == "__main__":
-    unittest.main()
+from ots.results.parse_results import parse_results
+from ots.results.go_nogo_gauge import go_nogo_gauge, PackageException
+from ots.results.testrun_result import TestrunResult

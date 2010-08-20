@@ -23,11 +23,12 @@
 from setuptools import setup
 
 setup(
-      name = "ots.common",
-      author = "meego-dev@meego.com",
+      name = "ots.server",
+      author = "ext-teemu.a.vainio@nokia.com",
       version =  0.1,
       include_package_data = True,
-      namespace_packages = ['ots'],
-      packages = ['ots.common', 'ots.common.testdefinition'],
+      namespace_packages = ['ots', "ots.server"],
+      packages = ['ots.server.distributor'],
       zip_safe = False,
+      data_files=[('/etc', ['ots-server.ini'])]
       )

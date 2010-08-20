@@ -20,26 +20,14 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-Validate the testresults using the schema defined here:
+from setuptools import setup
 
-http://gitorious.org/qa-tools/test-definition/
-"""
-
-from minixsv import pyxsval as xsv
-
-from ots.server.results.results_schema import SCHEMA_FILENAME 
-
-def validate_xml(results_xml):
-    """
-    @type results_xml: C{string} 
-    @param results_xml: The results xml 
-
-    Postprocess the element
-    """
-
-    results_xsd = open(SCHEMA_FILENAME).read()
-    etw = xsv.parseAndValidateXmlInputString(results_xml, 
-                                     xsdText = results_xsd)
-   
-    etw.getTree()
+setup(
+      name = "ots.results",
+      author = "meego-dev@meego.com",
+      version =  0.1,
+      include_package_data = True,
+      namespace_packages = ['ots', "ots.results"],
+      packages = ['ots.results'],
+      zip_safe = False,
+      )

@@ -32,14 +32,14 @@ from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
 from ots.server.distributor.api import OtsGlobalTimeoutError
 
-import ots.server.results
+import ots.results
 
 class MockTaskRunnerResults(object):
 
     @property
     def results_xml(self):
         results_dirname = os.path.dirname(
-                          os.path.abspath((ots.server.results.__file__)))
+                          os.path.abspath((ots.results.__file__)))
         results_file = os.path.join(results_dirname,
                                     "tests",
                                     "data", 

@@ -24,7 +24,7 @@ from setuptools import setup
 
 setup(
     name = "ots.worker",
-    author = "ext-teemu.a.vainio@nokia.com",
+    author = "meego-dev@meego.com",
     version =  0.1,
     include_package_data = True,
     namespace_packages = ['ots'],

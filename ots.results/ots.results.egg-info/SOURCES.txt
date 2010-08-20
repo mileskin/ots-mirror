@@ -1,0 +1,8 @@
+setup.py
+ots.results.egg-info/PKG-INFO
+ots.results.egg-info/SOURCES.txt
+ots.results.egg-info/dependency_links.txt
+ots.results.egg-info/namespace_packages.txt
+ots.results.egg-info/not-zip-safe
+ots.results.egg-info/top_level.txt
+ots/results/__init__.py

@@ -37,7 +37,7 @@ of the Element that they are processing e.g.
 }}}
 """
 
-from ots.server.results.element_dispatcher_base import ElementDispatcherBase
+from ots.results.element_dispatcher_base import ElementDispatcherBase
     
 class ResultsProcessorBase(ElementDispatcherBase):
     """

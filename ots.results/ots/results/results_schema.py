@@ -32,7 +32,7 @@ import os
 
 import xml.etree.cElementTree as ElementTree 
 
-from ots.server.results.visitors import ElementTreeVisitor
+from ots.results.visitors import ElementTreeVisitor
 
 ##################
 

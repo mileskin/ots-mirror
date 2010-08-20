@@ -22,21 +22,10 @@
 
 import unittest
 
-import os
-
-from ots.server.results.parse_results import parse_results
-
-class TestParseResults(unittest.TestCase):
-
-    def test_parse_results(self):
-        dirname = os.path.dirname(os.path.abspath(__file__))
-        results_file = os.path.join(dirname, "data", "dummy_results_file.xml")
-        results_xml = open(results_file, "r").read()
-        package_results =  parse_results(results_xml, "foo", "bar")
-        self.assertEquals(['FAIL'], 
-                          package_results.significant_results)
-        self.assertEquals(['PASS', 'N/A'], 
-                          package_results.insignificant_results)
+class TestGoNoGoGauge(unittest.TestCase):
+    
+    def test_fixme(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

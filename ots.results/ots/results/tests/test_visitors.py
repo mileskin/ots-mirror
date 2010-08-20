@@ -26,8 +26,8 @@ import os
 
 import xml.etree.cElementTree as ElementTree
 
-from ots.server.results.visitors import ElementTreeVisitor, ResultsVisitor
-from ots.server.results.results_processor_base import ResultsProcessorBase
+from ots.results.visitors import ElementTreeVisitor, ResultsVisitor
+from ots.results.results_processor_base import ResultsProcessorBase
 
 class DispatcherStub(object):
 

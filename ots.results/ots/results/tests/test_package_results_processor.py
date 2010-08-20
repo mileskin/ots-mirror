@@ -22,7 +22,7 @@
 
 import unittest
 
-from ots.server.results.package_results_processor import PackageResultsProcessor
+from ots.results.package_results_processor import PackageResultsProcessor
 
 class TestPackageResultsProcessor(unittest.TestCase):
 
