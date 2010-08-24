@@ -29,6 +29,7 @@ setup(
       include_package_data = True,
       namespace_packages = ['ots', "ots.server"],
       packages = ['ots.server.distributor', 'ots.server.testrun'],
+      install_requires = ['ots.results'],
       zip_safe = False,
       data_files=[('/etc', ['ots-server.ini'])]
       )
