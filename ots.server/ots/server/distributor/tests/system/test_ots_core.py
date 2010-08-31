@@ -48,7 +48,6 @@ from stat import ST_CTIME
 import multiprocessing
 from socket import gethostname
 
-from ots.common.testrun import Testrun
 from ots.common.testrun_queue_name import testrun_queue_name 
 
 from ots.worker.api import worker_factory
@@ -129,8 +128,6 @@ class TestOTSCore(unittest.TestCase):
         self._worker_processes = []
 
         self._delete_worker_queue()
-        self.testrun = Testrun()
-
         self.testrun_id = None
           
     def tearDown(self):
