@@ -24,6 +24,7 @@ import unittest
 
 from ots.common.packages import ExpectedPackages, TestedPackages
 from ots.results.go_nogo_gauge import PackageException, _check_run_validity
+from ots.results.go_nogo_gauge import _reduce_results_package
 
 class TestGoNoGoGauge(unittest.TestCase):
     
@@ -58,6 +59,36 @@ class TestGoNoGoGauge(unittest.TestCase):
         ep = ExpectedPackages("host.foo", [])
         tp = TestedPackages("host.foo", [])
         _check_run_validity([ep], [tp], False, True)
-    
+ 
+    def test_reduce_results_package_pass(self):
+        tp1 = TestedPackages("host.foo", [])
+        tp1.significant_results = ["PASS", "PASS", "PASS"]
+        tp2 = TestedPackages("host.foo", [])
+        tp2.significant_results = ["PASS", "PASS", "PASS"]
+        self.assertEquals("PASS", _reduce_results_package([tp1, tp2], True))
+        
+    def test_reduce_results_package_fail(self):
+        tp1 = TestedPackages("host.foo", [])
+        tp1.significant_results = ["PASS", "PASS", "PASS"]
+        tp2 = TestedPackages("host.foo", [])
+        tp2.significant_results = ["PASS", "PASS", "FAIL"]
+        self.assertEquals("FAIL", _reduce_results_package([tp1, tp2], True))
+        
+    def test_reduce_results_package_pass_insig_matter(self):
+        tp1 = TestedPackages("host.foo", [])
+        tp1.significant_results = ["PASS", "PASS", "PASS"]
+        tp2 = TestedPackages("host.foo", [])
+        tp2.significant_results = ["PASS", "PASS", "PASS"]
+        tp2.insignificant_results = ["PASS", "FAIL"]
+        self.assertEquals("FAIL", _reduce_results_package([tp1, tp2], True))
+        
+    def test_reduce_results_package_fail_insig_not_matter(self):
+        tp1 = TestedPackages("host.foo", [])
+        tp1.significant_results = ["PASS", "PASS", "PASS"]
+        tp2 = TestedPackages("host.foo", [])
+        tp2.significant_results = ["PASS", "PASS", "PASS"]
+        tp2.insignificant_results = ["PASS", "FAIL"]
+        self.assertEquals("PASS", _reduce_results_package([tp1, tp2], False))
+        
 if __name__ == "__main__":
     unittest.main()

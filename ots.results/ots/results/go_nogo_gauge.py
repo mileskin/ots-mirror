@@ -34,7 +34,6 @@ class PackageException(Exception):
     """Problem with the Package"""
     pass
 
-
 def _check_host_testing(is_host_testing_enabled, expected_packages_list):
     """
     @type is_host_testing_enabled: C{bool}
@@ -123,12 +122,12 @@ def _check_run_validity(expected_packages_list,
                         expected_packages_list)
     _check_all_results(expected_packages_list, results_packages_list)
         
-def _reduce_package_results(package_results_list,
+def _reduce_results_package(results_packages_list,
                             insignificant_tests_matter):
 
     """
-    @type package_results_list: C{list} of L{ots.common.api.PackageResults}
-    @param: package_results_list: A list of the packages with results
+    @type results_package_list: C{list} of L{ots.common.api.PackageResults}
+    @param: results_packages_list: A list of the packages with results
 
     @rtype: L{TestrunResult}
     @return: PASS / FAIL / NO_CASES
@@ -138,7 +137,7 @@ def _reduce_package_results(package_results_list,
 
     ret_val = TestrunResult.NO_CASES
     results = []
-    for package_results in package_results_list:
+    for package_results in results_packages_list:
         results.extend(package_results.significant_results)
         if insignificant_tests_matter:
             results.extend(package_results.insignificant_results)
@@ -150,41 +149,35 @@ def _reduce_package_results(package_results_list,
     return ret_val
 
 
-def go_nogo_gauge(executed_packages, 
-                  hardware_packages, 
-                  host_packages, 
-                  is_hw_testing_enabled,
-                  package_results_list,
+def go_nogo_gauge(expected_packages_list,
+                  results_packages_list, 
+                  is_hw_enabled,
+                  is_host_testing_enabled,
                   insignificant_tests_matter):
     """
     @type executed_packages: C{list} of L{ots.common.api.ExecutedPackage}  
     @param executed_package: packages executed on the Testrun 
 
-    @type hardware_packages: C{list}
-    @param hardware_packages: Hardware test packages
+    @type results_packages_list: C{list} of L{ots.common.api.PackageResults}
+    @param: results_packages_list: A list of the packages with results
 
-    @type host_packages: C{list}
-    @param host_packages: Host test packages
+    @type is_hw_enabled: C{bool}
+    @param is_hw_enabled: 
 
-    @type is_hardware_testing_enabled:
-    @param is_hardware_testing_enabled:
+    @type is_host_testing_enabled: C{bool}
+    @param is_host_testing_enabled:
 
-    @type package_results_list: C{list} of L{ots.common.api.PackageResults}
-    @param: package_results_list: A list of the packages with results
+    @type insignificant_tests_enabled: C{bool}
+    @param insignificant_tests_matter: 
 
     @rtype: L{TestrunResult}
     @return: PASS / FAIL / NO_CASES
 
     Determines Pass / Fail for the Testrun
     """
-
-    results_packages = [package.testpackage 
-                        for package in package_results_list]
-
-    _check_run_validity(executed_packages, 
-                        hardware_packages, 
-                        host_packages, 
-                        is_hw_testing_enabled,
-                        results_packages)
-    return _reduce_package_results(package_results_list,
+    _check_run_validity(expected_packages_list,
+                        results_packages_list,
+                        is_hw_enabled,
+                        is_host_testing_enabled)
+    return _reduce_results_package(results_packages_list,
                                    insignificant_tests_matter)
