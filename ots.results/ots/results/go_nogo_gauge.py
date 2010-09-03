@@ -76,7 +76,6 @@ def _check_run_validity(expected_packages_list,
             raise PackageException(msg)
 
     #Have we got all the results for the packages found?
-    #This algorithm sucks 
     not_run_packages_list = copy(expected_packages_list)
     for expected_pkg in expected_packages_list:    
         for results_pkg in results_packages_list:

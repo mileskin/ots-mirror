@@ -43,6 +43,13 @@ class PackagesBase(object):
     HARDWARE = "hardware"
 
     def __init__(self, environment, packages):
+        """
+        @type environment: C{string}
+        @param: environment: The test environment
+        
+        @type packages: C{list} of C{string}
+        @param: packages: The Packages 
+        """
         self._environment = environment
         self.packages = packages
 

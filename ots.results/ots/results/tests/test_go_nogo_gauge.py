@@ -44,7 +44,7 @@ class TestGoNoGoGauge(unittest.TestCase):
                           _check_run_validity,
                           [ep], True, False, [])
 
-    def test_package_results_exists_for_environment_package(self):
+    def test_package_results_exists_for_expected_package(self):
         ep = ExpectedPackages("host.foo", [])
         self.assertRaises(PackageException,
                           _check_run_validity,
