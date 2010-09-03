@@ -26,8 +26,7 @@ Container
 
 class PackageResults(object):
     """
-    Container for the Packages
-    that have been Executed *and* have Results XMLs 
+    The Packages that have been Executed on the testrun  
     """
 
     def __init__(self, 

@@ -22,10 +22,39 @@
 
 import unittest
 
+from ots.common.packages import ExpectedPackages, TestedPackages
+from ots.results.go_nogo_gauge import PackageException, _check_run_validity
+
 class TestGoNoGoGauge(unittest.TestCase):
     
-    def test_fixme(self):
-        pass
+    def test_no_packages(self):
+        self.assertRaises(PackageException,
+                          _check_run_validity,
+                          [], True, True, [])
 
+    def test_host_testing_enabled(self):
+        ep = ExpectedPackages("hardware", [])
+        self.assertRaises(PackageException,
+                          _check_run_validity,
+                          [ep], False, True, [])
+
+    def test_hardware_enabled(self):
+        ep = ExpectedPackages("host.foo", [])
+        self.assertRaises(PackageException,
+                          _check_run_validity,
+                          [ep], True, False, [])
+
+    def test_package_results_exists_for_environment_package(self):
+        ep = ExpectedPackages("host.foo", [])
+        self.assertRaises(PackageException,
+                          _check_run_validity,
+                          [ep], False, True, [])
+
+
+    def test_package_results_validate(self):
+        ep = ExpectedPackages("host.foo", [])
+        tp = TestedPackages("host.foo", [])
+        _check_run_validity([ep], False, True, [tp])
+    
 if __name__ == "__main__":
     unittest.main()

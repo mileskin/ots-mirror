@@ -28,10 +28,9 @@ been executed by a Testrun
 """
 
 
-class ExecutedPackage(object):
+class RequestedPackage(object):
     """
-    Container for
-    *all* the Packages executed in the Testrun
+    Container for *all* the Packages executed in the Testrun
     """
 
     HOST_TEST_PATTERN = "host.*"
