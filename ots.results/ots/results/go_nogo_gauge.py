@@ -20,62 +20,70 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-
-
 """
 The rules for checking 
 whether all the Packages in the run  
 meet a global pass / fail criteria
 """ 
+
 from copy import copy
 
 from ots.results.testrun_result import TestrunResult
-
-HARDWARE = "hardware"
-HOST_HARDWARE = "host_hardware"
 
 class PackageException(Exception):
     """Problem with the Package"""
     pass
 
-def _check_run_validity(expected_packages_list,
-                        is_hw_enabled,
-                        is_host_testing_enabled,
-                        results_packages_list):
+
+def _check_host_testing(is_host_testing_enabled, expected_packages_list):
     """
+    @type is_host_testing_enabled: C{bool}
+    @param is_host_testing_enabled: Is host testing enabled
+    
     @type expected_packages: C{list} of 
                                 L{ots.common.api.EnvironmentPackages}  
     @param expected_packages: packages requested for execution in the run
-
-    @type is_hw_enabled: C{bool}
-    @param is_hw_enabled: Is hardware testing enabled
-
-    @type is_host_testing_enabled: C{bool}
-    @param is_host_testing_enabled: Is host testing enabled
-
-    @type package_results_list: C{list} consisting of L{PackageResults}
-    @param package_results_list: The packages that have been executed 
-                             *and* have results
-    """
-    #Have any packages been found at all?
-    if not expected_packages_list:
-        raise PackageException("No packages found")
     
-    #If host testing specified are there host packages?
+    If host testing specified are there host packages?
+    """
     if is_host_testing_enabled:
         if not any([package.is_host_tested 
                  for package in expected_packages_list]):
             msg = "Host testing enabled but no host packages found "
             raise PackageException(msg)
     
-    #If hardware testing specified are there hardware test packages?
+
+def _check_hw_testing(is_hw_enabled, expected_packages_list):
+    """
+    @type is_hw_testing_enabled: C{bool}
+    @param is_hw_testing_enabled: Is hardware testing enabled
+    
+    @type expected_packages: C{list} of 
+                                L{ots.common.api.EnvironmentPackages}  
+    @param expected_packages: packages requested for execution in the run
+    
+    If hardware testing specified are there hardware test packages?
+    """
     if is_hw_enabled:
         if not any([package.is_hw_tested 
                 for package in expected_packages_list]):
             msg = "Hardware testing enabled but no hardware packages found" 
             raise PackageException(msg)
 
-    #Have we got all the results for the packages found?
+
+def _check_all_results(expected_packages_list, 
+                       results_packages_list):
+    """
+    @type expected_packages: C{list} of 
+                                L{ots.common.api.EnvironmentPackages}  
+    @param expected_packages: packages requested for execution in the run
+
+    @type package_results_list: C{list} consisting of L{PackageResults}
+    @param package_results_list: The packages that have been executed 
+                             *and* have results
+
+    Are there results for all the Expected Packages
+    """
     not_run_packages_list = copy(expected_packages_list)
     for expected_pkg in expected_packages_list:    
         for results_pkg in results_packages_list:
@@ -85,6 +93,35 @@ def _check_run_validity(expected_packages_list,
         pretty_list = ','.join([str(pkg) for pkg in not_run_packages_list])
         msg = "Missing packages %s"%(pretty_list)
         raise PackageException(msg)
+
+def _check_run_validity(expected_packages_list,
+                        results_packages_list,
+                        is_hw_enabled,
+                        is_host_testing_enabled):
+    """
+    @type expected_packages: C{list} of 
+                                L{ots.common.api.EnvironmentPackages}  
+    @param expected_packages: packages requested for execution in the run
+
+    @type results_package_list: C{list} consisting of L{PackageResults}
+    @param results_package_list: The packages that have been executed 
+                             *and* have results
+
+    @type is_hw_enabled: C{bool}
+    @param is_hw_enabled: Is hardware testing enabled
+
+    @type is_host_testing_enabled: C{bool}
+    @param is_host_testing_enabled: Is host testing enabled
+    """
+    #Have any packages been found at all?
+    if not expected_packages_list:
+        raise PackageException("No packages found")
+    #
+    _check_hw_testing(is_hw_enabled, 
+                      expected_packages_list)
+    _check_host_testing(is_host_testing_enabled, 
+                        expected_packages_list)
+    _check_all_results(expected_packages_list, results_packages_list)
         
 def _reduce_package_results(package_results_list,
                             insignificant_tests_matter):
