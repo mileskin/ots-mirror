@@ -25,7 +25,7 @@ import time
 
 from ots.common.api import OTSProtocol, PROTOCOL_VERSION
 from ots.common.api import ResultObject
-from ots.common.api import ExecutedPackage
+from ots.common.api import ExpectedPackages
 
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import RESULTS_SIGNAL
@@ -66,9 +66,9 @@ class MockTaskRunnerResults(object):
 
     @staticmethod
     def _send_testpackages():
-        executed_package = ExecutedPackage("component_test", 
+        expected_packages = ExpectedPackages("component_test", 
                                            ["Unknown", "Unknown"])
-        kwargs = {OTSProtocol.PACKAGES : [executed_package]}
+        kwargs = {OTSProtocol.PACKAGES : [expected_packages]}
         PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
 
