@@ -103,3 +103,6 @@ class Names(object):
 
     __metaclass__ = TestResultsSchemaMeta
 
+    #FIXME
+    INSIGNIFICANT = "insignificant"
+    RESULT = "result"

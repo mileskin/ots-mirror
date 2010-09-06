@@ -50,29 +50,26 @@ class PackagesBase(object):
         @type packages: C{list} of C{string}
         @param: packages: The Packages 
         """
-        self._environment = environment
+        #FIXME. Backend interface currently string based  
+        self.environment = environment
         self.packages = packages
 
     @property    
     def is_host_tested(self):
         """Was the Package run as a host test"""
-        match = re.match(self.HOST_TEST_PATTERN, self._environment)
-        return match and not self.is_hw_tested
+        match = re.match(self.HOST_TEST_PATTERN, self.environment)
+        return match is not None
 
     @property 
     def is_hw_tested(self):
         """Was the Package run as a hardware test"""
-        match = self.HARDWARE in self._environment
-        return match and not self.is_host_tested
-
+        match = self.HARDWARE in self.environment
+        return match is not None
 
     def __eq__(self, other):
         """Do the containers contain the same package information"""
-        #check this
-        return ((self.is_host_tested == other.is_host_tested) and 
-                (self.is_hw_tested == other.is_hw_tested) and 
+        return ((self.environment == other.environment) and 
                 (self.packages.sort() == other.packages.sort()))
-
 
 class ExpectedPackages(PackagesBase):
     """

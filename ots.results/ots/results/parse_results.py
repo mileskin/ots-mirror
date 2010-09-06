@@ -34,29 +34,30 @@ import os
 import xml.etree.cElementTree as ElementTree
 
 from ots.results.validate_xml import validate_xml
-from ots.results.visitors import ResultsVisitor 
-from ots.results.package_results_processor import PackageResultsProcessor
+from ots.results.visitors import ElementTreeVisitor 
+from ots.results.significant_results_dispatcher import \
+                               SignificantResultsDispatcher
         
-def parse_results(results_xml, test_package, environment):
+def parse_results(results_xml, insignificant_tests_matter):
     """
     @type results_xml: C{string} 
     @param results_xml: The results xml
 
-    @type results_xml: C{string} 
-    @param results_xml: The name of the test package 
+    @type insignificant_tests_matter: C{bool} 
+    @param insignificant_tests_matter: Flag
 
-    @type results_xml: C{string} 
-    @param results_xml: The enviroment
-
-    @rtype: L{ots.common.api.PackageResults}
-    @return: A populated PackageResults
+    @rtype: C(list} of C{TestrunResult} 
+    @param: A list of the Test results that matter
 
     Parse the Test results xml
     """
     validate_xml(results_xml)
-    visitor = ResultsVisitor()
-    results_judge_processor = PackageResultsProcessor(test_package, environment)
-    visitor.add_processor(results_judge_processor)
+    visitor = ElementTreeVisitor()
+    significant_results_dispatcher = SignificantResultsDispatcher(
+                                            insignificant_tests_matter)
+    visitor.add_dispatcher(significant_results_dispatcher)
     root = ElementTree.fromstring(results_xml)
     visitor.visit(root)
-    return results_judge_processor.package_results
+    return significant_results_dispatcher.results
+        
+  

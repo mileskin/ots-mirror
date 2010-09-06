@@ -47,47 +47,5 @@ class ElementTreeVisitor(object):
         """
         for dispatcher in self._dispatchers:
             dispatcher.dispatch_element(element)
-        for child_node in element.getchildren():
-            self.visit(child_node)
-
-class ResultsVisitor(ElementTreeVisitor):
-    """
-    Visitor for the Test Results XML
-
-    Adapted to allow for backward compatibility 
-    with the original pattern
-
-    Closely associated with ResultsProcessorBase
-    """
-
-    _processors = []
-
-    def __init__(self):
-        ElementTreeVisitor.__init__(self)
-
-    def add_processor(self, processor):
-        """
-        @type element: L{ots.server.results.ResultsProcessorBase} 
-        @param element: A results processor
-
-        Add a processor to accept nodes in tree traversal
-        """
-        #FIXME This is to maintain a migration path from 
-        #the original implementation
-        #Conventionally the Visitor Pattern 
-        #just dispatches the node
-        self._dispatchers.append(processor)
-        self._processors.append(processor)
-
-    def visit(self, element):
-        """
-        @type element: C{Element} 
-        @param element: An ElementTree Element 
-
-        Extends the ElementTreeVisitor to perform
-        'post processing' backward compatibility
-        """
-        ElementTreeVisitor.visit(self, element)
-        #FIXME review the necessity of this
-        for processor in self._processors:
-            processor.post_process(element)
+        map(self.visit, element.getchildren())
+                

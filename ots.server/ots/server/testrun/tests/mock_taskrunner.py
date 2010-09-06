@@ -34,7 +34,11 @@ from ots.server.distributor.api import OtsGlobalTimeoutError
 
 import ots.results
 
-class MockTaskRunnerResults(object):
+#################################
+# Results Scenarios Mocks
+#################################
+
+class MockTaskRunnerResultsBase(object):
 
     @property
     def results_xml(self):
@@ -57,25 +61,47 @@ class MockTaskRunnerResults(object):
     def _send_result(results_xml, name):
         result = ResultObject(name,
                               content = results_xml,
-                              testpackage = "Unknown",
+                              testpackage = name,
                               origin = "mock_task_runner",
                               environment = "component_test")
-
         kwargs = {OTSProtocol.RESULT : result}
         RESULTS_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
     @staticmethod
     def _send_testpackages():
+        raise NotImplementedError
+
+class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
+
+    @staticmethod
+    def _send_testpackages():
         expected_packages = ExpectedPackages("component_test", 
-                                           ["Unknown", "Unknown"])
+                                           ["test_1", "test_2", "test_3"])
         kwargs = {OTSProtocol.PACKAGES : [expected_packages]}
         PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
+class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
+
+    @staticmethod
+    def _send_testpackages():
+        expected_packages = ExpectedPackages("component_test", 
+                                           ["test_1", "test_2"])
+        kwargs = {OTSProtocol.PACKAGES : [expected_packages]}
+        PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+
+
+####################################
+# Timeout Scenarios Mocks
+####################################
 
 class MockTaskRunnerTimeout(object):
 
     def run(self):
         raise OtsGlobalTimeoutError("Mock")
+
+####################################
+# Error Scenarios Mocks
+####################################
 
 class MockTaskRunnerError(object):
 

@@ -23,6 +23,7 @@
 """
 Runs an OTS Testrun 
 """
+import logging
 
 from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import ERROR_SIGNAL
@@ -32,6 +33,7 @@ from ots.results.api import parse_results
 from ots.results.api import go_nogo_gauge
 from ots.results.api import TestrunResult
 
+LOG = logging.getLogger(__name__)
 
 class TestrunException(Exception):
     """
@@ -50,37 +52,29 @@ class Testrun(object):
     
     def __init__(self, 
                  run_test,
-                 hardware_packages = None,
-                 host_packages = None,
-                 is_hw_testing_enabled = True,
+                 is_hw_enabled = True,
+                 is_host_enabled = False,
                  insignificant_tests_matter = True):
         """
         @type run_test: C{callable} The callable to run
         @param run_test: The callable to run
+        @type is_hw_enabled: C{bool} 
+        @param is_hw_enabled: Flag
 
-        @type hardware_packages: C{List} 
-        @param hardware_packages: Names of the packages to be run on the device
-
-        @type host_packages: C{List} 
-        @param host_packages: Names of the packages to be run as host tests
-
-        @type is_hw_testing_enabled: C{bool} 
-        @param is_hw_testing_enabled: Flag
+        @type is_host_enabled: C{bool}
+        @param is_host_enabled: Flag
 
         @type insignificant_tests_matter: C{bool} 
         @param insignificant_tests_matter: Flag
         """
         self._run_test = run_test
-        self.is_hw_testing_enabled = is_hw_testing_enabled
-        if hardware_packages is None:
-            self.hardware_packages = []
-        if host_packages is None:
-            self.host_packages = []
+        self.is_hw_enabled = is_hw_enabled
+        self.is_host_enabled = is_host_enabled
         self.insignificant_tests_matter = insignificant_tests_matter
         #
-        self.results = [] #Results from the testrun
-        self.executed_packages = {} #All packages executed by the testrun
-        self.environment = None       
+        self.results_list = []
+        self.tested_packages_list = []
+        self.expected_packages_list = []
 
     ###########################################
     # HANDLERS
@@ -99,7 +93,9 @@ class Testrun(object):
 
         Handler for results
         """
-        self.results.append(result)
+        LOG.debug("Received results: %s from %s"%(result, sender))
+        self.expected_packages_list.extend(
+        self.results_list.append(result)
 
     def _packagelist_cb(self, signal, packages, sender, **kwargs): 
         """
@@ -114,8 +110,8 @@ class Testrun(object):
 
         Handler for package list
         """
-        self.executed_packages = packages
-
+        LOG.debug("Received packages: %s from %s"%(packages, sender))
+        self.expected_packages_list.extend(packages)
 
     @staticmethod
     def _error_cb(signal, error_info, error_code, sender, **kwargs):
@@ -134,6 +130,8 @@ class Testrun(object):
 
         Handler for errors
         """
+        LOG.debug("Received error: %s:%s from %s"%(error_info, error_code, 
+                                                   sender))
         #FIXME: Use Python Exceptions
         msg = "%s: %s" % (error_info, error_code)
         raise TestrunException(msg)
@@ -141,34 +139,31 @@ class Testrun(object):
     #############################################
     # HELPERS
     #############################################
-
-    def _package_results_iter(self):
-        """
-        @yield: C{List} of C{ots.common.api.PackageResults}
-        
-        Generator for PackageResults received in 
-        course of running the test
-        """
-        for result in self.results:
-            yield parse_results(result.content, 
-                                result.testpackage, 
-                                result.environment)
-
+            
     def _go_nogo(self):
         """
         @rtype: L{TestrunResult}
         @return: PASS / FAIL / NO_CASES
-
-        Helper that delegates the members accumulated in
-        the testrun to the go_nogo gauge
         """
-        package_results_list = list(self._package_results_iter())    
-        return go_nogo_gauge(self.executed_packages,
-                             self.hardware_packages,
-                             self.host_packages,
-                             self.is_hw_testing_enabled,
-                             package_results_list,
-                             self.insignificant_tests_matter)
+        ret_val = TestrunResult.NOCASES
+        aggregated_results = []
+        for result in self.results_list:
+            all_passed = parse_results(result.content,
+                                       self.insignificant_tests_matter)
+            if all_passed is not None:
+                aggregated_results.append(all_passed)
+        if aggregated_results:
+            if all(aggregated_results):
+                ret_val = TestrunResult.PASS
+            else:
+                ret_val = TestrunResult.NO_CASES
+
+
+        #return go_nogo_gauge(self.expected_packages_list,
+        #                     tested_packages_list,
+        #                     self.is_hw_enabled,
+        #                     self.is_host_enabled,
+        #                     self.insignificant_tests_matter)
 
     ####################################################
     # PUBLIC METHOD
@@ -181,7 +176,6 @@ class Testrun(object):
         
         Run...
         """
-
         ret_val = TestrunResult.FAIL
         RESULTS_SIGNAL.connect(self._results_cb)
         ERROR_SIGNAL.connect(self._error_cb)

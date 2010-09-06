@@ -28,15 +28,11 @@ from ots.results.parse_results import parse_results
 
 class TestParseResults(unittest.TestCase):
 
-    def test_parse_results(self):
+    def test_parse_results_insig_matters(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
         results_file = os.path.join(dirname, "data", "dummy_results_file.xml")
         results_xml = open(results_file, "r").read()
-        package_results =  parse_results(results_xml, "foo", "bar")
-        self.assertEquals(['FAIL', 'N/A'], 
-                          package_results.significant_results)
-        self.assertEquals(['PASS'], 
-                          package_results.insignificant_results)
-
+        package_results =  parse_results(results_xml, True)
+        
 if __name__ == "__main__":
     unittest.main()

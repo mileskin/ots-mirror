@@ -29,7 +29,7 @@ with string implementation
 
 class TestrunResult:
 
-    NO_CASES = "NO_CASES"
-    PASS = "PASS"
-    FAIL = "FAIL"
+    NO_CASES = None
+    PASS = True
+    FAIL = False
 
