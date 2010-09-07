@@ -34,7 +34,6 @@ from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
 
 from ots.results.api import parse_results
-from ots.results.api import go_nogo_gauge
 from ots.results.api import TestrunResult
 from ots.results.api import is_valid_run
 
