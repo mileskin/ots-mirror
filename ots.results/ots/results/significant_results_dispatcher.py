@@ -45,7 +45,7 @@ class SignificantResultsDispatcher(ResultsDispatcherBase):
         self.all_passed = None
 
     @staticmethod
-    def _is_significant(element):
+    def _is_insignificant(element):
         """
         @type element: C{Element} 
         @param element: An ElementTree Elemment 
@@ -53,12 +53,12 @@ class SignificantResultsDispatcher(ResultsDispatcherBase):
         @rtype: C{bool}
         @return: Is the element marked as not `insignificant`
         """
-        is_significant = True
+        insignificant = False
         items_dict = dict(element.items())
         if items_dict.has_key(Names.INSIGNIFICANT):
             insignificant = items_dict[Names.INSIGNIFICANT].lower()
-            is_significant = not (insignificant ==  TRUE)
-        return is_significant
+            insignificant = (insignificant ==  TRUE)
+        return insignificant
 
     #############################################
     # Node Processing 
@@ -71,16 +71,17 @@ class SignificantResultsDispatcher(ResultsDispatcherBase):
  
         Visit the `case` node
         """
-        is_significant = self._is_significant(element)
+        is_insignificant = self._is_insignificant(element)
         items_dict = dict(element.items())
-        result = items_dict[Names.RESULT]
-        if is_significant or self.insignificant_tests_matter:
+        if not is_insignificant or \
+            (is_insignificant and self.insignificant_tests_matter):
             results_dict = {"PASS": True,
                             "FAIL": False,
-                            "N/A": False}
+                            "N/A": None}
+            result = items_dict[Names.RESULT].upper()
             result = results_dict[result]
-            if self.all_passed is None:
-                self.all_passed = result
-            else:
-                self.all_passed = result and self.all_passed
-        
+            if result is not None:
+                if self.all_passed is None:
+                    self.all_passed = result
+                else:
+                    self.all_passed = result and self.all_passed

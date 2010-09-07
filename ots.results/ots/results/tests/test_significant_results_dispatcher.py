@@ -26,27 +26,27 @@ from ots.results.significant_results_dispatcher import SignificantResultsDispatc
 
 class TestResultsPackagesProcessor(unittest.TestCase):
 
-    def test_is_significant(self):
+    def test_is_insignificant(self):
         significant_results_dispatcher = SignificantResultsDispatcher(True)
         #
         class NoInsigTagElementStub:
             def items(self):
                 return [("foo", 1)]
-        self.assertTrue(significant_results_dispatcher._is_significant(
+        self.assertFalse(significant_results_dispatcher._is_insignificant(
                                   NoInsigTagElementStub()))
             
         #
         class InsigFalseElementStub:
             def items(self):
                 return [("insignificant", "false")]
-        self.assertTrue(significant_results_dispatcher._is_significant(
+        self.assertFalse(significant_results_dispatcher._is_insignificant(
                                   InsigFalseElementStub()))
             
         #
         class InsigTrueElementStub:
             def items(self):
                 return [("insignificant", "true")]
-        self.assertFalse(significant_results_dispatcher._is_significant(
+        self.assertTrue(significant_results_dispatcher._is_insignificant(
                                   InsigTrueElementStub()))
             
     def test_pre_process_case(self):

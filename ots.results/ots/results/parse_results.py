@@ -58,6 +58,6 @@ def parse_results(results_xml, insignificant_tests_matter):
     visitor.add_dispatcher(significant_results_dispatcher)
     root = ElementTree.fromstring(results_xml)
     visitor.visit(root)
-    return significant_results_dispatcher.results
+    return significant_results_dispatcher.all_passed
         
   

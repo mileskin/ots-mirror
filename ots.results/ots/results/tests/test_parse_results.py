@@ -28,11 +28,19 @@ from ots.results.parse_results import parse_results
 
 class TestParseResults(unittest.TestCase):
 
-    def test_parse_results_insig_matters(self):
+    def test_parse_results_insig_matter(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
         results_file = os.path.join(dirname, "data", "dummy_results_file.xml")
         results_xml = open(results_file, "r").read()
         package_results =  parse_results(results_xml, True)
+        self.assertFalse(package_results)
+
+    def test_parse_results_insig_dont_matter(self):
+        dirname = os.path.dirname(os.path.abspath(__file__))
+        results_file = os.path.join(dirname, "data", "dummy_results_file.xml")
+        results_xml = open(results_file, "r").read()
+        package_results =  parse_results(results_xml, False)
+        self.assertTrue(package_results)
         
 if __name__ == "__main__":
     unittest.main()
