@@ -25,5 +25,6 @@ Import all ots.server.results modules through here
 """
 
 from ots.results.parse_results import parse_results
-from ots.results.go_nogo_gauge import go_nogo_gauge, PackageException
+from ots.results.is_valid_run import is_valid_run, PackageException
+from ots.results.go_nogo_gauge import go_nogo_gauge
 from ots.results.testrun_result import TestrunResult

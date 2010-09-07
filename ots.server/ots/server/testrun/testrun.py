@@ -27,6 +27,8 @@ import logging
 
 from collections import defaultdict
 
+from ots.common.api import Environment
+
 from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
@@ -34,9 +36,7 @@ from ots.server.distributor.api import PACKAGELIST_SIGNAL
 from ots.results.api import parse_results
 from ots.results.api import go_nogo_gauge
 from ots.results.api import TestrunResult
-#FIXME
-from ots.results.is_valid_run import is_valid_run
-from ots.common.api import Environment
+from ots.results.api import is_valid_run
 
 LOG = logging.getLogger(__name__)
 
@@ -98,9 +98,10 @@ class Testrun(object):
 
         Handler for results
         """
-        LOG.debug("Received results: %s from %s"%(result, sender))
+        environment = result.environment
+        LOG.debug("Received results for %s from %s"%(environment, sender))
         #
-        environment = Environment(result.environment)
+        environment = Environment(environment)
         self.tested_packages_dict[environment].append(result.testpackage)
         #
         self.results_xmls.append(result.content)
@@ -158,7 +159,7 @@ class Testrun(object):
         @rtype: L{TestrunResult}
         @return: PASS / FAIL / NO_CASES
         """
-        #FIXME this should be moved out 
+        #FIXME this should be moved out into own module
         ret_val = TestrunResult.NO_CASES
         aggregated_results = []
         for results_xml in self.results_xmls:
@@ -170,9 +171,8 @@ class Testrun(object):
             if all(aggregated_results):
                 ret_val = TestrunResult.PASS
             else:
-                ret_val = TestrunResult.NO_CASES
+                ret_val = TestrunResult.FAIL
         return ret_val
-
 
     ####################################################
     # PUBLIC METHOD

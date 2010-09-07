@@ -29,7 +29,7 @@ from ots.server.testrun.testrun import Testrun, TestrunException
 from ots.server.testrun.tests.mock_taskrunner import \
                                              MockTaskRunnerResultsMissing
 from ots.server.testrun.tests.mock_taskrunner import \
-                                             MockTaskRunnerResultsPass
+                                             MockTaskRunnerResultsFail
 from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerTimeout
 from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerError
 
@@ -40,43 +40,27 @@ from ots.results.api import PackageException
 
 class TestTestrun(unittest.TestCase):
 
-    # def test_results_2_tested_packages(self):
-#         dirname = os.path.dirname(os.path.abspath(ots.results.api.__file__))
-        
-#         results_file = os.path.join(dirname, "tests", "data", 
-#                                     "dummy_results_file.xml")
-#         results_xml = open(results_file, "r").read()
-#         class ResultsStub:
-#             content = results_xml
-#             testpackage = "pkg"
-#             environment = "host.foo" 
-
-#         results_list = [ResultsStub(), ResultsStub(), ResultsStub()]
-#         testrun = Testrun(None)
-#         for tested_package in testrun._results_2_tested_packages(results_list):
-#             self.assertTrue(tested_package.is_host_tested)
-
     def test_run_results_missing(self):
         mock_task_runner = MockTaskRunnerResultsMissing()
         run_test = mock_task_runner.run
         testrun = Testrun(run_test)
-        testrun.run()
         self.assertRaises(PackageException, testrun.run)
         
-    def _test_run_results_fail(self):
-        self.assertEquals(2, len(testrun.results)) 
-        self.assertEquals("test_1", testrun.results[0].name())
-        self.assertEquals("test_2", testrun.results[1].name())
+    def test_run_results_fail(self):
+        mock_task_runner = MockTaskRunnerResultsFail() 
+        run_test = mock_task_runner.run
+        testrun = Testrun(run_test)
+        ret_val = testrun.run()
         self.assertEquals(TestrunResult.FAIL, ret_val)
 
-    def _test_run_global_timeout(self):
+    def test_run_global_timeout(self):
         #Not really a test more an illustration of behaviour
         mock_task_runner = MockTaskRunnerTimeout()
         run_test = mock_task_runner.run 
         testrun = Testrun(run_test)
         self.assertRaises(OtsGlobalTimeoutError, testrun.run)
 
-    def _test_run_model_taskrunner_error(self):
+    def test_run_model_taskrunner_error(self):
         mock_task_runner = MockTaskRunnerError()
         run_test = mock_task_runner.run
         testrun = Testrun(run_test)

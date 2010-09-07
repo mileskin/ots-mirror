@@ -62,7 +62,7 @@ class MockTaskRunnerResultsBase(object):
                               content = results_xml,
                               testpackage = name,
                               origin = "mock_task_runner",
-                              environment = "component_test")
+                              environment = "hardware_test")
         kwargs = {OTSProtocol.RESULT : result}
         RESULTS_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
@@ -74,17 +74,16 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        kwargs = {OTSProtocol.ENVIRONMENT : "component_test",
+        kwargs = {OTSProtocol.ENVIRONMENT : "hardware_test",
                   OTSProtocol.PACKAGES : ["test_1", "test_2", "test_3"]}
         PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
-class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
+class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        expected_packages = ExpectedPackages("component_test", 
-                                           ["test_1", "test_2"])
-        kwargs = {OTSProtocol.PACKAGES : [expected_packages]}
+        kwargs = {OTSProtocol.ENVIRONMENT: "hardware_test",
+                  OTSProtocol.PACKAGES : ["test_1", "test_2"]}
         PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
 
