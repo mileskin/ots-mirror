@@ -22,28 +22,28 @@
 
 import unittest 
 
-from ots.common.packages import PackagesBase, ExpectedPackages, TestedPackages
+from ots.common.environment import Environment
 
-class TestPackages(unittest.TestCase):
+class TestEnvironment(unittest.TestCase):
     
     def test_is_host_test(self):
-        pkgs = PackagesBase("environment", ["pkg1", "pkg2"])
-        self.assertFalse(pkgs.is_host_tested)
-        pkgs = PackagesBase("host.environment", ["pkg1", "pkg2"])
-        self.assertTrue(pkgs.is_host_tested)
+        env = Environment("environment")
+        self.assertFalse(env.is_host)
+        env = Environment("host.environment")
+        self.assertTrue(env.is_host)
 
     def test_is_hardware(self):
-        pkgs = PackagesBase("environment", ["pkg1", "pkg2"])
-        self.assertFalse(pkgs.is_hw_tested)
-        pkgs = PackagesBase("hardware", ["pkg1", "pkg2"])
-        self.assertTrue(pkgs.is_hw_tested)
+        env = Environment("environment")
+        self.assertFalse(env.is_hw)
+        env = Environment("hardware")
+        self.assertTrue(env.is_hw)
 
     def test_is_equals(self):
-        pkg_1 = PackagesBase("environment", ["pkg1", "pkg2"])
-        pkg_2 = PackagesBase("environment", ["pkg1", "pkg2"])
-        pkg_3 = PackagesBase("environment", ["pkg1", "pkg3"])
-        self.assertEquals(pkg_1, pkg_2)
-        self.assertNotEquals(pkg_1, pkg_3)
+        env_1 = Environment("environment1")
+        env_2 = Environment("environment1")
+        env_3 = Environment("environment2")
+        self.assertEquals(env_1, env_2)
+        self.assertNotEquals(env_1, env_3)
        
 if __name__ == "__main__":
     unittest.main()

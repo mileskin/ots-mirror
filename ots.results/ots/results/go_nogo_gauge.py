@@ -176,9 +176,9 @@ def go_nogo_gauge(expected_packages_list,
 
     Determines Pass / Fail for the Testrun
     """
-    _check_run_validity(expected_packages_list,
-                        results_packages_list,
-                        is_hw_enabled,
-                        is_host_enabled)
-    return _reduce_results_package(results_packages_list,
-                                   insignificant_tests_matter)
+    #_check_run_validity(expected_packages_list,
+    #                    results_packages_list,
+    #                    is_hw_enabled,
+    #                    is_host_enabled)
+    #return _reduce_results_package(results_packages_list,
+    #                               insignificant_tests_matter)
