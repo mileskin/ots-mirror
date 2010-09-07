@@ -419,7 +419,7 @@ NA_XML = """
 <return_code>0</return_code>
 <start>2010-05-18 14:08:34</start>
 <end>2010-05-18 14:08:34</end>
-<stdout>/home/ssaaristo
+<stdout>/home/user
 </stdout>
 <stderr/>
 </step>
