@@ -101,7 +101,7 @@ class SignificantResultsProcessor(ResultsProcessorBase):
         Visit the `case` node
         """
         if self._is_processed(element):
-            results = self._result(element)
+            result = self._result(element)
             if self.all_passed is None:
                 self.all_passed = result
             else:
