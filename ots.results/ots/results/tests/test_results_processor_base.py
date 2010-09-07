@@ -20,14 +20,27 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-ABC for the dispatcher associated with the ElementTreeVisitor
-"""
+import unittest
 
-class ElementDispatcherBase(object):
-    """
-    ABC
-    """
+from ots.results.results_processor_base import ResultsProcessorBase
 
-    def dispatch_element(self, element):
-        raise NotImplementedError
+class TestResultsProcessorBase(unittest.TestCase):
+    
+    def test_tag_method_name(self):
+        name = ResultsProcessorBase._method_name("foo")
+        self.assertEquals("_foo", name)
+
+    def test_process(self):
+        processor = ResultsProcessorBase()
+        processor.foo = lambda x, y: x + y
+        self.assertEquals(3, processor._process("foo", 1, 2))
+
+    def test_process_element(self):
+        class ElementStub:
+            tag = "foo"
+        processor = ResultsProcessorBase()
+        processor._foo = lambda x: "pre" + x.tag 
+        self.assertEquals("prefoo" , processor.process_element(ElementStub()))
+
+if __name__ == "__main__":
+    unittest.main()

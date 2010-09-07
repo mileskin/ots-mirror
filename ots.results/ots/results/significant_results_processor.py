@@ -24,14 +24,12 @@
 ResultsProcessor that populates the PackageResults
 """
 
-from ots.common.api import TestedPackages
-
-from ots.results.results_dispatcher_base import ResultsDispatcherBase
+from ots.results.results_processor_base import ResultsProcessorBase
 from ots.results.results_schema import Names, TRUE
 
-class SignificantResultsDispatcher(ResultsDispatcherBase):
+class SignificantResultsProcessor(ResultsProcessorBase):
     """
-    ResultsProcessor is closely associated with 
+    SignificantResultsProcessor is closely associated with 
     the ResultsVisitor 
 
     Takes results from ElementTree elements and 
@@ -40,7 +38,7 @@ class SignificantResultsDispatcher(ResultsDispatcherBase):
     """
 
     def __init__(self, insignificant_tests_matter):
-        ResultsDispatcherBase.__init__(self)
+        ResultsProcessorBase.__init__(self)
         self.insignificant_tests_matter = insignificant_tests_matter
         self.all_passed = None
 

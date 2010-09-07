@@ -23,20 +23,20 @@
 """
 Essentially provides a kind of 'Strategy' behaviour 
 for the `accept` method on a node for the tree
-traversal performed by ResultsVisitor
+traversal performed by ElementTreeVisitor
 
 Sublclasses provide method that correspond to the name
 of the Element that it dispatches e.g.
 
 {{{
     def _case(self, element):
-        #dispatches 'case'
+        #processes 'case'
 }}}
 """
 
-from ots.results.element_dispatcher_base import ElementDispatcherBase
+from ots.results.element_processor_base import ElementProcessorBase
     
-class ResultsDispatcherBase(ElementDispatcherBase):
+class ResultsProcessorBase(ElementProcessorBase):
     """
     Closely associated with the visitors
     """
@@ -52,18 +52,18 @@ class ResultsDispatcherBase(ElementDispatcherBase):
         """
         return "_%s" % (tag)
 
-    def _dispatch(self, method_name, *args):
+    def _process(self, method_name, *args):
         """
         @type method_name: C{string} 
         @param tag: The name of the method
 
-        Safe dispatches of the method_name for the args
+        Safely process the method_name for the args
         """
         if hasattr(self, method_name):
             func = getattr(self, method_name)
             return func(*args)
                   
-    def dispatch_element(self, element):
+    def process_element(self, element):
         """
         @type element: C{Element} 
         @param element: An ElementTree Element
@@ -71,4 +71,4 @@ class ResultsDispatcherBase(ElementDispatcherBase):
         Dispatch the element
         """
         method_name = self._method_name(element.tag)
-        return self._dispatch(method_name, element)
+        return self._process(method_name, element)

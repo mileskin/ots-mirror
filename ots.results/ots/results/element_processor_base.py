@@ -20,27 +20,16 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import unittest
+"""
+ABC for the processor associated with the ElementTreeVisitor
 
-from ots.results.results_dispatcher_base import ResultsDispatcherBase
+effectively a strategy for `visit`
+"""
 
-class TestResultsDispatcherBase(unittest.TestCase):
-    
-    def test_tag_method_name(self):
-        name = ResultsDispatcherBase._method_name("foo")
-        self.assertEquals("_foo", name)
+class ElementProcessorBase(object):
+    """
+    ABC
+    """
 
-    def test_dispatch(self):
-        dispatcher = ResultsDispatcherBase()
-        dispatcher.foo = lambda x, y: x + y
-        self.assertEquals(3, dispatcher._dispatch("foo", 1, 2))
-
-    def test_dispatch_element(self):
-        class ElementStub:
-            tag = "foo"
-        dispatcher = ResultsDispatcherBase()
-        dispatcher._foo = lambda x: "pre" + x.tag 
-        self.assertEquals("prefoo" , dispatcher.dispatch_element(ElementStub()))
-
-if __name__ == "__main__":
-    unittest.main()
+    def proces_element(self, element):
+        raise NotImplementedError

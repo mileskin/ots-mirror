@@ -22,46 +22,47 @@
 
 import unittest
 
-from ots.results.significant_results_dispatcher import SignificantResultsDispatcher
+from ots.results.significant_results_processor import \
+                     SignificantResultsProcessor
 
-class TestResultsPackagesProcessor(unittest.TestCase):
+class TestSignificantResultsProcessor(unittest.TestCase):
 
     def test_is_insignificant(self):
-        significant_results_dispatcher = SignificantResultsDispatcher(True)
+        significant_results_processor = SignificantResultsProcessor(True)
         #
         class NoInsigTagElementStub:
             def items(self):
                 return [("foo", 1)]
-        self.assertFalse(significant_results_dispatcher._is_insignificant(
+        self.assertFalse(significant_results_processor._is_insignificant(
                                   NoInsigTagElementStub()))
             
         #
         class InsigFalseElementStub:
             def items(self):
                 return [("insignificant", "false")]
-        self.assertFalse(significant_results_dispatcher._is_insignificant(
+        self.assertFalse(significant_results_processor._is_insignificant(
                                   InsigFalseElementStub()))
             
         #
         class InsigTrueElementStub:
             def items(self):
                 return [("insignificant", "true")]
-        self.assertTrue(significant_results_dispatcher._is_insignificant(
+        self.assertTrue(significant_results_processor._is_insignificant(
                                   InsigTrueElementStub()))
             
     def test_pre_process_case(self):
-        significant_results_dispatcher = SignificantResultsDispatcher(True)
+        significant_results_processor = SignificantResultsProcessor(True)
         class ElementSignificant:
             def items(self):
                 return [("insignificant", "false"), ("result", "pass")]
-        result = significant_results_dispatcher._case(ElementSignificant())
+        result = significant_results_processor._case(ElementSignificant())
         self.assertEquals("PASS", result)
 
 
         class ElementInsignificant:
             def items(self):
                 return [("insignificant", "true"), ("result", "fail")]
-        result = significant_results_dispatcher._case(ElementInsignificant())
+        result = significant_results_processor._case(ElementInsignificant())
         self.assertEquals("FAIL" ,result)
 
 if __name__ == "__main__":
