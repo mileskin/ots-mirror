@@ -20,13 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-The rules for checking 
-whether all the Packages in the run  
-meet a global pass / fail criteria
 """ 
+Checks whether the testrun is valid.
 
-from copy import copy
+Verifies that all the Packages have been run  
+""" 
 
 from ots.results.testrun_result import TestrunResult
 
@@ -37,11 +35,12 @@ class PackageException(Exception):
 def _check_packages(expected_packages_dict):
     """
     @type expected_packages_dict: C{dict} 
-     - keys C{ots.common.Environment}
-     - values C{list} of C{string}
+                            - keys C{ots.common.Environment}
+                            - values C{list} of C{string}
     @param expected_packages_dict: Is hardware testing enabled
+  
+    Have any packages been found at all?
     """
-    #Have any packages been found at all?
     packages = [pkg for pkgs in expected_packages_dict.values() 
                     for pkg in pkgs]
     if not packages:
@@ -52,6 +51,10 @@ def _check_hw_testing(is_hw_enabled, expected_packages_dict):
     @type is_hw_testing_enabled: C{bool}
     @param is_hw_testing_enabled: Is hardware testing enabled
     
+    @type expected_packages_dict: C{dict} 
+                            - keys C{ots.common.Environment}
+                            - values C{list} of C{string}
+    @param expected_packages_dict:  The packages that should have been tested
 
     If hardware testing specified are there hardware test packages?
     """
@@ -64,7 +67,12 @@ def _check_host_testing(is_host_enabled, expected_packages_dict):
     """
     @type is_host_enabled: C{bool}
     @param is_host_enabled: Is host testing enabled
-       
+    
+    @type expected_packages_dict: C{dict} 
+                            - keys C{ots.common.Environment}
+                            - values C{list} of C{string}
+    @param expected_packages_dict:  The packages that should have been tested
+
     If host testing specified are there host packages?
     """
     if is_host_enabled:
@@ -74,6 +82,18 @@ def _check_host_testing(is_host_enabled, expected_packages_dict):
     
 def _check_complete(expected_packages_dict,
                     tested_packages_dict):
+
+    """
+    @type expected_packages_dict: C{dict} 
+                            - keys C{ots.common.Environment}
+                            - values C{list} of C{string}
+    @param expected_packages_dict: The packages that should have been tested
+
+    @type tested_packages_dict: C{dict} 
+                            - keys C{ots.common.Environment}
+                            - values C{list} of C{string}
+    @param tested_packages_dict: The packages that were actually tested
+    """
     missing_packages = []
     #Find missing environments
     for env in set(expected_packages_dict.keys()).difference(

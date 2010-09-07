@@ -29,14 +29,14 @@ class ElementTreeVisitor(object):
     Extrinsic Visitor for the ElementTree Data Structure
     """
 
-    _dispatchers = []
+    _processors = []
 
-    def add_dispatcher(self, dispatcher):
+    def add_processor(self, processor):
         """
-        @type dispatcher: C{ElementDispatcherBase
+        @type processor: C{ElementProcessorBase
         @param dispatcher: Dispatch strategy
         """
-        self._dispatchers.append(dispatcher)
+        self._processors.append(processor)
 
     def visit(self, element):
         """
@@ -45,7 +45,7 @@ class ElementTreeVisitor(object):
 
         Preorder Tree Traversal dispatching elements on route
         """
-        for dispatcher in self._dispatchers:
-            dispatcher.dispatch_element(element)
+        for processor in self._processors:
+            processor.process_element(element)
         map(self.visit, element.getchildren())
                 
