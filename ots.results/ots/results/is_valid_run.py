@@ -26,8 +26,6 @@ Checks whether the testrun is valid.
 Verifies that all the Packages have been run  
 """ 
 
-from ots.results.testrun_result import TestrunResult
-
 class PackageException(Exception):
     """Problem with the Package"""
     pass
@@ -107,7 +105,7 @@ def _check_complete(expected_packages_dict,
     #Format Exception
     if missing_packages:
         pretty_list = ', '.join(missing_packages)
-        msg = "Missing packages: %s"%(pretty_list)
+        msg = "Missing packages: %s" % (pretty_list)
         raise PackageException(msg)
     
 def is_valid_run(expected_packages_dict,

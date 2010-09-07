@@ -29,8 +29,6 @@ http://gitorious.org/qa-tools/test-definition
 Implemented using Visitor Pattern to maintain backward compatibility
 """
 
-import os
-
 import xml.etree.cElementTree as ElementTree
 
 from ots.results.validate_xml import validate_xml
