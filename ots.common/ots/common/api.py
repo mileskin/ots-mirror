@@ -28,4 +28,5 @@ from ots.common.protocol import PROTOCOL_VERSION
 
 #Containers
 from ots.common.resultobject import ResultObject
+from ots.common.environment import Environment
 from ots.common.packages import ExpectedPackages, TestedPackages

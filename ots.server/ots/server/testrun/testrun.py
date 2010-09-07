@@ -25,6 +25,8 @@ Runs an OTS Testrun
 """
 import logging
 
+from collections import defaultdict
+
 from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
@@ -32,6 +34,9 @@ from ots.server.distributor.api import PACKAGELIST_SIGNAL
 from ots.results.api import parse_results
 from ots.results.api import go_nogo_gauge
 from ots.results.api import TestrunResult
+#FIXME
+from ots.results.is_valid_run import is_valid_run
+from ots.common.api import Environment
 
 LOG = logging.getLogger(__name__)
 
@@ -72,9 +77,9 @@ class Testrun(object):
         self.is_host_enabled = is_host_enabled
         self.insignificant_tests_matter = insignificant_tests_matter
         #
-        self.results_list = []
-        self.tested_packages_list = []
-        self.expected_packages_list = []
+        self.results_xmls = []
+        self.tested_packages_dict = defaultdict(list)
+        self.expected_packages_dict = defaultdict(list)
 
     ###########################################
     # HANDLERS
@@ -94,15 +99,21 @@ class Testrun(object):
         Handler for results
         """
         LOG.debug("Received results: %s from %s"%(result, sender))
-        self.expected_packages_list.extend(
-        self.results_list.append(result)
+        #
+        environment = Environment(result.environment)
+        self.tested_packages_dict[environment].append(result.testpackage)
+        #
+        self.results_xmls.append(result.content)
 
-    def _packagelist_cb(self, signal, packages, sender, **kwargs): 
+    def _packagelist_cb(self, signal, environment, packages, sender, **kwargs): 
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
 
-        @type packages: C{list} of C{ots.common.api.ExecutedPackage}
+        @type environment: C{str}
+        @param environment: The environment that the test was run under
+
+        @type packages: C{list} of C{str}
         @param packages: The packages executed by the Testrun
 
         @type sender: C{str}
@@ -111,7 +122,9 @@ class Testrun(object):
         Handler for package list
         """
         LOG.debug("Received packages: %s from %s"%(packages, sender))
-        self.expected_packages_list.extend(packages)
+
+        environment = Environment(environment)
+        self.expected_packages_dict[environment].extend(packages)
 
     @staticmethod
     def _error_cb(signal, error_info, error_code, sender, **kwargs):
@@ -145,10 +158,11 @@ class Testrun(object):
         @rtype: L{TestrunResult}
         @return: PASS / FAIL / NO_CASES
         """
-        ret_val = TestrunResult.NOCASES
+        #FIXME this should be moved out 
+        ret_val = TestrunResult.NO_CASES
         aggregated_results = []
-        for result in self.results_list:
-            all_passed = parse_results(result.content,
+        for results_xml in self.results_xmls:
+            all_passed = parse_results(results_xml,
                                        self.insignificant_tests_matter)
             if all_passed is not None:
                 aggregated_results.append(all_passed)
@@ -157,13 +171,8 @@ class Testrun(object):
                 ret_val = TestrunResult.PASS
             else:
                 ret_val = TestrunResult.NO_CASES
+        return ret_val
 
-
-        #return go_nogo_gauge(self.expected_packages_list,
-        #                     tested_packages_list,
-        #                     self.is_hw_enabled,
-        #                     self.is_host_enabled,
-        #                     self.insignificant_tests_matter)
 
     ####################################################
     # PUBLIC METHOD
@@ -182,5 +191,9 @@ class Testrun(object):
         PACKAGELIST_SIGNAL.connect(self._packagelist_cb)
 
         self._run_test()
+        is_valid_run(self.expected_packages_dict,
+                     self.tested_packages_dict,
+                     self.is_hw_enabled,
+                     self.is_host_enabled)
         ret_val = self._go_nogo()
         return ret_val

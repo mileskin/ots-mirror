@@ -25,7 +25,6 @@ import time
 
 from ots.common.api import OTSProtocol, PROTOCOL_VERSION
 from ots.common.api import ResultObject
-from ots.common.api import ExpectedPackages
 
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import RESULTS_SIGNAL
@@ -75,9 +74,8 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        expected_packages = ExpectedPackages("component_test", 
-                                           ["test_1", "test_2", "test_3"])
-        kwargs = {OTSProtocol.PACKAGES : [expected_packages]}
+        kwargs = {OTSProtocol.ENVIRONMENT : "component_test",
+                  OTSProtocol.PACKAGES : ["test_1", "test_2", "test_3"]}
         PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
 class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
