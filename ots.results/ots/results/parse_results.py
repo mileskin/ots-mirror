@@ -35,8 +35,8 @@ import xml.etree.cElementTree as ElementTree
 
 from ots.results.validate_xml import validate_xml
 from ots.results.visitors import ElementTreeVisitor 
-from ots.results.significant_results_dispatcher import \
-                               SignificantResultsDispatcher
+from ots.results.significant_results_processor import \
+                               SignificantResultsProcessor
         
 def parse_results(results_xml, insignificant_tests_matter):
     """
@@ -53,11 +53,8 @@ def parse_results(results_xml, insignificant_tests_matter):
     """
     validate_xml(results_xml)
     visitor = ElementTreeVisitor()
-    significant_results_dispatcher = SignificantResultsDispatcher(
-                                            insignificant_tests_matter)
-    visitor.add_dispatcher(significant_results_dispatcher)
+    processor = SignificantResultsProcessor(insignificant_tests_matter)
+    visitor.add_processor(processor)
     root = ElementTree.fromstring(results_xml)
     visitor.visit(root)
-    return significant_results_dispatcher.all_passed
-        
-  
+    return processor.all_passed
