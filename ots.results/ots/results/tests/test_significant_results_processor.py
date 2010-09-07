@@ -35,35 +35,81 @@ class TestSignificantResultsProcessor(unittest.TestCase):
                 return [("foo", 1)]
         self.assertFalse(significant_results_processor._is_insignificant(
                                   NoInsigTagElementStub()))
-            
         #
         class InsigFalseElementStub:
             def items(self):
                 return [("insignificant", "false")]
         self.assertFalse(significant_results_processor._is_insignificant(
                                   InsigFalseElementStub()))
-            
         #
         class InsigTrueElementStub:
             def items(self):
                 return [("insignificant", "true")]
         self.assertTrue(significant_results_processor._is_insignificant(
                                   InsigTrueElementStub()))
-            
-    def test_pre_process_case(self):
-        significant_results_processor = SignificantResultsProcessor(True)
-        class ElementSignificant:
+
+    def test_result(self):
+        sig_results_proc = SignificantResultsProcessor(True)
+        class PassElementStub:
             def items(self):
-                return [("insignificant", "false"), ("result", "pass")]
-        result = significant_results_processor._case(ElementSignificant())
+                return [("result", "PASS")]
+        self.assertTrue(sig_results_proc._result(PassElementStub()))
+        #
+        class FailElementStub:
+            def items(self):
+                return [("result", "FAIL")]
+        self.assertFalse(sig_results_proc._result(FailElementStub()))
+        #
+        class NAElementStub:
+            def items(self):
+                return [("result", "N/A")]
+        self.assertFalse(sig_results_proc._result(NAElementStub()))
+
+    def test_is_counted(self):
+        sig_results_proc_true = SignificantResultsProcessor(True)
+        sig_results_proc_false = SignificantResultsProcessor(False)
+
+        class InsigTrueElementStub:
+            def items(self):
+                return [("insignificant", "true")]
+        self.assertTrue(sig_results_proc_true._is_processed(
+                                  InsigTrueElementStub()))
+
+        class InsigFalseElementStub:
+            def items(self):
+                return [("insignificant", "false")]
+
+        self.assertTrue(sig_results_proc_true._is_processed(
+                                  InsigTrueElementStub()))
+
+        self.assertTrue(sig_results_proc_true._is_processed(
+                                  InsigFalseElementStub()))
+
+        self.assertFalse(sig_results_proc_false._is_processed(
+                                  InsigTrueElementStub()))
+
+        self.assertTrue(sig_results_proc_true._is_processed(
+                                  InsigFalseElementStub()))
+
+    def _test_case(self):
+        sig_results_proc = SignificantResultsProcessor(True)
+
+        class ElementPass:
+            def items(self):
+                return [("result", "pass")]
+        result = sig_results_proc._case(ElementSignificant())
         self.assertEquals("PASS", result)
 
-
-        class ElementInsignificant:
+        class ElementFail:
             def items(self):
-                return [("insignificant", "true"), ("result", "fail")]
-        result = significant_results_processor._case(ElementInsignificant())
-        self.assertEquals("FAIL" ,result)
+                return [("result", "fail")]
+
+        sig_results_proc._case(ElementPass())
+        self.assertEquals(True, sig_results_proc.all_passed)
+        sig_results_proc._case(ElementPass())
+        self.assertEquals(True, sig_results_proc.all_passed)
+        sig_results_proc._case(ElementFail())
+        self.assertEquals(Fail, sig_results_proc.all_passed)
 
 if __name__ == "__main__":
     unittest.main()
