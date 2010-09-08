@@ -72,10 +72,10 @@ class TestTarget(object):
         raise Exception("Error: not implemented")
 
     def get_command_to_find_test_packages(self):
-        """Returns "dpkg -S tests.xml" command for finding test packages."""
+        """Returns command that lists packages containing file tests.xml."""
         raise Exception("Error: not implemented")
 
     def get_command_to_list_installed_packages(self):
-        """Returns "dpkg -l" command for finding test packages."""
+        """Returns command that lists all installed packages in target."""
         raise Exception("Error: not implemented")
 

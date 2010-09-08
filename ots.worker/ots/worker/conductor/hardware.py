@@ -40,9 +40,13 @@ import os
 import urllib
 import hashlib
 
-
 class Hardware(TestTarget):
-    """Class for setting up hardware to be used as test target"""
+    """
+    This class implements methods and commands needed in setting up and to 
+    communicate with hardware used as test target.
+
+    The default implementation has support for hardware using Debian packaging.
+    """
 
     def __str__(self):
         return "Hardware"
@@ -95,11 +99,11 @@ class Hardware(TestTarget):
         return cmd
 
     def get_command_to_find_test_packages(self):
-        """Returns dpkg -S command for hardware to find test packages"""
+        """Command to find Debian packages with file tests.xml from device."""
         return HW_COMMAND % "dpkg -S tests.xml"
 
     def get_command_to_list_installed_packages(self):
-        """Returns package listing produced by dpkg -l command in hardware."""
+        """Command that lists all Debian packages installed in device."""
         return HW_COMMAND % "dpkg -l"
 
 
@@ -268,7 +272,7 @@ class Hardware(TestTarget):
 
 
     def _flash(self):
-        """Flash images to the device using the mother of all flashers"""
+        """Flash images to the device using the flasher_module"""
 
         try:
             flasher = flasher_module.SoftwareUpdater()
@@ -295,4 +299,18 @@ class Hardware(TestTarget):
             raise ConductorError("Error in preparing hardware: "\
                                  "Invalid flasher config file!", "212")
 
+
+class RPMHardware(Hardware):
+    """
+    This class implements support for devices that use RPM packaging. Everything
+    else is inherited from default hardware class Hardware.
+    """
+
+    def get_command_to_find_test_packages(self):
+        """Command to find rpm test packages with tests.xml from device."""
+        return HW_COMMAND % "rpm -qf tests.xml"
+
+    def get_command_to_list_installed_packages(self):
+        """Command that lists all rpm packages installed in device."""
+        return HW_COMMAND % "rpm -qa"
 

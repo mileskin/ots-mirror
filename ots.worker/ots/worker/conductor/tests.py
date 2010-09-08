@@ -62,17 +62,6 @@ from executor import TestRunData as TRD
 from executor import Executor as TE
 from hardware import Hardware as HW
 
-class Stub_MotherOfAllFlashers(object):
-    def __init__(self, config_dictionary=None, factory=None):
-        self.exception = None
-    def flash_raises(self, flasher_exception):
-        self.exception = flasher_exception
-    def flash(self, image_path, content_image_path):
-        print "FLASHER_STUB: FLASH CALLED!!!"
-        print "Raising exception: %s" % self.exception
-        if self.exception:
-            raise self.exception
-
 class Mock_Hardware(HW):
     """
     Stubs out methods that make calls to file system or to internet.
@@ -127,7 +116,7 @@ class Stub_Hardware(object):
 
 class Options(object):
     def __init__(self):
-        self.testrun_id = None #"1"
+        self.testrun_id = None #standalone
         self.image_url = "xxx/yyy.bin"
         self.content_image_url = "xxx/yyy"
         self.content_image_path = None
@@ -140,7 +129,8 @@ class Options(object):
         self.flasher_url = None
 
 class Stub_Executor(object):
-    def __init__(self, testrun, stand_alone, otsclient = None, hostname = "unknown"):
+    def __init__(self, testrun, stand_alone, responseclient = None, 
+                 hostname = "unknown"):
         self.env = ""
         self.stand_alone = stand_alone
     def set_target(self, target):
@@ -150,8 +140,6 @@ class Stub_Executor(object):
 
 class Mock_Executor(TE):
     def _test_execution_error_handler(self, exc, test_package):
-        #print test_package, sys.exc_info() #traceback.print_exc()
-        #print test_package, exc.error_info, exc.error_code
         #We're expecting ConductorError exception here
         raise Exception("%s: %s: %s" % (test_package, exc.error_info, exc.error_code))
     def _store_test_definition(self, path, test_package):
@@ -159,19 +147,9 @@ class Mock_Executor(TE):
     def _get_command_for_testrunner(self):
         return "" #TODO: self.testrunner_command 
 
-
-def _parse_command_line():
-    return Options(), None
-
-def _check_command_line_options(options):
-    return True
-
-def _setup_logging(verbose):
-    pass
-
 def _conductor_config_simple(config_file = "", default_file = ""):
     config = dict()
-    config['flasher_module'] = 'mother_of_all_flashers'
+    config['device_packaging'] = 'debian'
     config['commands_to_show_environment'] = ['ls', 'echo "jouni"']
     config['files_fetched_after_testing'] = ['xxx']
     config['tmp_path'] = "/tmp/"
@@ -184,7 +162,7 @@ class Stub_Command(object):
 
 class Stub_ResponseClient(object):
     def __init__(self, server_host, server_port, testrun_id):
-        self.log = logging.getLogger("otsclient")
+        self.log = logging.getLogger("responseclient")
         self.host = server_host
         self.port = server_port
         self.testrun_id = testrun_id
@@ -211,7 +189,6 @@ class TestConductorInternalConstants(unittest.TestCase):
         """Check that required constants exist and are defined as expected"""
         import conductor_config as c
         c.DEBUG_LOG_FILE
-        c.HW_SUFFIX
         c.TEST_DEFINITION_FILE_NAME
         c.TESTRUN_LOG_FILE
         c.TESTRUN_LOG_CLEANER
@@ -243,16 +220,15 @@ class TestConductorConf(unittest.TestCase):
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
         conf = conductor._read_conductor_config(conf_file, None)
         self.assertTrue(type(conf) == type(dict()))
+        self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['commands_to_show_environment'] != "")
         self.assertTrue(conf['files_fetched_after_testing'] != "")
         self.assertTrue(conf['tmp_path'] != "")
 
 
 class TestConductor(unittest.TestCase):
-    def _test_main(self): #TODO: Fails. Figure out how to stub out _check_command_line_options() or/and _parse..
+    def _test_main(self): #TODO: Refactor code so that main can be tested
         from conductor import main
-        #print dir(main)
-        #print main.func_globals
         main() 
 
     def test_check_command_line_options(self):
@@ -306,7 +282,7 @@ class TestConductor(unittest.TestCase):
         parser.print_help() #check help text is set
 
 
-class TestTestTarget(unittest.TestCase): #These tests and testtarget.py could be removed completely
+class TestTestTarget(unittest.TestCase):
 
     def setUp(self):
         from testtarget import TestTarget
@@ -373,11 +349,11 @@ class TestHardware(unittest.TestCase):
 
     def test_get_command_to_find_test_packages(self):
         cmd = self.mock_hw.get_command_to_find_test_packages()
-        self.assertTrue(cmd)
+        self.assertTrue(cmd.find('dpkg') != -1)
 
     def test_get_command_to_list_installed_packages(self):
         cmd = self.mock_hw.get_command_to_list_installed_packages()
-        self.assertTrue(cmd)
+        self.assertTrue(cmd.find('dpkg') != -1)
 
     def test_fetch_file(self):
         url = "http://my.fake.server.com/path/filename"
@@ -391,13 +367,13 @@ class TestHardware(unittest.TestCase):
 
     def test_fetch_release(self):
         self.testrun.image_url = "http://my.fake.server.com/path/image.bin"
-        #OSError because file does not exist
+        #we get OSError because file does not exist
         self.assertRaises(OSError, self.mock_hw._fetch_release) 
 
     def test_fetch_content_image(self):
         self.testrun.content_image_url = "http://my.fake.server.com/path/image.bin"
         expected_path = os.path.join(self.config['tmp_path'], "image.bin")
-        #OSError because file does not exist
+        #we get OSError because file does not exist
         self.assertRaises(OSError, self.mock_hw._fetch_content_image) 
 
     def test_cleanup(self):
@@ -411,14 +387,15 @@ class TestHardware(unittest.TestCase):
         self.mock_hw.prepare() #returns doing nothing
 
     def test_flash(self):
-        #OSError because first image file does not exist. TODO: improve when file size checks removed
+        #we get OSError because first image file does not exist. 
+        #TODO: improve when file size checks removed
         self.assertRaises(OSError, self.mock_hw.prepare)
 
     def test__flash(self): #testing private method
         self.mock_hw._flash() #all stubbed out, so expecting no exceptions
 
 
-    # Below tests may use real Hardware class instead of mocked class:
+    # Below tests use real Hardware class instead of mock:
 
     def test_read_file(self):
         content = self.real_hw._read_file(PATH_TO_TEST_CONF_FILE)
@@ -446,10 +423,28 @@ class TestHardware(unittest.TestCase):
         self.assertTrue(self.real_hw._add_execute_privileges(NON_EXISTING_FILE) != 0)
 
 
+class TestRPMHardware(unittest.TestCase):
+
+    def setUp(self):
+        from hardware import RPMHardware as RPMHardware
+        from executor import TestRunData as TestRunData
+        self.testrun = TestRunData( Options(), 
+                                    config = _conductor_config_simple() )
+        self.hw = RPMHardware(self.testrun)
+
+    def test_get_command_to_find_test_packages(self):
+        cmd = self.hw.get_command_to_find_test_packages()
+        self.assertTrue(cmd.find('rpm') != -1)
+
+    def test_get_command_to_list_installed_packages(self):
+        cmd = self.hw.get_command_to_list_installed_packages()
+        self.assertTrue(cmd.find('rpm') != -1)
+
+
 class Test_Executor(unittest.TestCase):
     """
     Tests for Executor class and executor file.
-    otsclient = None, stand_alone = True
+    responseclient = None, stand_alone = True
     """
 
     def setUp(self):
@@ -458,17 +453,18 @@ class Test_Executor(unittest.TestCase):
         self.workdir = tempfile.mkdtemp("_test_conductor")
         self.testrun = TestRunData(Options(), config = _conductor_config_simple())
         self.testrun.workdir = self.workdir #inject our temp folder
-        self.target = Stub_Hardware()
-        otsclient = None
+        responseclient = None
         stand_alone = True
-        self.executor = Mock_Executor(self.testrun, stand_alone, otsclient, "hostname")
+        self.executor = Mock_Executor(self.testrun, stand_alone, responseclient,
+                                      "hostname")
                 #NOTE!! STUBBED OUT so far: 
-                #test_error_handler 
-                #store_test_def
+                #_test_execution_error_handler
+                #_store_test_definition
                 #_get_command_for_testrunner
 
-        otsclient = Stub_ResponseClient("", "", 0)
-        self.real_executor = Executor(self.testrun, stand_alone, otsclient, "hostname")
+        responseclient = Stub_ResponseClient("", "", 0)
+        self.real_executor = Executor(self.testrun, stand_alone, responseclient,
+                                      "hostname")
 
     def tearDown(self):
         subprocess.call("rm -rf "+self.workdir, shell=True) #created in setUp
@@ -481,7 +477,6 @@ class Test_Executor(unittest.TestCase):
         test_package = "my-tests"
         expected_stdout_file = os.path.join(path, "%s_testrunner_stdout.txt" % test_package)
         expected_stderr_file = os.path.join(path, "%s_testrunner_stderr.txt" % test_package)
-        os.system("ls -l %s" % path)
         #check that files do not exist yet
         self.assertFalse(os.path.isfile(expected_stdout_file))
         self.assertFalse(os.path.isfile(expected_stderr_file))
@@ -494,9 +489,10 @@ class Test_Executor(unittest.TestCase):
     def _test_run_tests_2(self):  #TODO TEST DISABLED until testrunner_command can be injected to Mock_Executor
         """Test for _run_tests method when testrunner command fails"""
         testrunner_command = 'sh -c "exit 1"'
-        self.executor = Mock_Executor(self.testrun, self.stand_alone, self.otsclient, "hostname", testrunner_command)
-        self.target = Stub_Hardware()
-        self.executor.set_target(self.target)
+        self.executor = Mock_Executor(self.testrun, self.stand_alone, 
+                                      self.responseclient, "hostname", 
+                                      testrunner_command)
+        self.executor.target = Stub_Hardware()
         self.testrun.base_dir = self.workdir
         #self.assertFalse(os.path.exists(...)) #files do not exist yet
         test_package = "my-tests"
@@ -504,38 +500,59 @@ class Test_Executor(unittest.TestCase):
         #TODO check that files were created
 
 
-    def test_set_target(self):
-        self.executor.set_target(self.target)
+    def test_set_target_when_debian(self):
+        from hardware import Hardware as Hardware
+        self.executor.set_target()
+        self.assertTrue(isinstance(self.executor.target, Hardware))
+        self.assertEquals(str(self.executor.target), "Hardware")
+        self.assertEquals(self.executor.env, "Hardware")
+
+    def test_set_target_when_rpm(self):
+        from hardware import RPMHardware as RPMHardware
+        self.testrun.config['device_packaging'] = 'rpm'
+        self.executor.set_target()
+        self.assertTrue(isinstance(self.executor.target, RPMHardware))
         self.assertEquals(str(self.executor.target), "Hardware")
         self.assertEquals(self.executor.env, "Hardware")
 
     def test_set_target_when_hostbased(self):
         self.executor.testrun.is_host_based = True
-        self.executor.set_target(self.target)
+        self.executor.set_target()
         self.assertEquals(str(self.executor.target), "Hardware")
         self.assertEquals(self.executor.env, "Host_Hardware")
 
     def test_execute_tests(self):
-        self.executor.set_target(self.target)
-        testrunid = "1"
-        env = "Hardware"
-        test_package = "my-tests"
-        path = os.path.join(self.workdir, "conductor", testrunid, env)
-        expected_stdout_file = os.path.join(path, "%s_testrunner_stdout.txt" % test_package)
-        expected_stderr_file = os.path.join(path, "%s_testrunner_stderr.txt" % test_package)
-        print "path = %s" % path
-        print "self.workdir = %s" % self.workdir
-        print "CONTENT:"
-        os.system("ls -al %s" %self.workdir)
-        print "self.testrun.base_dir = %s" % self.testrun.base_dir
+        #NOTE: This test goes through lots of code by calling many private methods.
+        #But this test does not check which code was actually executed.
+        self.testrun.id = "1"
+        self.executor.env = "testenvironment"
+        self.executor.target = Stub_Hardware()
+
+        #test_package must match to string in Stub_Hardware
+        test_package = "mypackage-test"
+
+        path = os.path.join(self.workdir, "conductor", self.testrun.id, 
+                            self.executor.env)
+        expected_stdout_file = \
+                os.path.join(path, "%s_testrunner_stdout.txt" % test_package)
+        expected_stderr_file = \
+                os.path.join(path, "%s_testrunner_stderr.txt" % test_package)
+        expected_env_info_file = os.path.join(path, \
+                    "%s_environment_before_testing.txt" % self.executor.target)
+
+        #Check that files do not exist yet
         self.assertFalse(os.path.isfile(expected_stdout_file))
         self.assertFalse(os.path.isfile(expected_stderr_file))
+        self.assertFalse(os.path.isfile(expected_env_info_file))
 
-        errors = self.executor.execute_tests()
+        errors = self.executor.execute_tests()  #Here's the code to be tested.
 
         self.assertEquals(errors, 0)
-        #self.assertTrue(os.path.isfile(expected_stdout_file)) #TODO
-        #self.assertTrue(os.path.isfile(expected_stderr_file))
+
+        #Check that files were created. 
+        self.assertTrue(os.path.isfile(expected_stdout_file))
+        self.assertTrue(os.path.isfile(expected_stderr_file))
+        self.assertTrue(os.path.isfile(expected_env_info_file))
 
 
     def test_default_ssh_command_executor(self):

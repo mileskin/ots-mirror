@@ -26,7 +26,6 @@
 # See also /etc/conductor.conf
 
 DEBUG_LOG_FILE = "~/conductor.log"
-HW_SUFFIX = '.bin'
 
 TEST_DEFINITION_FILE_NAME = "tests.xml"
 

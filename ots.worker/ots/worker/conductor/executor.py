@@ -34,6 +34,7 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 
+from hardware import Hardware, RPMHardware
 from conductor_config import * #internal constants
 from conductorerror import ConductorError
 
@@ -78,9 +79,6 @@ class TestRunData(object):
         
         self._parse_image_filename_from_url()
         self._validate_content_image_path()
-
-        if not self.image_filename.endswith(HW_SUFFIX):
-            raise Exception("File name must end with %s!" % HW_SUFFIX)
 
         self.testdef_src = None
         self.results_src = None
@@ -129,12 +127,21 @@ class Executor(object):
 
     # public methods
 
-    def set_target(self, target):
+    def set_target(self):
         """
-        Sets test target and test environment for test execution.
+        Sets test target and test environment type.
         self.env == "<targetname>" or "Host_<targetname>", e.g. Host_Hardware.
         """
-        self.target = target
+
+        packaging = self.testrun.config['device_packaging']
+        if packaging == 'debian':
+            self.target = Hardware(self.testrun)
+        elif packaging == 'rpm':
+            self.target = RPMHardware(self.testrun)
+        else:
+            raise Exception("Unsupported packaging type '%s'" % packaging)
+
+        #set test environment type
         if self.testrun.is_host_based:
             self.env = "Host_%s" % str(self.target)
         else:
@@ -606,7 +613,13 @@ class Executor(object):
             self.testrun.test_packages = requested
 
         else:
-            all_pkgs = self._scan_for_test_packages()
+            packaging = self.testrun.config['device_packaging']
+            if packaging == 'debian':
+                all_pkgs = self._scan_for_test_packages_debian()
+            elif packaging == 'rpm':
+                all_pkgs = self._scan_for_test_packages_rpm()
+            else:
+                raise Exception("Unsupported packaging type '%s'" % packaging)
 
             if not all_pkgs:
                 raise ConductorError("No test packages found in image!", "1081")
@@ -632,9 +645,9 @@ class Executor(object):
                              "server")
 
 
-    def _scan_for_test_packages(self):
+    def _scan_for_test_packages_debian(self):
         """
-        Scan for test packages in hardware containing tests.xml file. 
+        Scan for Debian test packages in hardware containing tests.xml file. 
         Return names of test packages as a sorted list.
 
         # dpkg -l
@@ -684,6 +697,8 @@ class Executor(object):
                 
         return test_packages
 
+    def _scan_for_test_packages_rpm(self):
+        raise Exception("not implemented yet")
 
     def _fetch_environment_details(self):
         """

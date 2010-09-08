@@ -36,7 +36,6 @@ from conductor_config import DEBUG_LOG_FILE
 from conductor_config import HTTP_LOGGER_PATH
 from executor import TestRunData
 from executor import Executor
-from hardware import Hardware
 from conductorerror import ConductorError
 from ots.worker.api import ResponseClient
 
@@ -295,7 +294,7 @@ def main():
     try:
         testrun = TestRunData(options, config)
         executor = Executor(testrun, stand_alone, responseclient, gethostname())
-        executor.set_target(Hardware(testrun))
+        executor.set_target()
     except:
         log.error("Unknown error while creating test!")
         log.error("Traceback follows:", exc_info=True)
