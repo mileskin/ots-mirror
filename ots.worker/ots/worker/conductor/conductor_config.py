@@ -57,7 +57,7 @@ TESTRUNNER_SSH_OPTION = "-t root@192.168.2.15"
 TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
 TESTRUNNER_FILTER_OPTION = '-l "%s"'
 
-HTTP_LOGGER_PATH = "/logger/cita/%s/"  #testrun id
+HTTP_LOGGER_PATH = "/logger/ots/%s/"  #testrun id
 
 FLASHER_PATH = "/tmp/flasher"
 
