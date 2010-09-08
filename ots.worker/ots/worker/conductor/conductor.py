@@ -249,7 +249,7 @@ def _initialize_remote_connections(otsserver, testrun_id):
         return None
 
     try:
-        resposenclient = ResponseClient(host, testrun_id)
+        responseclient = ResponseClient(host, testrun_id)
         responseclient.connect()
     except:
         log.error("Unknown error in initializing OTS client connecting "\
