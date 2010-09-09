@@ -104,11 +104,13 @@ class Stub_Hardware(object):
     def get_command_to_copy_results(self):
         return self._test_cmd()
     def get_command_to_find_test_packages(self):
-        #returns output that matches with output from 'dpkg -S tests.xml'
-        return 'echo "mypackage-test: /usr/share/mypackage-test/tests.xml\n"'
+        return ""
+    def parse_packages_with_file(self, lines):
+        return ["mypackage-test"]
     def get_command_to_list_installed_packages(self):
-        #returns output that matches with output from 'dpkg -l'"
-        return 'echo "ii  mypackage-test   1.2.3   My very special tests\n"'
+        return ""
+    def parse_installed_packages(self, lines):
+        return ["mypackage-test"]
 
     def _test_cmd(self):
         return "sh -c 'exit %s'" % self.exit_code
@@ -397,7 +399,7 @@ class TestHardware(unittest.TestCase):
         self.mock_hw._flash() #all stubbed out, so expecting no exceptions
 
 
-    # Below tests use real Hardware class instead of mock:
+    # Below tests use real Hardware class instead of mock: (Add here all you can!)
 
     def test_read_file(self):
         content = self.real_hw._read_file(PATH_TO_TEST_CONF_FILE)
@@ -418,11 +420,21 @@ class TestHardware(unittest.TestCase):
         #MD5 valid:
         self.assertEquals(self.real_hw._md5_valid(EMPTY_FILE, MD5_FOR_EMPTY_STRING), True)
         #MD5 invalid:
-        #mocked out _read_file() returns "" as content for any file but md5 for "" is a 16-byte string
+        #mock returns "" as file content but md5 for "" is a 16-byte string
         self.assertEquals(self.mock_hw._md5_valid("ununsed", "unused"), False)
 
     def test_add_execute_privileges(self):
         self.assertTrue(self.real_hw._add_execute_privileges(NON_EXISTING_FILE) != 0)
+
+    def test_parse_installed_packages(self):
+        lines = "ii  mypackage-tests   1.2.3   My very special tests\n"+\
+                "ii  someotherpackage   0.0.1   Something\n"
+        self.assertEquals(self.real_hw.parse_installed_packages(lines), ["mypackage-tests"])
+
+    def test_parse_packages_with_file(self):
+        lines = "somepackage: /usr/share/somepackage/tests.xml\n"+\
+                "mypackage-tests: /usr/share/mypackage-tests/tests.xml\n"
+        self.assertEquals(self.real_hw.parse_packages_with_file(lines), ["mypackage-tests"])
 
 
 class TestRPMHardware(unittest.TestCase):
@@ -441,6 +453,16 @@ class TestRPMHardware(unittest.TestCase):
     def test_get_command_to_list_installed_packages(self):
         cmd = self.hw.get_command_to_list_installed_packages()
         self.assertTrue(cmd.find('rpm') != -1)
+
+    def test_parse_installed_packages(self):
+        lines = "mypackage-test\n"+\
+                "someotherpackage\n"
+        self.assertEquals(self.hw.parse_installed_packages(lines), ["mypackage-test"])
+
+    def test_parse_packages_with_file(self):
+        lines = "somepackage\n"+\
+                "mypackage-tests\n"
+        self.assertEquals(self.hw.parse_packages_with_file(lines), ["mypackage-tests"])
 
 
 class Test_Executor(unittest.TestCase):

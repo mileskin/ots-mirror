@@ -39,6 +39,7 @@ except ImportError:
 import os
 import urllib
 import hashlib
+import re
 
 class Hardware(TestTarget):
     """
@@ -103,10 +104,34 @@ class Hardware(TestTarget):
         """Command to find Debian packages with file tests.xml from device."""
         return HW_COMMAND % "dpkg -S tests.xml"
 
+    def parse_packages_with_file(self, lines):
+        """
+        Parse lines returned by "dpkg -S tests.xml" command for test packages.
+        Returns list of test packages.
+        """
+        path_pattern = re.compile("/usr/share/"\
+                "(\S+-test|\S+-tests|\S+-benchmark)/tests.xml$", re.MULTILINE)
+        pkgs_with_file = re.findall(path_pattern, lines)
+        return pkgs_with_file
+
     def get_command_to_list_installed_packages(self):
         """Command that lists all Debian packages installed in device."""
         return HW_COMMAND % "dpkg -l"
 
+    def parse_installed_packages(self, lines):
+        """
+        Parse test packages from output lines returned by dpkg -l command. 
+        Returns sorted list.
+        """
+        test_pkg_pattern = re.compile("ii\s\s"\
+            "(?P<name>\S+-test|\S+-tests|\S+-benchmark)\s+"\
+            "(?P<ver>\S+)\s+"\
+            "(?P<desc>.*)$", re.MULTILINE)
+
+        test_pkg_data = re.findall(test_pkg_pattern, lines)
+        test_packages = [ name for (name, ver, desc) in test_pkg_data ]
+        test_packages.sort()
+        return test_packages
 
     # Private methods
 
@@ -120,7 +145,7 @@ class Hardware(TestTarget):
         Fetch flasher from self.testrun.flasher_url if it's not None.
         Fetch flasher.md5 and check flasher's md5 digest against it.
         If anything fails, delete downloaded flasher. This forces flasher to use 
-        the default (secondary) flasher.
+        the default flasher.
         """
 
         flasher_path = FLASHER_PATH
@@ -321,7 +346,31 @@ class RPMHardware(Hardware):
         """Command that lists rpm test packages with tests.xml from device."""
         return HW_COMMAND % "find /usr/share/ -name tests.xml | xargs rpm -q --queryformat '%{NAME}\n' -f"
 
+    def parse_packages_with_file(self, lines):
+        """
+        Parse lines returned by "find /usr/share/ -name tests.xml | xargs 
+        rpm -q --queryformat '%{NAME}\n' -f" command for test packages.
+        Returns list of test packages.
+        """
+        test_pkg_pattern = re.compile(\
+            "(?P<name>\S+-test|\S+-tests|\S+-benchmark)$", re.MULTILINE)
+        pkgs_with_file = re.findall(test_pkg_pattern, lines)
+        return pkgs_with_file
+
     def get_command_to_list_installed_packages(self):
         """Command that lists all rpm packages installed in device."""
         return HW_COMMAND % "rpm -qa --queryformat '%{NAME}\n'"
+
+    def parse_installed_packages(self, lines):
+        """
+        Parse test packages from output lines returned by 
+        rpm -qa --queryformat '%{NAME}\n' command.  Returns sorted list.
+        """
+        test_pkg_pattern = re.compile(\
+            "(?P<name>\S+-test|\S+-tests|\S+-benchmark)$", re.MULTILINE)
+
+        test_pkg_data = re.findall(test_pkg_pattern, lines)
+        test_packages = [ name for name in test_pkg_data ]
+        test_packages.sort()
+        return test_packages
 
