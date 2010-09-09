@@ -55,7 +55,7 @@ def _parse_command_line(args):
 
     parser.add_option("-u", "--imageurl", dest="image_url", action="store", 
                     type="string",
-                    help="URL to image (.bin) or rootstrap (.tgz or tar.gz)",
+                    help="URL to main flash image file",
                     metavar="URL")
 
     parser.add_option("-t", "--testpkgs", dest="packages", action="store",
