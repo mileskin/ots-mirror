@@ -115,9 +115,21 @@ class TestOptions(unittest.TestCase):
 
     def test_is_client_bifh(self):
         options = Options({"input_plugin" : "bifh"})
-        self.assertTrue(option.is_client_bifh)
-        options = Option{"input_plugin" : "foo"})
-        self.assertFalse(option.is_client_bifh)
+        self.assertTrue(options.is_client_bifh)
+        options = Options({"input_plugin" : "foo"})
+        self.assertFalse(options.is_client_bifh)
+
+    def test_is_email_on(self):
+        options = Options({"email" : "on"})
+        self.assertTrue(options.is_email_on)
+        options = Options({"email" : "off"})
+        self.assertFalse(options.is_email_on)
+
+    def test_is_email_attachments_on(self):
+        options = Options({"email-attachments" : "on"})
+        self.assertTrue(options.is_email_attachments_on)
+        options = Options({"email-attachments" : "on"})
+        self.assertTrue(options.is_email_attachments_on)
 
 if __name__ == "__main__":
     unittest.main()

@@ -48,6 +48,8 @@ DISTRIBUTION = "distribution_model"
 FLASHER = "flasher"
 TESTFILTER = "testfilter"
 INPUT = "input_plugin"
+EMAIL = "email"
+EMAIL_ATTACHMENTS = 'email-attachments'
 
 ############################
 # VALUES
@@ -56,6 +58,7 @@ INPUT = "input_plugin"
 FALSE = "false"
 PERPACKAGE = "perpackage"
 BIFH = "bifh"
+ON = "on"
 
 ############################
 # HELPERS
@@ -234,7 +237,23 @@ class Options(object):
     def is_client_bifh(self):
         """
         @rtype: C{bool}
-        @return: Was BIFH the client
+        @return: Is the client BIFH?
         """
         return self._options_dict.get(INPUT, "") == BIFH
 
+    @property
+    def is_email_on(self):
+        """
+        @rtype: C{bool}
+        @return: Is the email switched on?
+        """
+        return self._options_dict.get(EMAIL, "") == ON
+
+    @property
+    def is_email_attachments_on(self):
+        """
+        @rtype: C{bool}
+        @return: Is the email attachment switched on?
+        """
+        return self._options_dict.get(EMAIL_ATTACHMENTS, "") == "on"
+<
