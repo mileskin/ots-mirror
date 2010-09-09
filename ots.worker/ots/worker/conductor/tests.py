@@ -321,6 +321,12 @@ class TestTestTarget(unittest.TestCase):
     def test_get_command_to_list_installed_packages(self):
         self.assertRaises(Exception, self.testtarget.get_command_to_list_installed_packages)
 
+    def test_parse_for_packages_with_file(self):
+        self.assertRaises(Exception, self.testtarget.parse_for_packages_with_file)
+
+    def test_parse_installed_packages(self):
+        self.assertRaises(Exception, self.testtarget.parse_installed_packages)
+
 
 class TestHardware(unittest.TestCase):
 
