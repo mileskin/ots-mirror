@@ -75,8 +75,9 @@ class Hardware(TestTarget):
     def get_commands_to_show_test_environment(self):
         """
         List of tuples with commands to get information about test environment.
+        Commands are for system using Debian packaging.
         """
-        plain_cmds = self.config['commands_to_show_environment']
+        plain_cmds = self.config['pre_test_info_commands_debian']
         commands = []
         for cmd in plain_cmds:
             commands.append(HW_COMMAND % cmd)
@@ -306,11 +307,21 @@ class RPMHardware(Hardware):
     else is inherited from default hardware class Hardware.
     """
 
+    def get_commands_to_show_test_environment(self):
+        """
+        List of tuples with commands to get information about test environment.
+        """
+        plain_cmds = self.config['pre_test_info_commands_rpm']
+        commands = []
+        for cmd in plain_cmds:
+            commands.append(HW_COMMAND % cmd)
+        return zip(commands, plain_cmds)
+
     def get_command_to_find_test_packages(self):
-        """Command to find rpm test packages with tests.xml from device."""
-        return HW_COMMAND % "rpm -qf tests.xml"
+        """Command that lists rpm test packages with tests.xml from device."""
+        return HW_COMMAND % "find /usr/share/ -name tests.xml | xargs rpm -q --queryformat '%{NAME}\n' -f"
 
     def get_command_to_list_installed_packages(self):
         """Command that lists all rpm packages installed in device."""
-        return HW_COMMAND % "rpm -qa"
+        return HW_COMMAND % "rpm -qa --queryformat '%{NAME}\n'"
 

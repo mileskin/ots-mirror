@@ -104,10 +104,10 @@ class Stub_Hardware(object):
     def get_command_to_copy_results(self):
         return self._test_cmd()
     def get_command_to_find_test_packages(self):
-        #return ""#"ssh root@192.168.2.15 'dpkg -S tests.xml'"
+        #returns output that matches with output from 'dpkg -S tests.xml'
         return 'echo "mypackage-test: /usr/share/mypackage-test/tests.xml\n"'
     def get_command_to_list_installed_packages(self):
-        #return ""#"ssh root@192.168.2.15 'dpkg -l'"
+        #returns output that matches with output from 'dpkg -l'"
         return 'echo "ii  mypackage-test   1.2.3   My very special tests\n"'
 
     def _test_cmd(self):
@@ -150,7 +150,8 @@ class Mock_Executor(TE):
 def _conductor_config_simple(config_file = "", default_file = ""):
     config = dict()
     config['device_packaging'] = 'debian'
-    config['commands_to_show_environment'] = ['ls', 'echo "jouni"']
+    config['pre_test_info_commands_debian'] = ['ls', 'echo "jouni"']
+    config['pre_test_info_commands_rpm'] = ['ls', 'echo "jouni"']
     config['files_fetched_after_testing'] = ['xxx']
     config['tmp_path'] = "/tmp/"
     return config
@@ -221,7 +222,8 @@ class TestConductorConf(unittest.TestCase):
         conf = conductor._read_conductor_config(conf_file, None)
         self.assertTrue(type(conf) == type(dict()))
         self.assertTrue(conf['device_packaging'] != "")
-        self.assertTrue(conf['commands_to_show_environment'] != "")
+        self.assertTrue(conf['pre_test_info_commands_debian'] != "")
+        self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
         self.assertTrue(conf['files_fetched_after_testing'] != "")
         self.assertTrue(conf['tmp_path'] != "")
 

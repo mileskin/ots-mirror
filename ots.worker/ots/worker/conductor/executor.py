@@ -651,7 +651,6 @@ class Executor(object):
         Return names of test packages as a sorted list.
 
         # dpkg -l
-        ...
         ii  accounts-qt0    ...   0.19-1+0m6         ... Accounts frame...
         ii  accounts-ui     ...   0.0.12-1.0rtc+0m6  ... accounts...
         ...
@@ -698,7 +697,40 @@ class Executor(object):
         return test_packages
 
     def _scan_for_test_packages_rpm(self):
-        raise Exception("not implemented yet")
+        """
+        Scan for RPM test packages in hardware containing tests.xml file. 
+        Return names of test packages as a sorted list.
+        """
+
+        #Fetch list of packages whose name matches to predefined pattern
+        task = "Scanning for installed test packages"
+        self.log.info(task)
+
+        cmdstr = self.target.get_command_to_list_installed_packages()
+        cmd = self._default_ssh_command_executor(cmdstr, task.lower())
+
+        test_pkg_pattern = re.compile(\
+            "(?P<name>\S+-test|\S+-tests|\S+-benchmark)$", re.MULTILINE)
+
+        test_pkg_data = re.findall(test_pkg_pattern, cmd.stdout)
+        test_packages = [ name for name in test_pkg_data ]
+        test_packages.sort()
+
+        #Fetch list of packages that contain tests.xml file
+        task = "Scanning for packages containing tests.xml"
+        self.log.info(task)
+
+        cmdstr = self.target.get_command_to_find_test_packages()
+        cmd = self._default_ssh_command_executor(cmdstr, task.lower())
+
+        possible_pkgs_with_file = re.findall(test_pkg_pattern, cmd.stdout)
+
+        #Remove candidates that are not found in both lists
+        for pkg in test_packages[:]:
+            if pkg not in possible_pkgs_with_file:
+                test_packages.remove(pkg)
+                
+        return test_packages
 
     def _fetch_environment_details(self):
         """
