@@ -25,7 +25,9 @@ from ots.server.hub.options import Options
 from ots.server.hub.persistence_layer import init_testrun
 from ots.server.hub.init_logging import init_logging
 
-def run(sw_product, request_id, notify_list, **kwargs):
+from ots.server.testrun.testrun import Testrun
+
+def run(sw_product, request_id, notify_list, run_test, **kwargs):
     """
     @type sw_product: C{string}
     @param sw_product: Name of the sw product this testrun belongs to
@@ -43,3 +45,13 @@ def run(sw_product, request_id, notify_list, **kwargs):
                               options.label, options.hw_packages,
                               options.image_url, options.rootstrap)
     init_logging(request_id, testrun_id)
+    #
+    #Some preprocess steps here?
+    #
+    is_hw_enabled = bool(len(options.hw_packages))
+    is_host_enabled = bool(len(options.host_packages))
+    testrun = Testrun(run_test, is_hw_enabled, is_host_enabled)
+    testrun.run()
+    #
+    #Some post process steps here?
+    # - publish_results_links

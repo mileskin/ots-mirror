@@ -45,24 +45,25 @@ class MockTaskRunnerResultsBase(object):
                           os.path.abspath((ots.results.__file__)))
         results_file = os.path.join(results_dirname,
                                     "tests",
-                                    "data", 
+                                    "data",
                                     "dummy_results_file.xml")
         return open(results_file, "r").read()
 
     def run(self):
         self._send_testpackages()
         time.sleep(0.5)
-        self._send_result(self.results_xml, "test_1")
+        self._send_result("hardware_test", self.results_xml, "test_1")
         time.sleep(0.5)
-        self._send_result(self.results_xml, "test_2")
+        self._send_result("hardware_test", self.results_xml, "test_2")
+
 
     @staticmethod
-    def _send_result(results_xml, name):
+    def _send_result(environment, results_xml, name):
         result = ResultObject(name,
                               content = results_xml,
                               testpackage = name,
                               origin = "mock_task_runner",
-                              environment = "hardware_test")
+                              environment = environment)
         kwargs = {OTSProtocol.RESULT : result}
         RESULTS_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
@@ -85,6 +86,36 @@ class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
         kwargs = {OTSProtocol.ENVIRONMENT: "hardware_test",
                   OTSProtocol.PACKAGES : ["test_1", "test_2"]}
         PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+
+
+class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
+
+    @property
+    def results_xml(self):
+        results_dirname = os.path.dirname(
+                          os.path.abspath((ots.results.__file__)))
+        results_file = os.path.join(results_dirname,
+                                    "tests",
+                                    "data",
+                                    "dummy_pass_file.xml")
+        return open(results_file, "r").read()
+
+    @staticmethod
+    def _send_testpackages():
+        kwargs = {OTSProtocol.ENVIRONMENT: "hardware_test",
+                  OTSProtocol.PACKAGES : ["test_1", "test_2"]}
+        PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+
+        kwargs = {OTSProtocol.ENVIRONMENT: "host.unittest",
+                  OTSProtocol.PACKAGES : ["test_1", "test_2"]}
+        PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+
+    def run(self):
+        self._send_testpackages()
+        self._send_result("hardware_test", self.results_xml, "test_1")
+        self._send_result("hardware_test", self.results_xml, "test_2")
+        self._send_result("host.unittest", self.results_xml, "test_1")
+        self._send_result("host.unittest", self.results_xml, "test_2")
 
 
 ####################################

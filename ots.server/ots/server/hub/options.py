@@ -138,7 +138,7 @@ class Options(object):
         return _string_2_list(self._options_dict.get(PACKAGES,''))
 
     @property
-    def hosttest_packages(self):
+    def host_packages(self):
         """
         @rtype: C{list} of C{str}
         @return: Packages for host testing

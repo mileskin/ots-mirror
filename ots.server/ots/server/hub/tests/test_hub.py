@@ -20,14 +20,16 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import unittest
+
+from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerResultsPass
+
 from ots.server.hub.options import IMAGE, ROOTSTRAP, PACKAGES, PLAN
 from ots.server.hub.options import EXECUTE, GATE, LABEL, HOSTTEST
 from ots.server.hub.options import DEVICE, EMMC, EMMCURL, DISTRIBUTION, FLASHER
 from ots.server.hub.options import TESTFILTER, INPUT, EMAIL, EMAIL_ATTACHMENTS
 
 from ots.server.hub.hub import run
-
-import unittest
 
 options_dict = {IMAGE : "www.nokia.com" ,
                 ROOTSTRAP : "www.meego.com",
@@ -50,7 +52,9 @@ options_dict = {IMAGE : "www.nokia.com" ,
 class TestHub(unittest.TestCase):
 
     def test_run(self):
-        run("foo", "bar", "baz", **options_dict)
+        mock_taskrunner = MockTaskRunnerResultsPass()
+        run("foo", "bar", "baz",
+            mock_taskrunner.run, **options_dict)
 
 if __name__ == "__main__":
     unittest.main()
