@@ -20,26 +20,25 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+#FIXME
 
-from ots.server.hub.options import Options
-from ots.server.hub.persistence_layer import init_testrun
-from ots.server.hub.init_logging import init_logging
+import logging
+import datetime
 
-def run(sw_product, request_id, notify_list, **kwargs):
+def _generate_log_id_string(request_id, testrun_id):
     """
-    @type sw_product: C{string}
-    @param sw_product: Name of the sw product this testrun belongs to
-
-    @type request_id: C{string}
-    @param request_id: An identifier for the request from the client
-
-    @param notify_list: Email addresses for notifications
-    @type product: C{list}
+    Generates the log file name
     """
+    request_id = "testrun_%s_request_%s_"% (testrun_id, request_id)
+    request_id += str(datetime.datetime.now()).\
+        replace(' ','_').replace(':','_').replace('.','_')
+    return request_id
 
-    options = Options(kwargs)
-    testrun_id = init_testrun(sw_product, request_id, notify_list,
-                              options.testplan_id,  options.gate,
-                              options.label, options.hw_packages,
-                              options.image_url, options.rootstrap)
-    init_logging(request_id, testrun_id)
+
+def init_logging(request_id, testrun_id):
+    """
+    initializes the logger
+    """
+    log_id_string = _generate_log_id_string(request_id, testrun_id)
+    log = logging.getLogger()
+    return log
