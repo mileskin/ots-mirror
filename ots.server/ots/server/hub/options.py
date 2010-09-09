@@ -256,4 +256,3 @@ class Options(object):
         @return: Is the email attachment switched on?
         """
         return self._options_dict.get(EMAIL_ATTACHMENTS, "") == "on"
-<
