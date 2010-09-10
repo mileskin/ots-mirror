@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -20,19 +21,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
+"""Conductor internal exception"""
 
-setup(
-    name = "ots.worker",
-    author = "ext-teemu.a.vainio@nokia.com",
-    version =  0.1,
-    include_package_data = True,
-    namespace_packages = ['ots'],
-    packages = ['ots.worker', 'ots.worker.conductor'],
-    zip_safe = False,
-    entry_points={"console_scripts": 
-                  ["ots_worker = ots.worker.worker:main",
-                   "conductor = ots.worker.conductor.conductor:main",
-                   "kickstart = ots.worker.conductor.conductor:main"]},
-    data_files=[('/etc', ['ots.ini', 'ots/worker/conductor/conductor.conf'])]
-    )
+class ConductorError(Exception):
+    """Raised for errors in conductor"""
+    def __init__(self, error_info, error_code):
+        self.error_info = error_info
+        self.error_code = error_code
+

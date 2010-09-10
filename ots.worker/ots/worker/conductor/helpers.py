@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -20,19 +21,15 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
+"""General helper methods, classes etc."""
 
-setup(
-    name = "ots.worker",
-    author = "ext-teemu.a.vainio@nokia.com",
-    version =  0.1,
-    include_package_data = True,
-    namespace_packages = ['ots'],
-    packages = ['ots.worker', 'ots.worker.conductor'],
-    zip_safe = False,
-    entry_points={"console_scripts": 
-                  ["ots_worker = ots.worker.worker:main",
-                   "conductor = ots.worker.conductor.conductor:main",
-                   "kickstart = ots.worker.conductor.conductor:main"]},
-    data_files=[('/etc', ['ots.ini', 'ots/worker/conductor/conductor.conf'])]
-    )
+import ConfigParser
+
+def parse_config(config_file, section):
+    """Parses config section from a file. Returns a dictionary."""
+    config = ConfigParser.ConfigParser()
+    config.read(config_file)
+    flash_options = dict()
+    for key, value in config.items(section):
+        flash_options[key] = value
+    return flash_options

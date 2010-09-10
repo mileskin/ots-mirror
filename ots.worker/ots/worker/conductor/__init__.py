@@ -20,19 +20,5 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
-
-setup(
-    name = "ots.worker",
-    author = "ext-teemu.a.vainio@nokia.com",
-    version =  0.1,
-    include_package_data = True,
-    namespace_packages = ['ots'],
-    packages = ['ots.worker', 'ots.worker.conductor'],
-    zip_safe = False,
-    entry_points={"console_scripts": 
-                  ["ots_worker = ots.worker.worker:main",
-                   "conductor = ots.worker.conductor.conductor:main",
-                   "kickstart = ots.worker.conductor.conductor:main"]},
-    data_files=[('/etc', ['ots.ini', 'ots/worker/conductor/conductor.conf'])]
-    )
+#This shouldn't be necessary 
+#http://bugs.python.org/setuptools/issue36

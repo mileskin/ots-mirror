@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -20,19 +21,28 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
+"""
+This module includes simple reference implementation of SoftwareUpdater
+"""
 
-setup(
-    name = "ots.worker",
-    author = "ext-teemu.a.vainio@nokia.com",
-    version =  0.1,
-    include_package_data = True,
-    namespace_packages = ['ots'],
-    packages = ['ots.worker', 'ots.worker.conductor'],
-    zip_safe = False,
-    entry_points={"console_scripts": 
-                  ["ots_worker = ots.worker.worker:main",
-                   "conductor = ots.worker.conductor.conductor:main",
-                   "kickstart = ots.worker.conductor.conductor:main"]},
-    data_files=[('/etc', ['ots.ini', 'ots/worker/conductor/conductor.conf'])]
-    )
+class FlashFailed(Exception):
+    """Flash Failed exception"""
+    pass
+
+class InvalidImage(Exception):
+    """Invalid Image exception"""
+    pass
+
+class InvalidConfig(Exception):
+    """Invalid configuration exception"""
+    pass
+
+class ConnectionTestFailed(Exception):
+    """Connection test failed exception"""
+    pass
+
+
+class SoftwareUpdater(object):
+    """ Default class for SoftwareUpdater """
+    def flash(self, image_path, content_image_path):
+        pass
