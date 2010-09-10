@@ -34,7 +34,7 @@ def _testplan_name(request_id):
 
 def init_testrun(swproduct, request_id, notify_list,
                  testplan_id,  gate, label,  hw_packages,
-                 image_url, rootstrap, target_packages):
+                 image_url, target_packages):
 
     """
     @type sw_product: C{string}

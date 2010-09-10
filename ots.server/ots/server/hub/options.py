@@ -32,6 +32,7 @@ import re
 # FLAGS
 ############################
 
+TRUE = "true"
 FALSE = "false"
 PERPACKAGE = "perpackage"
 BIFH = "bifh"
@@ -74,7 +75,7 @@ class Options(object):
     """
 
     def __init__(self, image,
-                       packages = None, plan = None, execute = 'true',
+                       packages = None, plan = None, execute = TRUE,
                        gate = None, label = None, hosttest = None,
                        device = None, emmc = None, distribution_model = None,
                        flasher = None, testfilter = None, input_plugin = None,

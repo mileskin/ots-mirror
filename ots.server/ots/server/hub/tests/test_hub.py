@@ -24,30 +24,24 @@ import unittest
 
 from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerResultsPass
 
-from ots.server.hub.options import IMAGE, ROOTSTRAP, PACKAGES, PLAN
-from ots.server.hub.options import EXECUTE, GATE, LABEL, HOSTTEST
-from ots.server.hub.options import DEVICE, EMMC, EMMCURL, DISTRIBUTION, FLASHER
-from ots.server.hub.options import TESTFILTER, INPUT, EMAIL, EMAIL_ATTACHMENTS
-
 from ots.server.hub.hub import run
 
-options_dict = {IMAGE : "www.nokia.com" ,
-                ROOTSTRAP : "www.meego.com",
-                PACKAGES : "hw_pkg1 pkg2 pkg3",
-                PLAN : "111",
-                EXECUTE : "true",
-                GATE : "foo",
-                LABEL: "bar",
-                HOSTTEST : "host_pkg1 host_pkg2 host_pkg3",
-                DEVICE : "baz",
-                EMMC : "",
-                EMMCURL : "",
-                DISTRIBUTION : "",
-                FLASHER : "",
-                TESTFILTER : "",
-                INPUT : "bifh",
-                EMAIL : "on",
-                EMAIL_ATTACHMENTS : "on"}
+options_dict = {"image" : "www.nokia.com" ,
+                "rootstrap" : "www.meego.com",
+                "packages" : "hw_pkg1-test pkg2-test pkg3-test",
+                "plan" : "111",
+                "execute" : "true",
+                "gate" : "foo",
+                "label": "bar",
+                "hosttest" : "host_pkg1-test host_pkg2-test host_pkg3-test",
+                "device" : "baz",
+                "emmc" : "",
+                "distribution-model" : "",
+                "flasher" : "",
+                "testfilter" : "",
+                "input_plugin" : "bifh",
+                "email" : "on",
+                "email-attachments" : "on"}
 
 class TestHub(unittest.TestCase):
 
