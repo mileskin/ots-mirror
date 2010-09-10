@@ -23,19 +23,20 @@
 import unittest
 
 from ots.server.hub.options import Options, options_factory
-from ots.server.hub.options import _string_2_dict, _string_2_list
 
 class TestOptions(unittest.TestCase):
 
     def test_string_2_list(self):
+        options = Options(**{"image" :"www.nokia.com"})
         expected = ['mary', 'had', 'a', 'little', 'lamb']
         self.assertEquals(expected,
-                           _string_2_list("mary had a little lamb"))
+                           options._string_2_list("mary had a little lamb"))
 
     def test_string_2_dict(self):
+        options = Options(**{"image" :"www.nokia.com"})
         expected = {'veg': 'oranges', 'fruit': 'apples', 'meat': 'beef'}
         self.assertEquals(expected,
-                           _string_2_dict("fruit:apples"\
+                           options._string_2_dict("fruit:apples"\
                                            " veg:oranges meat:beef"))
     def test_image_url(self):
         options = Options(**{"image" :"www.nokia.com"})

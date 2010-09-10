@@ -29,7 +29,7 @@ as provided by OTS clients.
 import re
 
 ############################
-# VALUES
+# FLAGS
 ############################
 
 FALSE = "false"
@@ -46,64 +46,6 @@ TEST = "-test"
 BENCHMARK = "-benchmark"
 
 VALID_PKG_SUFFIXES = [TESTS, TEST, BENCHMARK]
-
-############################
-# HELPERS
-############################
-
-def _string_2_list(string):
-    """
-    Converts a spaced string to an array
-
-    @param string: The string for conversion
-    @type product: C{string}
-
-    @rtype: C{list} consisting of C{string}
-    @return: The converted string
-    """
-    if string:
-        spaces = re.compile(r'\s+')
-        return spaces.split(string.strip())
-    else:
-        return []
-
-def _string_2_dict(string):
-    """
-    Converts a spaced string of form 'foo:1 bar:2 baz:3'
-    to a dictionary
-
-    @param string: The string for conversion
-    @type product: C{string}
-
-    @rtype: C{dict} consisting of C{string}
-    @return: The converted string
-    """
-    spaces = re.compile(r'\s+')
-    return dict([ pair.split(':', 1) for pair \
-                       in spaces.split(string) if ':' in pair ])
-
-def _is_valid_suffix(package):
-    """
-    @type package: C{str}
-    @param package: The package name
-    """
-    return any(map(package.endswith, VALID_PKG_SUFFIXES))
-
-def _validate_packages(packages):
-    """
-    checks that given testpackages match our naming definitions
-
-    Raises ValueError if invalid packages given
-
-    @type test_packages: D{List} consiting of D{string}
-    @param test_packages: List of test package names
-
-    """
-    invalid_packages = [pkg for pkg in packages
-                          if not _is_valid_suffix(pkg)]
-    if invalid_packages:
-        error_msg = "Invalid testpackage(s): %s" % ','.join(invalid_packages)
-        raise ValueError(error_msg)
 
 #################################
 # Options Factory
@@ -163,7 +105,11 @@ class Options(object):
         self._email = email
         self._email_attachments = email_attachments
 
-        _validate_packages(self.hw_packages)
+        self._validate_packages(self.hw_packages)
+
+    ##################################
+    # PROPERTIES
+    ##################################
 
     @property
     def image(self):
@@ -180,7 +126,7 @@ class Options(object):
         @return: Packages for hardware testing
         """
         #TODO check definition
-        return _string_2_list(self._packages)
+        return self._string_2_list(self._packages)
 
     @property
     def host_packages(self):
@@ -189,7 +135,7 @@ class Options(object):
         @return: Packages for host testing
         """
         #TODO check definition
-        return _string_2_list(self._hosttest)
+        return self._string_2_list(self._hosttest)
 
     @property
     def testplan_id(self):
@@ -230,7 +176,7 @@ class Options(object):
         @return: TODO
         """
         if self._device is not None:
-            return _string_2_dict(self._device)
+            return self._string_2_dict(self._device)
         else:
             return {}
 
@@ -293,3 +239,66 @@ class Options(object):
         @return: Is the email attachment switched on?
         """
         return self._email_attachments == "on"
+
+
+    ############################
+    # HELPERS
+    ############################
+
+    @staticmethod
+    def _string_2_list(string):
+        """
+        Converts a spaced string to an array
+
+        @param string: The string for conversion
+        @type product: C{string}
+
+        @rtype: C{list} consisting of C{string}
+        @return: The converted string
+        """
+        if string:
+            spaces = re.compile(r'\s+')
+            return spaces.split(string.strip())
+        else:
+            return []
+
+    @staticmethod
+    def _string_2_dict(string):
+        """
+        Converts a spaced string of form 'foo:1 bar:2 baz:3'
+        to a dictionary
+
+        @param string: The string for conversion
+        @type product: C{string}
+
+        @rtype: C{dict} consisting of C{string}
+        @return: The converted string
+        """
+        spaces = re.compile(r'\s+')
+        return dict([ pair.split(':', 1) for pair \
+                           in spaces.split(string) if ':' in pair ])
+
+    @staticmethod
+    def _is_valid_suffix(package):
+        """
+        @type package: C{str}
+        @param package: The package name
+        """
+        return any(map(package.endswith, VALID_PKG_SUFFIXES))
+
+    def _validate_packages(self, packages):
+        """
+        checks that given testpackages match our naming definitions
+
+        Raises ValueError if invalid packages given
+
+        @type test_packages: D{List} consiting of D{string}
+        @param test_packages: List of test package names
+
+        """
+        invalid_packages = [pkg for pkg in packages
+                              if not self._is_valid_suffix(pkg)]
+        if invalid_packages:
+            pretty_packages =  ', '.join(invalid_packages)
+            error_msg = "Invalid testpackage(s): %s" % pretty_packages
+            raise ValueError(error_msg)
