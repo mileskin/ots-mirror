@@ -33,6 +33,7 @@ setup(
     entry_points={"console_scripts": 
                   ["ots_worker = ots.worker.worker:main",
                    "conductor = ots.worker.conductor.conductor:main",
+                   # For backward compatibility:
                    "kickstart = ots.worker.conductor.conductor:main"]},
     data_files=[('/etc', ['ots.ini', 'ots/worker/conductor/conductor.conf'])]
     )
