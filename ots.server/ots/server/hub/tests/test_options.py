@@ -22,7 +22,7 @@
 
 import unittest
 
-from ots.server.hub.options import Options
+from ots.server.hub.options import Options, options_factory
 from ots.server.hub.options import _string_2_dict, _string_2_list
 
 class TestOptions(unittest.TestCase):
@@ -38,97 +38,135 @@ class TestOptions(unittest.TestCase):
                            _string_2_dict("fruit:apples"\
                                            " veg:oranges meat:beef"))
     def test_image_url(self):
-        options = Options({})
-        self.assertEquals('', options.image_url)
-        options = Options({"image" : "www.nokia.com"})
-        self.assertEquals("www.nokia.com", options.image_url)
-
-    def test_rootstrap(self):
-        options = Options({})
-        self.assertEquals('', options.rootstrap)
-        options = Options({"rootstrap" : "www.nokia.com"})
-        self.assertEquals("www.nokia.com", options.rootstrap)
+        options = Options(**{"image" :"www.nokia.com"})
+        self.assertEquals("www.nokia.com", options.image)
 
     def test_hw_packages(self):
-        options = Options({})
-        self.assertEquals([], options.hw_packages)
-        options = Options({"packages": "pkg_1 pkg_2 pkg_3"})
-        self.assertEquals(["pkg_1", "pkg_2", "pkg_3"], options.hw_packages)
+        kwargs = {"image" : "www.nokia.com",
+                 "packages": "pkg_1 pkg_2 pkg_3"}
+        self.assertRaises(ValueError, Options, **kwargs)
+        kwargs = {"image" : "www.nokia.com",
+                 "packages": "pkg_1-tests pkg_2-tests pkg_3-tests"}
+        options = Options(**kwargs)
+        self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
+                          options.hw_packages)
 
-    def hosttest_packages(self):
-        options = Options({})
+    def test_host_packages(self):
+        kwargs = {"image" : "www.nokia.com"}
+        options = Options(**kwargs)
         self.assertEquals([], options.host_packages)
-        options = Options({"packages": "pkg_1 pkg_2 pkg_3"})
-        self.assertEquals(["pkg_1", "pkg_2", "pkg_3"], options.hw_packages)
+        kwargs = {"image" : "www.nokia.com",
+                 "hosttest": "pkg_1-tests pkg_2-tests pkg_3-tests"}
+        options = Options(**kwargs)
+        self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
+                          options.host_packages)
 
     def test_testplan_id(self):
-        options = Options({"plan" : "1111"})
+        kwargs = {"image" : "www.nokia.com",
+                  "plan" : "1111"}
+        options = Options(**kwargs)
         self.assertEquals("1111", options.testplan_id)
 
     def test_execute(self):
-        options = Options({"execute" : "true"})
+        kwargs = {"image" : "www.nokia.com",
+                  "execute" : "true"}
+        options = Options(**kwargs)
         self.assertTrue(options.execute)
-        options = Options({"execute" : "false"})
+        kwargs = {"image" : "www.nokia.com",
+                  "execute" : "false"}
+        options = Options(**kwargs)
         self.assertFalse(options.execute)
 
     def test_gate(self):
-        options = Options({})
+        kwargs = {"image" : "www.nokia.com"}
+        options = Options(**kwargs)
         self.assertTrue(options.gate is None)
-        options = Options({"gate" : "foo"})
+        kwargs = {"image" : "www.nokia.com",
+                  "gate" : "foo"}
+        options = Options(**kwargs)
         self.assertEquals("foo", options.gate)
 
     def test_label(self):
-        options = Options({})
+        kwargs = {"image" : "www.nokia.com"}
+        options = Options(**kwargs)
         self.assertTrue(options.label is None)
-        options = Options({"label" : "foo"})
+        kwargs = {"image" : "www.nokia.com",
+                  "label" : "foo"}
+        options = Options(**kwargs)
         self.assertTrue("label", options.label)
 
     def test_device(self):
-        options = Options({"device" : "fruit:apples"\
-                                           " veg:oranges meat:beef"})
+        kwargs = {"image" : "www.nokia.com"}
+        options = Options(**kwargs)
+        kwargs = {"image" : "www.nokia.com",
+                  "device" : "fruit:apples veg:oranges meat:beef"}
+        options = Options(**kwargs)
         self.assertEquals({'veg': 'oranges',
                            'fruit': 'apples',
                            'meat': 'beef'}, options.device)
 
     def test_emmc(self):
-        options = Options({"emmc" : "foo"})
+        kwargs = {"image" : "www.nokia.com",
+                  "emmc" : "foo"}
+        options = Options(**kwargs)
         self.assertEquals("foo", options.emmc)
 
-    def test_emmcurl(self):
-        options = Options({"emmc" : "foo"})
-        self.assertEquals("foo", options.emmcurl)
-
     def test_package_distributed(self):
-        options = Options({"distribution_model" : "perpackage"})
+        kwargs = {"image" : "www.nokia.com",
+                  "distribution_model" : "perpackage"}
+        options = Options(**kwargs)
         self.assertTrue(options.is_package_distributed)
-        options = Options({"distribution_model" : "foo"})
+        kwargs = {"image" : "www.nokia.com",
+                  "distribution_model" : "foo"}
+        options = Options(**kwargs)
         self.assertFalse(options.is_package_distributed)
 
     def test_flasher(self):
-        options = Options({"flasher" : "www.nokia.com"})
-        self.assertEquals("www.nokia.com", options.flasher)
+        kwargs = {"image" : "www.nokia.com",
+                  "flasher" : "www.meego.com"}
+        options = Options(**kwargs)
+        self.assertEquals("www.meego.com", options.flasher)
 
     def test_testfilter(self):
-        options = Options({"testfilter" : '"hello world"'})
+        kwargs = {"image" : "www.nokia.com",
+                  "testfilter" : '"hello world"'}
+        options = Options(**kwargs)
         self.assertEquals('\'"\\\'hello world\\\'"\'',
                           repr(options.testfilter))
 
     def test_is_client_bifh(self):
-        options = Options({"input_plugin" : "bifh"})
+        kwargs = {"image" : "www.nokia.com",
+                  "input_plugin" : "bifh"}
+        options = Options(**kwargs)
         self.assertTrue(options.is_client_bifh)
-        options = Options({"input_plugin" : "foo"})
+        kwargs = {"image" : "www.nokia.com",
+                  "input_plugin" : "foo"}
+        options = Options(**kwargs)
         self.assertFalse(options.is_client_bifh)
 
     def test_is_email_on(self):
-        options = Options({"email" : "on"})
+        kwargs = {"image" : "www.nokia.com",
+                  "email" : "on"}
+        options = Options(**kwargs)
         self.assertTrue(options.is_email_on)
-        options = Options({"email" : "off"})
+        kwargs = {"image" : "www.nokia.com",
+                  "email" : "off"}
+        options = Options(**kwargs)
         self.assertFalse(options.is_email_on)
 
     def test_is_email_attachments_on(self):
-        options = Options({"email-attachments" : "on"})
+        kwargs = {"image" : "www.nokia.com",
+                  "email_attachments" : "on"}
+        options = Options(**kwargs)
         self.assertTrue(options.is_email_attachments_on)
-        options = Options({"email-attachments" : "on"})
+        kwargs = {"image" : "www.nokia.com",
+                  "email_attachments" : "off"}
+        options = Options(**kwargs)
+        self.assertFalse(options.is_email_attachments_on)
+
+    def test_options_factory(self):
+        options = options_factory({"image" : "www.nokia.com",
+                                   "email-attachments" : "on"})
         self.assertTrue(options.is_email_attachments_on)
 
 if __name__ == "__main__":

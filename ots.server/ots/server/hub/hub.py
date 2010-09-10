@@ -20,12 +20,17 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import os
+import logging
 
 from ots.server.hub.options import Options
-from ots.server.hub.persistence_layer import init_testrun
 from ots.server.hub.init_logging import init_logging
+from ots.server.hub.persistence_layer import init_testrun
+from ots.server.bifh_plugin_spike import target_packages
 
 from ots.server.testrun.testrun import Testrun
+
+LOG = logging.getLogger(__name__)
 
 def run(sw_product, request_id, notify_list, run_test, **kwargs):
     """
@@ -38,20 +43,21 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
     @param notify_list: Email addresses for notifications
     @type product: C{list}
     """
-
     options = Options(kwargs)
+    target_packages = target_packages()
     testrun_id = init_testrun(sw_product, request_id, notify_list,
                               options.testplan_id,  options.gate,
                               options.label, options.hw_packages,
-                              options.image_url, options.rootstrap)
+                              options.image_url, options.rootstrap,
+                              target_packages)
     init_logging(request_id, testrun_id)
     #
-    #Some preprocess steps here?
+    #Preprocessing_steps_here
     #
     is_hw_enabled = bool(len(options.hw_packages))
     is_host_enabled = bool(len(options.host_packages))
     testrun = Testrun(run_test, is_hw_enabled, is_host_enabled)
     testrun.run()
     #
-    #Some post process steps here?
-    # - publish_results_links
+    #Some post_processing steps here?
+

@@ -22,8 +22,6 @@
 
 # PLACEHOLDER
 
-
-
 def _testplan_name(request_id):
     """
     @type request: C{string}
@@ -36,7 +34,7 @@ def _testplan_name(request_id):
 
 def init_testrun(swproduct, request_id, notify_list,
                  testplan_id,  gate, label,  hw_packages,
-                 image_url, rootstrap):
+                 image_url, rootstrap, target_packages):
 
     """
     @type sw_product: C{string}
@@ -65,6 +63,9 @@ def init_testrun(swproduct, request_id, notify_list,
 
     @param rootstrap: C{str}
     @type rootstrap: TODO
+
+    @param target_packages: C{list}
+    @type target_packages: The target packages
 
     @rparam: C{str}
     @rtype: Testrun ID
