@@ -135,16 +135,6 @@ class TestOptions(unittest.TestCase):
         self.assertEquals('\'"\\\'hello world\\\'"\'',
                           repr(options.testfilter))
 
-    def test_is_client_bifh(self):
-        kwargs = {"image" : "www.nokia.com",
-                  "input_plugin" : "bifh"}
-        options = Options(**kwargs)
-        self.assertTrue(options.is_client_bifh)
-        kwargs = {"image" : "www.nokia.com",
-                  "input_plugin" : "foo"}
-        options = Options(**kwargs)
-        self.assertFalse(options.is_client_bifh)
-
     def test_is_email_on(self):
         kwargs = {"image" : "www.nokia.com",
                   "email" : "on"}
