@@ -194,8 +194,6 @@ class Options(object):
         @rtype: C{bool}
         @return: Is the Testrun distributed Package by Package
         """
-        #TODO: Is there any reason why all distributions can't
-        #happen perpackage?
         return self._distribution_model == PERPACKAGE
 
     @property
@@ -215,14 +213,6 @@ class Options(object):
         if self._testfilter is not None:
             testfilter = self._testfilter.replace('"',"'")
             return "\"%s\"" % testfilter
-
-    @property
-    def is_client_bifh(self):
-        """
-        @rtype: C{bool}
-        @return: Is the client BIFH?
-        """
-        return self._input_plugin == BIFH
 
     @property
     def is_email_on(self):
