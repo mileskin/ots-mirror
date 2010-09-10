@@ -28,31 +28,8 @@ as provided by OTS clients.
 
 import re
 
-###########################
-# Keys
-###########################
-
-IMAGE = "image"
-ROOTSTRAP = "rootstrap"
-PACKAGES = "packages"
-PLAN = "plan"
-EXECUTE = "execute"
-GATE = "gate"
-LABEL = "label"
-HOSTTEST = "hosttest"
-ENGINE = "engine"
-DEVICE = "device"
-EMMC = "emmc"
-EMMCURL = "emmcurl"
-DISTRIBUTION = "distribution_model"
-FLASHER = "flasher"
-TESTFILTER = "testfilter"
-INPUT = "input_plugin"
-EMAIL = "email"
-EMAIL_ATTACHMENTS = 'email-attachments'
-
 ############################
-# VALUES
+# FLAGS
 ############################
 
 FALSE = "false"
@@ -60,74 +37,87 @@ PERPACKAGE = "perpackage"
 BIFH = "bifh"
 ON = "on"
 
-############################
-# HELPERS
-############################
+#################################
+# PACKAGE NAMING DEFINITIONS
+#################################
 
-def _string_2_list(string):
-    """
-    Converts a spaced string to an array
+TESTS = "-tests"
+TEST = "-test"
+BENCHMARK = "-benchmark"
 
-    @param string: The string for conversion
-    @type product: C{string}
-
-    @rtype: C{list} consisting of C{string}
-    @return: The converted string
-    """
-    if string:
-        spaces = re.compile(r'\s+')
-        return spaces.split(string.strip())
-    else:
-        return []
-
-def _string_2_dict(string):
-    """
-    Converts a spaced string of form 'foo:1 bar:2 baz:3'
-    to a dictionary
-
-    @param string: The string for conversion
-    @type product: C{string}
-
-    @rtype: C{dict} consisting of C{string}
-    @return: The converted string
-    """
-    spaces = re.compile(r'\s+')
-    return dict([ pair.split(':', 1) for pair \
-                       in spaces.split(string) if ':' in pair ])
-
+VALID_PKG_SUFFIXES = [TESTS, TEST, BENCHMARK]
 
 #################################
+# Options Factory
+#################################
+
+def options_factory(options_dict):
+    """
+    @type options_dict : C{dict}
+    @param options_dict: The dictionary of options
+
+    Adapts the options dictionary to the interface
+    """
+    #sanitise the options dict
+    #hyphens aren't Python friendly
+    options_dict = dict([(k.replace("-","_"), v) for k,v in
+                         options_dict.items()])
+    return Options(**options_dict)
+
+###################################
 # Options
-#################################
+###################################
 
 class Options(object):
     """
-    Adapts a dictionary of options for the Testrun
-    to a defined interface specification
+    Interface for the options available to the client
     """
 
-    def __init__(self, options_dict):
+    def __init__(self, image,
+                       packages = None, plan = None, execute = 'true',
+                       gate = None, label = None, hosttest = None,
+                       device = None, emmc = None, distribution_model = None,
+                       flasher = None, testfilter = None, input_plugin = None,
+                       email = None, email_attachments = None, **kwargs):
         """
-        @type: C{dict}
-        @param: The parameters for the testrun
+        @type: C{image}
+        @param: The image url
+
+
         """
-        self._options_dict = options_dict
+        self._image = image
+        if packages is None:
+            packages = []
+        self._packages = packages
+        self._plan = plan
+        self._execute = execute
+        self._gate = gate
+        self._label = label
+        if hosttest is None:
+            hosttest = []
+        self._hosttest = hosttest
+        self._device = device
+        self._emmc = emmc
+        self._distribution_model = distribution_model
+        self._flasher = flasher
+        self._testfilter = testfilter
+        self._input_plugin = input_plugin
+        self._email = email
+        self._email_attachments = email_attachments
+
+        self._validate_packages(self.hw_packages)
+
+    ##################################
+    # PROPERTIES
+    ##################################
 
     @property
-    def image_url(self):
+    def image(self):
         """
         @rtype: C{str}
         @return: The URL of the image
         """
-        return self._options_dict.get(IMAGE, '')
-
-    @property
-    def rootstrap(self):
-        """
-        @rtype: C{str}
-        @return: TODO
-        """
-        return self._options_dict.get(ROOTSTRAP, '')
+        return self._image
 
     @property
     def hw_packages(self):
@@ -136,16 +126,16 @@ class Options(object):
         @return: Packages for hardware testing
         """
         #TODO check definition
-        return _string_2_list(self._options_dict.get(PACKAGES,''))
+        return self._string_2_list(self._packages)
 
     @property
-    def hosttest_packages(self):
+    def host_packages(self):
         """
         @rtype: C{list} of C{str}
         @return: Packages for host testing
         """
         #TODO check definition
-        return _string_2_list(self._options_dict.get(HOSTTEST,''))
+        return self._string_2_list(self._hosttest)
 
     @property
     def testplan_id(self):
@@ -153,7 +143,7 @@ class Options(object):
         @rtype: C{str}
         @return: The Testplan id
         """
-        return self._options_dict.get(PLAN, None)
+        return self._plan
 
     @property
     def execute(self):
@@ -161,7 +151,7 @@ class Options(object):
         @rtype: C{bool}
         @return: Execute flag
         """
-        return self._options_dict.get(EXECUTE, False) != FALSE
+        return self._execute != FALSE
 
     @property
     def gate(self):
@@ -169,7 +159,7 @@ class Options(object):
         @rtype: TODO
         @return: TODO
         """
-        return self._options_dict.get(GATE, None)
+        return self._gate
 
     @property
     def label(self):
@@ -177,7 +167,7 @@ class Options(object):
         @rtype: TODO
         @return: TODO
         """
-        return self._options_dict.get(LABEL, None)
+        return self._label
 
     @property
     def device(self):
@@ -185,8 +175,10 @@ class Options(object):
         @rtype: TODO
         @return: TODO
         """
-        if DEVICE in self._options_dict:
-            return _string_2_dict(self._options_dict.get(DEVICE))
+        if self._device is not None:
+            return self._string_2_dict(self._device)
+        else:
+            return {}
 
     @property
     def emmc(self):
@@ -194,15 +186,7 @@ class Options(object):
         @rtype: TODO
         @return: TODO
         """
-        return self._options_dict.get(EMMC, None)
-
-    @property
-    def emmcurl(self):
-        """
-        @rtype: TODO
-        @return: TODO
-        """
-        return self.emmc
+        return self._emmc
 
     @property
     def is_package_distributed(self):
@@ -212,7 +196,7 @@ class Options(object):
         """
         #TODO: Is there any reason why all distributions can't
         #happen perpackage?
-        return self._options_dict.get(DISTRIBUTION, False) == PERPACKAGE
+        return self._distribution_model == PERPACKAGE
 
     @property
     def flasher(self):
@@ -220,7 +204,7 @@ class Options(object):
         @rtype: C{str}
         @return: The URL of the flasher
         """
-        return self._options_dict.get(FLASHER, None)
+        return self._flasher
 
     @property
     def testfilter(self):
@@ -228,9 +212,8 @@ class Options(object):
         @rtype: C{str}
         @return: TODO
         """
-        if self._options_dict.has_key(TESTFILTER):
-            testfilter = self._options_dict[TESTFILTER]
-            testfilter = testfilter.replace('"',"'")
+        if self._testfilter is not None:
+            testfilter = self._testfilter.replace('"',"'")
             return "\"%s\"" % testfilter
 
     @property
@@ -239,7 +222,7 @@ class Options(object):
         @rtype: C{bool}
         @return: Is the client BIFH?
         """
-        return self._options_dict.get(INPUT, "") == BIFH
+        return self._input_plugin == BIFH
 
     @property
     def is_email_on(self):
@@ -247,7 +230,7 @@ class Options(object):
         @rtype: C{bool}
         @return: Is the email switched on?
         """
-        return self._options_dict.get(EMAIL, "") == ON
+        return self._email == ON
 
     @property
     def is_email_attachments_on(self):
@@ -255,4 +238,67 @@ class Options(object):
         @rtype: C{bool}
         @return: Is the email attachment switched on?
         """
-        return self._options_dict.get(EMAIL_ATTACHMENTS, "") == "on"
+        return self._email_attachments == "on"
+
+
+    ############################
+    # HELPERS
+    ############################
+
+    @staticmethod
+    def _string_2_list(string):
+        """
+        Converts a spaced string to an array
+
+        @param string: The string for conversion
+        @type product: C{string}
+
+        @rtype: C{list} consisting of C{string}
+        @return: The converted string
+        """
+        if string:
+            spaces = re.compile(r'\s+')
+            return spaces.split(string.strip())
+        else:
+            return []
+
+    @staticmethod
+    def _string_2_dict(string):
+        """
+        Converts a spaced string of form 'foo:1 bar:2 baz:3'
+        to a dictionary
+
+        @param string: The string for conversion
+        @type product: C{string}
+
+        @rtype: C{dict} consisting of C{string}
+        @return: The converted string
+        """
+        spaces = re.compile(r'\s+')
+        return dict([ pair.split(':', 1) for pair \
+                           in spaces.split(string) if ':' in pair ])
+
+    @staticmethod
+    def _is_valid_suffix(package):
+        """
+        @type package: C{str}
+        @param package: The package name
+        """
+        return any(map(package.endswith, VALID_PKG_SUFFIXES))
+
+    def _validate_packages(self, packages):
+        """
+        checks that given testpackages match our naming definitions
+
+        Raises ValueError if invalid packages given
+
+        @type test_packages: D{List} consiting of D{string}
+        @param test_packages: List of test package names
+
+        """
+        invalid_packages = [pkg for pkg in packages
+                              if not self._is_valid_suffix(pkg)]
+        if invalid_packages:
+            pretty_packages =  ', '.join(invalid_packages)
+            error_msg = "Invalid testpackage(s): %s" % pretty_packages
+            raise ValueError(error_msg)
