@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #

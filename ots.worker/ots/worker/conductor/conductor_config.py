@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -20,7 +21,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# -*- coding: utf-8 -*-
 """Conductor internal settings file"""
 
 # See also /etc/conductor.conf

@@ -26,7 +26,6 @@
 import logging
 import os
 import subprocess
-import re
 import time
 
 from ots.worker.command import Command
@@ -633,13 +632,7 @@ class Executor(object):
             self.testrun.test_packages = requested
 
         else:
-            packaging = self.testrun.config['device_packaging']
-            if packaging == 'debian':
-                all_pkgs = self._scan_for_test_packages_debian()
-            elif packaging == 'rpm':
-                all_pkgs = self._scan_for_test_packages_rpm()
-            else:
-                raise Exception("Unsupported packaging type '%s'" % packaging)
+            all_pkgs = self._scan_for_test_packages()
 
             if not all_pkgs:
                 raise ConductorError("No test packages found in image!", "1081")
@@ -664,61 +657,34 @@ class Executor(object):
             self.log.warning("Skipped setting executed test packages to OTS "\
                              "server")
 
-
-    def _scan_for_test_packages_debian(self):
+    def _scan_for_test_packages(self):
         """
-        Scan for Debian test packages in hardware containing tests.xml file. 
+        Scan test target for installed test packages containing tests.xml file. 
         Return names of test packages as a sorted list.
-
-        # dpkg -l
-        ...
-        ii  accounts-qt0    ...   0.19-1+0m6         ... Accounts frame...
-        ii  accounts-ui     ...   0.0.12-1.0rtc+0m6  ... accounts...
-        ...
-
-        # dpkg -S tests.xml
-        testrunner-tests: /usr/share/testrunner-tests/tests.xml
-        libqmsystem-tests: /usr/share/libqmsystem-tests/tests.xml
-        testrunner-tests: /usr/share/testrunner/testdata/filter_tests.xml
-        testrunner-tests: /usr/share/testrunner/testdata/sample_automatic_tests.xml
         """
 
-        #Fetch list of packages whose name matches to predefined pattern
         task = "Scanning for installed test packages"
         self.log.info(task)
 
         cmdstr = self.target.get_command_to_list_installed_packages()
         cmd = self._default_ssh_command_executor(cmdstr, task.lower())
 
-        test_pkg_pattern = re.compile("ii\s\s"\
-            "(?P<name>\S+-test|\S+-tests|\S+-benchmark)\s+"\
-            "(?P<ver>\S+)\s+"\
-            "(?P<desc>.*)$", re.MULTILINE)
+        test_packages = self.target.parse_installed_packages(cmd.stdout)
 
-        test_pkg_data = re.findall(test_pkg_pattern, cmd.stdout)
-        test_packages = [ name for (name, ver, desc) in test_pkg_data ]
-        test_packages.sort()
-
-        #Fetch list of good looking folder names that contain tests.xml file
         task = "Scanning for packages containing tests.xml"
         self.log.info(task)
 
         cmdstr = self.target.get_command_to_find_test_packages()
         cmd = self._default_ssh_command_executor(cmdstr, task.lower())
 
-        path_pattern = re.compile("/usr/share/"\
-                "(\S+-test|\S+-tests|\S+-benchmark)/tests.xml$", re.MULTILINE)
-        possible_pkgs_with_file = re.findall(path_pattern, cmd.stdout)
+        pkgs_with_file = self.target.parse_packages_with_file(cmd.stdout)
 
         #Remove candidates that are not found in both lists
         for pkg in test_packages[:]:
-            if pkg not in possible_pkgs_with_file:
+            if pkg not in pkgs_with_file:
                 test_packages.remove(pkg)
                 
         return test_packages
-
-    def _scan_for_test_packages_rpm(self):
-        raise Exception("not implemented yet")
 
     def _fetch_environment_details(self):
         """

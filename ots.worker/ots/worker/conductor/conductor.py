@@ -56,7 +56,7 @@ def _parse_command_line(args):
 
     parser.add_option("-u", "--imageurl", dest="image_url", action="store", 
                     type="string",
-                    help="URL to image (.bin) or rootstrap (.tgz or tar.gz)",
+                    help="URL to main flash image file",
                     metavar="URL")
 
     parser.add_option("-t", "--testpkgs", dest="packages", action="store",
@@ -227,8 +227,10 @@ def _read_conductor_config(config_file, default_file = ""):
 
     config['files_fetched_after_testing'] = \
             parse_list(config['files_fetched_after_testing'])
-    config['commands_to_show_environment'] = \
-            parse_list(config['commands_to_show_environment'])
+    config['pre_test_info_commands_debian'] = \
+            parse_list(config['pre_test_info_commands_debian'])
+    config['pre_test_info_commands_rpm'] = \
+            parse_list(config['pre_test_info_commands_rpm'])
 
     return config
 

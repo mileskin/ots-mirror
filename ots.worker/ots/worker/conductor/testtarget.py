@@ -79,3 +79,15 @@ class TestTarget(object):
         """Returns command that lists all installed packages in target."""
         raise Exception("Error: not implemented")
 
+    def parse_for_packages_with_file(self, lines):
+        """
+        Parse test package names from lines. Returns list of test packages.
+        """
+        raise Exception("Error: not implemented")
+
+    def parse_installed_packages(self, lines):
+        """
+        Parse test package names from lines. Returns list of test packages.
+        """
+        raise Exception("Error: not implemented")
+
