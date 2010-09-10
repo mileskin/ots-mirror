@@ -27,6 +27,7 @@
 class ConductorError(Exception):
     """Raised for errors in conductor"""
     def __init__(self, error_info, error_code):
+        super(ConductorError, self).__init__()
         self.error_info = error_info
         self.error_code = error_code
 

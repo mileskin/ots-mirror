@@ -44,4 +44,13 @@ class ConnectionTestFailed(Exception):
 class SoftwareUpdater(object):
     """ Default class for SoftwareUpdater """
     def flash(self, image_path, content_image_path):
+        """
+        Call this method to start flashing.
+
+        @type image_path: C{string}
+        @param image: Absolute path of image file
+
+        @type content_image_path: C{string}
+        @param content_image_path: Absolute path of Device content image file
+        """
         pass

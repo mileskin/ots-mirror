@@ -22,6 +22,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Conductor main file """
 
 import logging
 import logging.handlers
@@ -83,7 +84,8 @@ def _parse_command_line(args):
 
     parser.add_option("-e", "--contentimageurl", dest="content_image_url",
                     action="store", type="string",
-                    help="URL to content image. Enables content image flashing.",
+                    help="URL to content image. Enables content image "\
+                         "flashing.",
                     metavar="CONTENTIMAGEURL")
 
     parser.add_option("-E", "--contentimagepath", dest="content_image_path", 

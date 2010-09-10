@@ -254,7 +254,9 @@ class Hardware(TestTarget):
 
 
     def _fetch_content_image(self):
-        """Fetch content_image from URL if specified and if path not already set"""
+        """
+        Fetch content_image from URL if specified and if path not already set
+        """
 
         if not self.testrun.content_image_path and \
                self.testrun.content_image_url:
@@ -283,7 +285,8 @@ class Hardware(TestTarget):
 
             #Run flasher. Note: one of paths (image_path OR content_image_path)
             #may be None
-            flasher.flash(self.testrun.image_path, self.testrun.content_image_path)
+            flasher.flash(self.testrun.image_path, \
+                          self.testrun.content_image_path)
 
         except flasher_module.ConnectionTestFailed:
             raise ConductorError("Error in preparing hardware: "\
