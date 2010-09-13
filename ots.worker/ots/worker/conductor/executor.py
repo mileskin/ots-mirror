@@ -755,7 +755,7 @@ class Executor(object):
                 except CommandFailed:
                     self.log.warning("Failed to fetch file %s (command %s "\
                         "returned %s)" % (src_path, cmdstr, \
-                        cmd.get_return_value()))
+                        cmd.return_value))
                 else:
                     self.log.debug("File fetched successfully")
                     break
