@@ -43,9 +43,6 @@ def init_testrun(swproduct, request_id, notify_list,
     @type request_id: C{string}
     @param request_id: An identifier for the request from the client
 
-    @type notify_list: C{list}
-    @param notify_list: Email addresses for notifications
-
     @type testplan_id: C{str}
     @param testplan_id: The Testplan ID
 
@@ -76,4 +73,11 @@ def init_testrun(swproduct, request_id, notify_list,
     #Intended replacement for
     # - testrun_host.init_testrun
     # - ndbpluging.init_new_testrun
+    pass
+
+
+def finished_run(datetime):
+    pass
+
+def persist():
     pass

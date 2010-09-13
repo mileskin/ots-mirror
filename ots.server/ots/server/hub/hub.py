@@ -22,11 +22,14 @@
 
 import os
 import logging
+import datetime
 
 from ots.server.hub.options import Options
 from ots.server.hub.init_logging import init_logging
-from ots.server.hub.persistence_layer import init_testrun
+from ots.server.hub.persistence_layer import init_testrun, persist, \
+                                             finished_run
 from ots.server.hub.bifh_plugin_spike import target_packages
+from ots.server.hub.email_plugin_spike import EmailPluginSpike
 
 from ots.server.testrun.testrun import Testrun
 
@@ -43,8 +46,8 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
     @param notify_list: Email addresses for notifications
     @type product: C{list}
     """
+    target_pkgs = target_packages(request_id)
     options = Options(**kwargs)
-    target_pkgs = target_packages()
     testrun_id = init_testrun(sw_product, request_id, notify_list,
                               options.testplan_id,  options.gate,
                               options.label, options.hw_packages,
@@ -57,6 +60,12 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
     is_host_enabled = bool(len(options.host_packages))
     testrun = Testrun(run_test, is_hw_enabled, is_host_enabled)
     testrun.run()
+    finished_run(datetime.datetime.now())
+
+
+    email_plugin = EmailPluginSpike(notify_list)
     #
     #Some post_processing steps here?
+
+    persist()
 
