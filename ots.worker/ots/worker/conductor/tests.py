@@ -701,6 +701,23 @@ class Test_Executor(unittest.TestCase):
     def test_include_testrun_log_file(self):
         self.assertTrue(self.real_executor._include_testrun_log_file() in [0,1])
 
+
+class TestDefaultFlasher(unittest.TestCase):
+    """Tests for defaultflasher.py"""
+
+    def test_exceptions(self):
+        from defaultflasher import FlashFailed
+        from defaultflasher import InvalidImage
+        from defaultflasher import InvalidConfig
+        from defaultflasher import ConnectionTestFailed
+
+    def test_softwareupdater_flash(self):
+        from defaultflasher import SoftwareUpdater
+        #sw_updater = defaultflasher.SoftwareUpdater()
+        sw_updater = SoftwareUpdater()
+        sw_updater.flash("image1", "image2")
+
+
 if __name__ == '__main__':
     unittest.main()
 
