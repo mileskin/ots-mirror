@@ -20,35 +20,13 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import logging
-
-from pkg_resources import working_set, Environment
-
-LOG = logging.getLogger(__name__)
-
-def _find_plugins(plugin_dir):
-    """
-    @type plugin_dir: C{str}
-    @param plugin_dir: The path name of the plugin directory
-
-    @rtype: C{list} of C{pkg_resources.Distribution}
-    @rparam: A list of plugins
-    """
-
-    env = Environment([plugin_dir])
-    plugins, errors =  working_set.find_plugins(env)
-    if errors:
-        LOG.debug("Error finding plugins: %s"%(errors))
-    return plugins
-
-def activate_plugins(plugin_dir):
-    """
-    @type plugin_dir: C{str}
-    @param plugin_dir: The path name of the plugin directory
-    """
-    for package in _find_plugins(plugin_dir):
-        LOG.debug("Activating: '%s'"%(package.egg_name()))
-        working_set.add(package)
+from ots.common.framework.plugin_base import PluginBase
 
 
+class TestPlugin(PluginBase):
+    
+    def __init__(self, application_id):
+        PluginBase.__init__(self, application_id)
 
+    def foo(self, arg):
+        return self.application_id, arg

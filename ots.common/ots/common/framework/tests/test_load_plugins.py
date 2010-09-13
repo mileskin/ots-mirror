@@ -32,7 +32,7 @@ import unittest
 
 from pkg_resources import working_set
 
-from ots.server.hub.find_plugins import _find_plugins, activate_plugins
+from ots.common.framework.load_plugins import _find_plugins, load_plugins
 
 class TestFindPlugins(unittest.TestCase):
 
@@ -47,10 +47,11 @@ class TestFindPlugins(unittest.TestCase):
         self.assertTrue(plugins[0].egg_name().startswith("ots.test_plugin"))
 
     def test_activate_plugins(self):
-        activate_plugins(self.plugin_dir)
+        load_plugins(self.plugin_dir)
         module = __import__("ots.test_plugin")
-        foo = list(working_set.iter_entry_points('foo'))[0].load()
-        self.assertEquals(111, foo(111))
+        module = list(working_set.iter_entry_points('TestPlugin'))[0].load()
+        test_plugin = module.TestPlugin("unittest")
+        self.assertEquals(("unittest", 111), test_plugin.foo(111))
 
 if __name__ == "__main__":
     unittest.main()

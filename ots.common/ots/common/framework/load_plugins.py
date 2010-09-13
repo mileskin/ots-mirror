@@ -20,14 +20,35 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
+import logging
 
-setup(
-      name = "ots.test_plugin",
-      namespace_packages = ["ots", "ots.test_plugin"],
-      version =  0.1,
-      include_package_data = True,
-      packages = find_packages(),
-      entry_points={"foo":
-                    ["ots.test_plugin = ots.test_plugin.main:foo"]},
-     )
+from pkg_resources import working_set, Environment
+
+LOG = logging.getLogger(__name__)
+
+def _find_plugins(plugin_dir):
+    """
+    @type plugin_dir: C{str}
+    @param plugin_dir: The path name of the plugin directory
+
+    @rtype: C{list} of C{pkg_resources.Distribution}
+    @rparam: A list of plugins
+    """
+
+    env = Environment([plugin_dir])
+    plugins, errors =  working_set.find_plugins(env)
+    if errors:
+        LOG.debug("Error finding plugins: %s"%(errors))
+    return plugins
+
+def load_plugins(plugin_dir):
+    """
+    @type plugin_dir: C{str}
+    @param plugin_dir: The path name of the plugin directory
+    """
+    for package in _find_plugins(plugin_dir):
+        LOG.debug("Activating: '%s'"%(package.egg_name()))
+        working_set.add(package)
+
+
+

@@ -28,7 +28,6 @@ from ots.server.hub.options import Options
 from ots.server.hub.init_logging import init_logging
 from ots.server.hub.persistence_layer import init_testrun, persist, \
                                              finished_run
-from ots.server.hub.bifh_plugin_spike import target_packages
 from ots.server.hub.email_plugin_spike import EmailPluginSpike
 
 from ots.server.testrun.testrun import Testrun
@@ -61,9 +60,6 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
     testrun = Testrun(run_test, is_hw_enabled, is_host_enabled)
     testrun.run()
     finished_run(datetime.datetime.now())
-
-
-    email_plugin = EmailPluginSpike(notify_list)
     #
     #Some post_processing steps here?
 
