@@ -50,5 +50,21 @@ def load_plugins(plugin_dir):
         LOG.debug("Activating: '%s'"%(package.egg_name()))
         working_set.add(package)
 
+def plugin_factory(name):
+    """
+    @type name: C{str}
+    @param name: The name of the plugin
 
-
+    @rtype: C{klass}
+    @rparam: The Plugin Klass
+    """
+    ret_val = None
+    entry_point = working_set.iter_entry_points(name).next()
+    LOG.debug("Loading module '%s'"% (entry_point))
+    print "Loading module '%s'"% (entry_point )
+    module = entry_point.load()
+    if hasattr(module, name):
+        ret_val = getattr(module, name)
+    else:
+        LOG.debug("%s has no attribute %s"%(module, name))
+    return ret_val

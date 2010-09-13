@@ -6,6 +6,6 @@ setup(
       version =  0.8,
       include_package_data = True,
       packages = find_packages(),
-      entry_points={"get_target_packages":
-               ["ots.bifh_plugin = ots.bifh_plugin.main:get_target_packages"]},
+      entry_points={"BifhPlugin":
+                ["ots.bifh_plugin.bifh_plugin = ots.bifh_plugin.bifh_plugin"]},
      )

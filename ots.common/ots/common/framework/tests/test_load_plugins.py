@@ -22,8 +22,11 @@
 
 """
 For this test you need to build the egg
+in the subdirectory test_plugin
 
+{{{
 $sudo python setup.py bdist_egg
+}}}
 """
 
 import os
@@ -33,6 +36,7 @@ import unittest
 from pkg_resources import working_set
 
 from ots.common.framework.load_plugins import _find_plugins, load_plugins
+from ots.common.framework.load_plugins import plugin_factory
 
 class TestFindPlugins(unittest.TestCase):
 
@@ -52,6 +56,10 @@ class TestFindPlugins(unittest.TestCase):
         module = list(working_set.iter_entry_points('TestPlugin'))[0].load()
         test_plugin = module.TestPlugin("unittest")
         self.assertEquals(("unittest", 111), test_plugin.foo(111))
+
+    def test_plugin_factory(self):
+        test_plugin = plugin_factory("TestPlugin")
+        self.assertEquals(("unittest", 222), test_plugin("unittest").foo(222))
 
 if __name__ == "__main__":
     unittest.main()

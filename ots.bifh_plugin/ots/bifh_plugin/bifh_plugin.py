@@ -41,7 +41,7 @@ class BifhPlugin(PluginBase):
         PluginBase.__init__(self, application_id)
         self.request_id = request_id
 
-    def _create_proxy():
+    def _create_proxy(self):
         #FIXME
         pass
 
@@ -84,10 +84,11 @@ class BifhPlugin(PluginBase):
         try:
             packages = []
             server = self._create_proxy()
-            results = server.bifh.users.request.results(self.request_id)
-            for package in results['packages']:
-                if not packages.count(package['binary_name']):#remove duplicates
-                    packages.append(package['binary_name'])
+            if server is not None:
+                results = server.bifh.users.request.results(self.request_id)
+                for package in results['packages']:
+                    if not packages.count(package['binary_name']):
+                        packages.append(package['binary_name'])
         except socket.timeout:
             self.log.exception("Bifh XMLRPC call timed out")
         return packages
