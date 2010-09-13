@@ -42,7 +42,7 @@ from ots.worker.api import ResponseClient
 logging.basicConfig(stream = sys.stdout, level = logging.DEBUG, 
                     format = '%(asctime)s %(levelname)s %(message)s')
 
-from conductorerror import ConductorError
+from ots.worker.conductor.conductorerror import ConductorError
 
 ##############################################################################
 # Constants
@@ -58,9 +58,9 @@ NON_EXISTING_FILE = "/non/existing/file"
 # Stubs
 ##############################################################################
 
-from executor import TestRunData as TRD
-from executor import Executor as TE
-from hardware import Hardware as HW
+from ots.worker.conductor.executor import TestRunData as TRD
+from ots.worker.conductor.executor import Executor as TE
+from ots.worker.conductor.hardware import Hardware as HW
 
 class Mock_Hardware(HW):
     """
@@ -531,14 +531,14 @@ class Test_Executor(unittest.TestCase):
 
 
     def test_set_target_when_debian(self):
-        from hardware import Hardware as Hardware
+        from ots.worker.conductor.hardware import Hardware as Hardware
         self.executor.set_target()
         self.assertTrue(isinstance(self.executor.target, Hardware))
         self.assertEquals(str(self.executor.target), "Hardware")
         self.assertEquals(self.executor.env, "Hardware")
 
     def test_set_target_when_rpm(self):
-        from hardware import RPMHardware as RPMHardware
+        from ots.worker.conductor.hardware import RPMHardware as RPMHardware
         self.testrun.config['device_packaging'] = 'rpm'
         self.executor.set_target()
         self.assertTrue(isinstance(self.executor.target, RPMHardware))

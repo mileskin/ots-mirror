@@ -33,14 +33,14 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 
-from hardware import Hardware, RPMHardware
+from ots.worker.conductor.hardware import Hardware, RPMHardware
 # Import internal constants
-from conductor_config import TEST_DEFINITION_FILE_NAME, TESTRUN_LOG_FILE, \
-                             TESTRUN_LOG_CLEANER, CONDUCTOR_WORKDIR, \
+from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
+                             TESTRUN_LOG_FILE, TESTRUN_LOG_CLEANER, \
                              TESTRUNNER_WORKDIR, CMD_TESTRUNNER, \
                              TESTRUNNER_SSH_OPTION, TESTRUNNER_LOGGER_OPTION, \
                              TESTRUNNER_FILTER_OPTION, HTTP_LOGGER_PATH, \
-                             LOCAL_COMMAND_TO_COPY_FILE, \
+                             LOCAL_COMMAND_TO_COPY_FILE, CONDUCTOR_WORKDIR, \
                              SSH_CONNECTION_RETRIES, SSH_RETRY_INTERVAL, \
                              TESTRUNNER_SSH_FAILS, TESTRUNNER_PARSING_FAILS, \
                              TESTRUNNER_VALIDATION_FAILS, \

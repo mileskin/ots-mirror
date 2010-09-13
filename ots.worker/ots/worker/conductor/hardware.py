@@ -23,11 +23,11 @@
 
 """Hardware test target"""
 
-from testtarget import TestTarget
-from conductor_config import HW_COMMAND
-from conductor_config import HW_COMMAND_TO_COPY_FILE
-from conductor_config import FLASHER_PATH
-from conductorerror import ConductorError
+from ots.worker.conductor.testtarget import TestTarget
+from ots.worker.conductor.conductor_config import HW_COMMAND
+from ots.worker.conductor.conductor_config import HW_COMMAND_TO_COPY_FILE
+from ots.worker.conductor.conductor_config import FLASHER_PATH
+from ots.worker.conductor.conductorerror import ConductorError
 
 try:
     import customflasher as flasher_module

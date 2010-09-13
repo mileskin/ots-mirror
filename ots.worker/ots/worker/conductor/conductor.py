@@ -33,11 +33,11 @@ from socket import gethostname
 
 from helpers import parse_config
 
-from conductor_config import DEBUG_LOG_FILE
-from conductor_config import HTTP_LOGGER_PATH
-from executor import TestRunData
-from executor import Executor
-from conductorerror import ConductorError
+from ots.worker.conductor.conductor_config import DEBUG_LOG_FILE
+from ots.worker.conductor.conductor_config import HTTP_LOGGER_PATH
+from ots.worker.conductor.executor import TestRunData
+from ots.worker.conductor.executor import Executor
+from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
 
 
