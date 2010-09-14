@@ -25,10 +25,13 @@ Demo to use the taskrunner from the CL
 
 FIXME
 """
+import os
+import sys
+import logging
 
 import ConfigParser
 
-from ots.server.distributor.taskrunner import taskrunner_factory
+from ots.server.distributor.taskrunner_factory import taskrunner_factory
 
 def init_logging(config_filename):
     """
@@ -40,7 +43,7 @@ def init_logging(config_filename):
         log_filename = config.get("Client", "log_file", None)
     except ConfigParser.NoOptionError:
         log_filename = None
-    
+
     root_logger = logging.getLogger('')
     root_logger.setLevel(logging.DEBUG)
     #Switch between file and STDERR based logging depending on config
@@ -66,9 +69,9 @@ def main():
 
     parser.add_option("-v", "--version",
                       action = "store_true",
-                      help = "the version number of ots.distributor")    
+                      help = "the version number of ots.distributor")
     parser.add_option("-d", "--device",
-                      default = "foodevice",
+                      default = "foo",
                       help = "the device to be used")
     parser.add_option("-t", "--timeout",
                       default = 30,
@@ -94,12 +97,11 @@ def main():
     init_logging(options.config)
 
     testrun_id = ''
-    taskrunner = taskrunner_factory(options.device, 
-                                    options.timeout, 
+    taskrunner = taskrunner_factory(options.device,
+                                    options.timeout,
                                     testrun_id,
                                     options.config)
-    for command in [options.command]: 
-        taskrunner.add_task(command)
+    taskrunner.add_task([options.command])
     taskrunner.run()
 
 if __name__ == '__main__':
