@@ -28,9 +28,7 @@ class PluginException(Exception):
 class PluginBase(object):
 
     DEFAULT_CONFIG_FILEPATH = "/etc/"
-
-    def __init__(self, application_id):
-        self.application_id = application_id
+    application_id = None
 
     def _config_filename(self):
         """

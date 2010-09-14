@@ -22,6 +22,8 @@
 
 # PLACEHOLDER
 
+import datetime
+
 def _testplan_name(request_id):
     """
     @type request: C{string}
@@ -32,52 +34,84 @@ def _testplan_name(request_id):
     """
     return "Testplan %s"%(request_id)
 
-def init_testrun(swproduct, request_id, notify_list,
-                 testplan_id,  gate, label,  hw_packages,
-                 image_url, target_packages):
+#FIXME: imagename and sw_version in upload
+
+class PersistencePlugin(object):
 
     """
-    @type sw_product: C{string}
-    @param sw_product: Name of the sw product this testrun belongs to
-
-    @type request_id: C{string}
-    @param request_id: An identifier for the request from the client
-
-    @type testplan_id: C{str}
-    @param testplan_id: The Testplan ID
-
-    @type gate: C{str}
-    @param gate: TODO
-
-    @param label: C{str}
-    @type label: TODO
-
-    @type hw_packages: C{list}
-    @param hw_packages: A list of the hardware packages
-
-    @type image_url: C{str}
-    @param image_url: The image URL
-
-    @param rootstrap: C{str}
-    @type rootstrap: TODO
-
-    @param target_packages: C{list}
-    @type target_packages: The target packages
-
-    @rparam: C{str}
-    @rtype: Testrun ID
-
-    Persists the Metadata associated with the run
-    and returns a testrun ID
+    Spike to define the interface for the
+    Persistence plugin
     """
-    #Intended replacement for
-    # - testrun_host.init_testrun
-    # - ndbpluging.init_new_testrun
-    pass
 
+    def __init__(self, request_id, testplan_id, sw_product,
+                       gate, label,  hw_packages, image, target_packages):
 
-def finished_run(datetime):
-    pass
+        """
+        @type request_id: C{string}
+        @param request_id: An identifier for the request from the client
 
-def persist():
-    pass
+        @type testplan_id: C{str}
+        @param testplan_id: The Testplan ID
+
+        @type sw_product: C{string}
+        @param sw_product: Name of the sw product this testrun belongs to
+
+        @type gate: C{str}
+        @param gate: TODO
+
+        @param label: C{str}
+        @type label: TODO
+
+        @type hw_packages: C{list}
+        @param hw_packages: A list of the hardware packages
+
+        @type image: C{str}
+        @param image: The image URL
+
+        @param target_packages: C{list}
+        @type target_packages: The target packages
+        """
+        self.start_time = datetime.datetime.now()
+        self.end_time = None
+        self._testrun_id = None
+        self._error_info = None
+        self._error_code = None
+
+    @property
+    def testrun_id(self):
+        """
+        @type: C{str}
+        @rparam: Testrun ID
+        """
+        return self._testrun_id
+
+    def _set_error(self, exception):
+        """
+        @type: L{Exception}
+        @param: Exception
+        """
+        pass
+
+    @property
+    def _get_error(self):
+        return self._error_code, self_error_info
+
+    error = property(_get_error, _set_error)
+
+    def _set_result(self, result):
+        """
+        @param result: L{ots.results.TestrunResult}
+        @param result: The results of the testrun
+        """
+        self.end_time = datetime.datetime.now()
+        self._result = result
+
+    @property
+    def _get_result(self):
+        """
+        @param result: L{ots.results.TestrunResult}
+        @param result: The results of the testrun
+        """
+        return self._result
+
+    result = property(_get_result, _set_result)

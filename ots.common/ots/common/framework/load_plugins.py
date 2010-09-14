@@ -59,12 +59,14 @@ def plugin_factory(name):
     @rparam: The Plugin Klass
     """
     ret_val = None
-    entry_point = working_set.iter_entry_points(name).next()
-    LOG.debug("Loading module '%s'"% (entry_point))
-    print "Loading module '%s'"% (entry_point )
-    module = entry_point.load()
-    if hasattr(module, name):
-        ret_val = getattr(module, name)
-    else:
-        LOG.debug("%s has no attribute %s"%(module, name))
+    try:
+        entry_point = working_set.iter_entry_points(name).next()
+        LOG.debug("Loading module '%s'"% (entry_point))
+        module = entry_point.load()
+        if hasattr(module, name):
+            ret_val = getattr(module, name)
+        else:
+            LOG.debug("%s has no attribute %s"%(module, name))
+    except StopIteration:
+        LOG.debug("No entry point: %s"%(name))
     return ret_val
