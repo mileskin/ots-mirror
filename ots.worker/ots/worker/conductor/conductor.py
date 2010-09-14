@@ -31,7 +31,8 @@ import sys
 from optparse import OptionParser
 from socket import gethostname
 
-from helpers import parse_config
+from ots.worker.conductor.helpers import parse_list, \
+                                         parse_config
 
 from ots.worker.conductor.conductor_config import DEBUG_LOG_FILE
 from ots.worker.conductor.conductor_config import HTTP_LOGGER_PATH
@@ -40,6 +41,7 @@ from ots.worker.conductor.executor import Executor
 from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
 
+DEFAULT_CONFIG = "/etc/conductor.conf"
 
 def _parse_command_line(args):
     """
@@ -205,34 +207,58 @@ def _check_command_line_options(options):
     return True
 
 
-def _read_conductor_config(config_file, default_file = ""):
+def _parse_conductor_config(config_file, current_config_dict=None):
     """
     Read and parse conductor configuration file. 
     If config_file is None or does not exist, default_file is tried. 
     If neither of the two files exists, raise exception. Returns dictionary.
     """
-    def parse_list(string):
-        """
-        Parse comma-separated list of values from given string.
-        Remove possible quotes surrounding any value. Return values as list.
-        """
-        return [ item.strip().strip('"\'') for item in string.split(",") ]
-
-    if config_file and os.path.exists(config_file):
-        config = parse_config(config_file, "conductor")
-    elif default_file and os.path.exists(default_file):
-        config = parse_config(default_file, "conductor")
-    else:
+    if not os.stat(config_file):
         raise Exception("Configuration file missing")
+    config_dict = parse_config(config_file, "conductor", current_config_dict)
 
-    config['files_fetched_after_testing'] = \
-            parse_list(config['files_fetched_after_testing'])
-    config['pre_test_info_commands_debian'] = \
-            parse_list(config['pre_test_info_commands_debian'])
-    config['pre_test_info_commands_rpm'] = \
-            parse_list(config['pre_test_info_commands_rpm'])
+    if not current_config_dict:
+        # Parse specified parameters to lists
+        for conf_param in ['files_fetched_after_testing', \
+                            'pre_test_info_commands_debian', \
+                            'pre_test_info_commands_rpm']:
+            if config_dict.has_key(conf_param):
+                config_dict[conf_param] = \
+                    parse_list(config_dict[conf_param])
 
-    return config
+    return config_dict
+
+
+def _read_configuration_files(config_file):
+    """
+    Read main configuration file and optional custom configuraion
+    files.
+    """
+
+    log = logging.getLogger("conductor")
+
+    if not (config_file and os.path.exists(config_file)):
+        config_file = DEFAULT_CONFIG
+
+    config_dict = _parse_conductor_config(config_file)
+
+    if config_dict.has_key('custom_config_folder'):
+        custom_folder = config_dict['custom_config_folder']
+
+        # Let's read our optional custom configuration files
+        try:
+            contents = os.listdir(custom_folder)
+        except (OSError, IOError), e:
+            log.warning("Error listing directory %s: %s" % (custom_folder, e))
+        else:
+            for custom_config_file in contents:
+                if custom_config_file.rfind('.conf'):
+                    custom_config = \
+                         _parse_conductor_config(custom_folder + \
+                                        '/' + custom_config_file, config_dict)
+                    #config_dict.update(custom_config)
+                    config_dict = custom_config
+    return config_dict
 
 
 def _initialize_remote_connections(otsserver, testrun_id):
@@ -268,7 +294,6 @@ def main():
     (options, parser) = _parse_command_line(sys.argv[1:])
     if not _check_command_line_options(options):
         parser.print_help()
-        sys.exit(1)
 
     stand_alone = not options.testrun_id and not options.otsserver
 
@@ -293,7 +318,7 @@ def main():
 
     log.debug("Reading configuration file")
 
-    config = _read_conductor_config(options.config_file, "/etc/conductor.conf")
+    config = _read_configuration_files(options.config_file)
 
     try:
         testrun = TestRunData(options, config)

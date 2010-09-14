@@ -221,7 +221,7 @@ class TestConductorConf(unittest.TestCase):
     def test_read_conductor_config(self):
         import conductor
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
-        conf = conductor._read_conductor_config(conf_file, None)
+        conf = conductor._read_configuration_files(conf_file)
         self.assertTrue(type(conf) == type(dict()))
         self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['pre_test_info_commands_debian'] != "")
