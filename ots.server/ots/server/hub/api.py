@@ -21,3 +21,4 @@
 # ***** END LICENCE BLOCK *****
 
 from ots.server.hub.hub import run
+from ots.server.hud.options import Options
