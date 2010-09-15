@@ -76,10 +76,12 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
         testrun = Testrun(run_test, is_hw_enabled, is_host_enabled)
         result = testrun.run()
         LOG.debug("Testrun finished with result: %s"%(result))
-        persistence_plugin.result = result
+        if persistence_plugin is not None:
+            persistence_plugin.result = result
     except Exception, err:
         LOG.debug("Testrun Exception: %s"%(err))
-        persistence_plugin.error = Exception
+        if persistence_plugin is not None:
+            persistence_plugin.error = Exception
 
 
     #Some post_processing steps here?
