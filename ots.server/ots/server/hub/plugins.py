@@ -58,3 +58,9 @@ class BifhPlugin(object):
     The BifhPlugin
     """
     __metaclass__ = PluginMetaclass
+
+class PersistencePlugin(object):
+    """
+    The PersistencePlugin
+    """
+    __metaclass__ = PluginMetaclass

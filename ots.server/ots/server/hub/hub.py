@@ -32,7 +32,7 @@ from ots.server.testrun.testrun import Testrun
 
 from ots.server.hub.options import Options
 from ots.server.hub.init_logging import init_logging
-from ots.server.hub.persistence_layer import PersistencePlugin
+from ots.server.hub.plugins import PersistencePlugin
 from ots.server.hub.plugins import BifhPlugin
 
 LOG = logging.getLogger(__name__)
@@ -64,7 +64,6 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
                                            options.hw_packages,
                                            options.image,
                                            target_packages)
-
     if persistence_plugin is not None:
         init_logging(request_id, persistence_plugin.testrun_id)
 
