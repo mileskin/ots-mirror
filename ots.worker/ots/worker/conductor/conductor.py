@@ -256,8 +256,8 @@ def _read_configuration_files(config_file):
                     custom_config = \
                          _parse_conductor_config(custom_folder + \
                                         '/' + custom_config_file, config_dict)
-                    #config_dict.update(custom_config)
                     config_dict = custom_config
+
     return config_dict
 
 
