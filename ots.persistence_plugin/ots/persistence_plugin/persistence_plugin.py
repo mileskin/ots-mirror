@@ -20,9 +20,14 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# PLACEHOLDER
+"""
+Spike API
+"""
 
+import logging
 import datetime
+
+from ots.common.framework.plugin_base import PluginBase
 
 def _testplan_name(request_id):
     """
@@ -36,7 +41,7 @@ def _testplan_name(request_id):
 
 #FIXME: imagename and sw_version in upload
 
-class PersistencePlugin(object):
+class PersistencePlugin(PluginBase):
 
     """
     Spike to define the interface for the
