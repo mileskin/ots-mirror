@@ -29,15 +29,31 @@ import datetime
 
 from ots.common.framework.plugin_base import PluginBase
 
+from ots.persistence_plugin.django_model_delegate import init_testrun
+from ots.persistence_plugin.django_model_delegate import set_testrun_result
+from ots.persistence_plugin.django_model_delegate import set_testrun_error
+
 def _testplan_name(request_id):
     """
-    @type request: C{string}
-    @param request: An identifier for the request from the client
+    @type request_id: C{string}
+    @param request_id: An identifier for the request from the client
 
     @rtype: C{string}
     @rparam: The testplan name
     """
     return "Testplan %s"%(request_id)
+
+
+def _image_name(image):
+    """
+    @type image: C{string}
+    @param image: The image url
+
+    @rtype: C{string}
+    @rparam: The image name
+    """
+
+    return image.split("/")[-1]
 
 #FIXME: imagename and sw_version in upload
 
@@ -76,11 +92,19 @@ class PersistencePlugin(PluginBase):
         @param target_packages: C{list}
         @type target_packages: The target packages
         """
-        self.start_time = datetime.datetime.now()
         self.end_time = None
         self._testrun_id = None
         self._error_info = None
         self._error_code = None
+        #
+        testplan_name = _testplan_name(request_id)
+        image_name = _image_name(image)
+        self._testrun_id = init_testrun(request_id, testrun_id, testplan_id,
+                                        label, image, image_name, sw_version,
+                                        cmt, target_packages)
+
+
+    ###############################
 
     @property
     def testrun_id(self):
@@ -95,7 +119,8 @@ class PersistencePlugin(PluginBase):
         @type: L{Exception}
         @param: Exception
         """
-        pass
+        #FIXME
+        set_testrun_error
 
     @property
     def _get_error(self):
@@ -108,7 +133,7 @@ class PersistencePlugin(PluginBase):
         @param result: L{ots.results.TestrunResult}
         @param result: The results of the testrun
         """
-        self.end_time = datetime.datetime.now()
+        set_test_run_result(result)
         self._result = result
 
     @property

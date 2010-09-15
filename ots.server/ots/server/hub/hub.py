@@ -49,6 +49,7 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
     @param notify_list: Email addresses for notifications
     @type product: C{list}
     """
+    sw_product = sw_product.lower()
     bifh_plugin = BifhPlugin(request_id)
     target_packages = []
     if bifh_plugin is not None:
