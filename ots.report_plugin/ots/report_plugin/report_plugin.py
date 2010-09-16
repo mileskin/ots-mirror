@@ -30,13 +30,15 @@ The ReportingPlugin
 #reporting plugin. This work comes at it from the CITA POV
 #Based on the functional requirements and the original ndb code
 #Attempts to adapt it to the interface being sketched out by
-#the reporting team. 
+#the reporting team.
 
 import logging
 import datetime
 
 from ots.common.framework.plugin_base import PluginBase
 
+
+LOG = logging.getLogger(__name__)
 
 #######################################
 # Helpers
@@ -108,7 +110,7 @@ class ReportPlugin(PluginBase):
         @param target_packages: C{list}
         @type target_packages: The target packages
         """
-        self._data_storing = datastoring
+        self._data_storing = data_storing
         self.end_time = None
         self._testrun_id = None
         self._error_info = None
@@ -117,31 +119,29 @@ class ReportPlugin(PluginBase):
         testplan_name = _testplan_name(request_id)
         image_name = _image_name(image)
         self._data_storing.set_or_create_request(request_id)
-        self._testrun_id = self._init_testrun(request_id, testrun_id, 
-                                              testplan_id, label, 
-                                              image, image_name, 
-                                              sw_version, gate, 
+        self._testrun_id = self._init_testrun(request_id, testplan_id,
+                                              label, image, image_name,
+                                              sw_product, gate,
                                               target_packages)
-        
 
-    @staticmethod
-    def _init_testrun(request_id, testrun_id, testplan_id,
-                     label, image, image_name, sw_version,
+
+    def _init_testrun(self, request_id, testplan_id,
+                     label, image, image_name, sw_product,
                      gate, target_packages):
-        testplan = self._date_storing.set_or_create_testplan(testplan_id, gate)
-        label = set_or_create_label(label)
+        testplan = self._data_storing.set_or_create_testplan(testplan_id, gate)
+        label = self._data_storing.set_or_create_label(label)
         if testplan is not None:
             sw_product =  self._data_storing.set_or_create_swproduct(sw_product)
-            testrun = set_testrun(testrun_id)
-            testrun.request = request_id
-            testrun.imagename = image_name
-            testrun.imageurl = image
-            testrun.sw = sw_version
-            #TODO: Does cmt need checking here?
-            testrun.starttime = datetime.datetime.now()
-            testrun.save()
-            #FIXME: Should update target packages here
-            return testrun.id
+            result = None # FIXME Why the result here?
+            LOG.debug("Creating Testrun")
+            testrun_id = self._data_storing.new_testrun(result,
+                                     starttime =  datetime.datetime.now(),
+                                     imageurl = image,
+                                     imagename = image_name)
+            #TODO: sw_version here?
+            #TODO: cmt here?
+            #TODO: update target packages here?
+            return testrun_id
 
     @property
     def testrun_id(self):
