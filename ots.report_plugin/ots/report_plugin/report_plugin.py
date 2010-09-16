@@ -21,17 +21,26 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Spike API
+The ReportingPlugin
 """
+
+#WIP
+
+#This attempts to drive out the interface for the
+#reporting plugin. This work comes at it from the CITA POV
+#Based on the functional requirements and the original ndb code
+#Attempts to adapt it to the interface being sketched out by
+#the reporting team. 
 
 import logging
 import datetime
 
 from ots.common.framework.plugin_base import PluginBase
 
-from ots.persistence_plugin.django_model_delegate import init_testrun
-from ots.persistence_plugin.django_model_delegate import set_testrun_result
-from ots.persistence_plugin.django_model_delegate import set_testrun_error
+
+#######################################
+# Helpers
+#######################################
 
 def _testplan_name(request_id):
     """
@@ -55,19 +64,26 @@ def _image_name(image):
 
     return image.split("/")[-1]
 
-#FIXME: imagename and sw_version in upload
+#FIXME: imagename and sw_version in upload?
 
-class PersistencePlugin(PluginBase):
+####################################
+# ReportingPlugin
+####################################
+
+class ReportPlugin(PluginBase):
 
     """
-    Spike to define the interface for the
-    Persistence plugin
+    The Persistence Plugin Interface
+    Delegates the data to the reporting tool
     """
 
-    def __init__(self, request_id, testplan_id, sw_product,
+    def __init__(self, data_storing, request_id, testplan_id, sw_product,
                        gate, label,  hw_packages, image, target_packages):
 
         """
+        @type data_storing: L{DataStoring}
+        @param data_storing: The reporting tool
+
         @type request_id: C{string}
         @param request_id: An identifier for the request from the client
 
@@ -92,6 +108,7 @@ class PersistencePlugin(PluginBase):
         @param target_packages: C{list}
         @type target_packages: The target packages
         """
+        self._data_storing = datastoring
         self.end_time = None
         self._testrun_id = None
         self._error_info = None
@@ -99,12 +116,32 @@ class PersistencePlugin(PluginBase):
         #
         testplan_name = _testplan_name(request_id)
         image_name = _image_name(image)
-        self._testrun_id = init_testrun(request_id, testrun_id, testplan_id,
-                                        label, image, image_name, sw_version,
-                                        cmt, target_packages)
+        self._data_storing.set_or_create_request(request_id)
+        self._testrun_id = self._init_testrun(request_id, testrun_id, 
+                                              testplan_id, label, 
+                                              image, image_name, 
+                                              sw_version, gate, 
+                                              target_packages)
+        
 
-
-    ###############################
+    @staticmethod
+    def _init_testrun(request_id, testrun_id, testplan_id,
+                     label, image, image_name, sw_version,
+                     gate, target_packages):
+        testplan = self._date_storing.set_or_create_testplan(testplan_id, gate)
+        label = set_or_create_label(label)
+        if testplan is not None:
+            sw_product =  self._data_storing.set_or_create_swproduct(sw_product)
+            testrun = set_testrun(testrun_id)
+            testrun.request = request_id
+            testrun.imagename = image_name
+            testrun.imageurl = image
+            testrun.sw = sw_version
+            #TODO: Does cmt need checking here?
+            testrun.starttime = datetime.datetime.now()
+            testrun.save()
+            #FIXME: Should update target packages here
+            return testrun.id
 
     @property
     def testrun_id(self):
@@ -119,8 +156,7 @@ class PersistencePlugin(PluginBase):
         @type: L{Exception}
         @param: Exception
         """
-        #FIXME
-        set_testrun_error
+        #FIXME where is this in DataStoring?
 
     @property
     def _get_error(self):
@@ -133,7 +169,7 @@ class PersistencePlugin(PluginBase):
         @param result: L{ots.results.TestrunResult}
         @param result: The results of the testrun
         """
-        set_test_run_result(result)
+        #FIXME where is this in DataStoring?
         self._result = result
 
     @property

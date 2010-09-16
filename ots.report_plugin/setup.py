@@ -20,24 +20,15 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import unittest
+from setuptools import setup, find_packages
 
-class TestPersistencePlugin(unittest.TestCase):
-
-    def test_testrun_id(self):
-        pass
-
-    def test_set_error(self):
-        pass
-
-    def test_get_error(self):
-        pass
-
-    def test_set_result(self):
-        pass
-
-    def test_get_result(self):
-        pass
-
-if __name__ == '__main__':
-    unittest.main()
+setup(
+      name = "ots.report_plugin",
+      namespace_packages = ["ots", "ots.report_plugin"],
+      version =  0.8,
+      include_package_data = True,
+      packages = find_packages(),
+      entry_points={"ReportPlugin":
+            ["ots.report_plugin.report_plugin "\
+             "= ots.report_plugin.report_plugin"]},
+     )
