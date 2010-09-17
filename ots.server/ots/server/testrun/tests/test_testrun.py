@@ -32,20 +32,13 @@ from ots.server.testrun.tests.mock_taskrunner import \
                                              MockTaskRunnerResultsFail
 from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerTimeout
 from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerError
-from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerResultsPass
+
 
 import ots.results.api
 from ots.results.api import TestrunResult
 from ots.results.api import PackageException
 
 class TestTestrun(unittest.TestCase):
-
-    def test_run_results_pass(self):
-        mock_task_runner = MockTaskRunnerResultsPass()
-        run_test = mock_task_runner.run
-        testrun = Testrun(run_test)
-        ret_val = testrun.run()
-        self.assertEquals(TestrunResult.PASS, ret_val)
 
     def test_run_results_missing(self):
         mock_task_runner = MockTaskRunnerResultsMissing()
