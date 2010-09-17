@@ -55,7 +55,7 @@ import ots.worker
 import ots.worker.tests
 
 import ots.server.distributor
-from ots.server.distributor.taskrunner import RESULTS_SIGNAL, ERROR_SIGNAL
+from ots.server.distributor.taskrunner import TASKRUNNER_SIGNAL
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.distributor.queue_exists import queue_exists
 from ots.server.distributor.dev_utils.delete_queues import delete_queue
@@ -241,7 +241,7 @@ class TestOTSCore(unittest.TestCase):
             self.assertTrue('Global timeout' in kwargs['error_info'])
             self.assertEquals(kwargs['sender'], 'TaskRunner')
 
-        ERROR_SIGNAL.connect(cb_handler) 
+        TASKRUNNER_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
         taskrunner.run()
         time_after_run = time.time()
@@ -279,7 +279,7 @@ class TestOTSCore(unittest.TestCase):
             self.assertTrue('Global timeout' in kwargs['error_info'])
             self.assertEquals(kwargs['sender'], 'TaskRunner')
 
-        ERROR_SIGNAL.connect(cb_handler) 
+        TASKRUNNER_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
         taskrunner.run()
         time_after_run = time.time()
@@ -315,7 +315,7 @@ class TestOTSCore(unittest.TestCase):
             self.assertTrue('Global timeout' in kwargs['error_info'])
             self.assertEquals(kwargs['sender'], 'TaskRunner')
 
-        ERROR_SIGNAL.connect(cb_handler) 
+        TASKRUNNER_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
         taskrunner.run()
         time_after_run = time.time()
@@ -360,7 +360,7 @@ class TestOTSCore(unittest.TestCase):
                 expected = self._dummy_results_xml(filename)
                 self.assertEquals(expected, result_object.content)
             
-        RESULTS_SIGNAL.connect(cb_handler) 
+        TASKRUNNER_SIGNAL.connect(cb_handler) 
         
         time_before_run = time.time()
         time.sleep(1)

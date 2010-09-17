@@ -41,7 +41,7 @@ from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
 
 from ots.common.protocol import OTSProtocol
 from ots.common.protocol import get_version as get_ots_protocol_version
-from ots.server.distributor.taskrunner import RESULTS_SIGNAL, ERROR_SIGNAL
+from ots.server.distributor.taskrunner import TASKRUNNER_SIGNAL
 
 class AMQPMessageStub:
     body = None
@@ -102,7 +102,7 @@ class TestTaskRunner(unittest.TestCase):
         def test_handler(signal, **kwargs):
             self.assertEquals(kwargs['environment'], 'foo')
             self.assertEquals(kwargs['packages'], 'bar')
-        RESULTS_SIGNAL.connect(test_handler) 
+        TASKRUNNER_SIGNAL.connect(test_handler) 
         self.taskrunner._on_message(message)
 
     def test_on_message_error_message(self):
@@ -114,7 +114,7 @@ class TestTaskRunner(unittest.TestCase):
         def test_handler(signal, **kwargs):
             self.assertEquals(kwargs['error_info'], 'foo')
             self.assertEquals(kwargs['error_code'], 6)
-        ERROR_SIGNAL.connect(test_handler)
+        TASKRUNNER_SIGNAL.connect(test_handler)
         self.taskrunner._on_message(message)
 
 
@@ -304,7 +304,7 @@ class TestBackwardCompatibility(unittest.TestCase):
 
         def test_handler(signal, **kwargs):
             self.error = True
-        ERROR_SIGNAL.connect(test_handler) 
+        TASKRUNNER_SIGNAL.connect(test_handler) 
 
 
         # Create a task
@@ -343,7 +343,7 @@ class TestBackwardCompatibility(unittest.TestCase):
 
         def test_handler(signal, **kwargs):
             self.error = True
-        ERROR_SIGNAL.connect(test_handler) 
+        TASKRUNNER_SIGNAL.connect(test_handler) 
 
 
         # Create a task
