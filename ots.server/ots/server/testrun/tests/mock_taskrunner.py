@@ -141,3 +141,4 @@ class MockTaskRunnerError(object):
                   OTSProtocol.ERROR_INFO : "mock task runner",
                   OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTRUN_ERROR}
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+
