@@ -26,9 +26,7 @@ import time
 from ots.common.api import OTSProtocol, PROTOCOL_VERSION
 from ots.common.api import ResultObject
 
-from ots.server.distributor.api import ERROR_SIGNAL
-from ots.server.distributor.api import RESULTS_SIGNAL
-from ots.server.distributor.api import PACKAGELIST_SIGNAL
+from ots.server.distributor.api import TASKRUNNER_SIGNAL
 from ots.server.distributor.api import OtsGlobalTimeoutError
 
 import ots.results
@@ -64,8 +62,9 @@ class MockTaskRunnerResultsBase(object):
                               testpackage = name,
                               origin = "mock_task_runner",
                               environment = environment)
-        kwargs = {OTSProtocol.RESULT : result}
-        RESULTS_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+        kwargs = {OTSProtocol.RESULT : result,
+                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.RESULT_OBJECT}
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
     @staticmethod
     def _send_testpackages():
@@ -76,16 +75,18 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
     @staticmethod
     def _send_testpackages():
         kwargs = {OTSProtocol.ENVIRONMENT : "hardware_test",
-                  OTSProtocol.PACKAGES : ["test_1", "test_2", "test_3"]}
-        PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+                  OTSProtocol.PACKAGES : ["test_1", "test_2", "test_3"],
+                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST}
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
 class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
         kwargs = {OTSProtocol.ENVIRONMENT: "hardware_test",
-                  OTSProtocol.PACKAGES : ["test_1", "test_2"]}
-        PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+                  OTSProtocol.PACKAGES : ["test_1", "test_2"],
+                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST}
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
 
 class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
@@ -103,12 +104,14 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
     @staticmethod
     def _send_testpackages():
         kwargs = {OTSProtocol.ENVIRONMENT: "hardware_test",
-                  OTSProtocol.PACKAGES : ["test_1", "test_2"]}
-        PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+                  OTSProtocol.PACKAGES : ["test_1", "test_2"],
+                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST}
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
         kwargs = {OTSProtocol.ENVIRONMENT: "host.unittest",
-                  OTSProtocol.PACKAGES : ["test_1", "test_2"]}
-        PACKAGELIST_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+                  OTSProtocol.PACKAGES : ["test_1", "test_2"],
+                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST}
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
 
     def run(self):
         self._send_testpackages()
@@ -135,5 +138,6 @@ class MockTaskRunnerError(object):
 
     def run(self):
         kwargs = {OTSProtocol.ERROR_CODE : 6310,
-                  OTSProtocol.ERROR_INFO : "mock task runner"}
-        ERROR_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+                  OTSProtocol.ERROR_INFO : "mock task runner",
+                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTRUN_ERROR}
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)

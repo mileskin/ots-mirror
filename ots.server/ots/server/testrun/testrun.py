@@ -28,10 +28,9 @@ import logging
 from collections import defaultdict
 
 from ots.common.api import Environment
+from ots.common.api import OTSProtocol
 
-from ots.server.distributor.api import RESULTS_SIGNAL
-from ots.server.distributor.api import ERROR_SIGNAL
-from ots.server.distributor.api import PACKAGELIST_SIGNAL
+from ots.server.distributor.api import TASKRUNNER_SIGNAL
 
 from ots.results.api import parse_results
 from ots.results.api import TestrunResult
@@ -84,67 +83,76 @@ class Testrun(object):
     # HANDLERS
     ###########################################
 
-    def _results_cb(self, signal, result, sender, **kwargs):
+    def _taskrunner_cb(self, signal, **kwargs):
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
 
+        @type kwargs: C{dict}
+        @param kwargs: The Message using OTSProtocol
+
+        The callback for TASKRUNNER_SIGNAL delegates
+        data to handler depending on MESSAGE_TYPE
+        """
+        message_type = kwargs[OTSProtocol.MESSAGE_TYPE]
+        
+        #Testpackage handler
+        if message_type == OTSProtocol.TESTPACKAGE_LIST:
+            self._packages(kwargs[OTSProtocol.ENVIRONMENT],
+                           kwargs[OTSProtocol.PACKAGES])
+        #Error handler
+        elif message_type == OTSProtocol.TESTRUN_ERROR:
+            self._error(kwargs[OTSProtocol.ERROR_INFO],
+                        kwargs[OTSProtocol.ERROR_CODE])
+        #Result handler
+        elif message_type == OTSProtocol.RESULT_OBJECT:
+            self._results(kwargs[OTSProtocol.RESULT])
+        #Unknown Message fail silently
+        else:
+            LOG.debug("Unknown Message Type: '%s'"%(message_type))
+
+    def _results(self, result):
+        """
         @type result: L{ots.common.api.ResultObject}
         @param result: The Results Objects
-
-        @type sender: C{str}
-        @param sender: The name of the sender of the Signal
 
         Handler for results
         """
         environment = result.environment
-        LOG.debug("Received results for %s from %s"%(environment, sender))
+        LOG.debug("Received results for %s"%(environment))
         #
         environment = Environment(environment)
         self.tested_packages_dict[environment].append(result.testpackage)
         #
         self.results_xmls.append(result.content)
 
-    def _packagelist_cb(self, signal, environment, packages, sender, **kwargs): 
+    def _packages(self, environment, packages): 
         """
-        @type signal: L{django.dispatch.dispatcher.Signal}
-        @param signal: The django signal
-
         @type environment: C{str}
         @param environment: The environment that the test was run under
 
         @type packages: C{list} of C{str}
         @param packages: The packages executed by the Testrun
 
-        @type sender: C{str}
-        @param sender: The name of the sender of the Signal
-
         Handler for package list
         """
-        LOG.debug("Received packages: %s from %s"%(packages, sender))
+        LOG.debug("Received packages: %s" % (packages))
 
         environment = Environment(environment)
         self.expected_packages_dict[environment].extend(packages)
 
     @staticmethod
-    def _error_cb(signal, error_info, error_code, sender, **kwargs):
+    def _error(error_info, error_code):
         """
-        @type signal: L{django.dispatch.dispatcher.Signal}
-        @param signal: The django signal
-
         @type error_info: C{str}
         @param error_info: Error Message
 
         @type error_code: C{int}
         @param error_code: Error Code
 
-        @type sender: C{str}
-        @param sender: The name of the sender of the Signal
-
         Handler for errors
         """
-        LOG.debug("Received error: %s:%s from %s"%(error_info, error_code, 
-                                                   sender))
+        LOG.debug("Received error: %s:%s" % (error_info, error_code))
         #FIXME: Use Python Exceptions
         msg = "%s: %s" % (error_info, error_code)
         raise TestrunException(msg)
@@ -185,10 +193,8 @@ class Testrun(object):
         Run...
         """
         ret_val = TestrunResult.FAIL
-        RESULTS_SIGNAL.connect(self._results_cb)
-        ERROR_SIGNAL.connect(self._error_cb)
-        PACKAGELIST_SIGNAL.connect(self._packagelist_cb)
-
+        TASKRUNNER_SIGNAL.connect(self._taskrunner_cb)
+       
         self._run_test()
         is_valid_run(self.expected_packages_dict,
                      self.tested_packages_dict,

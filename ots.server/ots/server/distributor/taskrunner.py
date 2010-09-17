@@ -80,10 +80,7 @@ class TaskRunnerException(Exception):
 
 # Signals
 
-RESULTS_SIGNAL = Signal()
-STATUS_SIGNAL = Signal()
-ERROR_SIGNAL = Signal() 
-PACKAGELIST_SIGNAL = Signal() 
+TASKRUNNER_SIGNAL = Signal()
 
 ####################################
 # AMQP Queue Helpers
@@ -259,18 +256,8 @@ class TaskRunner(object):
         """
         signal = message[OTSProtocol.MESSAGE_TYPE]
         kwargs = message.copy()
-        kwargs.pop(OTSProtocol.MESSAGE_TYPE)
         kwargs.pop(OTSProtocol.VERSION)
-      
-        if signal == OTSProtocol.RESULT_OBJECT:
-            RESULTS_SIGNAL.send(sender = "TaskRunner", **kwargs)
-        elif signal == OTSProtocol.TESTRUN_STATUS:
-            STATUS_SIGNAL.send(sender = "TaskRunner", **kwargs)
-        elif signal == OTSProtocol.TESTRUN_ERROR:
-            ERROR_SIGNAL.send(sender = "TaskRunner", **kwargs)
-        elif signal == OTSProtocol.TESTPACKAGE_LIST:
-            PACKAGELIST_SIGNAL.send(sender = "TaskRunner", **kwargs)
-
+        TASKRUNNER_SIGNAL.send(sender = "TaskRunner", **kwargs)
        
     def _task_transition(self, message):
         """

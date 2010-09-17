@@ -39,5 +39,4 @@ from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
 
 # Signals
 
-from ots.server.distributor.taskrunner import RESULTS_SIGNAL, STATUS_SIGNAL, \
-    ERROR_SIGNAL, PACKAGELIST_SIGNAL
+from ots.server.distributor.taskrunner import TASKRUNNER_SIGNAL
