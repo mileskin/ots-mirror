@@ -49,7 +49,7 @@ class DataStoringStub(object):
     def set_or_create_testplan(self, name, gate):
         self.testplan_id = name
         self.gate = gate
-        return 1
+        self.testplan = 1
 
     def new_testrun(self, result, starttime = None, endtime = None,
                                  error_code = None, error_info = None,

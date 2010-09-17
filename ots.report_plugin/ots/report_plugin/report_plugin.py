@@ -130,7 +130,7 @@ class ReportPlugin(PluginBase):
                      gate, target_packages):
         testplan = self._data_storing.set_or_create_testplan(testplan_id, gate)
         label = self._data_storing.set_or_create_label(label)
-        if testplan is not None:
+        if self._data_storing.testplan is not None:
             sw_product =  self._data_storing.set_or_create_swproduct(sw_product)
             result = None # FIXME Why the result here?
             LOG.debug("Creating Testrun")

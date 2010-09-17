@@ -1,17 +1,10 @@
 #!/bin/sh
 
-cd ots.common
-sudo python setup.py develop
-cd -
+#Creates developer eggs for all the eggs with 'ots' namespace
 
-cd ots.results
-sudo python setup.py develop
-cd -
-
-cd ots.server
-sudo python setup.py develop
-cd -
-
-cd ots.worker
-sudo python setup.py develop
-cd -
+for egg_root in ots.*
+do
+    cd "$egg_root"
+    sudo python setup.py develop   
+    cd - 
+done
