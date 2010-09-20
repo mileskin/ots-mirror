@@ -213,6 +213,7 @@ def _parse_conductor_config(config_file, current_config_dict=None):
     If config_file is None or does not exist, default_file is tried. 
     If neither of the two files exists, raise exception. Returns dictionary.
     """
+
     if not os.stat(config_file):
         raise Exception("Configuration file missing")
     config_dict = parse_config(config_file, "conductor", current_config_dict)
@@ -246,18 +247,27 @@ def _read_configuration_files(config_file):
     if config_dict.has_key('custom_config_folder'):
         custom_folder = config_dict['custom_config_folder']
 
-        # Let's read our optional custom configuration files
-        try:
-            contents = os.listdir(custom_folder)
-        except (OSError, IOError), e:
-            log.warning("Error listing directory %s: %s" % (custom_folder, e))
-        else:
-            for custom_config_file in contents:
-                if custom_config_file.rfind('.conf'):
-                    custom_config = \
-                         _parse_conductor_config(custom_folder + \
-                                        '/' + custom_config_file, config_dict)
-                    config_dict = custom_config
+        # Update config_dict with optional config parameters
+        config_dict = _read_optional_config_files(custom_folder, config_dict)
+
+    return config_dict
+
+def _read_optional_config_files(custom_folder, config_dict):
+    """
+    Reads all .conf files from specified directory
+    """
+
+    try:
+        contents = os.listdir(custom_folder)
+    except (OSError, IOError), e:
+        log.warning("Error listing directory %s: %s" % (custom_folder, e))
+    else:
+        for custom_config_file in contents:
+            if custom_config_file.rfind('.conf'):
+                custom_config = \
+                     _parse_conductor_config(custom_folder + \
+                                    '/' + custom_config_file, config_dict)
+                config_dict = custom_config
 
     return config_dict
 
@@ -295,6 +305,7 @@ def main():
     (options, parser) = _parse_command_line(sys.argv[1:])
     if not _check_command_line_options(options):
         parser.print_help()
+        sys.exit(1)
 
     stand_alone = not options.testrun_id and not options.otsserver
 

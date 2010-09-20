@@ -154,6 +154,7 @@ def _conductor_config_simple(config_file = "", default_file = ""):
     config['device_packaging'] = 'debian'
     config['pre_test_info_commands_debian'] = ['ls', 'echo "jouni"']
     config['pre_test_info_commands_rpm'] = ['ls', 'echo "jouni"']
+    config['pre_test_info_commands'] = ['ls', 'echo "testing ...."', 'ls -al']
     config['files_fetched_after_testing'] = ['xxx']
     config['tmp_path'] = "/tmp/"
     return config
@@ -226,8 +227,40 @@ class TestConductorConf(unittest.TestCase):
         self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['pre_test_info_commands_debian'] != "")
         self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
+        self.assertTrue(conf['pre_test_info_commands'] != "")
         self.assertTrue(conf['files_fetched_after_testing'] != "")
         self.assertTrue(conf['tmp_path'] != "")
+
+    def test_read_conductor_config_with_optional_configs(self):
+        import conductor
+        optional_value = "ps aux"
+        conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
+        conf = conductor._read_configuration_files(conf_file)
+        self.assertTrue(type(conf) == type(dict()))
+        self.assertTrue(conf['device_packaging'] != "")
+        self.assertTrue(conf['pre_test_info_commands_debian'] != "")
+        self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
+        self.assertTrue(conf['pre_test_info_commands'] != "")
+        self.assertTrue(conf['files_fetched_after_testing'] != "")
+        self.assertTrue(conf['tmp_path'] != "")
+
+        # Check that we do not have value in pre_test_info_commands that we will
+        # insert from optional configuration file
+        self.assertFalse(optional_value in conf['pre_test_info_commands'])
+         
+        temp_folder = tempfile.mkdtemp("_optional_confs")
+        temp_config = tempfile.mktemp(suffix='.conf', dir=temp_folder)
+        fp = open(temp_config, 'w')
+        fp.write('[conductor]\npre_test_info_commands: "%s"\n' % \
+                 optional_value)
+        fp.close()
+
+        conf['custom_config_folder'] = temp_folder
+        conf = conductor._read_optional_config_files(temp_folder, conf)
+        self.assertTrue(optional_value in conf['pre_test_info_commands'])
+ 
+        os.unlink(temp_config)
+        os.rmdir(temp_folder)
 
 
 class TestConductor(unittest.TestCase):
