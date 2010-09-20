@@ -46,6 +46,10 @@ class ConnectionTestFailed(Exception):
 
 class SoftwareUpdater(object):
     """ Default class for SoftwareUpdater """
+
+    def __init__(self, flasher=None):
+        super(SoftwareUpdater, self).__init__()
+
     def flash(self, image_path, content_image_path):
         """
         Call this method to start flashing.
