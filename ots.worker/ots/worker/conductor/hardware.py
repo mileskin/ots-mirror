@@ -78,7 +78,8 @@ class Hardware(TestTarget):
         List of tuples with commands to get information about test environment.
         Commands are for system using Debian packaging.
         """
-        plain_cmds = self.config['pre_test_info_commands_debian']
+        plain_cmds = self.config['pre_test_info_commands_debian'] +\
+                     self.config['pre_test_info_commands']
         commands = []
         for cmd in plain_cmds:
             commands.append(HW_COMMAND % cmd)
@@ -339,7 +340,8 @@ class RPMHardware(Hardware):
         """
         List of tuples with commands to get information about test environment.
         """
-        plain_cmds = self.config['pre_test_info_commands_rpm']
+        plain_cmds = self.config['pre_test_info_commands_rpm'] +\
+                     self.config['pre_test_info_commands']
         commands = []
         for cmd in plain_cmds:
             commands.append(HW_COMMAND % cmd)

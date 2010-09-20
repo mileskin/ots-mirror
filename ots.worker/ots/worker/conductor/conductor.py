@@ -220,8 +220,9 @@ def _parse_conductor_config(config_file, current_config_dict=None):
     if not current_config_dict:
         # Parse specified parameters to lists
         for conf_param in ['files_fetched_after_testing', \
-                            'pre_test_info_commands_debian', \
-                            'pre_test_info_commands_rpm']:
+                           'pre_test_info_commands_debian', \
+                           'pre_test_info_commands_rpm', \
+                           'pre_test_info_commands']:
             if config_dict.has_key(conf_param):
                 config_dict[conf_param] = \
                     parse_list(config_dict[conf_param])
