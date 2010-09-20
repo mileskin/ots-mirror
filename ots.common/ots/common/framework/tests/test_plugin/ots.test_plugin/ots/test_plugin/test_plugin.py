@@ -25,8 +25,8 @@ from ots.common.framework.plugin_base import PluginBase
 
 class TestPlugin(PluginBase):
     
-    def __init__(self, application_id):
-        PluginBase.__init__(self, application_id)
+    def __init__(self):
+        PluginBase.__init__(self)
 
     def foo(self, arg):
         return self.application_id, arg

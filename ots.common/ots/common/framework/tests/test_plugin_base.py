@@ -29,7 +29,7 @@ from ots.common.framework.plugin_base import PluginBase
 class TestPluginBase(unittest.TestCase):
 
     def test_config_filename(self):
-        pi = PluginBase("config")
+        pi = PluginBase() 
         self.assertEquals(['ots', 'ots.common', 'ots', 'common', 'config.ini'],
                           pi._config_filename().split("/")[-5:])
         pi.DEFAULT_CONFIG_FILEPATH = os.path.dirname(os.path.abspath(__file__))

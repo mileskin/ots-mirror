@@ -39,7 +39,10 @@ class PluginBase(object):
         If that does not work,
         tries config.ini from ots.common directory
         """
-        name = "%s.ini" % (self.application_id)
+        if self.application_id is not None:
+            name = "%s.ini" % (self.application_id)
+        else:
+            name = "config.ini"
         default = os.path.join(self.DEFAULT_CONFIG_FILEPATH, name)
         if os.path.exists(default):
             config_filename = default

@@ -54,12 +54,12 @@ class TestFindPlugins(unittest.TestCase):
         load_plugins(self.plugin_dir)
         module = __import__("ots.test_plugin")
         module = list(working_set.iter_entry_points('TestPlugin'))[0].load()
-        test_plugin = module.TestPlugin("unittest")
-        self.assertEquals(("unittest", 111), test_plugin.foo(111))
+        test_plugin = module.TestPlugin()
+        self.assertEquals((None, 111), test_plugin.foo(111))
 
     def test_plugin_factory(self):
         test_plugin = plugin_factory("TestPlugin")
-        self.assertEquals(("unittest", 222), test_plugin("unittest").foo(222))
+        self.assertEquals((None, 222), test_plugin().foo(222))
 
 if __name__ == "__main__":
     unittest.main()
