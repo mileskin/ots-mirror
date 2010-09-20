@@ -19,3 +19,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+
+
+from ots.report_plugin.get_version import get_version as get_ver
+
+def get_version():
+    return get_ver()

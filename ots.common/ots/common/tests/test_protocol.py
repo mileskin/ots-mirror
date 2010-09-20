@@ -58,11 +58,13 @@ class TestMessageIO(unittest.TestCase):
         queue = "test"
         timeout = 1
         task_id = 1111111
-        message = OTSMessageIO.pack_command_message(command, 
+        message = OTSMessageIO.pack_command_message(1,
+                                       command, 
                                        queue, 
                                        timeout, 
                                        task_id)
-        expected = {'response_queue': 'test', 
+        expected = {'min_worker_version' : 1,
+                    'response_queue': 'test', 
                     'command': ['foo', 'bar', 'baz'], 
                     'timeout': 1, 
                     'task_id': 1111111,
@@ -129,6 +131,10 @@ class TestMessageIO(unittest.TestCase):
         self.assertEquals(my_environment, environment)
         self.assertEquals(my_packages, packages)
 
+    def test_unpack_min_worker_message(self):
+        packed_msg = OTSMessageIO.pack_command_message(1, ["ls"], "foo", 2, 111)
+        self.assertEquals(1,
+               OTSMessageIO.unpack_min_worker_version(packed_msg))
 
 if __name__ == "__main__":
     unittest.main()

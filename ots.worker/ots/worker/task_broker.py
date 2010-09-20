@@ -46,6 +46,7 @@ from time import sleep
 import logging
 from itertools import cycle
 
+import ots.worker
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
@@ -167,8 +168,8 @@ class TaskBroker(object):
                 LOGGER.exception("_loop() failed")
                 self._try_reconnect()
         self._clean_up()
-                      
-    def _on_message(self, message):
+
+    def _handle_message(self, message):
         """
         The Message Handler. 
         
@@ -180,7 +181,7 @@ class TaskBroker(object):
 
         Response Queue is kept informed of the status
         """
-        LOGGER.debug("Received Message")
+        
         self.channel.basic_cancel(self._consumer_tag)
         self.channel.basic_ack(delivery_tag = message.delivery_tag)
         command, timeout, response_queue, task_id, version = \
@@ -216,6 +217,24 @@ class TaskBroker(object):
                 self.channel.basic_consume(queue = self.queue,
                                            callback = self._on_message)
 
+                      
+    def _on_message(self, message):
+        """
+        The High Level Message Handler. 
+        Handles messages if the Worker is version compatible 
+        
+        @type message: amqplib.client_0_8.basic_message.Message 
+        @param message: A message containing a pickled dictionary
+        """
+        LOGGER.debug("Received Message")
+        if self._is_version_compatible(message):
+            self._handle_message(message)
+        else:
+            LOGGER.debug("Worker not version compatible")
+            #Close the connection makes message available to other Workers
+            self._clean_up()
+
+
     def _dispatch(self, command, timeout):
         """
         Dispatch the Task. Currently as a Process (Blocking)
@@ -237,6 +256,23 @@ class TaskBroker(object):
     # HELPERS
     #######################################
 
+
+    def _is_version_compatible(self, message):
+        """
+        Is the Worker version compatible
+
+        @type message: amqplib.client_0_8.basic_message.Message 
+        @param message: A message containing a pickled dictionary
+
+        @rtype: C{bool}
+        @rparam: Returns True if compatible otherwise false
+        """
+        min_worker_version = OTSMessageIO.unpack_min_worker_version(message)
+        major_minor, revision = ots.worker.get_version().split("r")
+        LOGGER.debug("Min version: %s. Worker version: %s"%
+                     (min_worker_version, major_minor))
+        return float(major_minor) >= float(min_worker_version)
+       
     def _publish_task_state_change(self, task_id, response_queue):
 
         """

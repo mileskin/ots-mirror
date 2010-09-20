@@ -30,7 +30,7 @@ from amqplib import client_0_8 as amqp
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
-from ots.common.protocol import OTSProtocol
+from ots.common.protocol import OTSProtocol, OTSMessageIO
 from ots.common.protocol import get_version as get_ots_protocol_version
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
@@ -76,11 +76,12 @@ class TestTaskBroker(unittest.TestCase):
         return task_broker
 
     def create_message(self, command, timeout, response_queue, task_id):
-         return {'command' : [command],
-                 'timeout' : timeout,
-                 'response_queue' : response_queue,
-                 'task_id' : task_id,
-                 'version' : get_ots_protocol_version()}
+         return {OTSProtocol.MIN_WORKER_VERSION : 0.05, 
+                 OTSProtocol.COMMAND : [command],
+                 OTSProtocol.TIMEOUT : timeout,
+                 OTSProtocol.RESPONSE_QUEUE : response_queue,
+                 OTSProtocol.TASK_ID : task_id,
+                 OTSProtocol.VERSION : get_ots_protocol_version()}
 
 
     def test_consume(self):
@@ -279,7 +280,18 @@ class TestTaskBroker(unittest.TestCase):
 
     def test_stop_file_exists(self):
         task_broker = self.create_task_broker()
-        self.assertFalse(task_broker._stop_file_exists())        
+        self.assertFalse(task_broker._stop_file_exists())    
+
+    def test_is_version_compatible(self):
+        task_broker = self.create_task_broker()
+        packed_msg = OTSMessageIO.pack_command_message(100, 
+                                                       ["ls"], "foo", 2, 111)
+        self.assertFalse(task_broker._is_version_compatible(packed_msg))
+
+        packed_msg = OTSMessageIO.pack_command_message(0.7, 
+                                                       ["ls"], "foo", 2, 111)
+        self.assertTrue(task_broker._is_version_compatible(packed_msg))
+
 
 if __name__ == "__main__":
     unittest.main()
