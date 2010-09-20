@@ -303,8 +303,12 @@ class Hardware(TestTarget):
     def _flash(self):
         """Flash images to the device using the flasher_module"""
 
+        flasher_path = None
+        if os.stat(FLASHER_PATH):
+            flasher_path = FLASHER_PATH
         try:
-            flasher = flasher_module.SoftwareUpdater()
+            flasher = flasher_module.SoftwareUpdater(flasher=\
+                                                     flasher_path)
 
             self.log.debug("image: %s" % self.testrun.image_path)
             self.log.debug("content image: %s" % \
