@@ -21,11 +21,12 @@
 # ***** END LICENCE BLOCK *****
 
 from setuptools import setup
+from get_git_version import get_git_version
 
 setup(
       name = "ots.server",
       author = "meego-dev@meego.com",
-      version =  0.1,
+      version =  "0.8r" + get_git_version(),
       include_package_data = True,
       namespace_packages = ['ots', "ots.server"],
       packages = ['ots.server.distributor', 'ots.server.testrun'],

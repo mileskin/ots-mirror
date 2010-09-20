@@ -20,18 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
-from get_git_version import get_git_version
+import pkg_resources
 
-setup(
-    name = "ots.worker",
-    author = "meego-dev@meego.com",
-    version =  "0.8r" + get_git_version(),
-    include_package_data = True,
-    namespace_packages = ['ots'],
-    packages = ['ots.worker'],
-    zip_safe = False,
-    entry_points={"console_scripts": 
-                  ["ots_worker = ots.worker.worker:main"]},
-    data_files=[('/etc', ['ots.ini'])]
-    )
+def get_version():
+    version = pkg_resources.require("ots.results")[0].version
+    return version 
+
+if __name__ == "__main__":
+    print get_version()

@@ -20,28 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import os
-import ots.server
-import re
+import pkg_resources
 
 def get_version():
-    """
-    Get the version from the PKG-INFO
-    """
-    version = None
-    ots_distributor_path = os.path.dirname(
-                       os.path.abspath(ots.server.__file__))
-    egg_path = os.path.split(os.path.split(ots_distributor_path)[0])[0]
-    pkg_info_path = os.path.join(egg_path, "EGG-INFO", "PKG-INFO")
-    if not os.path.exists(pkg_info_path):
-        #So we have a developer egg
-        pkg_info_path = os.path.join(egg_path,"ots.server.egg-info", "PKG-INFO")
-    if os.path.exists(pkg_info_path):
-        pkg_info = open(pkg_info_path, "r")
-        for line in pkg_info.readlines():
-            if re.search("\AVersion:", line):
-                version = line.split(":")[1].strip()
-                break
+    version = pkg_resources.require("ots.server")[0].version
     return version 
 
 if __name__ == "__main__":

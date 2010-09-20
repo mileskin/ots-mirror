@@ -21,11 +21,12 @@
 # ***** END LICENCE BLOCK *****
 
 from setuptools import setup, find_packages
+from get_git_version import get_git_version
 
 setup(
       name = "ots.report_plugin",
       namespace_packages = ["ots", "ots.report_plugin"],
-      version =  0.8,
+      version =  "0.8r" + get_git_version(),
       include_package_data = True,
       packages = find_packages(),
       entry_points={"ReportPlugin":
