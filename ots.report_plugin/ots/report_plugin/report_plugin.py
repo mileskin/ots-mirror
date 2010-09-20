@@ -36,6 +36,7 @@ import logging
 import datetime
 
 from ots.common.framework.plugin_base import PluginBase
+from ots.results.api import TestrunResult
 
 
 LOG = logging.getLogger(__name__)
@@ -113,8 +114,7 @@ class ReportPlugin(PluginBase):
         self._data_storing = data_storing
         self.end_time = None
         self._testrun_id = None
-        self._error_info = None
-        self._error_code = None
+        self._exception = None
         #
         testplan_name = _testplan_name(request_id)
         image_name = _image_name(image)
@@ -151,28 +151,37 @@ class ReportPlugin(PluginBase):
         """
         return self._testrun_id
 
-    def _set_error(self, exception):
+    def _set_exception(self, exception):
         """
         @type: L{Exception}
         @param: Exception
         """
-        #FIXME where is this in DataStoring?
+        self._exception = exception
+        self._data_storing.set_testrun_error_code(exception.error_code)
+        self._data_storing.set_testrun_error_info(str(exception))
+     
 
-    @property
-    def _get_error(self):
-        return self._error_code, self_error_info
+    def _get_exception(self):
+        """
+        @type: L{Exception}
+        @param: Exception
+        """
+        return self._exception
 
-    error = property(_get_error, _set_error)
+    exception = property(_get_exception, _set_exception)
 
     def _set_result(self, result):
         """
         @param result: L{ots.results.TestrunResult}
         @param result: The results of the testrun
         """
-        #FIXME where is this in DataStoring?
         self._result = result
+        results_dict = {TestrunResult.PASS : "PASS",
+                        TestrunResult.FAIL : "FAIL",
+                        TestrunResult.NO_CASES : "NO_CASES"}
+        str_result = results_dict[result]
+        self._data_storing.set_testrun_result(str_result)
 
-    @property
     def _get_result(self):
         """
         @param result: L{ots.results.TestrunResult}

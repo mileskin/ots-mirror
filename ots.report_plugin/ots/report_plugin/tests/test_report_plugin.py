@@ -23,6 +23,7 @@
 import unittest
 
 from ots.report_plugin.report_plugin import ReportPlugin
+from ots.results.api import TestrunResult
 
 class TestrunStub(object):
     sw_version = None
@@ -39,6 +40,9 @@ class DataStoringStub(object):
     testplan_id = None
     gate = None
     label = None
+    result = None
+    error_info = None
+    error_code = None
 
     def set_or_create_request(self, request_id):
         self.request_id = request_id
@@ -61,6 +65,16 @@ class DataStoringStub(object):
     def set_or_create_swproduct(self, name):
         self.sw_product = name
 
+
+    def set_testrun_result(self, result = None):
+        self.result = result
+
+    def set_testrun_error_code(self, code = None):
+        self.error_code = code
+        
+    def set_testrun_error_info(self, info = None):
+        self.error_info = info
+        
 class TestReportPlugin(unittest.TestCase):
 
     def test_init(self):
@@ -83,21 +97,51 @@ class TestReportPlugin(unittest.TestCase):
 
         self.assertEquals(42, report_plugin.testrun_id)
 
-    def test_set_error(self):
-        #TODO
-        pass
+    def test_set_exception(self):
+        class UnittestException(Exception):
+            error_code = "bar"
+            pass
+        ut_exception = UnittestException("foo")
+        data_storing = DataStoringStub() 
+        report_plugin = ReportPlugin(data_storing, "req", "tp",
+                                     "pdt", "gate", "label",
+                                     ["hw_pkg1"], "www.nokia.com",
+                                     ["tgt_pkg1"])
+        report_plugin.exception = ut_exception
+        self.assertEquals("foo", data_storing.error_info)
+        self.assertEquals("bar", data_storing.error_code)
 
-    def test_get_error(self):
-        #TODO
-        pass
+    def test_get_exception(self):
+        class UnittestException(Exception):
+            error_code = "bar"
+            pass
+        ut_exception = UnittestException("foo")
+        data_storing = DataStoringStub() 
+        report_plugin = ReportPlugin(data_storing, "req", "tp",
+                                     "pdt", "gate", "label",
+                                     ["hw_pkg1"], "www.nokia.com",
+                                     ["tgt_pkg1"])
+        report_plugin.exception = ut_exception
+        self.assertEquals("foo", str(report_plugin.exception)) 
 
     def test_set_result(self):
-        #TODO
-        pass
+        data_storing = DataStoringStub() 
+        report_plugin = ReportPlugin(data_storing, "req", "tp",
+                                     "pdt", "gate", "label",
+                                     ["hw_pkg1"], "www.nokia.com",
+                                     ["tgt_pkg1"])
+        report_plugin.result = TestrunResult.PASS
+        self.assertEquals("PASS", data_storing.result)
+        
 
     def test_get_result(self):
-        #TODO
-        pass
+        data_storing = DataStoringStub() 
+        report_plugin = ReportPlugin(data_storing, "req", "tp",
+                                     "pdt", "gate", "label",
+                                     ["hw_pkg1"], "www.nokia.com",
+                                     ["tgt_pkg1"])
+        report_plugin.result = TestrunResult.PASS
+        self.assertEquals(TestrunResult.PASS, report_plugin.result)
 
 if __name__ == '__main__':
     unittest.main()
