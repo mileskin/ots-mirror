@@ -21,7 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 from setuptools import setup
-from get_git_version import get_git_version
+from ots.common.get_git_version import get_git_version
 
 setup(
       name = "ots.results",
