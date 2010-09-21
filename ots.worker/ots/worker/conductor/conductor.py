@@ -214,8 +214,9 @@ def _parse_conductor_config(config_file, current_config_dict=None):
     If neither of the two files exists, raise exception. Returns dictionary.
     """
 
-    if not os.stat(config_file):
+    if os.path.isfile(config_file):
         raise Exception("Configuration file missing")
+
     config_dict = parse_config(config_file, "conductor", current_config_dict)
 
     if not current_config_dict:
