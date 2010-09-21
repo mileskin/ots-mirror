@@ -28,8 +28,7 @@ warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
 
 __import__('pkg_resources').declare_namespace(__name__)
 
+import pkg_resources
 
-from ots.results.get_version import get_version as get_ver
+__VERSION__ = pkg_resources.require(__name__)[0].version
 
-def get_version():
-    return get_ver()

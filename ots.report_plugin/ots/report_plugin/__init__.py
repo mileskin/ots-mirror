@@ -21,7 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 
-from ots.report_plugin.get_version import get_version as get_ver
+import pkg_resources
 
-def get_version():
-    return get_ver()
+__VERSION__ = pkg_resources.require(__name__)[0].version
+
