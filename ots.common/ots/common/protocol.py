@@ -144,7 +144,7 @@ class OTSMessageIO(object):
         """
         body = _unpack_message(message)
         version = body[OTSProtocol.VERSION]
-        min_worker_version = body[OTSProtocol.MIN_WORKER_VERSION]
+        min_worker_version = body.get(OTSProtocol.MIN_WORKER_VERSION, None)
         return min_worker_version
 
     @staticmethod

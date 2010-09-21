@@ -267,12 +267,15 @@ class TaskBroker(object):
         @rtype: C{bool}
         @rparam: Returns True if compatible otherwise false
         """
+        ret_val = True
         min_worker_version = OTSMessageIO.unpack_min_worker_version(message)
-        major_minor, revision = ots.worker.get_version().split("r")
-        LOGGER.debug("Min version: %s. Worker version: %s"%
-                     (min_worker_version, major_minor))
-        return float(major_minor) >= float(min_worker_version)
-       
+        if min_worker_version is not None:
+            major_minor, revision = ots.worker.get_version().split("r")
+            LOGGER.debug("Min version: %s. Worker version: %s"%
+                         (min_worker_version, major_minor))
+            ret_val = float(major_minor) >= float(min_worker_version)
+        return ret_val
+
     def _publish_task_state_change(self, task_id, response_queue):
 
         """
