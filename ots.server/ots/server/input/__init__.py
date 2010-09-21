@@ -21,5 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Email backend. Sends testresults as email.
+Input plugin related components take care of sending information back to the ots
+user. For example raw result files can be stored to the build system with
+resultsplugin and a suitable input plugin.
+
 """
