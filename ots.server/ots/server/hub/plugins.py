@@ -59,8 +59,8 @@ class BifhPlugin(object):
     """
     __metaclass__ = PluginMetaclass
 
-class PersistencePlugin(object):
+class ReportPlugin(object):
     """
-    The PersistencePlugin
+    The ReportPlugin
     """
     __metaclass__ = PluginMetaclass

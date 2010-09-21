@@ -21,7 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 """
-The ReportingPlugin
+The ReportPlugin
 """
 
 #WIP
@@ -157,7 +157,8 @@ class ReportPlugin(PluginBase):
         @param: Exception
         """
         self._exception = exception
-        self._data_storing.set_testrun_error_code(exception.error_code)
+        if hasattr(exception, "error_code"):
+            self._data_storing.set_testrun_error_code(exception.error_code)
         self._data_storing.set_testrun_error_info(str(exception))
      
 

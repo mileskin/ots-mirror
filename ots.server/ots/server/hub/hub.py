@@ -32,8 +32,11 @@ from ots.server.testrun.testrun import Testrun
 
 from ots.server.hub.options import Options
 from ots.server.hub.init_logging import init_logging
-from ots.server.hub.plugins import PersistencePlugin
+from ots.server.hub.plugins import ReportPlugin
 from ots.server.hub.plugins import BifhPlugin
+
+#FIXME: Replace this stub with Datastoring 
+from ots.report_plugin.tests.test_report_plugin import DataStoringStub 
 
 LOG = logging.getLogger(__name__)
 
@@ -57,32 +60,35 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
 
     #Options
     options = Options(**kwargs)
-    persistence_plugin = PersistencePlugin(request_id,
-                                           options.testplan_id,
-                                           sw_product,
-                                           options.gate,
-                                           options.label,
-                                           options.hw_packages,
-                                           options.image,
-                                           target_packages)
-    if persistence_plugin is not None:
-        init_logging(request_id, persistence_plugin.testrun_id)
+    #FIXME: Hackish initialisation as Datastoring is a WIP
+    report_plugin = ReportPlugin(DataStoringStub(),
+                                 request_id,
+                                 options.testplan_id,
+                                 sw_product,
+                                 options.gate,
+                                 options.label,
+                                 options.hw_packages,
+                                 options.image,
+                                 target_packages)
+    if report_plugin is not None:
+        init_logging(request_id, report_plugin.testrun_id)
 
     #Preprocessing_steps_here?
 
     try:
-        LOG.debug("Initialising Testrun at: %s"%(start_time))
+        LOG.debug("Initialising Testrun")
         is_hw_enabled = bool(len(options.hw_packages))
         is_host_enabled = bool(len(options.host_packages))
         testrun = Testrun(run_test, is_hw_enabled, is_host_enabled)
         result = testrun.run()
         LOG.debug("Testrun finished with result: %s"%(result))
-        if persistence_plugin is not None:
-            persistence_plugin.result = result
+        if report_plugin is not None:
+            report_plugin.result = result
     except Exception, err:
+        print err
         LOG.debug("Testrun Exception: %s"%(err))
-        if persistence_plugin is not None:
-            persistence_plugin.exception = Exception
+        if report_plugin is not None:
+            report_plugin.exception = Exception
 
 
     #Some post_processing steps here?
