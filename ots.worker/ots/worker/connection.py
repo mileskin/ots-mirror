@@ -89,10 +89,16 @@ class Connection(object):
         LOGGER.debug('Shutting down connection to Rabbit')
         try:
             self.channel.close()
-            self.connection.close()
+            try:
+                self.connection.close()
+            except AttributeError:
+                LOGGER.debug("Connection already lost")
         except:
             LOGGER.exception("clean_up() failed")
         #Fix Memory leaks
-        del self.channel.callbacks
-        del self.connection.channels
-        del self.connection.connection
+        if hasattr(self.channel, "callbacks"):
+            del self.channel.callbacks
+        if hasattr(self.connection, "channels"):
+            del self.connection.channels
+        if hasattr(self.connection, "connection"):
+            del self.connection.connection

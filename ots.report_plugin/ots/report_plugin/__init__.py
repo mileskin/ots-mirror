@@ -19,3 +19,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+
+
+import pkg_resources
+
+__VERSION__ = pkg_resources.require(__name__)[0].version
+

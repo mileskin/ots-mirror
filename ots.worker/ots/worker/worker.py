@@ -39,9 +39,9 @@ import subprocess
 
 import ConfigParser
 
+import ots.worker
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
-from ots.worker.get_version import get_version 
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +181,7 @@ def main():
     #
     options, args = parser.parse_args()
     if options.version:
-        print "Version:", get_version()
+        print "Version:", ots.worker.__VERSION__
         sys.exit(1)
     #
     if not os.path.exists(options.config):

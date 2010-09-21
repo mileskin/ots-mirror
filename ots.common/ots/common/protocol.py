@@ -28,6 +28,8 @@ Module implements OTS protocol and message io handling
 import logging
 from pickle import dumps, loads
 from amqplib import client_0_8 as amqp
+
+import ots.common
 from ots.common.resultobject import ResultObject
 
 LOGGER = logging.getLogger(__name__)
@@ -38,7 +40,7 @@ def get_version():
     """
     Returns version of OTSProtocol
     """
-    return PROTOCOL_VERSION
+    return ots.common.__VERSION__
 
 def _pack_message(message, delivery_mode):
     """Packs the message with Pickle"""
@@ -69,9 +71,9 @@ class OTSProtocol(object):
 
     COMMAND_QUIT = 'quit'
     COMMAND_IGNORE = 'ignore'
+    COMMAND = 'command'
 
-
-    VERSION = 'version'
+    VERSION = 'version' # The Protocol Version
     ERROR_INFO = 'error_info'
     ERROR_CODE = 'error_code'
     MESSAGE_TYPE = 'message_type'
@@ -80,7 +82,9 @@ class OTSProtocol(object):
     ENVIRONMENT = 'environment'
     PACKAGES = 'packages'
     RESULT = 'result'
-    
+    MIN_WORKER_VERSION = 'min_worker_version'
+    RESPONSE_QUEUE = 'response_queue'
+    TIMEOUT = 'timeout'
 
     # Different types of messages
     STATE_CHANGE = 'STATE_CHANGE'
@@ -129,6 +133,20 @@ class OTSMessageIO(object):
     """
     # Unpack/pack methods for command messages
     ##########################################
+
+    @staticmethod 
+    def unpack_min_worker_version(message):
+        """
+        Get the minimum worker version
+
+        @type message: amqplib.client_0_8.basic_message.Message
+        @param message: The message
+        """
+        body = _unpack_message(message)
+        version = body[OTSProtocol.VERSION]
+        min_worker_version = body.get(OTSProtocol.MIN_WORKER_VERSION, None)
+        return min_worker_version
+
     @staticmethod
     def unpack_command_message(message):
         """
@@ -142,37 +160,43 @@ class OTSMessageIO(object):
         """
         body = _unpack_message(message)
         version = body[OTSProtocol.VERSION]
-        command = " ".join(body["command"])
-        response_queue = body["response_queue"]
-        task_id = body["task_id"]
-        timeout = body.get('timeout', 60)
+        command = " ".join(body[OTSProtocol.COMMAND])
+        response_queue = body[OTSProtocol.RESPONSE_QUEUE]
+        task_id = body[OTSProtocol.TASK_ID]
+        timeout = body.get(OTSProtocol.TIMEOUT, 60)
         return command, timeout, response_queue, task_id, version
 
     @staticmethod
-    def pack_command_message(command, queue, timeout, task_id):
+    def pack_command_message(command, queue, timeout, task_id,
+                             min_worker_version = None):
         """
         Create an AMQP message for the command
 
-        @type: C{list}
-        @param: The CL params
+        @type command: C{list}
+        @param command: The CL params
 
-        @type: C{queue}
-        @param: The queue to post the message
+        @type queue : C{str}
+        @param queue : The queue to post the message
 
-        @type: C{timeout}
-        @param: The timeout for the Task
+        @type timeout : C{int}
+        @param timeout : The timeout for the Task
 
-        @type: C{task_id}
-        @param: The Task ID
+        @type task_id : C{int}
+        @param task_id : The Task ID
+
+        @type min_worker_version: C{str}
+        @type min_worker_version: The minimum acceptable worker version 
 
         @rtype message: amqplib.client_0_8.basic_message.Message
         @return message: AMQP message
         """
-        message = dict(version = get_version(),
-                       command = command,
-                       response_queue = queue,
-                       timeout = timeout,
-                       task_id = task_id)
+        message = {OTSProtocol.VERSION : get_version(),
+                   OTSProtocol.COMMAND : command,
+                   OTSProtocol.RESPONSE_QUEUE : queue,
+                   OTSProtocol.TIMEOUT : timeout,
+                   OTSProtocol.TASK_ID : task_id}
+        if min_worker_version is not None:
+            message[OTSProtocol.MIN_WORKER_VERSION] = min_worker_version
         return _pack_message(message, 2)
 
     # Unpack/pack methods for result object messages
