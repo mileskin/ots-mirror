@@ -25,6 +25,7 @@ import unittest
 from ots.common.framework.load_plugins import load_plugins
 
 from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerResultsPass
+from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerError
 from ots.server.hub.hub import run
 
 options_dict = {"image" : "www.nokia.com" ,
@@ -46,8 +47,14 @@ options_dict = {"image" : "www.nokia.com" ,
 
 class TestHub(unittest.TestCase):
 
-    def test_run(self):
+    def test_run_pass(self):
         mock_taskrunner = MockTaskRunnerResultsPass()
+        run("foo", "bar", "baz",
+            mock_taskrunner.run, **options_dict)
+
+
+    def test_run_error(self):
+        mock_taskrunner = MockTaskRunnerError()
         run("foo", "bar", "baz",
             mock_taskrunner.run, **options_dict)
 

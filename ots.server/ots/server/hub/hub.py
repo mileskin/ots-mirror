@@ -25,6 +25,7 @@
 Very much a spike
 """
 
+import sys
 import os
 import logging
 
@@ -35,10 +36,12 @@ from ots.server.hub.init_logging import init_logging
 from ots.server.hub.plugins import ReportPlugin
 from ots.server.hub.plugins import BifhPlugin
 
-#FIXME: Replace this stub with Datastoring 
-from ots.report_plugin.tests.test_report_plugin import DataStoringStub 
-
 LOG = logging.getLogger(__name__)
+
+
+#FIXME: Hackish implementation WIP whilst DataStoring in development 
+from ots.report_plugin.tests.test_report_plugin import DataStoringStub 
+DATA_STORING_STUB = DataStoringStub()
 
 
 def run(sw_product, request_id, notify_list, run_test, **kwargs):
@@ -61,7 +64,7 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
     #Options
     options = Options(**kwargs)
     #FIXME: Hackish initialisation as Datastoring is a WIP
-    report_plugin = ReportPlugin(DataStoringStub(),
+    report_plugin = ReportPlugin(DATA_STORING_STUB,
                                  request_id,
                                  options.testplan_id,
                                  sw_product,
@@ -85,10 +88,9 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
         if report_plugin is not None:
             report_plugin.result = result
     except Exception, err:
-        print err
         LOG.debug("Testrun Exception: %s"%(err))
         if report_plugin is not None:
-            report_plugin.exception = Exception
+            report_plugin.exception = sys.exc_info()[1]
 
 
     #Some post_processing steps here?

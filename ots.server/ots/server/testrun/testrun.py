@@ -42,7 +42,9 @@ class TestrunException(Exception):
     """
     Reraise Exceptions from Workers
     """
-    pass
+    def __init__(self, message, error_code):
+        Exception.__init__(self, message)
+        self.error_code = error_code
 
 class Testrun(object):
     """
@@ -155,7 +157,7 @@ class Testrun(object):
         LOG.debug("Received error: %s:%s" % (error_info, error_code))
         #FIXME: Use Python Exceptions
         msg = "%s: %s" % (error_info, error_code)
-        raise TestrunException(msg)
+        raise TestrunException(msg, error_code)
    
     #############################################
     # HELPERS
