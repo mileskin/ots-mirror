@@ -21,6 +21,6 @@
 # ***** END LICENCE BLOCK *****
 
 """
-conductorengine executes ots.worker.conductor remotely by using
-ots.server.distributor.
+conductorengine generates ots.worker.conductor tasks and distributes them to
+workers with ots.server.distributor.
 """
