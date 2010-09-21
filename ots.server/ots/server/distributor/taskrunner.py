@@ -134,7 +134,8 @@ class TaskRunner(object):
 
     def __init__(self, username, password, host, vhost, 
                  services_exchange, port, 
-                 routing_key, testrun_id, timeout, queue_timeout):
+                 routing_key, testrun_id, timeout, queue_timeout,
+                 min_worker_version = None):
         """
         @type username: C{str}
         @param username: AMQP username 
@@ -182,6 +183,9 @@ class TaskRunner(object):
         self._tasks = []
         self._is_run = False
 
+        #
+        self._min_worker_version = min_worker_version
+
         #timeouts
         self._timeout = timeout
         self._queue_timeout = queue_timeout
@@ -191,6 +195,7 @@ class TaskRunner(object):
         # Tells if we are running only a single task
         # Used for backward compatibility
         self._single_task_mode = False
+        
 
     #############################################
     # MESSAGE HANDLING 
@@ -327,7 +332,9 @@ class TaskRunner(object):
             message = OTSMessageIO.pack_command_message(task.command,
                                            self._testrun_queue,
                                            self._timeout,
-                                           task.task_id)
+                                           task.task_id,
+                                           min_worker_version = 
+                                                  self._min_worker_version)
             self._channel.basic_publish(message, 
                                         exchange = self._services_exchange,
                                         routing_key = self._routing_key)

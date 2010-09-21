@@ -167,13 +167,10 @@ class OTSMessageIO(object):
         return command, timeout, response_queue, task_id, version
 
     @staticmethod
-    def pack_command_message(min_worker_version, command, 
-                             queue, timeout, task_id):
+    def pack_command_message(command, queue, timeout, task_id,
+                             min_worker_version = None):
         """
         Create an AMQP message for the command
-
-        @type min_worker_version: C{str}
-        @type min_worker_version: The minimum acceptable worker version 
 
         @type command: C{list}
         @param command: The CL params
@@ -187,15 +184,19 @@ class OTSMessageIO(object):
         @type task_id : C{int}
         @param task_id : The Task ID
 
+        @type min_worker_version: C{str}
+        @type min_worker_version: The minimum acceptable worker version 
+
         @rtype message: amqplib.client_0_8.basic_message.Message
         @return message: AMQP message
         """
-        message = {OTSProtocol.MIN_WORKER_VERSION : min_worker_version,
-                   OTSProtocol.VERSION : get_version(),
+        message = {OTSProtocol.VERSION : get_version(),
                    OTSProtocol.COMMAND : command,
                    OTSProtocol.RESPONSE_QUEUE : queue,
                    OTSProtocol.TIMEOUT : timeout,
                    OTSProtocol.TASK_ID : task_id}
+        if min_worker_version is not None:
+            message[OTSProtocol.MIN_WORKER_VERSION] = min_worker_version
         return _pack_message(message, 2)
 
     # Unpack/pack methods for result object messages

@@ -305,12 +305,12 @@ class TestTaskBroker(unittest.TestCase):
 
     def test_is_version_compatible(self):
         task_broker = self.create_task_broker()
-        packed_msg = OTSMessageIO.pack_command_message(100, 
-                                                       ["ls"], "foo", 2, 111)
+        packed_msg = OTSMessageIO.pack_command_message(["ls"], "foo", 2, 111,
+                                                       min_worker_version = 100)
         self.assertFalse(task_broker._is_version_compatible(packed_msg))
 
-        packed_msg = OTSMessageIO.pack_command_message(0.7, 
-                                                       ["ls"], "foo", 2, 111)
+        packed_msg = OTSMessageIO.pack_command_message(["ls"], "foo", 2, 111,
+                                                       min_worker_version = 0.7)
         self.assertTrue(task_broker._is_version_compatible(packed_msg))
 
     def test_on_message_not_version_compatible(self):
