@@ -33,7 +33,7 @@ from ots.server.distributor.api import PACKAGELIST_SIGNAL
 
 import logging 
 
-class OtsEngine(TAEngine):
+class ConductorEngine(TAEngine):
     """
     TAEngine component for ots distributor.
     """
@@ -187,4 +187,4 @@ class OtsEngine(TAEngine):
 
     def name(self):
         """Returns the name of the engine"""
-        return "OtsEngine"
+        return "ConductorEngine"

@@ -20,14 +20,14 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""Tests for otsengine"""
+"""Tests for ConductorEngine"""
 
 import sys
 import unittest
 
 from ots.server.conductorengine.conductor_command import _conductor_command
 from ots.server.conductorengine.conductor_command import get_commands
-from ots.server.conductorengine.otsengine import OtsEngine
+from ots.server.conductorengine.conductorengine import ConductorEngine
 
 from ots.server.distributor.api import OtsQueueDoesNotExistError, \
     OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
@@ -498,14 +498,14 @@ class TestHardwareTestRunner(unittest.TestCase):
 
 #######################################################################
 
-class TestOtsEngine(unittest.TestCase):
+class TestConductorEngine(unittest.TestCase):
 
     def test_init_hardware_test(self):
         ots_config = {}
         ots_config['host'] = "host"
         ots_config['port'] = "port"
 
-        ots_ta_adapter = OtsEngine(ots_config)
+        ots_ta_adapter = ConductorEngine(ots_config)
         
         test_run = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(test_run)
@@ -539,7 +539,7 @@ class TestOtsEngine(unittest.TestCase):
         ots_config['port'] = "port"
 
         taskrunner = TaskrunnerStub()
-        ots_ta_adapter = OtsEngine(ots_config, taskrunner)
+        ots_ta_adapter = ConductorEngine(ots_config, taskrunner)
         
         testrun = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(testrun)
@@ -573,7 +573,7 @@ class TestOtsEngine(unittest.TestCase):
         ots_config['port'] = "port"
 
         taskrunner = TaskrunnerStub(Exception())
-        ots_ta_adapter = OtsEngine(ots_config, taskrunner)
+        ots_ta_adapter = ConductorEngine(ots_config, taskrunner)
         
         testrun = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(testrun)
@@ -589,7 +589,7 @@ class TestOtsEngine(unittest.TestCase):
         ots_config['port'] = "port"
 
         taskrunner = TaskrunnerStub(OtsQueueDoesNotExistError)
-        ots_ta_adapter = OtsEngine(ots_config, taskrunner)
+        ots_ta_adapter = ConductorEngine(ots_config, taskrunner)
         
         testrun = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(testrun)
@@ -608,7 +608,7 @@ class TestOtsEngine(unittest.TestCase):
         ots_config['port'] = "port"
 
         taskrunner = TaskrunnerStub(OtsGlobalTimeoutError)
-        ots_ta_adapter = OtsEngine(ots_config, taskrunner)
+        ots_ta_adapter = ConductorEngine(ots_config, taskrunner)
         
         testrun = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(testrun)
@@ -626,7 +626,7 @@ class TestOtsEngine(unittest.TestCase):
         ots_config['port'] = "port"
 
         taskrunner = TaskrunnerStub(OtsQueueTimeoutError)
-        ots_ta_adapter = OtsEngine(ots_config, taskrunner)
+        ots_ta_adapter = ConductorEngine(ots_config, taskrunner)
         
         testrun = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(testrun)
@@ -643,7 +643,7 @@ class TestOtsEngine(unittest.TestCase):
         ots_config['port'] = "port"
 
         taskrunner = TaskrunnerStub(OtsConnectionError)
-        ots_ta_adapter = OtsEngine(ots_config, taskrunner)
+        ots_ta_adapter = ConductorEngine(ots_config, taskrunner)
         
         testrun = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(testrun)
