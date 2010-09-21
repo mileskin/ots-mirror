@@ -82,7 +82,7 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
     except Exception, err:
         LOG.debug("Testrun Exception: %s"%(err))
         if persistence_plugin is not None:
-            persistence_plugin.error = Exception
+            persistence_plugin.exception = Exception
 
 
     #Some post_processing steps here?
