@@ -27,6 +27,7 @@ import time
 from pickle import dumps
 
 from amqplib import client_0_8 as amqp
+from amqplib.client_0_8.exceptions import AMQPChannelException
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
@@ -36,6 +37,10 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 
+
+##########################################
+# Utility Functions
+##########################################
 
 def _init_queue(channel, queue, exchange, routing_key):
     """
@@ -61,21 +66,33 @@ def _init_queue(channel, queue, exchange, routing_key):
                        routing_key = routing_key)
 
 
-def queue_size():
-    """
-    Gets the number of messages in the queue
-    """
-    command = "/usr/bin/env sudo /usr/sbin/rabbitmqctl list_queues | awk '/^test\t/ {print $2}'"
-    p = subprocess.Popen(command,
-                         shell = True,
-                         stdout = subprocess.PIPE)
-    count,err = p.communicate()
-    if len(count) < 1:
-        count = 0
-    else:
-        count = int(count)
-    return count
 
+def _queue_size(queue):
+    """
+    Get the size of the queue 
+    
+    rtype: C{int} or None if there is no queue
+    rparam:  Queue Size
+    """
+    ret_val = None
+    connection = amqp.Connection(host = "localhost",
+                                 userid = "guest",
+                                 password = "guest",
+                                 virtual_host = "/",
+                                 insist = False)
+    channel = connection.channel()
+    try:
+        name, msg_count, consumers = channel.queue_declare(queue = queue, 
+                                                  passive = True)
+        ret_val = msg_count
+    except AMQPChannelException:
+        pass
+    return ret_val 
+
+
+###########################################
+# TestTaskBroker
+###########################################
 
 class TestTaskBroker(unittest.TestCase):
 
@@ -119,41 +136,33 @@ class TestTaskBroker(unittest.TestCase):
             Closure to attach to _dispatch 
             to check the queue size
             """
-            _queue_size = queue_size()
-            #print "Queue size:", _queue_size 
-            self.assertEquals(self.expected_size, _queue_size)
-        pre_queue_size = queue_size()
-
+            self.assertEquals(self.expected_size, _queue_size("test"))
+        self.assertTrue(_queue_size("test") is None)
+        
         #SetUp the TaskBroker but override _dispatch
         task_broker = self.create_task_broker(dispatch_func=check_queue_size)
 
         #Publish a Couple of Messages
         channel = task_broker.channel
-        channel.basic_publish(amqp.Message(dumps(self.create_message('foo', 1, '', 1))),
-                                           mandatory = True,
-                                           exchange = "test",
-                                           routing_key = "test")
+        foo_msg = amqp.Message(dumps(self.create_message('foo', 1, '', 1)))
+        channel.basic_publish(foo_msg,
+                              mandatory = True,
+                              exchange = "test",
+                              routing_key = "test")
 
-        channel.basic_publish(amqp.Message(dumps(self.create_message('bar', 1, '', 1))),
-                                           mandatory = True,
-                                           exchange = "test",
-                                           routing_key = "test")
+        bar_msg = amqp.Message(dumps(self.create_message('bar', 1, '', 1)))
+        channel.basic_publish(bar_msg,
+                              mandatory = True,
+                              exchange = "test",
+                              routing_key = "test")
        
-        #Set to Consume
+        self.assertEquals(2, _queue_size("test"))
         task_broker._consume()
- 
-        #Check we have two new messages on the 
-        post_queue_size = queue_size()
-        expected_queue_size = 2 + pre_queue_size 
-        self.assertEqual(expected_queue_size, post_queue_size)
-        
-        #Messages should come off the queue one at a time
         self.expected_size = 1
         channel.wait()
         self.expected_size = 0
-        time.sleep(5)
         channel.wait()
-        time.sleep(5)
+       
 
     def test_init_connection(self):
         #use test durable code here
@@ -216,7 +225,7 @@ class TestTaskBroker(unittest.TestCase):
         channel.wait()
         time.sleep(1)
 	# We should have our command + state change messages in the queue
-        self.assertEquals(queue_size(), 4)
+        self.assertEquals(_queue_size("test"), 3)
 
 
     def test_on_message_timeout(self):
@@ -239,7 +248,7 @@ class TestTaskBroker(unittest.TestCase):
         channel.wait()
         time.sleep(3)
 	# We should have state change messages + timeout msg
-        self.assertEquals(queue_size(), 3)
+        self.assertEquals(2, _queue_size("test"))
 
 
     def test_dispatch(self):
@@ -271,15 +280,9 @@ class TestTaskBroker(unittest.TestCase):
         channel = task_broker.channel
         task_id = 1
         response_queue = 'test'
-
-        #Set to Consume
-        task_broker._consume()
-        #Check that there's no messages in queue
-        self.assertEquals(queue_size(), 0)
-        #Let's switch state
+        self.assertEquals(0, _queue_size(response_queue))
         task_broker._publish_task_state_change(task_id, response_queue)
-        #Now we should have state change message in the queue
-        self.assertEquals(queue_size(), 1)
+        self.assertEquals(1, _queue_size(response_queue))
 
     def test_publish_error_message(self):
         task_broker = self.create_task_broker()
@@ -289,19 +292,12 @@ class TestTaskBroker(unittest.TestCase):
 
         error_info = "task 1 timed out"
         error_code = 666
-        #Set to Consume
-        task_broker._consume()
-        #Check that there's no messages in queue
-        self.assertEquals(queue_size(), 0)
-        #send message
+        self.assertEquals(0, _queue_size(response_queue))
         task_broker._publish_error_message(task_id,
                                            response_queue,
                                            error_info,
                                            error_code)
-
-        #Now we should have state change message in the queue
-        self.assertEquals(queue_size(), 1)
-
+        self.assertEquals(1, _queue_size(response_queue))
 
     def test_stop_file_exists(self):
         task_broker = self.create_task_broker()
@@ -322,7 +318,7 @@ class TestTaskBroker(unittest.TestCase):
         Check that incompatible versions dont
         pull messages from the queue
         """
-        self.assertEquals(0, queue_size())
+        self.assertTrue(_queue_size("test") is None)
         logging.basicConfig()
         msg1 = self.create_message('echo foo', 1, 'test', 1,
                                    min_worker_version = 10)
@@ -332,10 +328,10 @@ class TestTaskBroker(unittest.TestCase):
                               mandatory = True,
                               exchange = "test",
                               routing_key = "test")
-        self.assertEquals(1, queue_size())
+        self.assertEquals(1, _queue_size("test"))
         task_broker._consume()
         channel.wait()
-        self.assertEquals(1, queue_size())
+        self.assertEquals(1, _queue_size("test"))
 
         #Check that the message can be pulled by another consumer
         connection = amqp.Connection(host = "localhost", 
@@ -355,7 +351,7 @@ class TestTaskBroker(unittest.TestCase):
         channel.basic_consume("test", callback = cb)
         channel.wait()
         self.assertTrue(self.received)
-        self.assertEquals(0, queue_size())
+        self.assertEquals(0, _queue_size("test"))
 
 if __name__ == "__main__":
     unittest.main()

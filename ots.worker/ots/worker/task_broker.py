@@ -151,6 +151,10 @@ class TaskBroker(object):
     # LOOPING / HANDLING / DISPATCHING
     ###############################################
 
+
+    def _cancel(self):
+        self.channel.basic_cancel(self._consumer_tag)
+
     def _loop(self):
         """
         The main loop
