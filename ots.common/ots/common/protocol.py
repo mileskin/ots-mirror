@@ -40,7 +40,7 @@ def get_version():
     """
     Returns version of OTSProtocol
     """
-    return ots.common.get_version()
+    return ots.common.__VERSION__
 
 def _pack_message(message, delivery_mode):
     """Packs the message with Pickle"""

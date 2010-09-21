@@ -270,7 +270,7 @@ class TaskBroker(object):
         ret_val = True
         min_worker_version = OTSMessageIO.unpack_min_worker_version(message)
         if min_worker_version is not None:
-            major_minor, revision = ots.worker.get_version().split("r")
+            major_minor, revision = ots.worker.__VERSION__.split("r")
             LOGGER.debug("Min version: %s. Worker version: %s"%
                          (min_worker_version, major_minor))
             ret_val = float(major_minor) >= float(min_worker_version)

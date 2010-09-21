@@ -20,7 +20,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-
+import logging
 import unittest 
 import subprocess
 import time
@@ -35,6 +35,31 @@ from ots.common.protocol import get_version as get_ots_protocol_version
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
+
+
+def _init_queue(channel, queue, exchange, routing_key):
+    """
+    Initialise a durable queue and a direct exchange
+    with a routing_key of the name of the queue
+
+    @type channel: C{amqplib.client_0_8.channel.Channel}  
+    @param channel: The AMQP channel
+
+    @rtype queue: C{string}  
+    @return queue: The queue name
+    """
+    channel.queue_declare(queue = queue, 
+                          durable = False, 
+                          exclusive = False,
+                          auto_delete=True)
+    channel.exchange_declare(exchange = exchange,
+                             type = 'direct',
+                             durable = False,
+                             auto_delete = True)
+    channel.queue_bind(queue = queue,
+                       exchange = exchange,
+                       routing_key = routing_key)
+
 
 def queue_size():
     """
@@ -75,8 +100,9 @@ class TestTaskBroker(unittest.TestCase):
         task_broker._init_connection()
         return task_broker
 
-    def create_message(self, command, timeout, response_queue, task_id):
-         return {OTSProtocol.MIN_WORKER_VERSION : 0.05, 
+    def create_message(self, command, timeout, response_queue, task_id,
+                             min_worker_version = 0.05):
+         return {OTSProtocol.MIN_WORKER_VERSION : min_worker_version, 
                  OTSProtocol.COMMAND : [command],
                  OTSProtocol.TIMEOUT : timeout,
                  OTSProtocol.RESPONSE_QUEUE : response_queue,
@@ -167,7 +193,6 @@ class TestTaskBroker(unittest.TestCase):
         self.assertTrue(connection_stub.exits)
 
     def test_on_message(self):
-        import logging
         logging.basicConfig()
         #send a sleep command
         #send an echo command
@@ -292,6 +317,45 @@ class TestTaskBroker(unittest.TestCase):
                                                        ["ls"], "foo", 2, 111)
         self.assertTrue(task_broker._is_version_compatible(packed_msg))
 
+    def test_on_message_not_version_compatible(self):
+        """
+        Check that incompatible versions dont
+        pull messages from the queue
+        """
+        self.assertEquals(0, queue_size())
+        logging.basicConfig()
+        msg1 = self.create_message('echo foo', 1, 'test', 1,
+                                   min_worker_version = 10)
+        task_broker = self.create_task_broker()
+        channel = task_broker.channel
+        channel.basic_publish(amqp.Message(dumps(msg1)),
+                              mandatory = True,
+                              exchange = "test",
+                              routing_key = "test")
+        self.assertEquals(1, queue_size())
+        task_broker._consume()
+        channel.wait()
+        self.assertEquals(1, queue_size())
+
+        #Check that the message can be pulled by another consumer
+        connection = amqp.Connection(host = "localhost", 
+                                          userid = "guest",
+                                          password = "guest",
+                                          virtual_host = "/", 
+                                          insist = False)
+        channel = connection.channel()
+        _init_queue(channel, 
+                    "test", 
+                    "test",
+                    "test")
+        self.received = False
+        def cb(message):
+            channel.basic_ack(delivery_tag = message.delivery_tag)
+            self.received = True
+        channel.basic_consume("test", callback = cb)
+        channel.wait()
+        self.assertTrue(self.received)
+        self.assertEquals(0, queue_size())
 
 if __name__ == "__main__":
     unittest.main()
