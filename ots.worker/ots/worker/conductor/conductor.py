@@ -42,6 +42,7 @@ from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
 
 DEFAULT_CONFIG = "/etc/conductor.conf"
+OPT_CONF_SUFFIX = ".conf"
 
 def _parse_command_line(args):
     """
@@ -264,7 +265,9 @@ def _read_optional_config_files(custom_folder, config_dict):
         log.warning("Error listing directory %s: %s" % (custom_folder, e))
     else:
         for custom_config_file in contents:
-            if custom_config_file.rfind('.conf'):
+            if len(custom_config_file) > len(OPT_CONF_SUFFIX) \
+                and custom_config_file[len(custom_config_file) \
+                - len(OPT_CONF_SUFFIX):] == OPT_CONF_SUFFIX:
                 custom_config = \
                      _parse_conductor_config(custom_folder + \
                                     '/' + custom_config_file, config_dict)
