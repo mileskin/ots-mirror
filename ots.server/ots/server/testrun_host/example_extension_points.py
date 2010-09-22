@@ -24,6 +24,8 @@
 Extension point example for adding additional plugins to OTS server
 """
 
+import uuid
+
 
 def get_inputplugin(testrun):
     """Returns custom input plugin"""
@@ -40,6 +42,25 @@ def get_resultfilehandlers(testrun):
 def get_resultbackends(testrun):
     """Returns custom ResultBackends as a list"""
     return []
+
+#
+# DB related functions
+#
+
+def init_new_testrun(swproduct, testplan_id=None, testplan_name="",
+                    gate=None, label=None):
+    """
+    Creates a new testrun into DB and returns an unique testrun ID. Default
+    implementation only generates an unique testrun id.
+    
+    @param swproduct: Name of the sw product this testrun belongs to
+    @type swproduct: C{string}
+
+    @return: Testrun id
+    @rtype: C{int}
+    """
+    return uuid.uuid1().int
+
 
 def update_testrun_in_db(testrun, testrun_id):
     """

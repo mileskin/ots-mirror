@@ -33,6 +33,11 @@ debug_mode = False
 
 
 #
+# Defines the place where testrun specific log files are written
+#
+log_directory = "/var/log/ots/"
+
+#
 # Link URLs
 #
 link_urls = dict()
