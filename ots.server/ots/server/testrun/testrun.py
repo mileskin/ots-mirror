@@ -27,9 +27,12 @@ import logging
 
 from collections import defaultdict
 
-from ots.common.api import Environment
+
 from ots.common.amqp.api import ErrorMessage, ResultMessage
-from ots.common.amqp.api import TestPackageListMessage
+
+from ots.common.datatypes.api import TestPackages
+from ots.common.datatypes.api import Environment
+
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
 
@@ -80,7 +83,7 @@ class Testrun(object):
         #
         self.results_xmls = []
         self.tested_packages_dict = defaultdict(list)
-        self.expected_packages_dict = defaultdict(list)
+        self.expected_testpackages = None
 
     ###########################################
     # HANDLERS
@@ -101,8 +104,8 @@ class Testrun(object):
             self._error(message.error_info, message.error_code)
         elif isinstance(message, ResultMessage):
             self._results(message.result)
-        elif isinstance(message, TestPackageListMessage):
-            self._packages(message.environment, message.packages)
+        elif isinstance(message, TestPackages):
+            self._testpackages(message)
         else:
             LOG.debug("Unknown Message Type: '%s'"%(message_type))
 
@@ -121,20 +124,17 @@ class Testrun(object):
         #
         self.results_xmls.append(result.content)
 
-    def _packages(self, environment, packages): 
+    def _testpackages(self, testpackages): 
         """
-        @type environment: C{str}
-        @param environment: The environment that the test was run under
+        @type testpackages: L{ots.common.datatypes.environment.Testpackages}
+        @param testpackages: The testpackages
 
-        @type packages: C{list} of C{str}
-        @param packages: The packages executed by the Testrun
-
-        Handler for package list
+        Handler for testpackages
         """
-        LOG.debug("Received packages: %s" % (packages))
-
-        environment = Environment(environment)
-        self.expected_packages_dict[environment].extend(packages)
+        LOG.debug("Received packages: %s" % (testpackages))
+        if self.expected_testpackages is None:
+            self.expected_testpackages = testpackages
+        self.expected_testpackages.update(testpackages)
 
     @staticmethod
     def _error(error_info, error_code):
@@ -191,7 +191,7 @@ class Testrun(object):
         TASKRUNNER_SIGNAL.connect(self._taskrunner_cb)
        
         self._run_test()
-        is_valid_run(self.expected_packages_dict,
+        is_valid_run(self.expected_testpackages,
                      self.tested_packages_dict,
                      self.is_hw_enabled,
                      self.is_host_enabled)

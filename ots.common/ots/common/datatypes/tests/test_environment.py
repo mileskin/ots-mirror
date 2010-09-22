@@ -19,3 +19,31 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+
+import unittest 
+
+from ots.common.datatypes.environment import Environment
+
+class TestEnvironment(unittest.TestCase):
+    
+    def test_is_host_test(self):
+        env = Environment("environment")
+        self.assertFalse(env.is_host)
+        env = Environment("host.environment")
+        self.assertTrue(env.is_host)
+
+    def test_is_hardware(self):
+        env = Environment("environment")
+        self.assertFalse(env.is_hw)
+        env = Environment("hardware")
+        self.assertTrue(env.is_hw)
+
+    def test_is_equals(self):
+        env_1 = Environment("environment1")
+        env_2 = Environment("environment1")
+        env_3 = Environment("environment2")
+        self.assertEquals(env_1, env_2)
+        self.assertNotEquals(env_1, env_3)
+       
+if __name__ == "__main__":
+    unittest.main()

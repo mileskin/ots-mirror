@@ -24,10 +24,9 @@ import unittest
 
 import ots.common
 
-from ots.common.resultobject import ResultObject 
+from ots.common.datatypes.resultobject import ResultObject 
 from ots.common.amqp.messages import CommandMessage, ResultMessage
 from ots.common.amqp.messages import StatusMessage, ErrorMessage
-from ots.common.amqp.messages import TestPackageListMessage
 from ots.common.amqp.messages import pack_message, unpack_message
 
 

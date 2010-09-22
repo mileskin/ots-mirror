@@ -110,8 +110,8 @@ class TestResponseClient(unittest.TestCase):
         msg = self.channel.msg
         self.assertTrue(msg)
         executed_pkgs = loads(msg.body)
-        self.assertEquals(executed_pkgs.environment, environment)
-        self.assertEquals(executed_pkgs.packages, packages)
+        self.assertEquals(executed_pkgs.environments[0], environment)
+        self.assertEquals(executed_pkgs.packages(environment), packages)
 
     def test_add_result(self):
         filename = "result.xml"

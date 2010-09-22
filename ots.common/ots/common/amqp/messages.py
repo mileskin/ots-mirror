@@ -32,7 +32,7 @@ from pickle import dumps, loads
 from amqplib import client_0_8 as amqp
 
 import ots.common
-from ots.common.resultobject import ResultObject
+from ots.common.datatypes.resultobject import ResultObject
 
 DELIVERY_MODE = 2
 
@@ -145,13 +145,6 @@ class ErrorMessage(Message):
     def __init__(self, error_info, error_code):
         self.error_info = error_info 
         self.error_code = error_code 
-
-class TestPackageListMessage(Message):
-    
-    def __init__(self, environment, packages):
-        self.environment = environment
-        self.packages = packages
-
 
 class StateChangeMessage(Message):
 
