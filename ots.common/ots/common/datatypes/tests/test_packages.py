@@ -54,6 +54,14 @@ class TestTestPackages(unittest.TestCase):
         self.assertEquals(["pkg_1", "pkg_2"], 
                           packages[Environment("env1")])
 
+    def test_update(self):
+        environment = Environment("env1")
+        packages_1 = Packages(environment, ["pkg_1", "pkg_2"])
+        packages_2 = Packages(environment, ["pkg_3", "pkg_4"])
+        packages_1.update(packages_2)
+        self.assertEquals(['pkg_1', 'pkg_2', 'pkg_3', 'pkg_4'],
+                          packages_1.packages("env1"))
+
 
 if __name__ == "__main__":
     unittest.main()

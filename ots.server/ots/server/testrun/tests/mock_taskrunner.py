@@ -23,10 +23,8 @@
 import os
 import time
 
-from ots.common.datatypes.api import ResultObject
-from ots.common.datatypes.api import Packages
+from ots.common.datatypes.api import Results, Packages
 
-from ots.common.amqp.api import ResultMessage
 from ots.common.amqp.api import ErrorMessage
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
@@ -60,11 +58,10 @@ class MockTaskRunnerResultsBase(object):
 
     @staticmethod
     def _send_result(environment, results_xml, name):
-        result_message = ResultMessage(name,
-                                       content = results_xml,
-                                       test_package = name,
-                                       origin = "mock_task_runner",
-                                       environment = environment)
+        result_message = Results(name, results_xml,
+                                 package = name,
+                                 origin = "mock_task_runner",
+                                 environment = environment)
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
                                message = result_message)
 

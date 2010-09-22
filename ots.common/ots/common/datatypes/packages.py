@@ -25,8 +25,6 @@ from ots.common.datatypes.environment import Environment
 class Packages(dict):
     """
     The container for `Packages`
-    Essentially gives a klass signature to a dictionary
-    and provides some convenience methods
     """
 
     def __init__(self, environment, packages):
@@ -65,3 +63,17 @@ class Packages(dict):
         if isinstance(environment, str):
             return self[Environment(environment)]
         return self[environment]
+
+    def update(self, packages):
+        """
+        Updates the packages extending lists on matching keys
+
+        @type: L{ots.common.datatypes.environment.Packages} 
+        @param: Packages
+        """
+        for env, pkgs in packages.items():
+            if self.has_key(env):
+                self[env].extend(pkgs)
+            else:
+                self[env] = pkgs
+            

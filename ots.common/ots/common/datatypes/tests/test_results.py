@@ -20,6 +20,20 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.datatypes.environment import Environment 
-from ots.common.datatypes.packages import Packages
+import unittest 
+
 from ots.common.datatypes.results import Results
+
+class TestResults(unittest.TestCase):
+
+    def test_results(self):
+        results = Results("foo", "<result>pass</result>",
+                          package = "pkg1", 
+                          origin = "unittest", 
+                          environment = "meego")
+        self.assertEquals("foo", results.results_xml.name)
+        self.assertEquals("<result>pass</result>",
+                          results.results_xml.read())
+        
+if __name__ == "__main__":
+    unittest.main()

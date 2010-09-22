@@ -29,9 +29,8 @@ from amqplib import client_0_8 as amqp
 
 from ots.common.amqp.api import testrun_queue_name
 
-from ots.common.datatypes.api import Environment, Packages
+from ots.common.datatypes.api import Environment, Results, Packages
 
-from ots.common.amqp.api import ResultMessage
 from ots.common.amqp.api import ErrorMessage, StatusMessage
 from ots.common.amqp.api import pack_message, unpack_message
 
@@ -88,9 +87,9 @@ class ResponseClient(object):
     def add_result(self, filename, content, origin="Unknown", 
                          test_package="Unknown", environment="Unknown"):
         """Calls OTSMessageIO to create result object message"""
-        result_message = ResultMessage(filename, content, test_package,
+        results = Results(filename, content, test_package,
                                        origin, environment)
-        self._send_message(pack_message(result_message))
+        self._send_message(pack_message(results))
 
     def set_state(self, state, status_info):
         """Calls OTSMessageIO to create testrun state change message"""

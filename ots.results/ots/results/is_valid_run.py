@@ -102,6 +102,8 @@ def _check_complete(expected_packages_dict,
         pkgs = set(expected_packages_dict[env]).difference(
                                       set(tested_packages_dict[env]))
         missing_packages.extend(pkgs)
+        print "E", expected_packages_dict
+        print "T", tested_packages_dict
     #Format Exception
     if missing_packages:
         pretty_list = ', '.join(missing_packages)

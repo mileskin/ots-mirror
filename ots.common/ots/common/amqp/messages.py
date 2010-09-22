@@ -123,17 +123,6 @@ class CommandMessage(Message):
     def is_ignore(self):
         return self.command == self.IGNORE
 
-class ResultMessage(Message):
-
-    def __init__(self, filename, content, test_package, 
-                       origin, environment): 
-
-        self.result = ResultObject(filename,
-                              content,
-                              test_package,
-                              origin,
-                              environment)
-
 class StatusMessage(Message):
 
     def __init__(self, state, status_info):

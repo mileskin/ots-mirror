@@ -21,9 +21,12 @@
 # ***** END LICENCE BLOCK *****
 
 """Unit tests for ots.worker.responseclient"""
+import unittest
 
 from pickle import dumps, loads
-import unittest
+
+from ots.common.datatypes.environment import Environment 
+
 from ots.worker.responseclient import ResponseClient
 
 class ChannelStub(object):
@@ -128,12 +131,12 @@ class TestResponseClient(unittest.TestCase):
 
         msg = self.channel.msg
         self.assertTrue(msg)
-        result = loads(msg.body).result
-        self.assertEquals(result.filename, filename)
-        self.assertEquals(result.content, file_content)
+        result = loads(msg.body)
+        self.assertEquals(result.results_xml.name, filename)
+        self.assertEquals(result.results_xml.read(), file_content)
         self.assertEquals(result.origin, origin)
-        self.assertEquals(result.testpackage, test_package)
-        self.assertEquals(result.environment, environment)
+        self.assertEquals(result.package, test_package)
+        self.assertEquals(result.environment, Environment(environment))
         
 
 

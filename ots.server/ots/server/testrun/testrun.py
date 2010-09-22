@@ -27,12 +27,8 @@ import logging
 
 from collections import defaultdict
 
-
-from ots.common.amqp.api import ErrorMessage, ResultMessage
-
-from ots.common.datatypes.api import Packages
-from ots.common.datatypes.api import Environment
-
+from ots.common.amqp.api import ErrorMessage
+from ots.common.datatypes.api import Packages, Results, Environment
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
 
@@ -82,7 +78,7 @@ class Testrun(object):
         self.insignificant_tests_matter = insignificant_tests_matter
         #
         self.results_xmls = []
-        self.tested_packages_dict = defaultdict(list)
+        self.tested_packages = None
         self.expected_packages = None
 
     ###########################################
@@ -100,10 +96,11 @@ class Testrun(object):
         The callback for TASKRUNNER_SIGNAL delegates
         data to handler depending on MESSAGE_TYPE
         """
+        
         if isinstance(message, ErrorMessage):
             self._error(message.error_info, message.error_code)
-        elif isinstance(message, ResultMessage):
-            self._results(message.result)
+        elif isinstance(message, Results):
+            self._results(message)
         elif isinstance(message, Packages):
             self._packages(message)
         else:
@@ -114,27 +111,30 @@ class Testrun(object):
         @type result: L{ots.common.api.ResultObject}
         @param result: The Results Objects
 
-        Handler for results
+        Handler for Results
         """
         environment = result.environment
         LOG.debug("Received results for %s"%(environment))
-        #
-        environment = Environment(environment)
-        self.tested_packages_dict[environment].append(result.testpackage)
-        #
-        self.results_xmls.append(result.content)
+        packages = Packages(environment, [result.package])
+        print packages
+        if self.tested_packages is None:
+            self.tested_packages = packages
+        else:
+            self.tested_packages.update(packages)
+        self.results_xmls.append(result.results_xml)
 
     def _packages(self, packages): 
         """
         @type packages: L{ots.common.datatypes.environment.packages}
         @param packages: The Packages
 
-        Handler for testpackages
+        Handler for Packages
         """
         LOG.debug("Received packages: %s" % (packages))
         if self.expected_packages is None:
             self.expected_packages = packages
-        self.expected_packages.update(packages)
+        else:
+            self.expected_packages.update(packages)
 
     @staticmethod
     def _error(error_info, error_code):
@@ -165,7 +165,7 @@ class Testrun(object):
         ret_val = TestrunResult.NO_CASES
         aggregated_results = []
         for results_xml in self.results_xmls:
-            all_passed = parse_results(results_xml,
+            all_passed = parse_results(results_xml.read(),
                                        self.insignificant_tests_matter)
             if all_passed is not None:
                 aggregated_results.append(all_passed)
@@ -191,8 +191,11 @@ class Testrun(object):
         TASKRUNNER_SIGNAL.connect(self._taskrunner_cb)
        
         self._run_test()
+
+        print 99999999999, self.expected_packages
+
         is_valid_run(self.expected_packages,
-                     self.tested_packages_dict,
+                     self.tested_packages,
                      self.is_hw_enabled,
                      self.is_host_enabled)
         ret_val = self._go_nogo()
