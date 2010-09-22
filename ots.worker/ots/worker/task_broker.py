@@ -51,7 +51,9 @@ from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
-from ots.common.protocol import OTSProtocol, OTSMessageIO
+
+from ots.common.protocol import OTSProtocol#, OTSMessageIO
+from ots.common.amqp.messages import unpack_message, pack_message, ErrorMessage
 
 LOGGER = logging.getLogger(__name__)
 
@@ -188,8 +190,14 @@ class TaskBroker(object):
         
         self.channel.basic_cancel(self._consumer_tag)
         self.channel.basic_ack(delivery_tag = message.delivery_tag)
-        command, timeout, response_queue, task_id, version = \
-                                    OTSMessageIO.unpack_command_message(message)
+        #command, timeout, response_queue, task_id, version = \
+        #                            OTSMessageIO.unpack_command_message(message)
+        cmd_msg = unpack_message(message)
+        task_id = cmd_msg.task_id
+        response_queue = cmd_msg.response_queue 
+        command = cmd_msg.command
+        timeout = cmd_msg.timeout
+       
         self._publish_task_state_change(task_id, response_queue)
 
         try:
@@ -272,7 +280,10 @@ class TaskBroker(object):
         @rparam: Returns True if compatible otherwise false
         """
         ret_val = True
-        min_worker_version = OTSMessageIO.unpack_min_worker_version(message)
+        #min_worker_version = OTSMessageIO.unpack_min_worker_version(message)
+        cmd_msg = unpack_message(message)
+        min_worker_version = cmd_msg.min_worker_version
+
         if min_worker_version is not None:
             major_minor, revision = ots.worker.__VERSION__.split("r")
             LOGGER.debug("Min version: %s. Worker version: %s"%
@@ -310,8 +321,9 @@ class TaskBroker(object):
         @param response_queue: The name of the response queue 
         """
         error_info = error_info +" (task "+str(task_id)+")"
-        message = OTSMessageIO.pack_testrun_error_message(error_info,
-                                                          error_code)
+        message = pack_message(ErrorMessage(error_info, error_code))
+        #message = OTSMessageIO.pack_testrun_error_message(error_info,
+        #                                                  error_code)
         self.channel.basic_publish(message,
                                    mandatory = True,
                                    exchange = response_queue,

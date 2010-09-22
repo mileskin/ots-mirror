@@ -1,4 +1,4 @@
-*.pyc 
+*.pyc
 *.py~
 *.sh~
 *.egg-info/

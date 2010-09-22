@@ -25,13 +25,13 @@ import unittest
 import ots.common
 
 from ots.common.resultobject import ResultObject 
-from ots.common.message_io import CommandMessage, ResultMessage
-from ots.common.message_io import StatusMessage, ErrorMessage
-from ots.common.message_io import TestPackageListMessage
-from ots.common.message_io import pack_message, unpack_message
+from ots.common.amqp.messages import CommandMessage, ResultMessage
+from ots.common.amqp.messages import StatusMessage, ErrorMessage
+from ots.common.amqp.messages import TestPackageListMessage
+from ots.common.amqp.messages import pack_message, unpack_message
 
 
-class TestMessageIO(unittest.TestCase):
+class TestMessages(unittest.TestCase):
     
     def test_command_message(self): 
         cmd_msg = CommandMessage(["echo", "hello world"], 
