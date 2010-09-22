@@ -29,7 +29,7 @@ from amqplib import client_0_8 as amqp
 
 from ots.common.amqp.api import testrun_queue_name
 
-from ots.common.datatypes.api import Environment, TestPackages
+from ots.common.datatypes.api import Environment, Packages
 
 from ots.common.amqp.api import ResultMessage
 from ots.common.amqp.api import ErrorMessage, StatusMessage
@@ -112,8 +112,8 @@ class ResponseClient(object):
 
     def add_executed_packages(self, environment, packages):
         """Calls OTSMessageIO to create test package list"""
-        testpackages = TestPackages(environment, packages)
-        self._send_message(pack_message(testpackages))
+        packages = Packages(environment, packages)
+        self._send_message(pack_message(packages))
  
 
 #
@@ -129,6 +129,3 @@ class ResponseClient(object):
                                    mandatory = True,
                                    exchange = self.response_queue,
                                    routing_key = self.response_queue)
-        
-
-

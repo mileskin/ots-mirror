@@ -24,7 +24,7 @@ import os
 import time
 
 from ots.common.datatypes.api import ResultObject
-from ots.common.datatypes.api import TestPackages
+from ots.common.datatypes.api import Packages
 
 from ots.common.amqp.api import ResultMessage
 from ots.common.amqp.api import ErrorMessage
@@ -76,7 +76,7 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        msg = TestPackages("hardware_test", ["test_1", "test_2", "test_3"])
+        msg = Packages("hardware_test", ["test_1", "test_2", "test_3"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
                                message = msg)
 
@@ -84,7 +84,7 @@ class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        msg = TestPackages("hardware_test", ["test_1", "test_2"])
+        msg = Packages("hardware_test", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
                                message = msg)
 
@@ -102,10 +102,10 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        msg = TestPackages("hardware_test", ["test_1", "test_2"])
+        msg = Packages("hardware_test", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
                                message = msg)
-        msg = TestPackages("host.unittest", ["test_1", "test_2"])
+        msg = Packages("host.unittest", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
                                message = msg)
 

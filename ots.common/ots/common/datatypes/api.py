@@ -22,4 +22,4 @@
 
 from ots.common.datatypes.resultobject import ResultObject
 from ots.common.datatypes.environment import Environment 
-from ots.common.datatypes.testpackages import TestPackages
+from ots.common.datatypes.packages import Packages

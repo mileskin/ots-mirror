@@ -22,26 +22,26 @@
 
 from ots.common.datatypes.environment import Environment
 
-class TestPackages(dict):
+class Packages(dict):
     """
-    The container for TestPackages
+    The container for `Packages`
     Essentially gives a klass signature to a dictionary
     and provides some convenience methods
     """
 
-    def __init__(self, environment, test_packages):
+    def __init__(self, environment, packages):
         """
         @type environment : L{ots.common.datatypes.environment.Environment} or
                             C{str}
         @param environment: The environment for the test packages 
 
-        @type test_packages: C{list} of C{str}
-        @param test_packages: The test packages
+        @type packages: C{list} of C{str}
+        @param packages: The test packages
         """
         if isinstance(environment, str):
             environment = Environment(environment)
         dict.__init__(self)
-        self[environment] = test_packages
+        self[environment] = packages
 
     @property
     def environments(self):
@@ -65,4 +65,3 @@ class TestPackages(dict):
         if isinstance(environment, str):
             return self[Environment(environment)]
         return self[environment]
-        

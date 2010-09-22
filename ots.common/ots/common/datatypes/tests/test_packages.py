@@ -23,36 +23,36 @@
 import unittest
 
 from ots.common.datatypes.environment import Environment
-from ots.common.datatypes.testpackages import TestPackages
+from ots.common.datatypes.packages import Packages
 
 class TestTestPackages(unittest.TestCase):
     
     def test_init(self):
         environment = Environment("env")
-        testpackages = TestPackages(environment, ["pkg_1", "pkg_2"])
-        self.assertEquals(environment,  testpackages.keys()[0])
-        self.assertEquals(["pkg_1", "pkg_2"], testpackages.values()[0])
+        packages = Packages(environment, ["pkg_1", "pkg_2"])
+        self.assertEquals(environment,  packages.keys()[0])
+        self.assertEquals(["pkg_1", "pkg_2"], packages.values()[0])
            
     def test_environments(self):
         environment = Environment("env1")
-        testpackages = TestPackages(environment, ["pkg_1", "pkg_2"])
-        testpackages.update({Environment("env2") : []})
-        self.assertEquals(["env1", "env2"], testpackages.environments)
+        packages = Packages(environment, ["pkg_1", "pkg_2"])
+        packages.update({Environment("env2") : []})
+        self.assertEquals(["env1", "env2"], packages.environments)
 
     def test_packages(self):
         environment = Environment("env1")
-        testpackages = TestPackages(environment, ["pkg_1", "pkg_2"])
-        testpackages.update({Environment("env2") : []})
+        packages = Packages(environment, ["pkg_1", "pkg_2"])
+        packages.update({Environment("env2") : []})
         self.assertEquals(["pkg_1", "pkg_2"], 
-                          testpackages.packages(environment))
+                          packages.packages(environment))
         self.assertEquals(["pkg_1", "pkg_2"],
-                          testpackages.packages("env1"))
+                          packages.packages("env1"))
 
     def test_getitem(self):
         environment = Environment("env1")
-        testpackages = TestPackages(environment, ["pkg_1", "pkg_2"])
+        packages = Packages(environment, ["pkg_1", "pkg_2"])
         self.assertEquals(["pkg_1", "pkg_2"], 
-                          testpackages[Environment("env1")])
+                          packages[Environment("env1")])
 
 
 if __name__ == "__main__":

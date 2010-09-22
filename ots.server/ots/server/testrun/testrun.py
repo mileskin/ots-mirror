@@ -30,7 +30,7 @@ from collections import defaultdict
 
 from ots.common.amqp.api import ErrorMessage, ResultMessage
 
-from ots.common.datatypes.api import TestPackages
+from ots.common.datatypes.api import Packages
 from ots.common.datatypes.api import Environment
 
 
@@ -83,7 +83,7 @@ class Testrun(object):
         #
         self.results_xmls = []
         self.tested_packages_dict = defaultdict(list)
-        self.expected_testpackages = None
+        self.expected_packages = None
 
     ###########################################
     # HANDLERS
@@ -104,8 +104,8 @@ class Testrun(object):
             self._error(message.error_info, message.error_code)
         elif isinstance(message, ResultMessage):
             self._results(message.result)
-        elif isinstance(message, TestPackages):
-            self._testpackages(message)
+        elif isinstance(message, Packages):
+            self._packages(message)
         else:
             LOG.debug("Unknown Message Type: '%s'"%(message_type))
 
@@ -124,17 +124,17 @@ class Testrun(object):
         #
         self.results_xmls.append(result.content)
 
-    def _testpackages(self, testpackages): 
+    def _packages(self, packages): 
         """
-        @type testpackages: L{ots.common.datatypes.environment.Testpackages}
-        @param testpackages: The testpackages
+        @type packages: L{ots.common.datatypes.environment.packages}
+        @param packages: The Packages
 
         Handler for testpackages
         """
-        LOG.debug("Received packages: %s" % (testpackages))
-        if self.expected_testpackages is None:
-            self.expected_testpackages = testpackages
-        self.expected_testpackages.update(testpackages)
+        LOG.debug("Received packages: %s" % (packages))
+        if self.expected_packages is None:
+            self.expected_packages = packages
+        self.expected_packages.update(packages)
 
     @staticmethod
     def _error(error_info, error_code):
@@ -191,7 +191,7 @@ class Testrun(object):
         TASKRUNNER_SIGNAL.connect(self._taskrunner_cb)
        
         self._run_test()
-        is_valid_run(self.expected_testpackages,
+        is_valid_run(self.expected_packages,
                      self.tested_packages_dict,
                      self.is_hw_enabled,
                      self.is_host_enabled)
