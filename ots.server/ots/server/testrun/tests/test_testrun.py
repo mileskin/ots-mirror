@@ -24,8 +24,10 @@ import os
 
 import unittest
 
+from ots.common.ots_exception import OTSException
+
 from ots.server.distributor.api import OtsGlobalTimeoutError
-from ots.server.testrun.testrun import Testrun, TestrunException 
+from ots.server.testrun.testrun import Testrun 
 from ots.server.testrun.tests.mock_taskrunner import \
                                              MockTaskRunnerResultsMissing
 from ots.server.testrun.tests.mock_taskrunner import \
@@ -71,7 +73,7 @@ class TestTestrun(unittest.TestCase):
         mock_task_runner = MockTaskRunnerError()
         run_test = mock_task_runner.run
         testrun = Testrun(run_test)
-        self.assertRaises(TestrunException, testrun.run)
+        self.assertRaises(OTSException, testrun.run)
         
 if __name__ == "__main__":
     import logging

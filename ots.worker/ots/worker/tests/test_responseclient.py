@@ -101,9 +101,9 @@ class TestResponseClient(unittest.TestCase):
         self.client.set_error(error_info, error_code)
         msg = self.channel.msg
         self.assertTrue(msg)
-        error = loads(msg.body)
-        self.assertEquals(error.error_info, error_info)
-        self.assertEquals(error.error_code, error_code)
+        exc = loads(msg.body)
+        self.assertEquals(str(exc), error_info)
+        self.assertEquals(exc.error_code, error_code)
 
 
     def test_add_executed_packages(self):

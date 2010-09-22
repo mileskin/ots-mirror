@@ -38,14 +38,6 @@ from ots.results.api import is_valid_run
 
 LOG = logging.getLogger(__name__)
 
-class TestrunException(Exception):
-    """
-    Reraise Exceptions from Workers
-    """
-    def __init__(self, message, error_code):
-        Exception.__init__(self, message)
-        self.error_code = error_code
-
 class Testrun(object):
     """
     Holds the metadata associated with a Testrun 
@@ -90,21 +82,20 @@ class Testrun(object):
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
 
-        @type kwargs: C{dict}
-        @param kwargs: The Message using OTSProtocol
+        @type message: L{ots.common.datatypes}
+        @param message: An OTS datatype
 
         The callback for TASKRUNNER_SIGNAL delegates
         data to handler depending on MESSAGE_TYPE
         """
-        
-        if isinstance(message, ErrorMessage):
-            self._error(message.error_info, message.error_code)
+        if isinstance(message, Exception):
+            raise message
         elif isinstance(message, Results):
             self._results(message)
         elif isinstance(message, Packages):
             self._packages(message)
         else:
-            LOG.debug("Unknown Message Type: '%s'"%(message_type))
+            LOG.debug("Unknown Message Type: '%s'"%(message))
 
     def _results(self, result):
         """
@@ -136,22 +127,6 @@ class Testrun(object):
         else:
             self.expected_packages.update(packages)
 
-    @staticmethod
-    def _error(error_info, error_code):
-        """
-        @type error_info: C{str}
-        @param error_info: Error Message
-
-        @type error_code: C{int}
-        @param error_code: Error Code
-
-        Handler for errors
-        """
-        LOG.debug("Received error: %s:%s" % (error_info, error_code))
-        #FIXME: Use Python Exceptions
-        msg = "%s: %s" % (error_info, error_code)
-        raise TestrunException(msg, error_code)
-   
     #############################################
     # HELPERS
     #############################################
@@ -191,9 +166,6 @@ class Testrun(object):
         TASKRUNNER_SIGNAL.connect(self._taskrunner_cb)
        
         self._run_test()
-
-        print 99999999999, self.expected_packages
-
         is_valid_run(self.expected_packages,
                      self.tested_packages,
                      self.is_hw_enabled,
