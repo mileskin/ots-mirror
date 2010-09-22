@@ -21,7 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 from ots.common.amqp.messages import CommandMessage, StateChangeMessage
-from ots.common.amqp.messages import ErrorMessage
+from ots.common.amqp.messages import ErrorMessage, StatusMessage
+from ots.common.amqp.messages import ResultMessage, TestPackageListMessage
 from ots.common.amqp.messages import pack_message, unpack_message
 from ots.common.amqp.messages import TaskCondition
 from ots.common.amqp.testrun_queue_name import testrun_queue_name

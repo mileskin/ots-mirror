@@ -28,7 +28,9 @@ import logging
 from amqplib import client_0_8 as amqp
 
 from ots.common.amqp.api import testrun_queue_name
-from ots.common.protocol import OTSMessageIO
+from ots.common.amqp.api import ResultMessage, TestPackageListMessage
+from ots.common.amqp.api import ErrorMessage, StatusMessage
+from ots.common.amqp.api import pack_message, unpack_message
 
 LOGGER = logging.getLogger(__file__)
 
@@ -83,9 +85,9 @@ class ResponseClient(object):
     def add_result(self, filename, content, origin="Unknown", 
                          test_package="Unknown", environment="Unknown"):
         """Calls OTSMessageIO to create result object message"""
-        
-        self._send_message(OTSMessageIO.pack_result_message(filename, content,
-                           origin, test_package, environment))
+        result_message = ResultMessage(filename, content, test_package,
+                                       origin, environment)
+        self._send_message(pack_message(result_message))
 
     def set_state(self, state, status_info):
         """Calls OTSMessageIO to create testrun state change message"""
@@ -95,22 +97,21 @@ class ResponseClient(object):
             LOGGER.warning("Unknown testrun state %s given, skipping "\
                                  "setting state" % state)
             return
-
-        self._send_message(OTSMessageIO.pack_testrun_status_message(state,
-                           status_info))
+        status_message = StatusMessage(state, status_info)
+        self._send_message(pack_message(status_message))
 
 
     def set_error(self, error_info, error_code):
         """Calls OTSMessageIO to cerate testrun error message"""
 
-        self._send_message(OTSMessageIO.pack_testrun_error_message(error_info,
-                           error_code))
+        error_message = ErrorMessage(error_info, error_code)
+        self._send_message(pack_message(error_message))
 
     def add_executed_packages(self, environment, packages):
         """Calls OTSMessageIO to create test package list"""
-        self._send_message(
-            OTSMessageIO.pack_testpackage_list_message(environment,
-                                                       packages))
+        test_package_list_message = TestPackageListMessage(environment, 
+                                                           packages)
+        self._send_message(pack_message(test_package_list_message))
  
 
 #

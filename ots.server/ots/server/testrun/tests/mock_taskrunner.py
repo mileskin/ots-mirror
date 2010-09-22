@@ -23,8 +23,9 @@
 import os
 import time
 
-from ots.common.api import OTSProtocol, PROTOCOL_VERSION
 from ots.common.api import ResultObject
+from ots.common.amqp.api import TestPackageListMessage, ResultMessage
+from ots.common.amqp.api import ErrorMessage
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
 from ots.server.distributor.api import OtsGlobalTimeoutError
@@ -57,14 +58,13 @@ class MockTaskRunnerResultsBase(object):
 
     @staticmethod
     def _send_result(environment, results_xml, name):
-        result = ResultObject(name,
-                              content = results_xml,
-                              testpackage = name,
-                              origin = "mock_task_runner",
-                              environment = environment)
-        kwargs = {OTSProtocol.RESULT : result,
-                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.RESULT_OBJECT}
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+        result_message = ResultMessage(name,
+                                       content = results_xml,
+                                       test_package = name,
+                                       origin = "mock_task_runner",
+                                       environment = environment)
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
+                               message = result_message)
 
     @staticmethod
     def _send_testpackages():
@@ -74,20 +74,19 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        kwargs = {OTSProtocol.ENVIRONMENT : "hardware_test",
-                  OTSProtocol.PACKAGES : ["test_1", "test_2", "test_3"],
-                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST}
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+        msg = TestPackageListMessage("hardware_test", 
+                                     ["test_1", "test_2", "test_3"])
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
+                               message = msg)
 
 class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        kwargs = {OTSProtocol.ENVIRONMENT: "hardware_test",
-                  OTSProtocol.PACKAGES : ["test_1", "test_2"],
-                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST}
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
-
+        msg = TestPackageListMessage("hardware_test", 
+                                     ["test_1", "test_2"])
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
+                               message = msg)
 
 class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 
@@ -103,15 +102,10 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        kwargs = {OTSProtocol.ENVIRONMENT: "hardware_test",
-                  OTSProtocol.PACKAGES : ["test_1", "test_2"],
-                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST}
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
-
-        kwargs = {OTSProtocol.ENVIRONMENT: "host.unittest",
-                  OTSProtocol.PACKAGES : ["test_1", "test_2"],
-                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST}
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+        msg = TestPackageListMessage("hardware_test",
+                                      ["test_1", "test_2"])
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
+                               message = msg)
 
     def run(self):
         self._send_testpackages()
@@ -137,8 +131,7 @@ class MockTaskRunnerTimeout(object):
 class MockTaskRunnerError(object):
 
     def run(self):
-        kwargs = {OTSProtocol.ERROR_CODE : 6310,
-                  OTSProtocol.ERROR_INFO : "mock task runner",
-                  OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTRUN_ERROR}
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", **kwargs)
+        msg = ErrorMessage("mock task runner", 6310)
+        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
+                               message = msg)
 

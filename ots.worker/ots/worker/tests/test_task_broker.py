@@ -28,9 +28,7 @@ import time
 from amqplib import client_0_8 as amqp
 from amqplib.client_0_8.exceptions import AMQPChannelException
 
-from ots.common.protocol import OTSProtocol
 from ots.common.amqp.api import CommandMessage, ErrorMessage, pack_message
-from ots.common.protocol import get_version as get_ots_protocol_version
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
@@ -307,24 +305,29 @@ class TestTaskBroker(unittest.TestCase):
         task_broker = _task_broker_factory()
         channel = task_broker.channel
         # Try to keep under timeouts
-        self.assertFalse(task_broker._dispatch(OTSProtocol.COMMAND_IGNORE, 1))
-        self.assertFalse(task_broker._dispatch(OTSProtocol.COMMAND_QUIT, 1))
-        self.assertFalse(task_broker._dispatch("ls -al", 1))
+        cmd_ignore = CommandMessage(["ignore"], "test", 1, timeout = 1) 
+        self.assertFalse(task_broker._dispatch(cmd_ignore))
+        cmd_quit = CommandMessage(["quit"], "test", 1, timeout = 1) 
+        self.assertFalse(task_broker._dispatch(cmd_quit))
+        cmd_ls = CommandMessage(["ls -la"], "test", 1, timeout = 1) 
+        self.assertFalse(task_broker._dispatch(cmd_ls))
 
     def test_dispatch_timeout(self):
         task_broker = _task_broker_factory()
         channel = task_broker.channel
         # Try to keep under timeouts
-        self.assertRaises(SoftTimeoutException, task_broker._dispatch, "sleep 2", 1)
+        cmd_sleep = CommandMessage(["sleep", "2"], "test", 1, timeout = 1)
+        self.assertRaises(SoftTimeoutException, 
+                          task_broker._dispatch, cmd_sleep)
 
     def test_dispatch_failing_command(self):
         task_broker = _task_broker_factory()
         channel = task_broker.channel
         # Try to keep under timeouts
+        cmd_fail = CommandMessage(["cat", "/not/existing/file"], "test", 1,
+                                  timeout = 1)
         self.assertRaises(CommandFailed,
-                          task_broker._dispatch,
-                          "cat /not/existing/file",
-                          1)
+                          task_broker._dispatch, cmd_fail)
 
     ###################################
     # PUBLISHERS

@@ -46,9 +46,8 @@ from time import sleep
 import logging
 from itertools import cycle
 
-from ots.common.protocol import OTSProtocol
 from ots.common.amqp.api import unpack_message, pack_message
-from ots.common.amqp.api import ErrorMessage
+from ots.common.amqp.api import ErrorMessage, StateChangeMessage, TaskCondition
 
 import ots.worker
 from ots.worker.command import Command
@@ -61,8 +60,8 @@ LOGGER = logging.getLogger(__name__)
 
 STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
 
-TASK_STATE_RESPONSES = [OTSProtocol.STATE_TASK_STARTED,
-                        OTSProtocol.STATE_TASK_FINISHED]
+TASK_CONDITION_RESPONSES = [TaskCondition.START,
+                            TaskCondition.FINISH]
 
 class NotConnectedError(Exception):
     """Exception raised if not connected to amqp"""
@@ -91,6 +90,7 @@ def _start_process(command, timeout):
 
 ##############################
 # TASK_BROKER
+##############################
 
 class TaskBroker(object):
     """
@@ -106,7 +106,7 @@ class TaskBroker(object):
         self._keep_looping = True
         self._consumer_tag = ""
 
-        self._task_state = cycle(TASK_STATE_RESPONSES)
+        self._task_state = cycle(TASK_CONDITION_RESPONSES)
 
     #############################################
     # AMQP CONNECTION PROPERTIES 
@@ -195,14 +195,12 @@ class TaskBroker(object):
         cmd_msg = unpack_message(message)
         task_id = cmd_msg.task_id
         response_queue = cmd_msg.response_queue 
-        command = cmd_msg.command
         timeout = cmd_msg.timeout
        
         self._publish_task_state_change(task_id, response_queue)
 
         try:
-            self._dispatch(command, timeout)
-
+            self._dispatch(cmd_msg)
         except (HardTimeoutException, SoftTimeoutException):
             LOGGER.error("Process timed out")
             error_info = "Global timeout"
@@ -247,22 +245,20 @@ class TaskBroker(object):
             self._clean_up()
 
 
-    def _dispatch(self, command, timeout):
+    def _dispatch(self, cmd_msg):
         """
         Dispatch the Task. Currently as a Process (Blocking)
                 
-        @type command: string
-        @param command: The CL params for the Process to be run as a Task 
-
-        @type timeout: int
-        @param timeout: The timeout to apply to the Task
+        @type message: C{ots.common.amqp.messages.CommandMessage
+        @param message: The CL params for the Process to be run as a Task 
         """
-        if command == OTSProtocol.COMMAND_QUIT:
-            self._keep_looping = False
-        elif not command == OTSProtocol.COMMAND_IGNORE:
 
-            LOGGER.debug("Running command: '%s'"%(command))
-            _start_process(command = command, timeout = timeout)
+        if cmd_msg.is_quit:
+            self._keep_looping = False
+        elif not cmd_msg.is_ignore:
+            LOGGER.debug("Running command: '%s'"%(cmd_msg.command))
+            _start_process(command = cmd_msg.command, 
+                           timeout = cmd_msg.timeout)
 
     #######################################
     # HELPERS
@@ -300,8 +296,9 @@ class TaskBroker(object):
         """
         state = self._task_state.next()
         LOGGER.debug("Task in state: '%s'"%(state))
-        message = OTSProtocol.state_change_message(task_id, state)
-        self.channel.basic_publish(message,
+        state_msg = StateChangeMessage(task_id, state)
+        amqp_message = pack_message(state_msg) 
+        self.channel.basic_publish(amqp_message,
                                    mandatory = True,
                                    exchange = response_queue,
                                    routing_key = response_queue)

@@ -30,9 +30,9 @@
 """
 A Task 
 """
+
 import uuid
 
-from ots.common.protocol import OTSProtocol
 from ots.common.amqp.messages import TaskCondition
 
 class TaskException(Exception):

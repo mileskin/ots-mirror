@@ -115,6 +115,14 @@ class CommandMessage(Message):
         self.timeout = timeout 
         self.min_worker_version = min_worker_version
 
+    @property    
+    def is_quit(self):
+        return self.command == self.QUIT
+
+    @property 
+    def is_ignore(self):
+        return self.command == self.IGNORE
+
 class ResultMessage(Message):
 
     def __init__(self, filename, content, test_package, 

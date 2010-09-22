@@ -87,10 +87,9 @@ class TestResponseClient(unittest.TestCase):
         status_info = "flashing content image"
         self.client.set_state(state, status_info)
         msg = self.channel.msg
-        content = loads(msg.body)
-        self.assertEquals(content['message_type'], "TESTRUN_STATUS")
-        self.assertEquals(content['state'], state)
-        self.assertEquals(content['status_info'], status_info)
+        status = loads(msg.body)
+        self.assertEquals(status.state, state)
+        self.assertEquals(status.status_info, status_info)
 
 
     def test_set_error(self):
@@ -99,10 +98,9 @@ class TestResponseClient(unittest.TestCase):
         self.client.set_error(error_info, error_code)
         msg = self.channel.msg
         self.assertTrue(msg)
-        content = loads(msg.body)
-        self.assertEquals(content['message_type'], "TESTRUN_ERROR")
-        self.assertEquals(content['error_info'], error_info)
-        self.assertEquals(content['error_code'], error_code)
+        error = loads(msg.body)
+        self.assertEquals(error.error_info, error_info)
+        self.assertEquals(error.error_code, error_code)
 
 
     def test_add_executed_packages(self):
@@ -111,10 +109,9 @@ class TestResponseClient(unittest.TestCase):
         self.client.add_executed_packages(environment, packages)
         msg = self.channel.msg
         self.assertTrue(msg)
-        content = loads(msg.body)
-        self.assertEquals(content['message_type'], "TESTPACKAGE_LIST")
-        self.assertEquals(content['environment'], environment)
-        self.assertEquals(content['packages'], packages)
+        executed_pkgs = loads(msg.body)
+        self.assertEquals(executed_pkgs.environment, environment)
+        self.assertEquals(executed_pkgs.packages, packages)
 
     def test_add_result(self):
         filename = "result.xml"
@@ -131,10 +128,7 @@ class TestResponseClient(unittest.TestCase):
 
         msg = self.channel.msg
         self.assertTrue(msg)
-        content = loads(msg.body)
-        self.assertEquals(content['message_type'], "RESULT_OBJECT")
-        self.assertTrue("result" in content.keys())
-        result = content['result']
+        result = loads(msg.body).result
         self.assertEquals(result.filename, filename)
         self.assertEquals(result.content, file_content)
         self.assertEquals(result.origin, origin)

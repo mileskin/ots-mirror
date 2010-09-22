@@ -28,7 +28,8 @@ import logging
 from collections import defaultdict
 
 from ots.common.api import Environment
-from ots.common.api import OTSProtocol
+from ots.common.amqp.api import ErrorMessage, ResultMessage
+from ots.common.amqp.api import TestPackageListMessage
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
 
@@ -85,7 +86,7 @@ class Testrun(object):
     # HANDLERS
     ###########################################
 
-    def _taskrunner_cb(self, signal, **kwargs):
+    def _taskrunner_cb(self, signal, message, **kwargs):
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
@@ -96,20 +97,12 @@ class Testrun(object):
         The callback for TASKRUNNER_SIGNAL delegates
         data to handler depending on MESSAGE_TYPE
         """
-        message_type = kwargs[OTSProtocol.MESSAGE_TYPE]
-        
-        #Testpackage handler
-        if message_type == OTSProtocol.TESTPACKAGE_LIST:
-            self._packages(kwargs[OTSProtocol.ENVIRONMENT],
-                           kwargs[OTSProtocol.PACKAGES])
-        #Error handler
-        elif message_type == OTSProtocol.TESTRUN_ERROR:
-            self._error(kwargs[OTSProtocol.ERROR_INFO],
-                        kwargs[OTSProtocol.ERROR_CODE])
-        #Result handler
-        elif message_type == OTSProtocol.RESULT_OBJECT:
-            self._results(kwargs[OTSProtocol.RESULT])
-        #Unknown Message fail silently
+        if isinstance(message, ErrorMessage):
+            self._error(message.error_info, message.error_code)
+        elif isinstance(message, ResultMessage):
+            self._results(message.result)
+        elif isinstance(message, TestPackageListMessage):
+            self._packages(message.environment, message.packages)
         else:
             LOG.debug("Unknown Message Type: '%s'"%(message_type))
 
