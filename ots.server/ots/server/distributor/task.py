@@ -33,6 +33,7 @@ A Task
 import uuid
 
 from ots.common.protocol import OTSProtocol
+from ots.common.amqp.messages import TaskCondition
 
 class TaskException(Exception):
     """Task Exception"""
@@ -56,8 +57,8 @@ class Task(object):
     _FINISHED = "FINISHED"
 
     #condition, current, next_state
-    transition_table = [(OTSProtocol.STATE_TASK_STARTED, _WAITING, _STARTED, ),
-                        (OTSProtocol.STATE_TASK_FINISHED, _STARTED, _FINISHED)]
+    transition_table = [(TaskCondition.START, _WAITING, _STARTED, ),
+                        (TaskCondition.FINISH, _STARTED, _FINISHED)]
 
     current_state = "WAITING"
 

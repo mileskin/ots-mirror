@@ -48,7 +48,7 @@ from stat import ST_CTIME
 import multiprocessing
 from socket import gethostname
 
-from ots.common.testrun_queue_name import testrun_queue_name 
+from ots.common.amqp.api import testrun_queue_name 
 
 from ots.worker.api import worker_factory
 import ots.worker

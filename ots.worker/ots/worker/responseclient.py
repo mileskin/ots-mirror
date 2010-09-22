@@ -27,7 +27,7 @@ import logging
 
 from amqplib import client_0_8 as amqp
 
-from ots.common.testrun_queue_name import testrun_queue_name
+from ots.common.amqp.api import testrun_queue_name
 from ots.common.protocol import OTSMessageIO
 
 LOGGER = logging.getLogger(__file__)

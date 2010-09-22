@@ -23,19 +23,19 @@
 import unittest
 
 from ots.server.distributor.task import Task, TaskException
-from ots.common.protocol import OTSProtocol
+from ots.common.amqp.api import TaskCondition
 
 class TestTask(unittest.TestCase):
 
     def test_transition(self):
         task = Task([1], 0)
         self.assertEquals(task._WAITING, task.current_state)
-        task.transition(OTSProtocol.STATE_TASK_STARTED)
+        task.transition(TaskCondition.START)
         self.assertEquals(task._STARTED, task.current_state)
-        task.transition(OTSProtocol.STATE_TASK_FINISHED)
+        task.transition(TaskCondition.FINISH)
         self.assertEquals(task._FINISHED, task.current_state)
         self.assertRaises(TaskException, task.transition, "foo")
-        self.assertRaises(TaskException, task.transition, OTSProtocol.STATE_TASK_STARTED)
+        self.assertRaises(TaskException, task.transition, TaskCondition.START)
     
     def test_is_finished(self):
         task = Task([1], 0)

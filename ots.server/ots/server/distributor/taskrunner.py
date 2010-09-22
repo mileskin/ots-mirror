@@ -39,8 +39,10 @@ import errno
 
 from amqplib import client_0_8 as amqp
 
-from ots.common.api import OTSMessageIO, OTSProtocol
-from ots.common.api import testrun_queue_name
+from ots.common.amqp.api import testrun_queue_name
+from ots.common.amqp.api import CommandMessage, StateChangeMessage
+from ots.common.amqp.api import pack_message, unpack_message
+from ots.common.amqp.api import TaskCondition
 
 from ots.server.distributor.task import Task
 from ots.server.distributor.queue_exists import queue_exists
@@ -201,7 +203,7 @@ class TaskRunner(object):
     # MESSAGE HANDLING 
     #############################################
         
-    def _on_message(self, message):
+    def _on_message(self, amqp_message):
         """
         Handler for AMQP messages   
         
@@ -210,71 +212,28 @@ class TaskRunner(object):
         1. Indication of state changes on the Task 
         2. Feedback from the Task itself
 
+        State change messages trigger a state transition.
+        Everything else fires a signal
+
         @type message: amqplib.client_0_8.basic_message.Message 
         @param message: AMQP message
         """
-        ###############################################
-        # 
-        # Backward compatibility to make deployment into production possible
-        #
-        # Will be removed after all workers have been updated to support OTS
-        #
-
-        LOGGER.debug("single_task_mode %s" % self._single_task_mode)
-        if self._single_task_mode:
-
-            msg = pickle.loads(message.body)
-            if isinstance(msg, basestring):
-                if msg == 'started':
-                    task = self._tasks[0]
-                    status = OTSProtocol.STATE_TASK_STARTED
-                    self.timeout_handler.task_started(single_task = True)
-                    task.transition(status)
-                    return 
-
-                elif msg == 'finished':
-                    task = self._tasks[0]            
-                    status = OTSProtocol.STATE_TASK_FINISHED
-                    self.timeout_handler.stop()
-                    task.transition(status)
-                    self._tasks.remove(task)
-                    return
-                else:
-                    LOGGER.debug("unknown message! %s" % msg)
-        #
-        #
-        ##################################################
-
-
-        body = OTSMessageIO.unpack_message(message)
-        if body[OTSProtocol.MESSAGE_TYPE] == OTSProtocol.STATE_CHANGE:
-            LOGGER.debug("Received state change message %s " % body)
-            self._task_transition(body)
+        msg = unpack_message(amqp_message)
+        if isinstance(msg, StateChangeMessage):
+            LOGGER.debug("Received state change message %s " % msg.condition)
+            self._task_transition(msg)
         else:
-            LOGGER.debug("Received Task message %s" % body)
-            self._task_message(body)
-            
-    @staticmethod
-    def _task_message(message):
-        """
-        Signal message from Task
-        """
-        signal = message[OTSProtocol.MESSAGE_TYPE]
-        kwargs = message.copy()
-        kwargs.pop(OTSProtocol.VERSION)
-        TASKRUNNER_SIGNAL.send(sender = "TaskRunner", **kwargs)
-       
+            LOGGER.debug("Received Task message %s" % msg)
+            TASKRUNNER_SIGNAL.send(sender = "TaskRunner", message = msg)
+  
     def _task_transition(self, message):
         """
         Processes state change message 
         """
-
-        status = message[OTSProtocol.STATUS]
-        if status == OTSProtocol.STATE_TASK_STARTED:
+        if message.is_start:
             self.timeout_handler.task_started()
-        task_id = message[OTSProtocol.TASK_ID]
-        task = self._get_task(task_id)
-        task.transition(status)
+        task = self._get_task(message.task_id)
+        task.transition(message.condition)
         if task.is_finished:
             self._tasks.remove(task)
     
@@ -329,12 +288,13 @@ class TaskRunner(object):
             log_msg = "Sending command '%s' with key '%s'" \
                           % (task.command, self._routing_key)
             LOGGER.debug(log_msg)
-            message = OTSMessageIO.pack_command_message(task.command,
-                                           self._testrun_queue,
-                                           self._timeout,
-                                           task.task_id,
-                                           min_worker_version = 
-                                                  self._min_worker_version)
+            cmd_msg = CommandMessage(task.command, 
+                                     self._testrun_queue,
+                                     task.task_id,
+                                     timeout = self._timeout,
+                                     min_worker_version = 
+                                       self._min_worker_version)
+            message = pack_message(cmd_msg)
             self._channel.basic_publish(message, 
                                         exchange = self._services_exchange,
                                         routing_key = self._routing_key)

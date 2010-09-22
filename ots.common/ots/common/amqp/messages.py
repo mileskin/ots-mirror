@@ -69,6 +69,16 @@ def pack_message(message):
     return amqp_message
 
 ##############################
+# TASK CONDITION
+##############################
+
+class TaskCondition(object):
+
+    START = 'start'
+    FINISH = 'finish'
+
+
+##############################
 # MESSAGE TYPES 
 ##############################
 
@@ -77,6 +87,9 @@ class Message(object):
     __version__ = ots.common.__VERSION__
 
 class CommandMessage(Message):
+
+    QUIT = 'quit'
+    IGNORE = 'ignore'
 
     def __init__(self, command, response_queue, task_id, 
                  timeout = 60, min_worker_version = None):
@@ -130,3 +143,18 @@ class TestPackageListMessage(Message):
     def __init__(self, environment, packages):
         self.environment = environment
         self.packages = packages
+
+
+class StateChangeMessage(Message):
+
+    def __init__(self, task_id, condition):
+        self.task_id = task_id 
+        self.condition = condition
+
+    @property 
+    def is_start(self):
+        return self.condition == TaskCondition.START
+
+    @property
+    def is_finish(self):
+        return self.condition == TaskCondition.FINISH

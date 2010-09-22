@@ -24,16 +24,16 @@ import logging
 import unittest 
 import subprocess
 import time
-#from pickle import dumps
 
 from amqplib import client_0_8 as amqp
 from amqplib.client_0_8.exceptions import AMQPChannelException
 
+from ots.common.protocol import OTSProtocol
+from ots.common.amqp.api import CommandMessage, ErrorMessage, pack_message
+from ots.common.protocol import get_version as get_ots_protocol_version
+
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
-from ots.common.protocol import OTSProtocol#, OTSMessageIO
-from ots.common.amqp.messages import CommandMessage, pack_message
-from ots.common.protocol import get_version as get_ots_protocol_version
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed

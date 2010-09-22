@@ -20,6 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#Containers
-from ots.common.resultobject import ResultObject
-from ots.common.environment import Environment
+from ots.common.amqp.messages import CommandMessage, StateChangeMessage
+from ots.common.amqp.messages import ErrorMessage
+from ots.common.amqp.messages import pack_message, unpack_message
+from ots.common.amqp.messages import TaskCondition
+from ots.common.amqp.testrun_queue_name import testrun_queue_name

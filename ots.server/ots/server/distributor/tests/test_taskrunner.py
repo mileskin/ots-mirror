@@ -33,19 +33,22 @@ from amqplib import client_0_8 as amqp
 
 from django.dispatch.dispatcher import Signal
 
+from ots.common.amqp.api import StateChangeMessage
+from ots.common.amqp.api import TaskCondition
+
 from ots.server.distributor.task import Task
 from ots.server.distributor.taskrunner import TaskRunner
 from ots.server.distributor.taskrunner import _init_queue, TaskRunnerException
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
     OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
-
-from ots.common.protocol import OTSProtocol
-from ots.common.protocol import get_version as get_ots_protocol_version
 from ots.server.distributor.taskrunner import TASKRUNNER_SIGNAL
 
 class AMQPMessageStub:
     body = None
 
+class Foo(object):
+    bar = 1
+        
 class TestTaskRunner(unittest.TestCase):
 
     def setUp(self):
@@ -69,63 +72,43 @@ class TestTaskRunner(unittest.TestCase):
     def test_on_message_status(self):
         task_1 = Task([1, 2], 10)
         task_2 = Task([1, 2], 10)
-     
-
-        d = {OTSProtocol.MESSAGE_TYPE : OTSProtocol.STATE_CHANGE, 
-             OTSProtocol.TASK_ID : task_1.task_id, 
-             OTSProtocol.STATUS : OTSProtocol.STATE_TASK_STARTED,
-             'version' : get_ots_protocol_version}
+        
+        start_msg = StateChangeMessage(task_1.task_id,
+                                       TaskCondition.START)
         message = AMQPMessageStub()
-        message.body = dumps(d)
+        message.body = dumps(start_msg)
 
         self.taskrunner._tasks = [task_1, task_2] 
         self.taskrunner._on_message(message)
         self.assertEquals(2, len(self.taskrunner._tasks))
 
-        d = {OTSProtocol.MESSAGE_TYPE : OTSProtocol.STATE_CHANGE, 
-             OTSProtocol.TASK_ID : task_1.task_id, 
-             OTSProtocol.STATUS : OTSProtocol.STATE_TASK_FINISHED,
-             'version' : get_ots_protocol_version}
+        
+        end_msg = StateChangeMessage(task_1.task_id,
+                                       TaskCondition.FINISH)
         message = AMQPMessageStub()
-        message.body = dumps(d)
+        message.body = dumps(end_msg)
         
         self.taskrunner._on_message(message)
         self.assertEquals(1, len(self.taskrunner._tasks))
         self.assertEquals(task_2, self.taskrunner._tasks[0])
 
-    def test_on_message_task(self):
+    def test_on_message_relay(self):
         message = AMQPMessageStub()
-        message.body = dumps({OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTPACKAGE_LIST,
-                              'environment' : "foo",
-                              'packages' : "bar",
-                              'version' : get_ots_protocol_version})        
-        def test_handler(signal, **kwargs):
-            self.assertEquals(kwargs['environment'], 'foo')
-            self.assertEquals(kwargs['packages'], 'bar')
+        message.body = dumps(Foo())        
+        def test_handler(signal, message, **kwargs):
+            self.assertTrue(isinstance(message, Foo))
+            self.assertEquals(1, message.bar)
         TASKRUNNER_SIGNAL.connect(test_handler) 
         self.taskrunner._on_message(message)
 
-    def test_on_message_error_message(self):
-        message = AMQPMessageStub()
-        message.body = dumps({OTSProtocol.MESSAGE_TYPE : OTSProtocol.TESTRUN_ERROR,
-                              'error_info' : "foo",
-                              'error_code' : 6,
-                              'version' : get_ots_protocol_version})        
-        def test_handler(signal, **kwargs):
-            self.assertEquals(kwargs['error_info'], 'foo')
-            self.assertEquals(kwargs['error_code'], 6)
-        TASKRUNNER_SIGNAL.connect(test_handler)
-        self.taskrunner._on_message(message)
-
-
     def test_dispatch_tasks(self):
-        task_1 = Task([1, 2], 10)
-        task_2 = Task([1, 2], 10)
+        task_1 = Task(["1", "2"], 10)
+        task_2 = Task(["1", "2"], 10)
         self.taskrunner._tasks = [task_1, task_2]
         self.taskrunner._dispatch_tasks()
         def test_cb(message):
             self.channel.basic_ack(delivery_tag = message.delivery_tag)
-            self.assertEquals([1,2], loads(message.body)['command'])
+            self.assertEquals("1 2", loads(message.body).command)
         self.channel.basic_qos(0, 1, False)
         self.channel.basic_consume(queue = "test_taskrunner", 
                                    callback = test_cb)
@@ -164,11 +147,7 @@ class TestTaskRunner(unittest.TestCase):
 
 class TestTimeoutScenarios(unittest.TestCase):
 
-
     def setUp(self):
-
-#        import logging
-#        logging.basicConfig(level=logging.DEBUG)
         self.connection = amqp.Connection(host = "localhost", 
                                           userid = "guest",
                                           password = "guest",
@@ -217,7 +196,7 @@ class TestTimeoutScenarios(unittest.TestCase):
 
 
         # Create a task
-        task_1 = Task([1, 2], 10)
+        task_1 = Task(["1", "2"], 10)
      
         # Create a "started" state change message
 
@@ -226,19 +205,14 @@ class TestTimeoutScenarios(unittest.TestCase):
         self.assertRaises(OtsGlobalTimeoutError,
                           taskrunner.run)
 
-
-
-
-
     def _publish_message(self, task_id, response_queue):
-#        import logging
-        state = OTSProtocol.STATE_TASK_STARTED
-        message = OTSProtocol.state_change_message(task_id, state)
+        start_msg = StateChangeMessage(task_id, TaskCondition.START)
+        message = pack_message(start_msg)
         self.channel.basic_publish(message,
                                    mandatory = True,
                                    exchange = response_queue,
                                    routing_key = response_queue)
-#        logging.debug("published message to %s" % response_queue)
+
 
 
 
@@ -266,116 +240,6 @@ class TestQueueDoesnotExist(unittest.TestCase):
         self.assertRaises(OtsQueueDoesNotExistError, self.taskrunner.run)
 
 
-
-
-class TestBackwardCompatibility(unittest.TestCase):
-# some tests for the backward compatibility. To be removed after ots is deployed
-# 
-
-
-    def setUp(self):
-
-#        import logging
-#        logging.basicConfig(level=logging.DEBUG)
-        self.connection = amqp.Connection(host = "localhost", 
-                                          userid = "guest",
-                                          password = "guest",
-                                          virtual_host = "/", 
-                                          insist = False)
-        self.channel = self.connection.channel()
-
-    def tearDown(self):
-        # clear worker queue
-        self.channel.queue_delete(queue = "test_taskrunner", nowait=True)
-
-        # clear response queue
-        self.channel.queue_delete(queue = "r1", nowait=True)
-
-
-    #FIXME Broken Test
-    def _test_task_handling(self):
-        taskrunner = TaskRunner("guest", "guest", "localhost",
-                                "/", "ots", 5672, "test_taskrunner", 
-                                1, 5, 5)
-
-        _init_queue(self.channel, 
-                    "test_taskrunner", 
-                    taskrunner._services_exchange,
-                    "test_taskrunner")
-
-
-        self.error = False
-
-        def test_handler(signal, **kwargs):
-            self.error = True
-        TASKRUNNER_SIGNAL.connect(test_handler) 
-
-
-        # Create a task
-        task_1 = Task(["echo", "jee"], 10)
-     
-        # Create a "started" and "finished" state change messages
-
-        taskrunner._tasks = [task_1] 
-        self._publish_message(taskrunner._testrun_queue,
-                              OTSProtocol.STATE_TASK_STARTED)
-
-        taskrunner._tasks = [task_1] 
-        self._publish_message(taskrunner._testrun_queue,
-                              OTSProtocol.STATE_TASK_FINISHED)
-
-
-        taskrunner.run()
-        self.assertTrue(task_1.is_finished)
-        self.assertFalse(self.error)
-
-
-    #FIXME Broken Test
-    def _test_global_timeout(self):
-        global_timeout = 2
-        queue_timeout = 10
-        taskrunner = TaskRunner("guest", "guest", "localhost",
-                                "/", "ots", 5672, "test_taskrunner", 
-                                1, global_timeout, queue_timeout)
-
-        _init_queue(self.channel, 
-                    "test_taskrunner", 
-                    taskrunner._services_exchange,
-                    "test_taskrunner")
-
-
-        self.error = False
-
-        def test_handler(signal, **kwargs):
-            self.error = True
-        TASKRUNNER_SIGNAL.connect(test_handler) 
-
-
-        # Create a task
-        task_1 = Task(["echo", "jee"], global_timeout)
-        taskrunner._tasks = [task_1] 
-     
-        # Create a "started" message to trigger global timeout
-        self._publish_message(taskrunner._testrun_queue,
-                              OTSProtocol.STATE_TASK_STARTED)
-
-        time_before_run = time.time()
-        self.assertRaises(OtsGlobalTimeoutError, taskrunner.run)
-        time_after_run = time.time()
-        duration = time_after_run - time_before_run
-        
-        # In backward compatibility mode timeout is global timeout and not
-        # global_timeout + queue_timeout
-        self.assertTrue(duration < global_timeout+queue_timeout)
-
-    def _publish_message(self, response_queue, state):
-
-        message = amqp.Message(dumps(state))
-
-        self.channel.basic_publish(message,
-                                   mandatory = True,
-                                   exchange = response_queue,
-                                   routing_key = response_queue)
 
 
 if __name__ == "__main__":
