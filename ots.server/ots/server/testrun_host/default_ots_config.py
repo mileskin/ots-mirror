@@ -76,6 +76,12 @@ email_settings['message_body'] = \
 
 email_settings['message_subject'] = "[OTS] [%s] Req#%s: %s"
 
+#
+# xmlrpc server config
+#
+
+xmlrpc_host = gethostname()
+xmlrpc_port = 8080
 
 
 #
