@@ -22,8 +22,8 @@
 
 import unittest
 
-from ots.common.datatypes.environment import Environment
-from ots.common.datatypes.packages import Packages
+from ots.common.dto.environment import Environment
+from ots.common.dto.packages import Packages
 
 class TestTestPackages(unittest.TestCase):
     

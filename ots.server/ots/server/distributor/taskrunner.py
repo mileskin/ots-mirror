@@ -39,10 +39,10 @@ import errno
 
 from amqplib import client_0_8 as amqp
 
-from ots.common.amqp.api import testrun_queue_name
-from ots.common.amqp.api import CommandMessage, StateChangeMessage
+from ots.common.dto.api import TaskCondition
+from ots.common.dto.api import CommandMessage, StateChangeMessage
 from ots.common.amqp.api import pack_message, unpack_message
-from ots.common.amqp.api import TaskCondition
+from ots.common.amqp.api import testrun_queue_name
 
 from ots.server.distributor.task import Task
 from ots.server.distributor.queue_exists import queue_exists

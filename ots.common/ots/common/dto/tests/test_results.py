@@ -19,3 +19,21 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+
+import unittest 
+
+from ots.common.dto.results import Results
+
+class TestResults(unittest.TestCase):
+
+    def test_results(self):
+        results = Results("foo", "<result>pass</result>",
+                          package = "pkg1", 
+                          origin = "unittest", 
+                          environment = "meego")
+        self.assertEquals("foo", results.results_xml.name)
+        self.assertEquals("<result>pass</result>",
+                          results.results_xml.read())
+        
+if __name__ == "__main__":
+    unittest.main()

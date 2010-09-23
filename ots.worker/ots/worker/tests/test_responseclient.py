@@ -25,7 +25,7 @@ import unittest
 
 from pickle import dumps, loads
 
-from ots.common.datatypes.environment import Environment 
+from ots.common.dto.environment import Environment 
 
 from ots.worker.responseclient import ResponseClient
 

@@ -26,7 +26,7 @@ import unittest
 import sys
 from pickle import loads, dumps
 
-from ots.common.ots_exception import OTSException
+from ots.common.dto.ots_exception import OTSException
 
 class MyException(OTSException):
     errno = 999

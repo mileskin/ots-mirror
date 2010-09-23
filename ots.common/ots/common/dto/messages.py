@@ -22,69 +22,42 @@
 
 
 """
-The Message Types for sending down the wire and 
-the methods for packing and unpacking them
+The Message clases allow remote control
+beween the sub-systems
 """
-
-from pickle import dumps, loads
-
-from amqplib import client_0_8 as amqp
 
 import ots.common
 
-DELIVERY_MODE = 2
-
-#########################
-# PACK / UNPACK
-#########################
-
-def unpack_message(message):
-    """
-    Unpack the message with Pickle
-
-    @type message: amqplib.client_0_8.basic_message.Message
-    @param message: A pickled message in AMQP message format
-
-    @rtype message: L{ots.common.message_io.Message} 
-    @rparam mesage: The Message 
-    """
-    body = loads(message.body)
-    return body
-
-def pack_message(message):
-    """
-    Packs the message for sending as AMQP with Pickle
-
-    @type message: L{ots.common.message_io.Message} 
-    @param mesage: The AMQP message 
-
-    @rtype message: amqplib.client_0_8.basic_message.Message
-    @return message: A pickled message in AMQP message format
-    """
-    message = dumps(message, True)
-    amqp_message = amqp.Message(message)
-    amqp_message.properties['delivery_mode'] = DELIVERY_MODE
-    return amqp_message
-
-##############################
-# TASK CONDITION
-##############################
+############################
+# TASK CONDITIONS
+###########################
 
 class TaskCondition(object):
+    """
+    The conditions that trigger state changes on the Tasks
+    """
 
     START = 'start'
     FINISH = 'finish'
 
 
-##############################
-# MESSAGE TYPES 
-##############################
+###########################
+# MESSAGE BASE
+###########################
 
-class Message(object):
+class MessageBase(object):
     
     __version__ = ots.common.__VERSION__
 
-class CommandMessage(Message):
+
+###########################
+# COMMAND MESSAGE
+###########################
+
+class CommandMessage(MessageBase):
+    """
+    Encapsulates a Command
+    """
 
     QUIT = 'quit'
     IGNORE = 'ignore'
@@ -115,13 +88,29 @@ class CommandMessage(Message):
 
     @property    
     def is_quit(self):
+        """
+        @rtype: C{bool}
+        @param: Should the Worker quit
+        """
         return self.command == self.QUIT
 
     @property 
     def is_ignore(self):
+        """
+        @rtype: C{bool}
+        @param: Should the Worker ignore
+        """
+        #FIXME: Explain the point of this
         return self.command == self.IGNORE
 
-class StateChangeMessage(Message):
+################################
+# STATE CHANGE MESSAGE
+################################
+
+class StateChangeMessage(MessageBase):
+    """
+    Encapsulates a State Change
+    """
 
     def __init__(self, task_id, condition):
         self.task_id = task_id 
@@ -129,8 +118,16 @@ class StateChangeMessage(Message):
 
     @property 
     def is_start(self):
+        """
+        @rtype: C{bool}
+        @param: Is this a start condition
+        """
         return self.condition == TaskCondition.START
 
     @property
     def is_finish(self):
+        """
+        @rtype: C{bool}
+        @param: Is this a finish condition
+        """
         return self.condition == TaskCondition.FINISH

@@ -23,8 +23,8 @@
 import os
 import time
 
-from ots.common.datatypes.api import Results, Packages
-from ots.common.ots_exception import OTSException
+from ots.common.dto.api import Results, Packages
+from ots.common.dto.ots_exception import OTSException
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
 from ots.server.distributor.api import OtsGlobalTimeoutError

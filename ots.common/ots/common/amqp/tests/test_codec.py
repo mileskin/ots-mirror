@@ -20,6 +20,19 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.datatypes.environment import Environment 
-from ots.common.datatypes.packages import Packages
-from ots.common.datatypes.results import Results
+import unittest 
+
+import ots.common
+
+from ots.common.amqp.codec import pack_message, unpack_message
+
+class TestCodec(unittest.TestCase):
+    
+    def test_pack(self): 
+        pass
+
+    def test_unpack(self):
+        pass
+
+if __name__ == "__main__":
+    unittest.main()

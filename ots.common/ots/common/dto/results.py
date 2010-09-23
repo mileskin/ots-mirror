@@ -21,7 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 from StringIO import StringIO
-from ots.common.datatypes.environment import Environment
+from ots.common.dto.environment import Environment
 
 class Results(object):
     """

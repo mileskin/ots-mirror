@@ -28,7 +28,8 @@ import time
 from amqplib import client_0_8 as amqp
 from amqplib.client_0_8.exceptions import AMQPChannelException
 
-from ots.common.amqp.api import CommandMessage, pack_message
+from ots.common.amqp.api import pack_message
+from ots.common.dto.api import CommandMessage
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker

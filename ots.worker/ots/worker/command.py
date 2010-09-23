@@ -30,7 +30,7 @@ import signal
 import subprocess
 import threading
 
-from ots.common.ots_exception import OTSException
+from ots.common.dto.ots_exception import OTSException
 
 class SoftTimeoutException(OTSException):
     """Exception that is raised when soft timeout occurs."""

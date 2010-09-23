@@ -33,8 +33,7 @@ from amqplib import client_0_8 as amqp
 
 from django.dispatch.dispatcher import Signal
 
-from ots.common.amqp.api import StateChangeMessage
-from ots.common.amqp.api import TaskCondition
+from ots.common.dto.api import StateChangeMessage, TaskCondition
 
 from ots.server.distributor.task import Task
 from ots.server.distributor.taskrunner import TaskRunner

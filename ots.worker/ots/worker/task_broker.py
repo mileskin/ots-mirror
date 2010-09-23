@@ -48,7 +48,7 @@ import logging
 from itertools import cycle
 
 from ots.common.amqp.api import unpack_message, pack_message
-from ots.common.amqp.api import StateChangeMessage, TaskCondition
+from ots.common.dto.api import StateChangeMessage, TaskCondition
 
 import ots.worker
 from ots.worker.command import Command

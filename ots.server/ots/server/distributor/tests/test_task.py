@@ -23,7 +23,7 @@
 import unittest
 
 from ots.server.distributor.task import Task, TaskException
-from ots.common.amqp.api import TaskCondition
+from ots.common.dto.api import TaskCondition
 
 class TestTask(unittest.TestCase):
 

@@ -29,8 +29,7 @@ import sys
 import os
 import logging
 
-from ots.server.testrun.testrun import Testrun
-
+from ots.server.hub.testrun import Testrun
 from ots.server.hub.options import Options
 from ots.server.hub.init_logging import init_logging
 from ots.server.hub.plugins import ReportPlugin

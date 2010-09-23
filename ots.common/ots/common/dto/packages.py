@@ -20,7 +20,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.datatypes.environment import Environment
+from ots.common.dto.environment import Environment
 
 class Packages(dict):
     """
@@ -29,7 +29,7 @@ class Packages(dict):
 
     def __init__(self, environment, packages):
         """
-        @type environment : L{ots.common.datatypes.environment.Environment} or
+        @type environment : L{ots.common.dto.environment.Environment} or
                             C{str}
         @param environment: The environment for the test packages 
 
@@ -54,7 +54,7 @@ class Packages(dict):
     
     def packages(self, environment):
         """
-        @type: L{ots.common.datatypes.environment.Environment} or C{str}
+        @type: L{ots.common.dto.environment.Environment} or C{str}
         @param: The environment or the name of the environment
 
         @rtype: C{list} of C{str}
@@ -68,7 +68,7 @@ class Packages(dict):
         """
         Updates the packages extending lists on matching keys
 
-        @type: L{ots.common.datatypes.environment.Packages} 
+        @type: L{ots.common.dto.environment.Packages} 
         @param: Packages
         """
         for env, pkgs in packages.items():

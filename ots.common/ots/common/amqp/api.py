@@ -20,7 +20,5 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.amqp.messages import CommandMessage, StateChangeMessage
-from ots.common.amqp.messages import pack_message, unpack_message
-from ots.common.amqp.messages import TaskCondition
+from ots.common.amqp.codec import pack_message, unpack_message
 from ots.common.amqp.testrun_queue_name import testrun_queue_name

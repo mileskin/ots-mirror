@@ -26,7 +26,7 @@ Runs an OTS Testrun
 
 import logging
 
-from ots.common.datatypes.api import Packages, Results, Environment
+from ots.common.dto.api import Packages, Results, Environment
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
 
@@ -84,7 +84,7 @@ class Testrun(object):
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
 
-        @type datatype: L{ots.common.datatypes}
+        @type datatype: L{ots.common.dto}
         @param datatype: An OTS datatype
 
         The callback for TASKRUNNER_SIGNAL delegates
@@ -118,7 +118,7 @@ class Testrun(object):
 
     def _packages(self, packages): 
         """
-        @type packages: L{ots.common.datatypes.environment.packages}
+        @type packages: L{ots.common.dto.environment.packages}
         @param packages: The Packages
 
         Handler for Packages

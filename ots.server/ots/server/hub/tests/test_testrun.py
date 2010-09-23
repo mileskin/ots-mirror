@@ -24,17 +24,17 @@ import os
 
 import unittest
 
-from ots.common.ots_exception import OTSException
+from ots.common.dto.ots_exception import OTSException
 
 from ots.server.distributor.api import OtsGlobalTimeoutError
-from ots.server.testrun.testrun import Testrun 
-from ots.server.testrun.tests.mock_taskrunner import \
+from ots.server.hub.testrun import Testrun 
+from ots.server.hub.tests.mock_taskrunner import \
                                              MockTaskRunnerResultsMissing
-from ots.server.testrun.tests.mock_taskrunner import \
+from ots.server.hub.tests.mock_taskrunner import \
                                              MockTaskRunnerResultsFail
-from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerTimeout
-from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerError
-from ots.server.testrun.tests.mock_taskrunner import MockTaskRunnerResultsPass
+from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerTimeout
+from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerError
+from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerResultsPass
 
 import ots.results.api
 from ots.results.api import TestrunResult

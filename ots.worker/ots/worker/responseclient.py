@@ -27,14 +27,10 @@ import logging
 
 from amqplib import client_0_8 as amqp
 
-from ots.common.amqp.api import testrun_queue_name
-
-
-from ots.common.datatypes.api import Environment, Results, Packages
-#FIXME
-from ots.common.ots_exception import OTSException
-
 from ots.common.amqp.api import pack_message, unpack_message
+from ots.common.amqp.api import testrun_queue_name
+from ots.common.dto.api import Environment, Results, Packages
+from ots.common.dto.ots_exception import OTSException
 
 LOGGER = logging.getLogger(__file__)
 
@@ -44,7 +40,6 @@ class ResponseClient(object):
     """
 
     def __init__(self, server_host, testrun_id, response_queue = None):
-
         self.log = logging.getLogger(__file__)
         self.host = server_host
         self.testrun_id = testrun_id
