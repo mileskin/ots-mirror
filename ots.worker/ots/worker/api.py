@@ -29,3 +29,6 @@ The ots.worker API
 
 from ots.worker.worker import worker_factory 
 from ots.worker.responseclient import ResponseClient
+
+from ots.worker.command import SoftTimeoutException, HardTimeoutException
+from ots.worker.command import FailedAfterRetries, CommandFailed

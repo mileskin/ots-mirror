@@ -25,9 +25,7 @@ import unittest
 import ots.common
 
 from ots.common.amqp.messages import CommandMessage
-from ots.common.amqp.messages import StatusMessage, ErrorMessage
 from ots.common.amqp.messages import pack_message, unpack_message
-
 
 class TestMessages(unittest.TestCase):
     
@@ -40,20 +38,6 @@ class TestMessages(unittest.TestCase):
         self.assertEquals("response_queue", rec_msg.response_queue)
         self.assertEquals("task_id", rec_msg.task_id)
         self.assertEquals(ots.common.__VERSION__, rec_msg.__version__)
-
-    def test_status_message(self):
-        status_msg = StatusMessage("state", "status_info")
-        packed_msg = pack_message(status_msg)
-        rec_msg = unpack_message(packed_msg)
-        self.assertEquals("state", rec_msg.state)       
-        self.assertEquals("status_info", rec_msg.status_info)
-               
-    def test_error_message(self):
-        error_msg = ErrorMessage("error_info", "error_code")
-        packed_msg = pack_message(error_msg)
-        rec_msg = unpack_message(packed_msg)
-        self.assertEquals("error_info", rec_msg.error_info)       
-        self.assertEquals("error_code", rec_msg.error_code)
 
 if __name__ == "__main__":
     unittest.main()

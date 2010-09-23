@@ -23,11 +23,9 @@
 """
 Runs an OTS Testrun 
 """
+
 import logging
 
-from collections import defaultdict
-
-from ots.common.amqp.api import ErrorMessage
 from ots.common.datatypes.api import Packages, Results, Environment
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
@@ -64,6 +62,10 @@ class Testrun(object):
         @type insignificant_tests_matter: C{bool} 
         @param insignificant_tests_matter: Flag
         """
+        #FIXME: Callable added for testability 
+        #One advantage of having the distributor 
+        #as a separate component is that it
+        #might help improve this API
         self._run_test = run_test
         self.is_hw_enabled = is_hw_enabled
         self.is_host_enabled = is_host_enabled
@@ -77,23 +79,23 @@ class Testrun(object):
     # HANDLERS
     ###########################################
 
-    def _taskrunner_cb(self, signal, message, **kwargs):
+    def _taskrunner_cb(self, signal, datatype, **kwargs):
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
 
-        @type message: L{ots.common.datatypes}
-        @param message: An OTS datatype
+        @type datatype: L{ots.common.datatypes}
+        @param datatype: An OTS datatype
 
         The callback for TASKRUNNER_SIGNAL delegates
         data to handler depending on MESSAGE_TYPE
         """
-        if isinstance(message, Exception):
-            raise message
-        elif isinstance(message, Results):
-            self._results(message)
-        elif isinstance(message, Packages):
-            self._packages(message)
+        if isinstance(datatype, Exception):
+            raise datatype
+        elif isinstance(datatype, Results):
+            self._results(datatype)
+        elif isinstance(datatype, Packages):
+            self._packages(datatype)
         else:
             LOG.debug("Unknown Message Type: '%s'"%(message))
 

@@ -20,7 +20,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#WIP needs further simplification just cleaning the slate 
 
 """
 The Message Types for sending down the wire and 
@@ -122,18 +121,6 @@ class CommandMessage(Message):
     @property 
     def is_ignore(self):
         return self.command == self.IGNORE
-
-class StatusMessage(Message):
-
-    def __init__(self, state, status_info):
-        self.state = state
-        self.status_info = status_info
-
-class ErrorMessage(Message):
-    
-    def __init__(self, error_info, error_code):
-        self.error_info = error_info 
-        self.error_code = error_code 
 
 class StateChangeMessage(Message):
 

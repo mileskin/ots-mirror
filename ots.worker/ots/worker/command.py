@@ -30,18 +30,22 @@ import signal
 import subprocess
 import threading
 
-class SoftTimeoutException(Exception):
+from ots.common.ots_exception import OTSException
+
+class SoftTimeoutException(OTSException):
     """Exception that is raised when soft timeout occurs."""
-    pass
-class HardTimeoutException(Exception):
+    errno = 6001
+    
+class HardTimeoutException(OTSException):
     """Exception that is raised when hard timeout occurs."""
-    pass
+    errno = 6001
+
 class FailedAfterRetries(Exception):
     """Exception that is raised if command fails after retries."""
     pass
 class CommandFailed(Exception):
     """Exception that is if command return value is not what is expected."""
-    pass
+    errno = 6002
     
 class Command(object):
     """Encapsulates a command line command with timeout functionality."""

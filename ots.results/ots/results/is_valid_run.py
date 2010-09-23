@@ -39,9 +39,10 @@ def _check_packages(expected_packages_dict):
   
     Have any packages been found at all?
     """
-    packages = [pkg for pkgs in expected_packages_dict.values() 
+    if expected_packages_dict is not None:
+        packages = [pkg for pkgs in expected_packages_dict.values() 
                     for pkg in pkgs]
-    if not packages:
+    if expected_packages_dict is None or not packages:
         raise PackageException("No packages found")
 
 def _check_hw_testing(is_hw_enabled, expected_packages_dict):

@@ -24,8 +24,7 @@ import os
 import time
 
 from ots.common.datatypes.api import Results, Packages
-
-from ots.common.amqp.api import ErrorMessage
+from ots.common.ots_exception import OTSException
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
 from ots.server.distributor.api import OtsGlobalTimeoutError
@@ -58,12 +57,12 @@ class MockTaskRunnerResultsBase(object):
 
     @staticmethod
     def _send_result(environment, results_xml, name):
-        result_message = Results(name, results_xml,
-                                 package = name,
-                                 origin = "mock_task_runner",
-                                 environment = environment)
+        results = Results(name, results_xml,
+                          package = name,
+                          origin = "mock_task_runner",
+                          environment = environment)
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
-                               message = result_message)
+                               datatype = results)
 
     @staticmethod
     def _send_testpackages():
@@ -73,17 +72,17 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        msg = Packages("hardware_test", ["test_1", "test_2", "test_3"])
+        pkgs = Packages("hardware_test", ["test_1", "test_2", "test_3"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
-                               message = msg)
+                               datatype = pkgs)
 
 class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        msg = Packages("hardware_test", ["test_1", "test_2"])
+        pkgs = Packages("hardware_test", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
-                               message = msg)
+                               datatype = pkgs)
 
 class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 
@@ -99,12 +98,12 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        msg = Packages("hardware_test", ["test_1", "test_2"])
+        pkgs_1 = Packages("hardware_test", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
-                               message = msg)
-        msg = Packages("host.unittest", ["test_1", "test_2"])
+                               datatype = pkgs_1)
+        pkgs_2 = Packages("host.unittest", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
-                               message = msg)
+                               datatype = pkgs_2)
 
 
     def run(self):
@@ -131,7 +130,7 @@ class MockTaskRunnerTimeout(object):
 class MockTaskRunnerError(object):
 
     def run(self):
-        msg = ErrorMessage("mock task runner", 6310)
+        exc = OTSException("mock task runner", 6310)
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
-                               message = msg)
+                               datatype = exc)
 

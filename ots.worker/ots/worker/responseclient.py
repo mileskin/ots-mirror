@@ -34,7 +34,6 @@ from ots.common.datatypes.api import Environment, Results, Packages
 #FIXME
 from ots.common.ots_exception import OTSException
 
-from ots.common.amqp.api import StatusMessage
 from ots.common.amqp.api import pack_message, unpack_message
 
 LOGGER = logging.getLogger(__file__)
@@ -96,20 +95,21 @@ class ResponseClient(object):
 
     def set_state(self, state, status_info):
         """Calls OTSMessageIO to create testrun state change message"""
-
-        if state not in ("NOT_STARTED", "QUEUED", "TESTING", "FLASHING", \
-                             "STORING_RESULTS", "FINISHED"):
-            LOGGER.warning("Unknown testrun state %s given, skipping "\
-                                 "setting state" % state)
-            return
-        status_message = StatusMessage(state, status_info)
-        self._send_message(pack_message(status_message))
+        pass
+        #FIXME
+        # if state not in ("NOT_STARTED", "QUEUED", "TESTING", "FLASHING", \
+#                              "STORING_RESULTS", "FINISHED"):
+#             LOGGER.warning("Unknown testrun state %s given, skipping "\
+#                                  "setting state" % state)
+#             return
+#         status_message = StatusMessage(state, status_info)
+#         self._send_message(pack_message(status_message))
 
 
     def set_error(self, error_info, error_code):
         """Calls OTSMessageIO to cerate testrun error message"""
 
-        exception = OTSException(error_info, error_code)
+        exception = OTSException(error_code, error_info)
         self._send_message(pack_message(exception))
 
     def add_executed_packages(self, environment, packages):

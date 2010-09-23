@@ -95,9 +95,9 @@ class TestTaskRunner(unittest.TestCase):
     def test_on_message_relay(self):
         message = AMQPMessageStub()
         message.body = dumps(Foo())        
-        def test_handler(signal, message, **kwargs):
-            self.assertTrue(isinstance(message, Foo))
-            self.assertEquals(1, message.bar)
+        def test_handler(signal, datatype, **kwargs):
+            self.assertTrue(isinstance(datatype, Foo))
+            self.assertEquals(1, datatype.bar)
         TASKRUNNER_SIGNAL.connect(test_handler) 
         self.taskrunner._on_message(message)
 

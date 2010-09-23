@@ -23,20 +23,45 @@
 
 import unittest
 
+import sys
 from pickle import loads, dumps
 
 from ots.common.ots_exception import OTSException
 
+class MyException(OTSException):
+    errno = 999
+        
+
 class TestOTSException(unittest.TestCase):
     
-    def test_pickle(self):
-        exc = OTSException("foo", "bar")
+    def test_pickle1(self):
+        exc = OTSException(111, "bar")
         p = dumps(exc)
         exc_loaded = loads(p)
-        self.assertEquals("bar", exc_loaded.error_code)
+        self.assertEquals(111, exc_loaded.errno)
+        self.assertEquals("bar", exc_loaded.strerror)
         def raises():
             raise exc_loaded
         self.assertRaises(OTSException, raises)
+
+    def test_pickle2(self):
+        def raises():
+            raise MyException
+        try:
+            raises()
+        except:
+            exc = sys.exc_info()[1]
+            p = dumps(exc)
+            exc_loaded = loads(p)
+            self.assertEquals(999, exc_loaded.errno)
+       
+    def test_init(self):
+        exc = OTSException()
+        self.assertEquals('', exc.errno)
+        self.assertEquals('', exc.strerror)
+        exc = OTSException(1, "foo")
+        self.assertEquals(1, exc.errno)
+        self.assertEquals("foo", exc.strerror)
 
 if __name__ == "__main__":
     unittest.main()

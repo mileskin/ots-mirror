@@ -28,13 +28,28 @@ class OTSException(Exception):
     Also need to support Picklable behaviour
     see: http://bugs.python.org/issue1692335
     """
-    def __init__(self, message, error_code):
-        Exception.__init__(self, message)
-        self.error_code = error_code
-        self.message = message
+    errno = ''
+    strerror = ''
+
+    def __init__(self, *args):
+        """
+        Mimics API of Python's Environment Error i.e.:
+        
+        When exceptions of this type are created with a 2-tuple,
+        the first item is available on the instances errno attribute
+        (it is assumed to be an error number),
+        and the second item is available on the strerror attribute
+        """
+        Exception.__init__(self, *args)
+        if len(args) == 2:
+            self.errno = args[0]
+            self.strerror = args[1]
+
+    def __setstate__(self, state):
+        self.errno, self.strerror = state
 
     def __getstate__(self):
-        return self.message, self.error_code
+        return self.errno, self.strerror 
 
     def __reduce__(self):
         return (self.__class__, self.__getstate__())

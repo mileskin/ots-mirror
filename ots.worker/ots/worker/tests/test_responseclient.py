@@ -85,14 +85,14 @@ class TestResponseClient(unittest.TestCase):
         self.assertTrue(self.conn.close_called)
         self.assertTrue(self.channel.close_called)
 
-    def test_set_state(self):
-        state = "FLASHING"
-        status_info = "flashing content image"
-        self.client.set_state(state, status_info)
-        msg = self.channel.msg
-        status = loads(msg.body)
-        self.assertEquals(status.state, state)
-        self.assertEquals(status.status_info, status_info)
+#     def test_set_state(self):
+#         state = "FLASHING"
+#         status_info = "flashing content image"
+#         self.client.set_state(state, status_info)
+#         msg = self.channel.msg
+#         status = loads(msg.body)
+#         self.assertEquals(status.state, state)
+#         self.assertEquals(status.status_info, status_info)
 
 
     def test_set_error(self):
@@ -102,8 +102,8 @@ class TestResponseClient(unittest.TestCase):
         msg = self.channel.msg
         self.assertTrue(msg)
         exc = loads(msg.body)
-        self.assertEquals(str(exc), error_info)
-        self.assertEquals(exc.error_code, error_code)
+        self.assertEquals(exc.strerror, error_info)
+        self.assertEquals(exc.errno, error_code)
 
 
     def test_add_executed_packages(self):

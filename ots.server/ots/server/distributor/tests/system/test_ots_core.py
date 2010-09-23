@@ -50,7 +50,7 @@ from socket import gethostname
 
 from ots.common.amqp.api import testrun_queue_name 
 
-from ots.worker.api import worker_factory
+from ots.worker.api import worker_factory, SoftTimeoutException
 import ots.worker
 import ots.worker.tests
 
@@ -235,11 +235,11 @@ class TestOTSCore(unittest.TestCase):
 
         taskrunner.add_task(command)
         self.cb_called = False
-        def cb_handler(signal, **kwargs):
+        def cb_handler(signal, sender, datatype, **kwargs):
             self.cb_called = True
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
-            self.assertEquals(kwargs['sender'], 'TaskRunner')
+            self.assertEquals(datatype.errno, 6001)
+            self.assertTrue(isinstance(datatype, SoftTimeoutException))
+            self.assertEquals(sender, 'TaskRunner')
 
         TASKRUNNER_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
@@ -273,11 +273,11 @@ class TestOTSCore(unittest.TestCase):
         taskrunner.add_task(command)
         taskrunner.add_task(command)
         self.cb_called = 0
-        def cb_handler(signal, **kwargs):
+        def cb_handler(signal, sender, datatype, **kwargs):
             self.cb_called += 1
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
-            self.assertEquals(kwargs['sender'], 'TaskRunner')
+            self.assertEquals(datatype.errno, 6001)
+            self.assertTrue(isinstance(datatype, SoftTimeoutException))
+            self.assertEquals(sender, 'TaskRunner')
 
         TASKRUNNER_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
@@ -309,11 +309,11 @@ class TestOTSCore(unittest.TestCase):
         command = ["echo"]
         taskrunner.add_task(command)
         self.cb_called = 0
-        def cb_handler(signal, **kwargs):
+        def cb_handler(signal, sender , datatype, **kwargs):
             self.cb_called += 1
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
-            self.assertEquals(kwargs['sender'], 'TaskRunner')
+            self.assertEquals(datatype.errno, 6001)
+            self.assertTrue(datatype)
+            self.assertEquals(sender, 'TaskRunner')
 
         TASKRUNNER_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
@@ -346,19 +346,18 @@ class TestOTSCore(unittest.TestCase):
         self.test_definition_file_received = False
         self.results_file_received = False
 
-        def cb_handler(signal, **kwargs):
+        def cb_handler(signal, datatype, **kwargs):
             self.cb_called = True
-            result_object = kwargs['result']
-            filename = result_object.name() 
+            filename = datatype.results_xml.name 
             if filename == "test_definition.xml":
                 self.test_definition_file_received = True
                 expected = open(self._dummy_test_definition_xml_fqname(
                                    TEST_DEFINITION_XML), "r").read()
-                self.assertEquals(expected, result_object.content)
+                self.assertEquals(expected, datatype.results_xml.read())
             elif filename == "dummy_results_file.xml":
                 self.results_file_received = True
                 expected = self._dummy_results_xml(filename)
-                self.assertEquals(expected, result_object.content)
+                self.assertEquals(expected, datatype.results_xml.read())
             
         TASKRUNNER_SIGNAL.connect(cb_handler) 
         

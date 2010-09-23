@@ -28,7 +28,7 @@ import time
 from amqplib import client_0_8 as amqp
 from amqplib.client_0_8.exceptions import AMQPChannelException
 
-from ots.common.amqp.api import CommandMessage, ErrorMessage, pack_message
+from ots.common.amqp.api import CommandMessage, pack_message
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
@@ -342,19 +342,15 @@ class TestTaskBroker(unittest.TestCase):
         task_broker._publish_task_state_change(task_id, response_queue)
         self.assertEquals(1, _queue_size(response_queue))
 
-    def test_publish_error_message(self):
+    def test_publish_exception(self):
         task_broker = _task_broker_factory()
         channel = task_broker.channel
         task_id = 1
         response_queue = 'test'
 
-        error_info = "task 1 timed out"
-        error_code = 666
+        exc = SoftTimeoutException(666,  "task 1 timed out") 
         self.assertEquals(0, _queue_size(response_queue))
-        task_broker._publish_error_message(task_id,
-                                           response_queue,
-                                           error_info,
-                                           error_code)
+        task_broker._publish_exception(response_queue, exc)
         self.assertEquals(1, _queue_size(response_queue))
 
     ##################################

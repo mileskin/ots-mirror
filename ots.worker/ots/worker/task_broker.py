@@ -42,19 +42,18 @@ the following assumptions holding true:
 #pylint: disable-msg=F0401
 
 import os
+import sys
 from time import sleep
 import logging
 from itertools import cycle
 
 from ots.common.amqp.api import unpack_message, pack_message
-from ots.common.amqp.api import ErrorMessage, StateChangeMessage, TaskCondition
+from ots.common.amqp.api import StateChangeMessage, TaskCondition
 
 import ots.worker
 from ots.worker.command import Command
-from ots.worker.command import SoftTimeoutException
-from ots.worker.command import HardTimeoutException
+from ots.worker.command import SoftTimeoutException,  HardTimeoutException
 from ots.worker.command import CommandFailed
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -155,7 +154,6 @@ class TaskBroker(object):
     # LOOPING / HANDLING / DISPATCHING
     ###############################################
 
-
     def _cancel(self):
         self.channel.basic_cancel(self._consumer_tag)
 
@@ -192,42 +190,28 @@ class TaskBroker(object):
         
         self.channel.basic_cancel(self._consumer_tag)
         self.channel.basic_ack(delivery_tag = message.delivery_tag)
+        #
         cmd_msg = unpack_message(message)
         task_id = cmd_msg.task_id
-        response_queue = cmd_msg.response_queue 
-        timeout = cmd_msg.timeout
-       
+        response_queue = cmd_msg.response_queue
         self._publish_task_state_change(task_id, response_queue)
-
+        #
         try:
             self._dispatch(cmd_msg)
-        except (HardTimeoutException, SoftTimeoutException):
-            LOGGER.error("Process timed out")
-            error_info = "Global timeout"
-            error_code = "6001"
-            self._publish_error_message(task_id,
-                                        response_queue,
-                                        error_info,
-                                        error_code)
-
-        except (CommandFailed):
-            LOGGER.error("Process failed")
-            error_info = "Task execution failed"
-            error_code = "6002"
-            self._publish_error_message(task_id,
-                                        response_queue,
-                                        error_info,
-                                        error_code)
-
+        except (HardTimeoutException, 
+                SoftTimeoutException,
+                CommandFailed):
+            exception = sys.exc_info()[1]
+            exception.task_id = task_id 
+            self._publish_exception(response_queue,
+                                    exception)
         finally:
             self._publish_task_state_change(task_id, response_queue)
-
-            LOGGER.info("consume on queue: %s" % self.queue)
+            LOGGER.info("Recommence consume on queue: %s" % self.queue)
             self._consumer_tag = \
                 self.channel.basic_consume(queue = self.queue,
                                            callback = self._on_message)
 
-                      
     def _on_message(self, message):
         """
         The High Level Message Handler. 
@@ -244,7 +228,6 @@ class TaskBroker(object):
             #Close the connection makes message available to other Workers
             self._clean_up()
 
-
     def _dispatch(self, cmd_msg):
         """
         Dispatch the Task. Currently as a Process (Blocking)
@@ -259,11 +242,49 @@ class TaskBroker(object):
             LOGGER.debug("Running command: '%s'"%(cmd_msg.command))
             _start_process(command = cmd_msg.command, 
                            timeout = cmd_msg.timeout)
+            
+    ########################################
+    # MESSAGE PUBLISHING
+    ########################################
+
+    def _publish_task_state_change(self, task_id, response_queue):
+
+        """
+        Inform the response queue of the status of the Task
+
+        @type response_queue: string
+        @param response_queue: The name of the response queue 
+        """
+        state = self._task_state.next()
+        LOGGER.debug("Task in state: '%s'"%(state))
+        state_msg = StateChangeMessage(task_id, state)
+        amqp_message = pack_message(state_msg) 
+        self.channel.basic_publish(amqp_message,
+                                   mandatory = True,
+                                   exchange = response_queue,
+                                   routing_key = response_queue)
+
+
+    def _publish_exception(self, response_queue, exception):
+        """
+        Put an Exception on the response queue 
+
+        @type response_queue: C{str}
+        @param response_queue: The name of the response queue 
+
+        @type exception: L{OTSException}
+        @param exception: An OTSException 
+
+        """
+        message = pack_message(exception)
+        self.channel.basic_publish(message,
+                                   mandatory = True,
+                                   exchange = response_queue,
+                                   routing_key = response_queue)
 
     #######################################
     # HELPERS
     #######################################
-
 
     def _is_version_compatible(self, message):
         """
@@ -285,44 +306,6 @@ class TaskBroker(object):
                          (min_worker_version, major_minor))
             ret_val = float(major_minor) >= float(min_worker_version)
         return ret_val
-
-    def _publish_task_state_change(self, task_id, response_queue):
-
-        """
-        Inform the response queue of the status of the Task
-
-        @type response_queue: string
-        @param response_queue: The name of the response queue 
-        """
-        state = self._task_state.next()
-        LOGGER.debug("Task in state: '%s'"%(state))
-        state_msg = StateChangeMessage(task_id, state)
-        amqp_message = pack_message(state_msg) 
-        self.channel.basic_publish(amqp_message,
-                                   mandatory = True,
-                                   exchange = response_queue,
-                                   routing_key = response_queue)
-
-    def _publish_error_message(self,
-                               task_id,
-                               response_queue,
-                               error_info,
-                               error_code):
-
-        """
-        Inform the response queue about an error in testrun
-        (for example timeout)
-
-        @type response_queue: string
-        @param response_queue: The name of the response queue 
-        """
-        error_info = error_info +" (task "+str(task_id)+")"
-        message = pack_message(ErrorMessage(error_info, error_code))
-        self.channel.basic_publish(message,
-                                   mandatory = True,
-                                   exchange = response_queue,
-                                   routing_key = response_queue)
-
         
     def _try_reconnect(self):
         """
