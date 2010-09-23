@@ -33,7 +33,7 @@ A Task
 
 import uuid
 
-from ots.common.amqp.messages import TaskCondition
+from ots.common.dto.messages import TaskCondition
 
 class TaskException(Exception):
     """Task Exception"""
