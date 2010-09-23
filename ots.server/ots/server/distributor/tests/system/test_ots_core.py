@@ -235,10 +235,10 @@ class TestOTSCore(unittest.TestCase):
 
         taskrunner.add_task(command)
         self.cb_called = False
-        def cb_handler(signal, sender, datatype, **kwargs):
+        def cb_handler(signal, sender, dto, **kwargs):
             self.cb_called = True
-            self.assertEquals(datatype.errno, 6001)
-            self.assertTrue(isinstance(datatype, SoftTimeoutException))
+            self.assertEquals(dto.errno, 6001)
+            self.assertTrue(isinstance(dto, SoftTimeoutException))
             self.assertEquals(sender, 'TaskRunner')
 
         TASKRUNNER_SIGNAL.connect(cb_handler) 
@@ -273,10 +273,10 @@ class TestOTSCore(unittest.TestCase):
         taskrunner.add_task(command)
         taskrunner.add_task(command)
         self.cb_called = 0
-        def cb_handler(signal, sender, datatype, **kwargs):
+        def cb_handler(signal, sender, dto, **kwargs):
             self.cb_called += 1
-            self.assertEquals(datatype.errno, 6001)
-            self.assertTrue(isinstance(datatype, SoftTimeoutException))
+            self.assertEquals(dto.errno, 6001)
+            self.assertTrue(isinstance(dto, SoftTimeoutException))
             self.assertEquals(sender, 'TaskRunner')
 
         TASKRUNNER_SIGNAL.connect(cb_handler) 
@@ -309,10 +309,10 @@ class TestOTSCore(unittest.TestCase):
         command = ["echo"]
         taskrunner.add_task(command)
         self.cb_called = 0
-        def cb_handler(signal, sender , datatype, **kwargs):
+        def cb_handler(signal, sender , dto, **kwargs):
             self.cb_called += 1
-            self.assertEquals(datatype.errno, 6001)
-            self.assertTrue(datatype)
+            self.assertEquals(dto.errno, 6001)
+            self.assertTrue(dto)
             self.assertEquals(sender, 'TaskRunner')
 
         TASKRUNNER_SIGNAL.connect(cb_handler) 
@@ -346,18 +346,18 @@ class TestOTSCore(unittest.TestCase):
         self.test_definition_file_received = False
         self.results_file_received = False
 
-        def cb_handler(signal, datatype, **kwargs):
+        def cb_handler(signal, dto, **kwargs):
             self.cb_called = True
-            filename = datatype.results_xml.name 
+            filename = dto.results_xml.name 
             if filename == "test_definition.xml":
                 self.test_definition_file_received = True
                 expected = open(self._dummy_test_definition_xml_fqname(
                                    TEST_DEFINITION_XML), "r").read()
-                self.assertEquals(expected, datatype.results_xml.read())
+                self.assertEquals(expected, dto.results_xml.read())
             elif filename == "dummy_results_file.xml":
                 self.results_file_received = True
                 expected = self._dummy_results_xml(filename)
-                self.assertEquals(expected, datatype.results_xml.read())
+                self.assertEquals(expected, dto.results_xml.read())
             
         TASKRUNNER_SIGNAL.connect(cb_handler) 
         

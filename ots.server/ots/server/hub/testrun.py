@@ -79,23 +79,23 @@ class Testrun(object):
     # HANDLERS
     ###########################################
 
-    def _taskrunner_cb(self, signal, datatype, **kwargs):
+    def _taskrunner_cb(self, signal, dto, **kwargs):
         """
         @type signal: L{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
 
-        @type datatype: L{ots.common.dto}
-        @param datatype: An OTS datatype
+        @type dto: L{ots.common.dto}
+        @param dto: An OTS datatype
 
         The callback for TASKRUNNER_SIGNAL delegates
         data to handler depending on MESSAGE_TYPE
         """
-        if isinstance(datatype, Exception):
-            raise datatype
-        elif isinstance(datatype, Results):
-            self._results(datatype)
-        elif isinstance(datatype, Packages):
-            self._packages(datatype)
+        if isinstance(dto, Exception):
+            raise dto
+        elif isinstance(dto, Results):
+            self._results(dto)
+        elif isinstance(dto, Packages):
+            self._packages(dto)
         else:
             LOG.debug("Unknown Message Type: '%s'"%(message))
 

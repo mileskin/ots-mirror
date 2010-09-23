@@ -225,7 +225,7 @@ class TaskRunner(object):
         else:
             #The message is data. Relay using a signal
             LOGGER.debug("Received Task message %s" % msg)
-            TASKRUNNER_SIGNAL.send(sender = "TaskRunner", datatype = msg)
+            TASKRUNNER_SIGNAL.send(sender = "TaskRunner", dto = msg)
   
     def _task_transition(self, message):
         """

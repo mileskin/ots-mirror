@@ -62,7 +62,7 @@ class MockTaskRunnerResultsBase(object):
                           origin = "mock_task_runner",
                           environment = environment)
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
-                               datatype = results)
+                               dto = results)
 
     @staticmethod
     def _send_testpackages():
@@ -74,7 +74,7 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
     def _send_testpackages():
         pkgs = Packages("hardware_test", ["test_1", "test_2", "test_3"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
-                               datatype = pkgs)
+                               dto = pkgs)
 
 class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
 
@@ -82,7 +82,7 @@ class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
     def _send_testpackages():
         pkgs = Packages("hardware_test", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
-                               datatype = pkgs)
+                               dto = pkgs)
 
 class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 
@@ -100,10 +100,10 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
     def _send_testpackages():
         pkgs_1 = Packages("hardware_test", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
-                               datatype = pkgs_1)
+                               dto = pkgs_1)
         pkgs_2 = Packages("host.unittest", ["test_1", "test_2"])
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
-                               datatype = pkgs_2)
+                               dto = pkgs_2)
 
 
     def run(self):
@@ -132,5 +132,5 @@ class MockTaskRunnerError(object):
     def run(self):
         exc = OTSException("mock task runner", 6310)
         TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
-                               datatype = exc)
+                               dto = exc)
 
