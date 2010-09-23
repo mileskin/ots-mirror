@@ -24,13 +24,12 @@ import unittest
 
 import ots.common
 
-from ots.common.dto.messages import CommandMessage
+from ots.common.dto.messages import CommandMessage, StateChangeMessage
 from ots.common.amqp.codec import pack_message, unpack_message
 
 class TestMessages(unittest.TestCase):
 
     def test_command_message(self):
-
         cmd_msg = CommandMessage(["echo", "hello world"], 
                                   "response_queue", "task_id") 
         packed_msg = pack_message(cmd_msg)
@@ -40,8 +39,16 @@ class TestMessages(unittest.TestCase):
         self.assertEquals("task_id", rec_msg.task_id)
         self.assertEquals(ots.common.__VERSION__, rec_msg.__version__)
 
-    def test_state_change_message(self):
-        pass
+    def test_state_change_message_start(self):
+        state_msg = StateChangeMessage(1, 'start')
+        self.assertTrue(state_msg.is_start)
+        self.assertFalse(state_msg.is_finish)
+
+    def test_state_change_message_finish(self):
+        state_msg = StateChangeMessage(1, 'finish')
+        self.assertTrue(state_msg.is_finish)
+        self.assertFalse(state_msg.is_start)
+
 
 if __name__ == "__main__":
     unittest.main()

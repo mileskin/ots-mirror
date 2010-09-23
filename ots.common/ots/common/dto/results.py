@@ -20,6 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+The Container for the Results XML
+"""
+
 from StringIO import StringIO
 from ots.common.dto.environment import Environment
 

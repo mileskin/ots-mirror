@@ -85,10 +85,10 @@ class Testrun(object):
         @param signal: The django signal
 
         @type dto: L{ots.common.dto}
-        @param dto: An OTS datatype
+        @param dto: An OTS Data Transfer Object
 
         The callback for TASKRUNNER_SIGNAL delegates
-        data to handler depending on MESSAGE_TYPE
+        data to the handler depending on <type>
         """
         if isinstance(dto, Exception):
             raise dto
@@ -97,7 +97,7 @@ class Testrun(object):
         elif isinstance(dto, Packages):
             self._packages(dto)
         else:
-            LOG.debug("Unknown Message Type: '%s'"%(message))
+            LOG.debug("Unknown DTO: '%s'"%(dto))
 
     def _results(self, result):
         """

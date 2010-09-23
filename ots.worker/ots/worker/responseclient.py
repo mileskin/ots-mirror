@@ -25,6 +25,8 @@ Client that sends response messages back to server over amqp
 """
 import logging
 
+import warnings
+
 from amqplib import client_0_8 as amqp
 
 from ots.common.amqp.api import pack_message, unpack_message
@@ -33,6 +35,9 @@ from ots.common.dto.api import Environment, Results, Packages
 from ots.common.dto.ots_exception import OTSException
 
 LOGGER = logging.getLogger(__file__)
+
+warnings.warn("All AMQP traffic to be handled by TaskBroker", 
+              DeprecationWarning)
 
 class ResponseClient(object):
     """

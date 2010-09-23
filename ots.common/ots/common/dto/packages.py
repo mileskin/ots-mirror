@@ -20,11 +20,16 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+The Container for the `Packages`
+"""
+
 from ots.common.dto.environment import Environment
 
 class Packages(dict):
     """
-    The container for `Packages`
+    Associates a list of Packages with an Environment
+    the logic for amalgamating the data
     """
 
     def __init__(self, environment, packages):

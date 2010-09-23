@@ -20,13 +20,18 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+The Base Class for Exceptions.
+
+- Allows for transfer across the wire 
+- Has an errno
+"""
 
 class OTSException(Exception):
     """
-    OTS Exception has error code
+    OTS Exception 
 
     Also need to support Picklable behaviour
-    see: http://bugs.python.org/issue1692335
     """
     errno = ''
     strerror = ''
@@ -52,4 +57,8 @@ class OTSException(Exception):
         return self.errno, self.strerror 
 
     def __reduce__(self):
+        """
+        Need to help pickle along
+        see: http://bugs.python.org/issue1692335
+        """
         return (self.__class__, self.__getstate__())

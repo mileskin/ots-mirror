@@ -109,7 +109,7 @@ class CommandMessage(MessageBase):
 
 class StateChangeMessage(MessageBase):
     """
-    Encapsulates a State Change
+    Message to trigger a State Change
     """
 
     def __init__(self, task_id, condition):
