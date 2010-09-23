@@ -25,6 +25,8 @@
 This module includes simple reference implementation of SoftwareUpdater
 """
 
+import logging
+
 class FlashFailed(Exception):
     """Flash Failed exception"""
     pass
@@ -44,5 +46,27 @@ class ConnectionTestFailed(Exception):
 
 class SoftwareUpdater(object):
     """ Default class for SoftwareUpdater """
+
+    def __init__(self, flasher=None):
+        super(SoftwareUpdater, self).__init__()
+
     def flash(self, image_path, content_image_path):
-        pass
+        """
+        Call this method to start flashing.
+
+        @type image_path: C{string}
+        @param image: Absolute path of image file
+
+        @type content_image_path: C{string}
+        @param content_image_path: Absolute path of Device content image file
+        """
+
+        log = logging.getLogger("conductor")
+        log.warning("***************************************************")
+        log.warning("* Customflasher not available in Worker!          *")
+        log.warning("* Setting up test target cannot be done.          *")
+        log.warning("* You must implement customflasher Python         *")
+        log.warning("* module (see OTS Worker documentation).          *")
+        log.warning("* Now continuing as if test target is set up...   *")
+        log.warning("***************************************************")
+

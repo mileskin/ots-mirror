@@ -33,8 +33,21 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 
-from hardware import Hardware, RPMHardware
-from conductor_config import * #internal constants
+from ots.worker.conductor.hardware import Hardware, RPMHardware
+# Import internal constants
+from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
+                             TESTRUN_LOG_FILE, TESTRUN_LOG_CLEANER, \
+                             TESTRUNNER_WORKDIR, CMD_TESTRUNNER, \
+                             TESTRUNNER_SSH_OPTION, TESTRUNNER_LOGGER_OPTION, \
+                             TESTRUNNER_FILTER_OPTION, HTTP_LOGGER_PATH, \
+                             LOCAL_COMMAND_TO_COPY_FILE, CONDUCTOR_WORKDIR, \
+                             SSH_CONNECTION_RETRIES, SSH_RETRY_INTERVAL, \
+                             TESTRUNNER_SSH_FAILS, TESTRUNNER_PARSING_FAILS, \
+                             TESTRUNNER_VALIDATION_FAILS, \
+                             TESTRUNNER_RESULT_FOLDER_FAILS, \
+                             TESTRUNNER_XML_READER_FAILS, \
+                             TESTRUNNER_RESULT_LOGGING_FAILS
+
 from conductorerror import ConductorError
 
 class TestRunData(object):
@@ -50,9 +63,14 @@ class TestRunData(object):
 
         self.id = options.testrun_id
         self.image_url = options.image_url
-        self.image_path = None  #TODO Add image_path parameter behind cmd line option -U.
-        self.content_image_url = options.content_image_url   #content_image_url is preferred over content_image_path
-        self.content_image_path = options.content_image_path #content_image_path may later get overwritten.
+
+        #TODO Add image_path parameter behind cmd line option -U.
+        self.image_path = None
+        #content_image_url is preferred over content_image_path.
+        self.content_image_url = options.content_image_url
+        #content_image_path may later get overwritten.
+        self.content_image_path = options.content_image_path
+
         self.flasher_url = options.flasher_url
 
         self.test_packages = []
@@ -181,7 +199,7 @@ class Executor(object):
 
             try:
                 self._set_paths(test_package)
-                self._create_result_folders(test_package)
+                self._create_result_folders()
                 self._install_package(test_package)
                 self._fetch_test_definition(test_package)
                 self._set_status("TESTING", test_package)
@@ -192,7 +210,7 @@ class Executor(object):
                 self._remove_package(test_package)
 
             except ConductorError, exc:
-                self._test_execution_error_handler(exc, test_package)
+                self._test_execution_error_handler(exc)
                 errors += 1
 
             self.log.info("Finished executing test package: %s" % test_package)
@@ -220,7 +238,7 @@ class Executor(object):
         return 0
 
 
-    def _test_execution_error_handler(self, exc, test_package):
+    def _test_execution_error_handler(self, exc):
         """
         Handler for ConductorError exceptions raised during test execution.
         """
@@ -306,7 +324,7 @@ class Executor(object):
         """Returns name of testrunner result file for given test package"""
         return "tatam_xml_testrunner_results_for_%s.xml" % test_package
 
-    def _create_result_folders(self, test_package):
+    def _create_result_folders(self):
         """Create local folders to save copies of results for test package"""
 
         if not all([self.testrun.results_target_dir, 
@@ -376,7 +394,9 @@ class Executor(object):
 
 
     def _store_result_files(self, directory, test_package):
-        """Stores all result files from results directory with ResponseClient."""
+        """
+        Stores all result files from results directory with ResponseClient.
+        """
 
         if self.stand_alone:
             self.log.warning("Skipped storing result files to OTS server")
@@ -577,11 +597,11 @@ class Executor(object):
                                  "while running tests!", "156")
         else:
             self.log.error(error_msg)
-            raise ConductorError("Testrunner-lite failed with unknown exit code %s"\
-                                 % return_value, "150")
+            raise ConductorError("Testrunner-lite failed with unknown exit "\
+                                 "code %s" % return_value, "150")
 
 
-    def _fetch_results(self, test_package):
+    def _fetch_results(self):
         """Retrieve the test results and store them to server"""
         
         task = "Fetching test results"
@@ -682,12 +702,13 @@ class Executor(object):
         content = ""
         content += "%s environment before test execution:\n\n" % self.target
 
-        for cmdstr, plain_cmd in self.target.get_commands_to_show_test_environment():
+        for cmdstr, plain_cmd in \
+            self.target.get_commands_to_show_test_environment():
 
             self.log.debug(cmdstr)
             content += "==== %s ====\n" % plain_cmd
 
-            cmd = Command(cmdstr, soft_timeout = 10, hard_timeout = 15)
+            cmd = Command(cmdstr, soft_timeout = 30, hard_timeout = 35)
             try:
                 cmd.execute()
             except (SoftTimeoutException, HardTimeoutException):
@@ -703,7 +724,8 @@ class Executor(object):
 
         self._create_new_file(path, content)
 
-        #may raise ConductorError for IOErrors or any exception from ResponseClient
+        # May raise ConductorError for IOErrors or any exception from
+        # ResponseClient
         self._store_result_file(path, test_package = "undefined") 
 
     
@@ -732,13 +754,15 @@ class Executor(object):
                         "timed out)" % (src_path, cmdstr))
                 except CommandFailed:
                     self.log.warning("Failed to fetch file %s (command %s "\
-                        "returned %s)" % (src_path, cmdstr, cmd.get_return_value()))
+                        "returned %s)" % (src_path, cmdstr, \
+                        cmd.return_value))
                 else:
                     self.log.debug("File fetched successfully")
                     break
 
                 if error_counter < SSH_CONNECTION_RETRIES:
-                    self.log.warning("Retrying (%d) to fetch file after (%d) seconds sleep..."\
+                    self.log.warning("Retrying (%d) to fetch file after (%d) "\
+                                     "seconds sleep..."
                                     % (error_counter, SSH_RETRY_INTERVAL))
                     time.sleep(SSH_RETRY_INTERVAL)
 

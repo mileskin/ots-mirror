@@ -22,6 +22,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Conductor main file """
 
 import logging
 import logging.handlers
@@ -30,15 +31,18 @@ import sys
 from optparse import OptionParser
 from socket import gethostname
 
-from helpers import parse_config
+from ots.worker.conductor.helpers import parse_list, \
+                                         parse_config
 
-from conductor_config import DEBUG_LOG_FILE
-from conductor_config import HTTP_LOGGER_PATH
-from executor import TestRunData
-from executor import Executor
-from conductorerror import ConductorError
+from ots.worker.conductor.conductor_config import DEBUG_LOG_FILE
+from ots.worker.conductor.conductor_config import HTTP_LOGGER_PATH
+from ots.worker.conductor.executor import TestRunData
+from ots.worker.conductor.executor import Executor
+from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
 
+DEFAULT_CONFIG = "/etc/conductor.conf"
+OPT_CONF_SUFFIX = ".conf"
 
 def _parse_command_line(args):
     """
@@ -83,7 +87,8 @@ def _parse_command_line(args):
 
     parser.add_option("-e", "--contentimageurl", dest="content_image_url",
                     action="store", type="string",
-                    help="URL to content image. Enables content image flashing.",
+                    help="URL to content image. Enables content image "\
+                         "flashing.",
                     metavar="CONTENTIMAGEURL")
 
     parser.add_option("-E", "--contentimagepath", dest="content_image_path", 
@@ -203,34 +208,72 @@ def _check_command_line_options(options):
     return True
 
 
-def _read_conductor_config(config_file, default_file = ""):
+def _parse_conductor_config(config_file, current_config_dict=None):
     """
     Read and parse conductor configuration file. 
     If config_file is None or does not exist, default_file is tried. 
     If neither of the two files exists, raise exception. Returns dictionary.
     """
-    def parse_list(string):
-        """
-        Parse comma-separated list of values from given string.
-        Remove possible quotes surrounding any value. Return values as list.
-        """
-        return [ item.strip().strip('"\'') for item in string.split(",") ]
 
-    if config_file and os.path.exists(config_file):
-        config = parse_config(config_file, "conductor")
-    elif default_file and os.path.exists(default_file):
-        config = parse_config(default_file, "conductor")
-    else:
+    if not os.path.isfile(config_file):
         raise Exception("Configuration file missing")
 
-    config['files_fetched_after_testing'] = \
-            parse_list(config['files_fetched_after_testing'])
-    config['pre_test_info_commands_debian'] = \
-            parse_list(config['pre_test_info_commands_debian'])
-    config['pre_test_info_commands_rpm'] = \
-            parse_list(config['pre_test_info_commands_rpm'])
+    config_dict = parse_config(config_file, "conductor", current_config_dict)
 
-    return config
+    if not current_config_dict:
+        # Parse specified parameters to lists
+        for conf_param in ['files_fetched_after_testing', \
+                           'pre_test_info_commands_debian', \
+                           'pre_test_info_commands_rpm', \
+                           'pre_test_info_commands']:
+            if config_dict.has_key(conf_param):
+                config_dict[conf_param] = \
+                    parse_list(config_dict[conf_param])
+
+    return config_dict
+
+
+def _read_configuration_files(config_file):
+    """
+    Read main configuration file and optional custom configuraion
+    files.
+    """
+
+    log = logging.getLogger("conductor")
+
+    if not (config_file and os.path.exists(config_file)):
+        config_file = DEFAULT_CONFIG
+
+    config_dict = _parse_conductor_config(config_file)
+
+    if config_dict.has_key('custom_config_folder'):
+        custom_folder = config_dict['custom_config_folder']
+
+        # Update config_dict with optional config parameters
+        config_dict = _read_optional_config_files(custom_folder, config_dict)
+
+    return config_dict
+
+def _read_optional_config_files(custom_folder, config_dict):
+    """
+    Reads all .conf files from specified directory
+    """
+
+    try:
+        contents = os.listdir(custom_folder)
+    except (OSError, IOError), e:
+        log.warning("Error listing directory %s: %s" % (custom_folder, e))
+    else:
+        for custom_config_file in contents:
+            if len(custom_config_file) > len(OPT_CONF_SUFFIX) \
+                and custom_config_file[len(custom_config_file) \
+                - len(OPT_CONF_SUFFIX):] == OPT_CONF_SUFFIX:
+                custom_config = \
+                     _parse_conductor_config(custom_folder + \
+                                    '/' + custom_config_file, config_dict)
+                config_dict = custom_config
+
+    return config_dict
 
 
 def _initialize_remote_connections(otsserver, testrun_id):
@@ -291,7 +334,7 @@ def main():
 
     log.debug("Reading configuration file")
 
-    config = _read_conductor_config(options.config_file, "/etc/conductor.conf")
+    config = _read_configuration_files(options.config_file)
 
     try:
         testrun = TestRunData(options, config)

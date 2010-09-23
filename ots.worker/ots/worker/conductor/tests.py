@@ -42,7 +42,7 @@ from ots.worker.api import ResponseClient
 logging.basicConfig(stream = sys.stdout, level = logging.DEBUG, 
                     format = '%(asctime)s %(levelname)s %(message)s')
 
-from conductorerror import ConductorError
+from ots.worker.conductor.conductorerror import ConductorError
 
 ##############################################################################
 # Constants
@@ -58,9 +58,9 @@ NON_EXISTING_FILE = "/non/existing/file"
 # Stubs
 ##############################################################################
 
-from executor import TestRunData as TRD
-from executor import Executor as TE
-from hardware import Hardware as HW
+from ots.worker.conductor.executor import TestRunData as TRD
+from ots.worker.conductor.executor import Executor as TE
+from ots.worker.conductor.hardware import Hardware as HW
 
 class Mock_Hardware(HW):
     """
@@ -154,6 +154,7 @@ def _conductor_config_simple(config_file = "", default_file = ""):
     config['device_packaging'] = 'debian'
     config['pre_test_info_commands_debian'] = ['ls', 'echo "jouni"']
     config['pre_test_info_commands_rpm'] = ['ls', 'echo "jouni"']
+    config['pre_test_info_commands'] = ['ls', 'echo "testing ...."', 'ls -al']
     config['files_fetched_after_testing'] = ['xxx']
     config['tmp_path'] = "/tmp/"
     return config
@@ -221,13 +222,45 @@ class TestConductorConf(unittest.TestCase):
     def test_read_conductor_config(self):
         import conductor
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
-        conf = conductor._read_conductor_config(conf_file, None)
+        conf = conductor._read_configuration_files(conf_file)
         self.assertTrue(type(conf) == type(dict()))
         self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['pre_test_info_commands_debian'] != "")
         self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
+        self.assertTrue(conf['pre_test_info_commands'] != "")
         self.assertTrue(conf['files_fetched_after_testing'] != "")
         self.assertTrue(conf['tmp_path'] != "")
+
+    def test_read_conductor_config_with_optional_configs(self):
+        import conductor
+        optional_value = "ps aux"
+        conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
+        conf = conductor._read_configuration_files(conf_file)
+        self.assertTrue(type(conf) == type(dict()))
+        self.assertTrue(conf['device_packaging'] != "")
+        self.assertTrue(conf['pre_test_info_commands_debian'] != "")
+        self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
+        self.assertTrue(conf['pre_test_info_commands'] != "")
+        self.assertTrue(conf['files_fetched_after_testing'] != "")
+        self.assertTrue(conf['tmp_path'] != "")
+
+        # Check that we do not have value in pre_test_info_commands that we will
+        # insert from optional configuration file
+        self.assertFalse(optional_value in conf['pre_test_info_commands'])
+         
+        temp_folder = tempfile.mkdtemp("_optional_confs")
+        temp_config = tempfile.mktemp(suffix='.conf', dir=temp_folder)
+        fp = open(temp_config, 'w')
+        fp.write('[conductor]\npre_test_info_commands: "%s"\n' % \
+                 optional_value)
+        fp.close()
+
+        conf['custom_config_folder'] = temp_folder
+        conf = conductor._read_optional_config_files(temp_folder, conf)
+        self.assertTrue(optional_value in conf['pre_test_info_commands'])
+ 
+        os.unlink(temp_config)
+        os.rmdir(temp_folder)
 
 
 class TestConductor(unittest.TestCase):
@@ -531,14 +564,14 @@ class Test_Executor(unittest.TestCase):
 
 
     def test_set_target_when_debian(self):
-        from hardware import Hardware as Hardware
+        from ots.worker.conductor.hardware import Hardware as Hardware
         self.executor.set_target()
         self.assertTrue(isinstance(self.executor.target, Hardware))
         self.assertEquals(str(self.executor.target), "Hardware")
         self.assertEquals(self.executor.env, "Hardware")
 
     def test_set_target_when_rpm(self):
-        from hardware import RPMHardware as RPMHardware
+        from ots.worker.conductor.hardware import RPMHardware as RPMHardware
         self.testrun.config['device_packaging'] = 'rpm'
         self.executor.set_target()
         self.assertTrue(isinstance(self.executor.target, RPMHardware))
@@ -700,6 +733,23 @@ class Test_Executor(unittest.TestCase):
 
     def test_include_testrun_log_file(self):
         self.assertTrue(self.real_executor._include_testrun_log_file() in [0,1])
+
+
+class TestDefaultFlasher(unittest.TestCase):
+    """Tests for defaultflasher.py"""
+
+    def test_exceptions(self):
+        from defaultflasher import FlashFailed
+        from defaultflasher import InvalidImage
+        from defaultflasher import InvalidConfig
+        from defaultflasher import ConnectionTestFailed
+
+    def test_softwareupdater_flash(self):
+        from defaultflasher import SoftwareUpdater
+        #sw_updater = defaultflasher.SoftwareUpdater()
+        sw_updater = SoftwareUpdater()
+        sw_updater.flash("image1", "image2")
+
 
 if __name__ == '__main__':
     unittest.main()

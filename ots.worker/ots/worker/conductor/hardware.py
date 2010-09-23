@@ -23,11 +23,11 @@
 
 """Hardware test target"""
 
-from testtarget import TestTarget
-from conductor_config import HW_COMMAND
-from conductor_config import HW_COMMAND_TO_COPY_FILE
-from conductor_config import FLASHER_PATH
-from conductorerror import ConductorError
+from ots.worker.conductor.testtarget import TestTarget
+from ots.worker.conductor.conductor_config import HW_COMMAND
+from ots.worker.conductor.conductor_config import HW_COMMAND_TO_COPY_FILE
+from ots.worker.conductor.conductor_config import FLASHER_PATH
+from ots.worker.conductor.conductorerror import ConductorError
 
 try:
     import customflasher as flasher_module
@@ -78,7 +78,8 @@ class Hardware(TestTarget):
         List of tuples with commands to get information about test environment.
         Commands are for system using Debian packaging.
         """
-        plain_cmds = self.config['pre_test_info_commands_debian']
+        plain_cmds = self.config['pre_test_info_commands_debian'] +\
+                     self.config['pre_test_info_commands']
         commands = []
         for cmd in plain_cmds:
             commands.append(HW_COMMAND % cmd)
@@ -280,7 +281,9 @@ class Hardware(TestTarget):
 
 
     def _fetch_content_image(self):
-        """Fetch content_image from URL if specified and if path not already set"""
+        """
+        Fetch content_image from URL if specified and if path not already set
+        """
 
         if not self.testrun.content_image_path and \
                self.testrun.content_image_url:
@@ -300,8 +303,13 @@ class Hardware(TestTarget):
     def _flash(self):
         """Flash images to the device using the flasher_module"""
 
+        flasher_path = None
+        if os.path.isfile(FLASHER_PATH):
+            flasher_path = FLASHER_PATH
+
         try:
-            flasher = flasher_module.SoftwareUpdater()
+            flasher = flasher_module.SoftwareUpdater(flasher=\
+                                                     flasher_path)
 
             self.log.debug("image: %s" % self.testrun.image_path)
             self.log.debug("content image: %s" % \
@@ -309,7 +317,8 @@ class Hardware(TestTarget):
 
             #Run flasher. Note: one of paths (image_path OR content_image_path)
             #may be None
-            flasher.flash(self.testrun.image_path, self.testrun.content_image_path)
+            flasher.flash(self.testrun.image_path, \
+                          self.testrun.content_image_path)
 
         except flasher_module.ConnectionTestFailed:
             raise ConductorError("Error in preparing hardware: "\
@@ -336,7 +345,8 @@ class RPMHardware(Hardware):
         """
         List of tuples with commands to get information about test environment.
         """
-        plain_cmds = self.config['pre_test_info_commands_rpm']
+        plain_cmds = self.config['pre_test_info_commands_rpm'] +\
+                     self.config['pre_test_info_commands']
         commands = []
         for cmd in plain_cmds:
             commands.append(HW_COMMAND % cmd)
@@ -344,7 +354,7 @@ class RPMHardware(Hardware):
 
     def get_command_to_find_test_packages(self):
         """Command that lists rpm test packages with tests.xml from device."""
-        return HW_COMMAND % "find /usr/share/ -name tests.xml | xargs rpm -q --queryformat \"%{NAME}\n\" -f"
+        return HW_COMMAND % "find /usr/share/ -name tests.xml | xargs -r rpm -q --queryformat \"%{NAME}\n\" -f"
 
     def parse_packages_with_file(self, lines):
         """
