@@ -258,7 +258,7 @@ def _read_optional_config_files(custom_folder, config_dict):
     """
     Reads all .conf files from specified directory
     """
-
+    log = logging.getLogger("conductor")
     try:
         contents = os.listdir(custom_folder)
     except (OSError, IOError), e:
