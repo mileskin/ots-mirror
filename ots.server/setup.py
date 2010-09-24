@@ -20,16 +20,16 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
-from ots.common.get_git_version import get_git_version
+from setuptools import setup, find_packages
+from get_git_version import get_git_version
 
 setup(
       name = "ots.server",
       author = "meego-dev@meego.com",
       version =  "0.8r" + get_git_version(),
       include_package_data = True,
-      namespace_packages = ['ots', "ots.server"],
-      packages = ['ots.server.distributor', 'ots.server.testrun'],
+      namespace_packages = ["ots", "ots.server"],
+      packages = find_packages(),
       install_requires = ['ots.results'],
       zip_safe = False,
       data_files=[('/etc', ['ots-server.ini'])]

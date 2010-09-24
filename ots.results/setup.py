@@ -20,15 +20,15 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
-from ots.common.get_git_version import get_git_version
+from setuptools import setup, find_packages
+from get_git_version import get_git_version
 
 setup(
       name = "ots.results",
       author = "meego-dev@meego.com",
       version =  "0.8r" + get_git_version(),
       include_package_data = True,
-      namespace_packages = ['ots', "ots.results"],
+      namespace_packages = find_packages(),
       packages = ['ots.results'],
       zip_safe = False,
       )

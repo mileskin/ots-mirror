@@ -20,16 +20,16 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
-from ots.common.get_git_version import get_git_version
+from setuptools import setup, find_packages
+from get_git_version import get_git_version
 
 setup(
     name = "ots.worker",
     author = "meego-dev@meego.com",
     version =  "0.8r" + get_git_version(),
     include_package_data = True,
-    namespace_packages = ['ots'],
-    packages = ['ots.worker'],
+    namespace_packages = ['ots', 'ots.worker'],
+    packages = find_packages(),
     zip_safe = False,
     entry_points={"console_scripts": 
                   ["ots_worker = ots.worker.worker:main"]},
