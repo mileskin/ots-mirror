@@ -39,8 +39,11 @@ class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
     pass
 
 
+def main():
+    config = (ots_config.xmlrpc_host, ots_config.xmlrpc_port)
+    server = OtsForkingServer(config, SimpleXMLRPCRequestHandler)
+    server.register_function(request_sync)
+    server.serve_forever()
 
-config = (ots_config.xmlrpc_host, ots_config.xmlrpc_port)
-server = OtsForkingServer(config, SimpleXMLRPCRequestHandler)
-server.register_function(request_sync)
-server.serve_forever()
+if __name__ == "__main__":
+    main()

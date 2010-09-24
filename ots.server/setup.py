@@ -36,6 +36,9 @@ setup(
 #                  'ots.server.testrun_host',
 #                  'ots.server.xmlrpc',
 #                  'ots.server.conductorengine'],
+      entry_points={"console_scripts":
+                    ["ots_server = ots.server.xmlrpc.server:main",]
+                    },
       zip_safe = False,
       data_files=[('/etc', ['ots-server.ini'])]
       )
