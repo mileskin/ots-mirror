@@ -20,7 +20,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name = "ots.worker",
@@ -28,7 +28,8 @@ setup(
     version =  0.1,
     include_package_data = True,
     namespace_packages = ['ots'],
-    packages = ['ots.worker', 'ots.worker.conductor'],
+#    packages = ['ots.worker', 'ots.worker.conductor'],
+    packages = find_packages(),
     zip_safe = False,
     entry_points={"console_scripts": 
                   ["ots_worker = ots.worker.worker:main",
