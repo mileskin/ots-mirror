@@ -116,7 +116,6 @@ class ResponseClient(object):
         """Calls OTSMessageIO to create test package list"""
         packages = Packages(environment, packages)
         self._send_message(pack_message(packages))
- 
 
 #
 # Private methods:

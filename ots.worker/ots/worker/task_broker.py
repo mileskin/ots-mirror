@@ -106,6 +106,17 @@ class TaskBroker(object):
         self._consumer_tag = ""
 
         self._task_state = cycle(TASK_CONDITION_RESPONSES)
+        self._amqp_log_handler = None
+
+    ############################################
+    # LOG HANDLER
+    ############################################
+
+    def _set_amqp_log_handler(self, amqp_log_handler)
+        self._amqp_log_handler = amqp_log_handler
+        self._amqp_log_handler.channel = self.channel
+
+    amqp_log_handler = property(None, _set_amqp_log_handler)
 
     #############################################
     # AMQP CONNECTION PROPERTIES 
@@ -194,6 +205,11 @@ class TaskBroker(object):
         cmd_msg = unpack_message(message)
         task_id = cmd_msg.task_id
         response_queue = cmd_msg.response_queue
+        #
+        if self._amqp_log_handler is not None:
+            self._amqp_log_handler.queue = response_queue
+            self._amqp_log_handler.exchange = response_queue
+        #
         self._publish_task_state_change(task_id, response_queue)
         #
         try:

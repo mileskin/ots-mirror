@@ -40,6 +40,8 @@ import subprocess
 import ConfigParser
 
 import ots.worker
+
+from ots.worker.amqp.log_handler import AMQPLogHandler
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
 
@@ -123,10 +125,12 @@ def _init_logging(config_filename = None):
         root_logger.addHandler(log_handler)
 
     output_handler = logging.StreamHandler()
-
     output_handler.setFormatter(formatter)
     output_handler.setLevel(logging.DEBUG)
 
+    amqp_handler = logging.AMQPHandler() 
+    amqp_handler.setFormatter(formatter)
+    amqp_handler.setLevel(logging.DEBUG) 
 
     root_logger.addHandler(output_handler)
 
@@ -160,9 +164,10 @@ def worker_factory(config_filename):
         print
         sys.exit()
 
-    return Worker(vhost=vhost, host=host, port=port, username=username,
-                  password=password, queue=queue, routing_key=routing_key, 
-                  services_exchange=services_exchange)
+    return Worker(vhost = vhost, host = host, port = port, username = username,
+                  password = password, queue = queue, 
+                  routing_key = routing_key, 
+                  services_exchange = services_exchange)
        
 def main():
     """
@@ -188,8 +193,9 @@ def main():
         print "Config file path '%s' does not exist!" % ( options.config )
         sys.exit(1)
     #
-    _init_logging(options.config)
+    amqp_log_handler = _init_logging(options.config)
     worker = worker_factory(options.config)
+    worker.amqp_logger = amqp_log_handler 
     worker.start()
 
 if __name__ == '__main__':
