@@ -142,9 +142,11 @@ def _initialize_logger(build_id, testrun_id):
     log.addHandler(hdlr)
     log.setLevel(level)
 
-#    httphandler = LocalHttpHandler(testrun_id)
-#    httphandler.setLevel(logging.INFO)
-#    log.addHandler(httphandler)
+    if ots_config.http_logging_enabled:
+        from ots.server.logger.localhandler import LocalHttpHandler
+        httphandler = LocalHttpHandler(testrun_id)
+        httphandler.setLevel(logging.INFO)
+        log.addHandler(httphandler)
     return log
 
 def _get_testrun_host(log):

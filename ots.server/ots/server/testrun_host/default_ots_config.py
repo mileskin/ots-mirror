@@ -38,6 +38,11 @@ debug_mode = False
 log_directory = "/var/log/ots/"
 
 #
+# Turns on http logging. Requires django setup
+#
+http_logging_enabled = False
+
+#
 # Link URLs
 #
 link_urls = dict()
