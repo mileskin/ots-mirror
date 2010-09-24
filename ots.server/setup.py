@@ -28,7 +28,13 @@ setup(
       version =  0.1,
       include_package_data = True,
       namespace_packages = ['ots', "ots.server"],
-      packages = ['ots.server.distributor'],
+      packages = ['ots.server.distributor',
+                  'ots.server.email_backend',
+                  'ots.server.input',
+                  'ots.server.logger',
+                  'ots.server.testrun_host',
+                  'ots.server.xmlrpc',
+                  'ots.server.conductorengine'],
       zip_safe = False,
       data_files=[('/etc', ['ots-server.ini'])]
       )

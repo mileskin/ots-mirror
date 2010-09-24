@@ -28,6 +28,9 @@ setup(
       version =  0.1,
       include_package_data = True,
       namespace_packages = ['ots'],
-      packages = ['ots.common', 'ots.common.testdefinition'],
+      packages = ['ots.common',
+                  'ots.common.testdefinition',
+                  'ots.common.interfaces',
+                  'ots.common.results'],
       zip_safe = False,
       )
