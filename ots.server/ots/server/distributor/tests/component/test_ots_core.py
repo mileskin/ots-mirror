@@ -49,6 +49,7 @@ from stat import ST_CTIME
 import multiprocessing
 from socket import gethostname
 
+from ots.common.dto.api import DTO_SIGNAL
 from ots.common.amqp.api import testrun_queue_name 
 
 import ots.worker

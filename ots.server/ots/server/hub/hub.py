@@ -29,7 +29,7 @@ import sys
 import os
 import logging
 
-from ots.server.hub.testrun import Testrun
+from ots.server.hub.testrun import testrun
 from ots.server.hub.options import Options
 from ots.server.hub.init_logging import init_logging
 from ots.server.hub.plugins import ReportPlugin
@@ -81,8 +81,7 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
         LOG.debug("Initialising Testrun")
         is_hw_enabled = bool(len(options.hw_packages))
         is_host_enabled = bool(len(options.host_packages))
-        testrun = Testrun(run_test, is_hw_enabled, is_host_enabled)
-        result = testrun.run()
+        result = testrun(run_test, is_hw_enabled, is_host_enabled)
         LOG.debug("Testrun finished with result: %s"%(result))
         if report_plugin is not None:
             report_plugin.result = result

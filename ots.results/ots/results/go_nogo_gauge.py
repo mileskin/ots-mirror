@@ -21,10 +21,30 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Import all ots.server.results modules through here
+Go / NoGo on the basis of results_xmls
 """
 
-from ots.results.parse_results import parse_results
-from ots.results.is_valid_run import is_valid_run, PackageException
-from ots.results.go_nogo_gauge import go_nogo_gauge
+from ots.results.api import parse_results
 from ots.results.testrun_result import TestrunResult
+
+def go_nogo_gauge(results_xmls, insignificant_tests_matter = False):
+    """
+    @type: C{list} of C{file}
+    @param: A list of the result_xmls
+
+    @rtype: L{TestrunResult}
+    @return: PASS / FAIL / NO_CASES
+    """
+    ret_val = TestrunResult.NO_CASES
+    aggregated_results = []
+    for results_xml in results_xmls:
+        all_passed = parse_results(results_xml.read(),
+                                   insignificant_tests_matter)
+        if all_passed is not None:
+            aggregated_results.append(all_passed)
+    if aggregated_results:
+        if all(aggregated_results):
+            ret_val = TestrunResult.PASS
+        else:
+            ret_val = TestrunResult.FAIL
+    return ret_val

@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -20,11 +22,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-Import all ots.server.results modules through here
-"""
+#Run the component tests 
 
-from ots.results.parse_results import parse_results
-from ots.results.is_valid_run import is_valid_run, PackageException
-from ots.results.go_nogo_gauge import go_nogo_gauge
-from ots.results.testrun_result import TestrunResult
+#FIXME test dependent on where it is run from 
+cd ots.server/ots/server/distributor/tests/component/
+python test_ots_core.py
+cd - 
+
+#
+python ots.server/ots/server/hub/tests/component/test_hub_component.py

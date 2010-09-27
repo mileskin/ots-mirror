@@ -20,69 +20,51 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import os
-
 import unittest
 
-from ots.common.dto.ots_exception import OTSException
+import os
 
-from ots.server.distributor.api import OtsGlobalTimeoutError
-from ots.server.hub.testrun import Testrun 
-from ots.server.hub.tests.mock_taskrunner import \
-                                             MockTaskRunnerResultsMissing
-from ots.server.hub.tests.mock_taskrunner import \
-                                             MockTaskRunnerResultsFail
-from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerTimeout
-from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerError
-from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerResultsPass
+from ots.common.dto.api import Packages
 
-import ots.results.api
-from ots.results.api import TestrunResult
-from ots.results.api import PackageException
+import ots.results
+from ots.results.api import TestrunResult, PackageException
+
+from ots.server.hub.testrun import testrun
+from ots.server.hub.dto_handler import DTOHandler 
 
 class TestTestrun(unittest.TestCase):
 
-    def test_run_results_pass(self):
-        mock_task_runner = MockTaskRunnerResultsPass()
-        run_test = mock_task_runner.run
-        testrun = Testrun(run_test)
-        ret_val = testrun.run()
-        self.assertEquals(TestrunResult.PASS, ret_val)
+    def test_package_exception(self):
+        self.assertRaises(PackageException, testrun, lambda : 1, 
+                          dto_handler = DTOHandler())
 
-    def test_run_results_missing(self):
-        mock_task_runner = MockTaskRunnerResultsMissing()
-        run_test = mock_task_runner.run
-        testrun = Testrun(run_test)
-        self.assertRaises(PackageException, testrun.run)
-        
-    def test_run_results_fail(self):
-        mock_task_runner = MockTaskRunnerResultsFail() 
-        run_test = mock_task_runner.run
-        testrun = Testrun(run_test)
-        ret_val = testrun.run()
-        self.assertEquals(TestrunResult.FAIL, ret_val)
+    def test_fail(self):
+        pkgs = Packages("hardware", ["pkg1", "pkg2"])
+        results_dir = os.path.dirname(os.path.abspath(ots.results.__file__))
+        results_fqname = os.path.join(results_dir, 
+                                      "tests", "data", 
+                                      "dummy_results_file.xml")
+        results_xml = open(results_fqname, "r")
 
-    def test_run_global_timeout(self):
-        #Not really a test more an illustration of behaviour
-        mock_task_runner = MockTaskRunnerTimeout()
-        run_test = mock_task_runner.run 
-        testrun = Testrun(run_test)
-        self.assertRaises(OtsGlobalTimeoutError, testrun.run)
+        dto_handler = DTOHandler()
+        dto_handler.expected_packages = pkgs
+        dto_handler.tested_packages = pkgs
+        dto_handler.results_xmls = [results_xml]
+        self.assertFalse(testrun(lambda : 1, dto_handler = dto_handler))
+      
+    def test_exception(self):
+        pkgs = Packages("hardware", ["pkg1", "pkg2"])
+        results_dir = os.path.dirname(os.path.abspath(ots.results.__file__))
+        results_fqname = os.path.join(results_dir, 
+                                      "tests", "data", 
+                                      "dummy_pass_file.xml")
+        results_xml = open(results_fqname, "r")
 
-    def test_run_model_taskrunner_error(self):
-        mock_task_runner = MockTaskRunnerError()
-        run_test = mock_task_runner.run
-        testrun = Testrun(run_test)
-        self.assertRaises(OTSException, testrun.run)
-        
+        dto_handler = DTOHandler()
+        dto_handler.expected_packages = pkgs
+        dto_handler.tested_packages = pkgs
+        dto_handler.results_xmls = [results_xml]
+        self.assertTrue(testrun(lambda : 1, dto_handler = dto_handler))
+ 
 if __name__ == "__main__":
-    import logging
-    root_logger = logging.getLogger('')
-    root_logger.setLevel(logging.DEBUG)
-    log_handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    log_handler.setFormatter(formatter)
-    log_handler.setLevel(logging.DEBUG)
-    root_logger.addHandler(log_handler)
     unittest.main()

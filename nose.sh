@@ -22,7 +22,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#Run the nosetests 
+#Run the unittests with nose 
 
 
 #############
@@ -37,7 +37,7 @@ nosetests ots.common/ots/common -e testdefinitionparser -e testrun_id -e test_pa
 
 nosetests ots.server/ots/server/distributor/tests/test_* -e testrun -e test_remote 
 
-nosetests ots.server/ots/server/hub/tests/test_*
+nosetests ots.server/ots/server/hub/tests/test_* -e testrun
 
 #############
 #ots.worker
