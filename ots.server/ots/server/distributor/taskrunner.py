@@ -41,6 +41,7 @@ from amqplib import client_0_8 as amqp
 
 from ots.common.dto.api import TaskCondition
 from ots.common.dto.api import CommandMessage, StateChangeMessage
+from ots.common.dto.api import DTO_SIGNAL
 from ots.common.amqp.api import pack_message, unpack_message
 from ots.common.amqp.api import testrun_queue_name
 
@@ -52,37 +53,9 @@ from ots.server.distributor.exceptions import OtsQueueDoesNotExistError
 
 LOGGER = logging.getLogger(__name__)
 
-###################
-
-#Django has forked PyDispatcher
-#We will probably need the Django Signals 
-#But to avoid making ots.server.distributor a 
-#Django project use a MonkeyPatch for now
-
-try:
-    from django.conf import settings
-    settings.DEBUG
-except ImportError:
-    import types
-    class SettingsStub(object):
-        """Stubs out django settings object"""
-        DEBUG = False
-    conf_stub = types.ModuleType("django.conf")
-    conf_stub.settings = SettingsStub()
-    sys.modules["django.conf"] = conf_stub
-    LOGGER.debug("Monkey patching django.conf")
-
-from django.dispatch.dispatcher import Signal
-
-####################
-
 class TaskRunnerException(Exception):
     """TaskRunnerException"""
     pass
-
-# Signals
-
-TASKRUNNER_SIGNAL = Signal()
 
 ####################################
 # AMQP Queue Helpers
@@ -225,7 +198,7 @@ class TaskRunner(object):
         else:
             #The message is data. Relay using a signal
             LOGGER.debug("Received Task message %s" % msg)
-            TASKRUNNER_SIGNAL.send(sender = "TaskRunner", dto = msg)
+            DTO_SIGNAL.send(sender = "TaskRunner", dto = msg)
   
     def _task_transition(self, message):
         """

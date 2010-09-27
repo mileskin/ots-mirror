@@ -20,19 +20,36 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-
-# Disabling "unused import" warning because this is an API file.
-# pylint: disable-msg=W0611
-
 """
-Defines the ots.server.distributor API
+The Signal for a DTO
 """
-# Taskrunner related API
 
-from ots.server.distributor.taskrunner import TaskRunner
-from ots.server.distributor.taskrunner_factory import taskrunner_factory
+###################
 
-# Exceptions
+#Django has forked PyDispatcher
+#We will probably need the Django Signals 
+#But to avoid making ots.server.distributor a 
+#Django project use a MonkeyPatch for now
 
-from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
-    OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
+try:
+    from django.conf import settings
+    settings.DEBUG
+except ImportError:
+    import types
+    class SettingsStub(object):
+        """Stubs out django settings object"""
+        DEBUG = False
+    conf_stub = types.ModuleType("django.conf")
+    conf_stub.settings = SettingsStub()
+    sys.modules["django.conf"] = conf_stub
+    LOGGER.debug("Monkey patching django.conf")
+
+from django.dispatch.dispatcher import Signal
+
+####################
+# Signal
+####################
+
+
+DTO_SIGNAL = Signal()
+

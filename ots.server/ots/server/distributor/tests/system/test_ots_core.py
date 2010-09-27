@@ -51,21 +51,17 @@ from socket import gethostname
 
 from ots.common.amqp.api import testrun_queue_name 
 
-from ots.worker.api import worker_factory, SoftTimeoutException
 import ots.worker
 import ots.worker.tests
-
-#FIXME
+from ots.worker.api import worker_factory, SoftTimeoutException
 from ots.worker.worker import create_amqp_log_handler
 
 import ots.server.distributor
-from ots.server.distributor.taskrunner import TASKRUNNER_SIGNAL
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.distributor.queue_exists import queue_exists
 from ots.server.distributor.dev_utils.delete_queues import delete_queue
 
 LOGGER = logging.getLogger(__name__)
-
 
 DEBUG = False
 HOST = "localhost"
@@ -257,7 +253,7 @@ class TestOTSCore(unittest.TestCase):
                 expected = self._dummy_results_xml(filename)
                 self.assertEquals(expected, dto.results_xml.read())
             
-        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        DTO_SIGNAL.connect(cb_handler) 
         
         time_before_run = time.time()
         time.sleep(1)
@@ -302,7 +298,7 @@ class TestOTSCore(unittest.TestCase):
             if isinstance(dto, LogRecord):
                 self.records.append(dto)
           
-        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        DTO_SIGNAL.connect(cb_handler) 
         taskrunner.run()
         messages = ''.join([rec.msg for rec in self.records])
         self.assertTrue("echo foo" in messages)
@@ -330,7 +326,7 @@ class TestOTSCore(unittest.TestCase):
             self.assertTrue(isinstance(dto, SoftTimeoutException))
             self.assertEquals(sender, 'TaskRunner')
 
-        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        DTO_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
         taskrunner.run()
         time_after_run = time.time()
@@ -368,7 +364,7 @@ class TestOTSCore(unittest.TestCase):
             self.assertTrue(isinstance(dto, SoftTimeoutException))
             self.assertEquals(sender, 'TaskRunner')
 
-        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        DTO_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
         taskrunner.run()
         time_after_run = time.time()
@@ -404,7 +400,7 @@ class TestOTSCore(unittest.TestCase):
             self.assertTrue(dto)
             self.assertEquals(sender, 'TaskRunner')
 
-        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        DTO_SIGNAL.connect(cb_handler) 
         time_before_run = time.time()
         taskrunner.run()
         time_after_run = time.time()

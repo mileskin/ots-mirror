@@ -29,8 +29,7 @@ import logging
 from logging import LogRecord
 
 from ots.common.dto.api import Packages, Results, Environment
-
-from ots.server.distributor.api import TASKRUNNER_SIGNAL
+from ots.common.dto.api import DTO_SIGNAL
 
 from ots.results.api import parse_results
 from ots.results.api import TestrunResult
@@ -42,9 +41,8 @@ class Testrun(object):
     """
     Holds the metadata associated with a Testrun 
     
-    Wraps the handlers and runner and hooks up the results
-
-    Closely associated with the Taskrunner
+    Receives DTOs generated in the run and 
+    routes them to the appropriatley
     """
     
     def __init__(self, 
@@ -78,31 +76,9 @@ class Testrun(object):
         self.expected_packages = None
 
     ###########################################
-    # HANDLERS
+    # DTO HANDLERS
     ###########################################
-
-    def _taskrunner_cb(self, signal, dto, **kwargs):
-        """
-        @type signal: L{django.dispatch.dispatcher.Signal}
-        @param signal: The django signal
-
-        @type dto: L{ots.common.dto}
-        @param dto: An OTS Data Transfer Object
-
-        The callback for TASKRUNNER_SIGNAL delegates
-        data to the handler depending on <type>
-        """
-        if isinstance(dto, Exception):
-            raise dto
-        elif isinstance(dto, LogRecord):
-            logging.log(dto.levelno, dto.msg)
-        elif isinstance(dto, Results):
-            self._results(dto)
-        elif isinstance(dto, Packages):
-            self._packages(dto)
-        else:
-            LOG.debug("Unknown DTO: '%s'"%(dto))
-
+    
     def _results(self, result):
         """
         @type result: L{ots.common.api.ResultObject}
@@ -132,6 +108,33 @@ class Testrun(object):
             self.expected_packages = packages
         else:
             self.expected_packages.update(packages)
+
+    ##################################
+    # CALLBACK
+    ##################################
+
+    def _dto_cb(self, signal, dto, **kwargs):
+        """
+        @type signal: L{django.dispatch.dispatcher.Signal}
+        @param signal: The django signal
+
+        @type dto: L{ots.common.dto}
+        @param dto: An OTS Data Transfer Object
+
+        The callback for DTO_SIGNAL 
+        Multimethod that delegates
+        data to the handler depending on <type>
+        """
+        if isinstance(dto, Exception):
+            raise dto
+        elif isinstance(dto, LogRecord):
+            logging.log(dto.levelno, dto.msg)
+        elif isinstance(dto, Results):
+            self._results(dto)
+        elif isinstance(dto, Packages):
+            self._packages(dto)
+        else:
+            LOG.debug("Unknown DTO: '%s'"%(dto))
 
     #############################################
     # HELPERS
@@ -169,7 +172,7 @@ class Testrun(object):
         Run...
         """
         ret_val = TestrunResult.FAIL
-        TASKRUNNER_SIGNAL.connect(self._taskrunner_cb)
+        DTO_SIGNAL.connect(self._dto_cb)
        
         self._run_test()
         is_valid_run(self.expected_packages,

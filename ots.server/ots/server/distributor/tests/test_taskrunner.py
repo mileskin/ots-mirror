@@ -31,16 +31,15 @@ from pickle import dumps, loads
 
 from amqplib import client_0_8 as amqp
 
-from django.dispatch.dispatcher import Signal
-
 from ots.common.dto.api import StateChangeMessage, TaskCondition
+from ots.common.dto.api import DTO_SIGNAL
 
 from ots.server.distributor.task import Task
 from ots.server.distributor.taskrunner import TaskRunner
 from ots.server.distributor.taskrunner import _init_queue, TaskRunnerException
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
     OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
-from ots.server.distributor.taskrunner import TASKRUNNER_SIGNAL
+
 
 class AMQPMessageStub:
     body = None
@@ -97,7 +96,7 @@ class TestTaskRunner(unittest.TestCase):
         def test_handler(signal, dto, **kwargs):
             self.assertTrue(isinstance(dto, Foo))
             self.assertEquals(1, dto.bar)
-        TASKRUNNER_SIGNAL.connect(test_handler) 
+        DTO_SIGNAL.connect(test_handler) 
         self.taskrunner._on_message(message)
 
     def test_dispatch_tasks(self):

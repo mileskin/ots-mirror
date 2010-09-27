@@ -24,9 +24,9 @@ import os
 import time
 
 from ots.common.dto.api import Results, Packages
-from ots.common.dto.ots_exception import OTSException
+from ots.common.dto.api import OTSException
+from ots.common.dto.api import DTO_SIGNAL
 
-from ots.server.distributor.api import TASKRUNNER_SIGNAL
 from ots.server.distributor.api import OtsGlobalTimeoutError
 
 import ots.results
@@ -61,7 +61,7 @@ class MockTaskRunnerResultsBase(object):
                           package = name,
                           origin = "mock_task_runner",
                           environment = environment)
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
+        DTO_SIGNAL.send(sender = "MockTaskRunner", 
                                dto = results)
 
     @staticmethod
@@ -73,7 +73,7 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
     @staticmethod
     def _send_testpackages():
         pkgs = Packages("hardware_test", ["test_1", "test_2", "test_3"])
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
+        DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs)
 
 class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
@@ -81,7 +81,7 @@ class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
     @staticmethod
     def _send_testpackages():
         pkgs = Packages("hardware_test", ["test_1", "test_2"])
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
+        DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs)
 
 class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
@@ -99,10 +99,10 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
     @staticmethod
     def _send_testpackages():
         pkgs_1 = Packages("hardware_test", ["test_1", "test_2"])
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
+        DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs_1)
         pkgs_2 = Packages("host.unittest", ["test_1", "test_2"])
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner",
+        DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs_2)
 
 
@@ -131,6 +131,6 @@ class MockTaskRunnerError(object):
 
     def run(self):
         exc = OTSException("mock task runner", 6310)
-        TASKRUNNER_SIGNAL.send(sender = "MockTaskRunner", 
+        DTO_SIGNAL.send(sender = "MockTaskRunner", 
                                dto = exc)
 
