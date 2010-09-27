@@ -41,6 +41,7 @@ Prerequisites:
 import os
 import time
 import logging 
+from logging import LogRecord
 import ConfigParser
 import unittest 
 import zipfile
@@ -53,6 +54,9 @@ from ots.common.amqp.api import testrun_queue_name
 from ots.worker.api import worker_factory, SoftTimeoutException
 import ots.worker
 import ots.worker.tests
+
+#FIXME
+from ots.worker.worker import create_amqp_log_handler
 
 import ots.server.distributor
 from ots.server.distributor.taskrunner import TASKRUNNER_SIGNAL
@@ -84,9 +88,7 @@ CASE_TEMPLATE = """
 </case>
 """
 
-   
-
-def start_worker(config_filename):
+def start_worker(config_filename, amqp_logging = False):
     """
     Start the OTS Worker
     Helper for multiprocessing purposes
@@ -99,6 +101,9 @@ def start_worker(config_filename):
     os.environ["PATH"] = new_path
     #create and start it
     worker = worker_factory(config_filename)
+    if amqp_logging:
+        amqp_log_handler = create_amqp_log_handler() 
+        worker.amqp_log_handler = amqp_log_handler 
     worker.start()
 
 ################################################
@@ -199,14 +204,15 @@ class TestOTSCore(unittest.TestCase):
         if os.path.exists(baz):
             os.rmdir(baz)
         
-    def _start_worker_process(self):
+    def _start_worker_process(self, amqp_logging = False):
         """
         Start a Worker in a separate process
         """
         if not DEBUG:
             worker_config_filename = self._worker_config_filename()
             worker_process = multiprocessing.Process(target = start_worker,
-                                                 args=(worker_config_filename,))
+                                    args=(worker_config_filename,),
+                                    kwargs={"amqp_logging" :amqp_logging})
             worker_process.start()
             time.sleep(2)
             self._worker_processes.append(worker_process)
@@ -215,114 +221,6 @@ class TestOTSCore(unittest.TestCase):
     # Tests
     ###################
 
-
-    def test_worker_side_timeout_single_task(self):
-        """
-        Check that worker timeout works properly.
-        It should send error message about the timeout and
-        "finished" state change
-
-        """
-
-        self._start_worker_process() 
-        self.testrun_id = 111      
-        taskrunner = taskrunner_factory(
-                             device_group = "foo", 
-                             timeout = 1,
-                             testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
-        command = ["sleep", "10"]
-
-        taskrunner.add_task(command)
-        self.cb_called = False
-        def cb_handler(signal, sender, dto, **kwargs):
-            self.cb_called = True
-            self.assertEquals(dto.errno, 6001)
-            self.assertTrue(isinstance(dto, SoftTimeoutException))
-            self.assertEquals(sender, 'TaskRunner')
-
-        TASKRUNNER_SIGNAL.connect(cb_handler) 
-        time_before_run = time.time()
-        taskrunner.run()
-        time_after_run = time.time()
-        duration = time_after_run - time_before_run
-
-        self.assertTrue(self.cb_called)
-        self.assertTrue(duration < 6) # Should be less than 10 seconds
-
-
-    def test_worker_side_timeout_multiple_tasks_multiple_workers(self):
-        """
-        Check that worker timeout works properly with multiple tasks.
-        It should send error message about the timeout and
-        "finished" state change
-
-        """
-
-        self._start_worker_process() 
-        self._start_worker_process() 
-        self.testrun_id = 111      
-        taskrunner = taskrunner_factory(
-                             device_group = "foo", 
-                             timeout = 1,
-                             testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
-
-        command = ["sleep", "10"]
-
-        taskrunner.add_task(command)
-        taskrunner.add_task(command)
-        self.cb_called = 0
-        def cb_handler(signal, sender, dto, **kwargs):
-            self.cb_called += 1
-            self.assertEquals(dto.errno, 6001)
-            self.assertTrue(isinstance(dto, SoftTimeoutException))
-            self.assertEquals(sender, 'TaskRunner')
-
-        TASKRUNNER_SIGNAL.connect(cb_handler) 
-        time_before_run = time.time()
-        taskrunner.run()
-        time_after_run = time.time()
-        duration = time_after_run - time_before_run
-
-        self.assertTrue(self.cb_called == 2)
-        self.assertTrue(duration < 6) # Should be less than 10 seconds
-
-    def test_worker_side_timeout_multiple_tasks_one_worker(self):
-        """
-        Check that worker timeout works properly with multiple tasks one worker.
-        It should send error message about the timeout and
-        "finished" state change
-
-        """
-
-        self._start_worker_process() 
-
-        self.testrun_id = 111      
-        taskrunner = taskrunner_factory(
-                             device_group = "foo", 
-                             timeout = 1,
-                             testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
-        command = ["sleep", "10"]
-        taskrunner.add_task(command)
-        command = ["echo"]
-        taskrunner.add_task(command)
-        self.cb_called = 0
-        def cb_handler(signal, sender , dto, **kwargs):
-            self.cb_called += 1
-            self.assertEquals(dto.errno, 6001)
-            self.assertTrue(dto)
-            self.assertEquals(sender, 'TaskRunner')
-
-        TASKRUNNER_SIGNAL.connect(cb_handler) 
-        time_before_run = time.time()
-        taskrunner.run()
-        time_after_run = time.time()
-        duration = time_after_run - time_before_run
-
-        self.assertEquals(self.cb_called, 1) # Only one of the commands fails
-        self.assertTrue(duration < 6) # Should be less than 10 seconds
 
     def test_one_task_one_worker(self):
         """
@@ -384,6 +282,136 @@ class TestOTSCore(unittest.TestCase):
 
             self.assertTrue(self.results_file_received)
             self.assertTrue(self.test_definition_file_received)
+
+    def test_amqp_logging(self):
+        """
+        Check that the results come back OK from the Worker 
+        """
+        self._start_worker_process(amqp_logging = True) 
+        self.testrun_id = 111      
+        taskrunner = taskrunner_factory(
+                             device_group = "foo", 
+                             timeout = 10,
+                             testrun_id = self.testrun_id,
+                             config_file = self._distributor_config_filename())
+        command = ["echo", "foo"] 
+        taskrunner.add_task(command)
+
+        self.records = []
+        def cb_handler(signal, dto, **kwargs):
+            if isinstance(dto, LogRecord):
+                self.records.append(dto)
+          
+        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        taskrunner.run()
+        messages = ''.join([rec.msg for rec in self.records])
+        self.assertTrue("echo foo" in messages)
+           
+    def test_worker_side_timeout_single_task(self):
+        """
+        Check that worker timeout works properly.
+        It should send error message about the timeout and
+        `finish` state change
+        """
+        self._start_worker_process() 
+        self.testrun_id = 111      
+        taskrunner = taskrunner_factory(
+                             device_group = "foo", 
+                             timeout = 1,
+                             testrun_id = self.testrun_id,
+                             config_file = self._distributor_config_filename())
+        command = ["sleep", "10"]
+
+        taskrunner.add_task(command)
+        self.cb_called = False
+        def cb_handler(signal, sender, dto, **kwargs):
+            self.cb_called = True
+            self.assertEquals(dto.errno, 6001)
+            self.assertTrue(isinstance(dto, SoftTimeoutException))
+            self.assertEquals(sender, 'TaskRunner')
+
+        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        time_before_run = time.time()
+        taskrunner.run()
+        time_after_run = time.time()
+        duration = time_after_run - time_before_run
+
+        self.assertTrue(self.cb_called)
+        self.assertTrue(duration < 6) # Should be less than 10 seconds
+
+
+    def test_worker_side_timeout_multiple_tasks_multiple_workers(self):
+        """
+        Check that worker timeout works properly with multiple tasks.
+        It should send error message about the timeout and
+        `finish` state change
+
+        """
+
+        self._start_worker_process() 
+        self._start_worker_process() 
+        self.testrun_id = 111      
+        taskrunner = taskrunner_factory(
+                             device_group = "foo", 
+                             timeout = 1,
+                             testrun_id = self.testrun_id,
+                             config_file = self._distributor_config_filename())
+
+        command = ["sleep", "10"]
+
+        taskrunner.add_task(command)
+        taskrunner.add_task(command)
+        self.cb_called = 0
+        def cb_handler(signal, sender, dto, **kwargs):
+            self.cb_called += 1
+            self.assertEquals(dto.errno, 6001)
+            self.assertTrue(isinstance(dto, SoftTimeoutException))
+            self.assertEquals(sender, 'TaskRunner')
+
+        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        time_before_run = time.time()
+        taskrunner.run()
+        time_after_run = time.time()
+        duration = time_after_run - time_before_run
+
+        self.assertTrue(self.cb_called == 2)
+        self.assertTrue(duration < 6) # Should be less than 10 seconds
+
+    def test_worker_side_timeout_multiple_tasks_one_worker(self):
+        """
+        Check that worker timeout works properly with multiple tasks one worker.
+        It should send error message about the timeout and
+        `finish` state change
+
+        """
+
+        self._start_worker_process() 
+
+        self.testrun_id = 111      
+        taskrunner = taskrunner_factory(
+                             device_group = "foo", 
+                             timeout = 1,
+                             testrun_id = self.testrun_id,
+                             config_file = self._distributor_config_filename())
+        command = ["sleep", "10"]
+        taskrunner.add_task(command)
+        command = ["echo"]
+        taskrunner.add_task(command)
+        self.cb_called = 0
+        def cb_handler(signal, sender , dto, **kwargs):
+            self.cb_called += 1
+            self.assertEquals(dto.errno, 6001)
+            self.assertTrue(dto)
+            self.assertEquals(sender, 'TaskRunner')
+
+        TASKRUNNER_SIGNAL.connect(cb_handler) 
+        time_before_run = time.time()
+        taskrunner.run()
+        time_after_run = time.time()
+        duration = time_after_run - time_before_run
+
+        self.assertEquals(self.cb_called, 1) # Only one of the commands fails
+        self.assertTrue(duration < 6) # Should be less than 10 seconds
 
     def test_two_tasks_one_worker(self):
 

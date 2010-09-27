@@ -54,9 +54,25 @@ def _init_queue(channel, queue, exchange, routing_key):
                        routing_key = routing_key)
 
 
+def _queue_delete(queue):
+    connection = amqp.Connection(host = "localhost",
+                                 userid = "guest",
+                                 password = "guest",
+                                 virtual_host = "/",
+                                 insist = False)
+    channel = connection.channel()
+    channel.queue_delete(queue = queue, nowait = True)
+
+
+QUEUE_NAME = "test_log"
+
+
 class TestAMQPLogHandler(unittest.TestCase):
 
-    def test_on_message_not_version_compatible(self):
+    def tearDown(self):
+        _queue_delete(QUEUE_NAME)
+
+    def test_log_handler(self):
         """
         Check that incompatible versions dont
         pull messages from the queue
@@ -69,9 +85,9 @@ class TestAMQPLogHandler(unittest.TestCase):
                                           insist = False)
         channel = connection.channel()
         _init_queue(channel, 
-                    "test", 
-                    "test",
-                    "test")
+                    QUEUE_NAME, 
+                    QUEUE_NAME,
+                    QUEUE_NAME)
 
         #Initialise the Logger
         logging.basicConfig(filename = None,
@@ -84,8 +100,8 @@ class TestAMQPLogHandler(unittest.TestCase):
         handler.setLevel(logging.DEBUG)
         logger.addHandler(handler)
         handler.channel = channel
-        handler.exchange = "test"
-        handler.queue = "test"
+        handler.exchange = QUEUE_NAME
+        handler.queue = QUEUE_NAME
 
         #Log 
         logger.debug("debug")
@@ -98,12 +114,12 @@ class TestAMQPLogHandler(unittest.TestCase):
         def cb(message):
             channel.basic_ack(delivery_tag = message.delivery_tag)
             records.append(unpack_message(message))
-        channel.basic_consume("test", callback = cb)
+        channel.basic_consume(QUEUE_NAME, callback = cb)
         for i in range(4):
             channel.wait()
         
         #Validate
-        messages = [rec.message for rec in records]
+        messages = [rec.msg for rec in records]
         self.assertEquals(['debug', 'info', 'warning', 'error'],
                           messages)
        

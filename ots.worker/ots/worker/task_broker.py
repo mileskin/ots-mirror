@@ -112,7 +112,11 @@ class TaskBroker(object):
     # LOG HANDLER
     ############################################
 
-    def _set_amqp_log_handler(self, amqp_log_handler)
+    def _set_amqp_log_handler(self, amqp_log_handler):
+        """
+        @type amqp_log_handler : L{AMQPLogHandler}
+        @param amqp_log_handler: The AMQP Log Handler
+        """
         self._amqp_log_handler = amqp_log_handler
         self._amqp_log_handler.channel = self.channel
 
@@ -205,11 +209,8 @@ class TaskBroker(object):
         cmd_msg = unpack_message(message)
         task_id = cmd_msg.task_id
         response_queue = cmd_msg.response_queue
-        #
-        if self._amqp_log_handler is not None:
-            self._amqp_log_handler.queue = response_queue
-            self._amqp_log_handler.exchange = response_queue
-        #
+       
+        self._set_log_handler(response_queue)
         self._publish_task_state_change(task_id, response_queue)
         #
         try:
@@ -322,6 +323,17 @@ class TaskBroker(object):
                          (min_worker_version, major_minor))
             ret_val = float(major_minor) >= float(min_worker_version)
         return ret_val
+
+    def _set_log_handler(self, queue):
+        """
+        Set the AMQP Log Handler to use the queue
+
+        @type queue : C{str}
+        @param queue : The name of the queue 
+        """
+        if self._amqp_log_handler is not None:
+            self._amqp_log_handler.queue = queue
+            self._amqp_log_handler.exchange = queue
         
     def _try_reconnect(self):
         """

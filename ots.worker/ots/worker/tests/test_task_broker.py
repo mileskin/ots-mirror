@@ -119,10 +119,13 @@ def _task_broker_factory(dispatch_func = None):
 ###########################################
 
 class TestTaskBroker(unittest.TestCase):
-
+        
+    def setUp(self):
+        self.assertTrue(_queue_size("test") is None)
+        
     def tearDown(self):
         _queue_delete("test")
-
+        
     def test_consume(self):
         """
         Check that the consume sets the prefetch correctly 

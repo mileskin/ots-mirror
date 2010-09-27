@@ -41,7 +41,7 @@ import ConfigParser
 
 import ots.worker
 
-from ots.worker.amqp.log_handler import AMQPLogHandler
+from ots.worker.amqp_log_handler import AMQPLogHandler
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
 
@@ -69,7 +69,12 @@ class Worker(object):
         self._routing_key = routing_key 
         self._services_exchange = services_exchange
         self._timeout = None
-               
+        self.amqp_log_handler = None
+       
+    ###########################
+    # AMQP Log Handler
+    ###########################
+     
     def start(self):
         """
         Starts the ots worker server running
@@ -87,6 +92,8 @@ class Worker(object):
                                        self._queue, 
                                        self._routing_key,
                                        self._services_exchange)
+        if self.amqp_log_handler is not None:
+            self._task_broker.amqp_log_handler = self.amqp_log_handler 
         logger.debug("Starting the server. " + \
                          "{vhost:'%s', queue:'%s', routing_key:'%s'}" % 
                      (self._vhost,
@@ -127,12 +134,15 @@ def _init_logging(config_filename = None):
     output_handler = logging.StreamHandler()
     output_handler.setFormatter(formatter)
     output_handler.setLevel(logging.DEBUG)
-
-    amqp_handler = logging.AMQPHandler() 
-    amqp_handler.setFormatter(formatter)
-    amqp_handler.setLevel(logging.DEBUG) 
-
     root_logger.addHandler(output_handler)
+
+
+def create_amqp_log_handler():
+    root_logger = logging.getLogger('')
+    handler = AMQPLogHandler()
+    handler.setLevel(logging.DEBUG)
+    root_logger.addHandler(handler)
+    return handler
 
 def _edit_config(config_filename):
     """
@@ -192,10 +202,11 @@ def main():
     if not os.path.exists(options.config):
         print "Config file path '%s' does not exist!" % ( options.config )
         sys.exit(1)
-    #
-    amqp_log_handler = _init_logging(options.config)
+    #    
+    _init_logging(options.config)
     worker = worker_factory(options.config)
-    worker.amqp_logger = amqp_log_handler 
+    amqp_log_handler = create_amqp_log_handler() 
+    worker.amqp_log_handler = amqp_log_handler 
     worker.start()
 
 if __name__ == '__main__':

@@ -26,6 +26,8 @@ Runs an OTS Testrun
 
 import logging
 
+from logging import LogRecord
+
 from ots.common.dto.api import Packages, Results, Environment
 
 from ots.server.distributor.api import TASKRUNNER_SIGNAL
@@ -92,6 +94,8 @@ class Testrun(object):
         """
         if isinstance(dto, Exception):
             raise dto
+        elif isinstance(dto, LogRecord):
+            logging.log(dto.levelno, dto.msg)
         elif isinstance(dto, Results):
             self._results(dto)
         elif isinstance(dto, Packages):

@@ -49,7 +49,6 @@ class AMQPLogHandler(logging.Handler):
                 and self.queue is not None \
                 and self.exchange is not None:
             message = pack_message(record)
-       
             self.channel.basic_publish(message,
                                        mandatory = True,
                                        exchange = self.exchange,
