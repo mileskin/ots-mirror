@@ -354,7 +354,7 @@ class RPMHardware(Hardware):
 
     def get_command_to_find_test_packages(self):
         """Command that lists rpm test packages with tests.xml from device."""
-        return HW_COMMAND % "find /usr/share/ -name tests.xml | xargs rpm -q --queryformat \"%{NAME}\n\" -f"
+        return HW_COMMAND % "find /usr/share/ -name tests.xml | xargs -r rpm -q --queryformat \"%{NAME}\n\" -f"
 
     def parse_packages_with_file(self, lines):
         """

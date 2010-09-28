@@ -28,9 +28,10 @@ import os
 import subprocess
 import tempfile
 import logging
-from socket import gethostname
 import traceback
+import time
 
+from socket import gethostname
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
@@ -141,13 +142,25 @@ class Stub_Executor(object):
         return 0
 
 class Mock_Executor(TE):
-    def _test_execution_error_handler(self, exc, test_package):
-        #We're expecting ConductorError exception here
-        raise Exception("%s: %s: %s" % (test_package, exc.error_info, exc.error_code))
+    def __init__(self, testrun, stand_alone, responseclient = None,
+                 hostname = "unknown", testrun_timeout = 0):
+        super(Mock_Executor, self).__init__(testrun, stand_alone, responseclient,
+              hostname, testrun_timeout)
+    def _test_execution_error_handler(self, error_info, error_code):#, test_package):
+         #We're expecting ConductorError exception here
+         raise Exception("%s: %s: %s" % (test_package, error_info, error_code))
     def _store_test_definition(self, path, test_package):
         pass
     def _get_command_for_testrunner(self):
         return "" #TODO: self.testrunner_command 
+
+class Mock_Executor_with_cmd(Mock_Executor):
+    def __init__(self, testrun, stand_alone, responseclient = None,
+                 hostname = "unknown", testrun_timeout = 0):
+        super(Mock_Executor, self).__init__(testrun, stand_alone, responseclient,
+              hostname, testrun_timeout)
+    def _get_command_for_testrunner(self):
+        return "sleep 2"
 
 def _conductor_config_simple(config_file = "", default_file = ""):
     config = dict()
@@ -519,7 +532,7 @@ class Test_Executor(unittest.TestCase):
         responseclient = None
         stand_alone = True
         self.executor = Mock_Executor(self.testrun, stand_alone, responseclient,
-                                      "hostname")
+                                      hostname="hostname", testrun_timeout=60)
                 #NOTE!! STUBBED OUT so far: 
                 #_test_execution_error_handler
                 #_store_test_definition
@@ -533,35 +546,64 @@ class Test_Executor(unittest.TestCase):
         subprocess.call("rm -rf "+self.workdir, shell=True) #created in setUp
 
 
-    def test_run_tests_1(self):
+    def test_run_tests_returns_true(self):
         """Test for _run_tests method when testrunner command succeeds"""
         self.testrun.base_dir = self.workdir #inject our temp folder
         path = self.workdir
         test_package = "my-tests"
+        executor = Mock_Executor(self.testrun, True, None,
+                                 hostname="hostname", testrun_timeout=60)
         expected_stdout_file = os.path.join(path, "%s_testrunner_stdout.txt" % test_package)
         expected_stderr_file = os.path.join(path, "%s_testrunner_stderr.txt" % test_package)
         #check that files do not exist yet
         self.assertFalse(os.path.isfile(expected_stdout_file))
         self.assertFalse(os.path.isfile(expected_stderr_file))
-        self.executor._run_tests(test_package)
+        status = executor._run_tests(test_package, time.time(), time.time() + 1)
+        #check that _run_tests returned True
+        self.assertTrue(status is True)
         #check that files were created
         self.assertTrue(os.path.isfile(expected_stdout_file))
         self.assertTrue(os.path.isfile(expected_stderr_file))
 
+    def test_run_tests_returns_false(self):
+        """Test for _run_tests method when testrunner command succeeds"""
+        self.testrun.base_dir = self.workdir #inject our temp folder
+        path = self.workdir
+        test_package = "my-tests"
+        executor = Mock_Executor(self.testrun, True, None,
+                                 hostname="hostname", testrun_timeout=60)
+        status = executor._run_tests(test_package, 0, 60)
+        expected_stdout_file = os.path.join(path, "%s_testrunner_stdout.txt" % test_package)
+        expected_stderr_file = os.path.join(path, "%s_testrunner_stderr.txt" % test_package)
+        #check that _run_tests returned False
+        self.assertTrue(status is False)
+
+    def test_run_tests_returns_false_with_timeout(self):
+        """Test for _run_tests method when testrunner command succeeds"""
+        self.testrun.base_dir = self.workdir #inject our temp folder
+        path = self.workdir
+        test_package = "my-tests"
+        executor = Mock_Executor_with_cmd(self.testrun, True, None,
+                                          hostname="hostname", testrun_timeout=1)
+        expected_stdout_file = os.path.join(path, "%s_testrunner_stdout.txt" % test_package)
+        expected_stderr_file = os.path.join(path, "%s_testrunner_stderr.txt" % test_package)
+        timer = time.time()
+        status = executor._run_tests(test_package, timer, timer)
+        #check that _run_tests returned True
+        self.assertTrue(status is False)
 
     def _test_run_tests_2(self):  #TODO TEST DISABLED until testrunner_command can be injected to Mock_Executor
         """Test for _run_tests method when testrunner command fails"""
         testrunner_command = 'sh -c "exit 1"'
-        self.executor = Mock_Executor(self.testrun, self.stand_alone, 
-                                      self.responseclient, "hostname", 
-                                      testrunner_command)
-        self.executor.target = Stub_Hardware()
+        executor = Mock_Executor(self.testrun, self.stand_alone,
+                                 self.responseclient, "hostname",
+                                 testrunner_command)
+        executor.target = Stub_Hardware()
         self.testrun.base_dir = self.workdir
         #self.assertFalse(os.path.exists(...)) #files do not exist yet
         test_package = "my-tests"
-        self.assertRaises(ConductorError, self.executor._run_tests, test_package)
+        self.assertRaises(ConductorError, executor._run_tests, test_package)
         #TODO check that files were created
-
 
     def test_set_target_when_debian(self):
         from ots.worker.conductor.hardware import Hardware as Hardware
