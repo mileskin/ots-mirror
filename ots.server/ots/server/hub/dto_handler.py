@@ -107,7 +107,8 @@ class DTOHandler(object):
         if isinstance(dto, Exception):
             raise dto
         elif isinstance(dto, LogRecord):
-            logging.log(dto.levelno, dto.msg)
+            logger = logging.getLogger(dto.name)
+            logger.log(dto.levelno, dto.msg)
         elif isinstance(dto, Results):
             self._results(dto)
         elif isinstance(dto, Packages):
