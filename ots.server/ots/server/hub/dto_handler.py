@@ -110,7 +110,7 @@ class DTOHandler(object):
             logging.log(dto.levelno, dto.msg)
         elif isinstance(dto, Results):
             self._results(dto)
-        elif isinstance(dto, Packages):
-            self._packages(dto)
+        #elif isinstance(dto, Packages):
+        #    self._packages(dto)
         else:
             LOG.debug("Unknown DTO: '%s'"%(dto))

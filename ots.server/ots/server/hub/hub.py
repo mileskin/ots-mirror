@@ -81,12 +81,16 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
         LOG.debug("Initialising Testrun")
         is_hw_enabled = bool(len(options.hw_packages))
         is_host_enabled = bool(len(options.host_packages))
-        result = testrun(run_test, is_hw_enabled, is_host_enabled)
+        result = testrun(run_test, 
+                         is_hw_enabled = is_hw_enabled, 
+                         is_host_enabled = is_host_enabled)
         LOG.debug("Testrun finished with result: %s"%(result))
         if report_plugin is not None:
             report_plugin.result = result
     except Exception, err:
         LOG.debug("Testrun Exception: %s"%(err))
+        import traceback
+        LOG.debug(traceback.format_exc())
         if report_plugin is not None:
             report_plugin.exception = sys.exc_info()[1]
 

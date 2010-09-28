@@ -20,10 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import unittest
 
-from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerResultsPass
-from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerError
+import logging
+
+from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.hub.hub import run
 
 options_dict = {"image" : "www.nokia.com" ,
@@ -43,18 +43,22 @@ options_dict = {"image" : "www.nokia.com" ,
                 "email" : "on",
                 "email-attachments" : "on"}
 
-class TestHub(unittest.TestCase):
+def demo():
+    taskrunner = taskrunner_factory("foo", 2, 1)
+    taskrunner.add_task(["sleep", "1"])
+    taskrunner.add_task(["echo", "hello world"])
+    run("foo", "bar", "baz",
+        taskrunner.run, **options_dict)
 
-    def test_run_pass(self):
-        mock_taskrunner = MockTaskRunnerResultsPass()
-        run("foo", "bar", "baz",
-            mock_taskrunner.run, **options_dict)
-
-
-    def test_run_error(self):
-        mock_taskrunner = MockTaskRunnerError()
-        run("foo", "bar", "baz",
-            mock_taskrunner.run, **options_dict)
 
 if __name__ == "__main__":
-    unittest.main()
+    formatter = \
+             logging.Formatter\
+             ("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    demo()
