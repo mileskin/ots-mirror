@@ -20,6 +20,17 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+High level demo of the hub
+
+You need to run up the worker in another terminal:
+
+$cd $WORKER
+$python worker.py -c ./config.ini
+"""
+
+#FIXME: A WIP. This needs building on and working into 
+#automated system tests 
 
 import logging
 
@@ -44,12 +55,14 @@ options_dict = {"image" : "www.nokia.com" ,
                 "email-attachments" : "on"}
 
 def demo():
+    """
+    A rough and ready demo
+    """
     taskrunner = taskrunner_factory("foo", 2, 1)
     taskrunner.add_task(["sleep", "1"])
     taskrunner.add_task(["echo", "hello world"])
     run("foo", "bar", "baz",
         taskrunner.run, **options_dict)
-
 
 if __name__ == "__main__":
     formatter = \

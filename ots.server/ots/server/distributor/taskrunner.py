@@ -278,7 +278,6 @@ class TaskRunner(object):
         """
         while 1:
             try:
-                LOGGER.debug("Waiting for message...")
                 self._channel.wait()
             except socket.error, e:
                 # interrupted system call exception need to be ignored so that
