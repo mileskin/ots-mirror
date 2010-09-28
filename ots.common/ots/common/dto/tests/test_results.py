@@ -29,7 +29,7 @@ class TestResults(unittest.TestCase):
     def test_results(self):
         results = Results("foo", "<result>pass</result>",
                           package = "pkg1", 
-                          origin = "unittest", 
+                          hostname = "unittest", 
                           environment = "meego")
         self.assertEquals("foo", results.results_xml.name)
         self.assertEquals("<result>pass</result>",

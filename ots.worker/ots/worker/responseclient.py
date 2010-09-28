@@ -89,8 +89,10 @@ class ResponseClient(object):
     def add_result(self, filename, content, origin="Unknown", 
                          test_package="Unknown", environment="Unknown"):
         """Calls OTSMessageIO to create result object message"""
-        results = Results(filename, content, test_package,
-                                       origin, environment)
+        results = Results(filename, content, 
+                          package = test_package,
+                          hostname = origin, 
+                          environment = environment)
         self._send_message(pack_message(results))
 
     def set_state(self, state, status_info):

@@ -134,7 +134,7 @@ class TestResponseClient(unittest.TestCase):
         result = loads(msg.body)
         self.assertEquals(result.results_xml.name, filename)
         self.assertEquals(result.results_xml.read(), file_content)
-        self.assertEquals(result.origin, origin)
+        self.assertEquals(result.hostname, origin)
         self.assertEquals(result.package, test_package)
         self.assertEquals(result.environment, Environment(environment))
         

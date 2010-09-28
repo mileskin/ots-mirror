@@ -59,7 +59,7 @@ class MockTaskRunnerResultsBase(object):
     def _send_result(environment, results_xml, name):
         results = Results(name, results_xml,
                           package = name,
-                          origin = "mock_task_runner",
+                          hostname = "mock_task_runner",
                           environment = environment)
         DTO_SIGNAL.send(sender = "MockTaskRunner", 
                                dto = results)

@@ -33,7 +33,7 @@ class Results(object):
     """
 
     def __init__(self, name, content, 
-                       package = None, origin = None, environment = None):
+                       package = None, hostname = None, environment = None):
         """
         @type name : C{str}
         @param name : The name of the results_xml
@@ -44,8 +44,8 @@ class Results(object):
         @type package : C{str}
         @param package : The associated package
 
-        @type origin : C{str}
-        @param origin : The origin
+        @type hostname : C{str}
+        @param hostname : The hostname of the machine conducting the tests
 
         @type environment : C{str}
         @param environment : The name of the Environment
@@ -53,6 +53,6 @@ class Results(object):
         self.results_xml = StringIO(content)
         self.results_xml.name = name
         self.package = package
-        self.origin = origin
+        self.hostname = hostname
         self.environment = Environment(environment)
 
