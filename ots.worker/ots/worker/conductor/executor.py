@@ -197,8 +197,12 @@ class Executor(object):
         self._fetch_environment_details()
 
         errors = 0
-        self.log.info("Testrun timeout set to %s seconds" % \
-                      self.testrun_timeout)
+        if self.testrun_timeout:
+            self.log.info("Testrun timeout set to %s seconds" % \
+                          self.testrun_timeout)
+        else:
+            self.log.info("Testrun timeout not specified")
+
         start_time = time.time()
 
         for test_package in self.testrun.test_packages:
@@ -583,10 +587,13 @@ class Executor(object):
         current_timeout = self.testrun_timeout - \
                           (time_current - start_time)
 
-        if current_timeout > 0:
+        if not self.testrun_timeout or current_timeout > 0:
             self.log.info("Testrunner-lite command: %s" % cmdstr)
-            cmd = Command(cmdstr, soft_timeout=current_timeout, hard_timeout=\
-                          current_timeout + WAIT_SIGKILL)
+            if not self.testrun_timeout:
+                cmd = Command(cmdstr)
+            else:                  
+                cmd = Command(cmdstr, soft_timeout=current_timeout, hard_timeout=\
+                              current_timeout + WAIT_SIGKILL)
             try:
                 cmd.execute()
             except (SoftTimeoutException, HardTimeoutException), e:
