@@ -54,7 +54,7 @@ class Worker(object):
     """
 
     def __init__(self, vhost, host, port, username, password, queue, 
-                       routing_key, services_exchange):
+                       routing_key, services_exchange, enable_task_timeout):
         """
         Initialise the class, read config, set up logging
         """
@@ -66,6 +66,7 @@ class Worker(object):
         self._queue = queue 
         self._routing_key = routing_key 
         self._services_exchange = services_exchange
+        self._enable_task_timeout = enable_task_timeout
         self._timeout = None
                
     def start(self):
@@ -84,7 +85,8 @@ class Worker(object):
         self._task_broker = TaskBroker(self._connection, 
                                        self._queue, 
                                        self._routing_key,
-                                       self._services_exchange)
+                                       self._services_exchange,
+                                       self._enable_task_timeout)
         logger.debug("Starting the server. " + \
                          "{vhost:'%s', queue:'%s', routing_key:'%s'}" % 
                      (self._vhost,
@@ -151,6 +153,10 @@ def worker_factory(config_filename):
     queue = config.get('Worker','queue')
     routing_key = config.get('Worker','routing_key')
     services_exchange = config.get('Worker','services_exchange')
+    if config.get('Worker', 'enable_task_timeout').upper() == 'FALSE':
+        enable_task_timeout = False
+    else:
+        enable_task_timeout = True
     
     if queue == "fix_me" or routing_key == "fix_me":
         _edit_config(config_filename)
@@ -162,7 +168,8 @@ def worker_factory(config_filename):
 
     return Worker(vhost=vhost, host=host, port=port, username=username,
                   password=password, queue=queue, routing_key=routing_key, 
-                  services_exchange=services_exchange)
+                  services_exchange=services_exchange, enable_task_timeout=\
+                  enable_task_timeout)
        
 def main():
     """

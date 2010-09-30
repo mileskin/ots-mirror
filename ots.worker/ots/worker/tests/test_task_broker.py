@@ -62,14 +62,15 @@ class TestTaskBroker(unittest.TestCase):
         channel = task_broker.channel
         channel.queue_delete(queue = "test", nowait = True)
 
-    def create_task_broker(self, dispatch_func=None):
+    def create_task_broker(self, dispatch_func=None, enable_task_timeout=False):
         connection = Connection(vhost = "/",
                                 host = "localhost",
                                 port = 5672,
                                 username = "guest",
                                 password = "guest")
         connection.connect()
-        task_broker = TaskBroker(connection, "test", "test", "test")
+        task_broker = TaskBroker(connection, "test", "test", "test", \
+                                 enable_task_timeout)
         if dispatch_func:
             task_broker._dispatch = dispatch_func
         task_broker._init_connection()
@@ -199,7 +200,7 @@ class TestTaskBroker(unittest.TestCase):
         #send a sleep command
         msg1 = self.create_message('sleep 2', 1, 'test', 1)
 
-        task_broker = self.create_task_broker()
+        task_broker = self.create_task_broker(enable_task_timeout=True)
         channel = task_broker.channel
         # Send timeouting command
 
@@ -225,10 +226,16 @@ class TestTaskBroker(unittest.TestCase):
         self.assertFalse(task_broker._dispatch("ls -al", 1))
 
     def test_dispatch_timeout(self):
-        task_broker = self.create_task_broker()
+        task_broker = self.create_task_broker(enable_task_timeout=True)
         channel = task_broker.channel
         # Try to keep under timeouts
         self.assertRaises(SoftTimeoutException, task_broker._dispatch, "sleep 2", 1)
+
+    def test_dispatch_without_timeout(self):
+        task_broker = self.create_task_broker()
+        channel = task_broker.channel
+        # Timeout value is not used, when enable_task_timeout is set to False
+        task_broker._dispatch("sleep 2", 1)
 
     def test_dispatch_failing_command(self):
         task_broker = self.create_task_broker()
@@ -238,7 +245,6 @@ class TestTaskBroker(unittest.TestCase):
                           task_broker._dispatch,
                           "cat /not/existing/file",
                           1)
-
 
     def test_publish_task_state_change(self):
         task_broker = self.create_task_broker()

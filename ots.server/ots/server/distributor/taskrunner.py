@@ -144,8 +144,9 @@ class TaskRunner(object):
     """
 
     def __init__(self, username, password, host, vhost, 
-                 services_exchange, port, 
-                 routing_key, testrun_id, timeout, queue_timeout):
+                 services_exchange, port, routing_key,
+                 testrun_id, timeout, queue_timeout,
+                 testrun_timeout=0):
         """
         @type username: C{str}
         @param username: AMQP username 
@@ -190,8 +191,10 @@ class TaskRunner(object):
         #timeouts
         self._timeout = timeout
         self._queue_timeout = queue_timeout
+        self._testrun_timeout = testrun_timeout
 
-        self.timeout_handler = Timeout(timeout, queue_timeout)
+        self.timeout_handler = Timeout(timeout, queue_timeout, \
+                                       testrun_timeout)
 
 
         # Tells if we are running only a single task

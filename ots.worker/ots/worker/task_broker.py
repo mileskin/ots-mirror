@@ -59,6 +59,7 @@ STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
 TASK_STATE_RESPONSES = [OTSProtocol.STATE_TASK_STARTED,
                         OTSProtocol.STATE_TASK_FINISHED]
 
+
 class NotConnectedError(Exception):
     """Exception raised if not connected to amqp"""
     pass
@@ -67,7 +68,7 @@ class NotConnectedError(Exception):
 # Command Class to Function
 ########################################
 
-def _start_process(command, timeout):
+def _start_process(command, timeout=0):
     """
     Starts the specified process
 
@@ -77,9 +78,12 @@ def _start_process(command, timeout):
     @type timeout: int
     @param timeout: The timeout to apply to the Task
     """
-    task = Command(command, 
-                   soft_timeout=timeout,
-                   hard_timeout=timeout + 5)
+    if not timeout:
+        task = Command(command)
+    else:
+        task = Command(command, 
+                       soft_timeout=timeout,
+                       hard_timeout=timeout + 5)
 
     task.execute()
 
@@ -93,11 +97,13 @@ class TaskBroker(object):
     Pulls messages containing Tasks from AMQP 
     Dispatch the Tasks as a process
     """   
-    def __init__(self, connection, queue, routing_key, services_exchange):
+    def __init__(self, connection, queue, routing_key, services_exchange,
+                 enable_task_timeout):
         self._connection = connection
         self.queue = queue
         self.routing_key = routing_key
         self.services_exchange = services_exchange
+        self.enable_task_timeout = enable_task_timeout
         self._keep_looping = True
         self._consumer_tag = ""
 
@@ -216,7 +222,7 @@ class TaskBroker(object):
                 self.channel.basic_consume(queue = self.queue,
                                            callback = self._on_message)
 
-    def _dispatch(self, command, timeout):
+    def _dispatch(self, command, timeout=0):
         """
         Dispatch the Task. Currently as a Process (Blocking)
                 
@@ -231,6 +237,10 @@ class TaskBroker(object):
         elif not command == OTSProtocol.COMMAND_IGNORE:
 
             LOGGER.debug("Running command: '%s'"%(command))
+
+            # Disable timeouts
+            if not self.enable_task_timeout:
+                timeout = 0
             _start_process(command = command, timeout = timeout)
 
     #######################################
