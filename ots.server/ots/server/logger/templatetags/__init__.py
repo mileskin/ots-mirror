@@ -20,18 +20,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
-
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+"""
+Custom template tags for logger
+"""

@@ -20,7 +20,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
       name = "ots.server",
@@ -28,7 +28,17 @@ setup(
       version =  0.1,
       include_package_data = True,
       namespace_packages = ['ots', "ots.server"],
-      packages = ['ots.server.distributor'],
+      packages = find_packages(),
+#      packages = ['ots.server.distributor',
+#                  'ots.server.email_backend',
+#                  'ots.server.input',
+#                  'ots.server.logger',
+#                  'ots.server.testrun_host',
+#                  'ots.server.xmlrpc',
+#                  'ots.server.conductorengine'],
+      entry_points={"console_scripts":
+                    ["ots_server = ots.server.xmlrpc.server:main",]
+                    },
       zip_safe = False,
       data_files=[('/etc', ['ots-server.ini'])]
       )

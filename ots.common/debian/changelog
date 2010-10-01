@@ -1,3 +1,10 @@
+ots-common (0.1.0-1) unstable; urgency=low
+
+  * Added result file processing
+  * Added baseclasses for plugins
+
+ -- Teemu Vainio <ext-teemu.a.vainio@nokia.com>  Thu, 23 Sep 2010 16:40:13 +0300
+
 ots-common (0.0.2-1) unstable; urgency=low
 
   * Added exception handler for socket.error "Interrupted System Call". This fixes the problem with apache graceful restart killing the testrun.

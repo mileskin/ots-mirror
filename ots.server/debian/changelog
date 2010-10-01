@@ -1,3 +1,9 @@
+ots-server (0.1.0-1) unstable; urgency=low
+
+  * Added all essential server side components. Ots is now able to run testruns
+
+ -- Teemu Vainio <ext-teemu.a.vainio@nokia.com>  Thu, 23 Sep 2010 16:40:47 +0300
+
 ots-server (0.0.2-1) unstable; urgency=low
 
   * Added exception handler for socket.error "Interrupted System Call". This fixes the problem with apache graceful restart killing the testrun.

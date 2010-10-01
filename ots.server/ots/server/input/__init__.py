@@ -20,18 +20,9 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
+"""
+Input plugin related components take care of sending information back to the ots
+user. For example raw result files can be stored to the build system with
+resultsplugin and a suitable input plugin.
 
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+"""

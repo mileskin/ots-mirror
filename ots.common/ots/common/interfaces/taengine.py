@@ -18,20 +18,36 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
-# ***** END LICENCE BLOCK *****
+# ***** END LICENCE BLOCK ***** 
 
-from setuptools import setup, find_packages
 
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+"""
+OTS TA engine abstract base class.
+
+TA Engine is the interface for different test execution implementations.
+"""
+
+class TAEngine(object):
+    """OTS TA engine abstract base class"""
+
+        
+    def name(self):
+        """ This method returns the name of the plugin as a string
+                    
+            @rtype: C{string}
+            @return: Name of the plugin
+        """ 
+        raise NotImplementedError
+
+                
+    def execute(self, testrun_object):
+        """ This method launches the execution for a testrun
+    
+            @type testrun_object: L{Testrun}
+            @param testrun_object: The testrun to be executed
+                    
+            @rtype: C{None}
+            @return: Nothing
+
+        """ 
+        raise NotImplementedError

@@ -19,19 +19,26 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+"""
+Config file handling code for ots server
+"""
+import os
 
-from setuptools import setup, find_packages
 
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+DEFAULT_CONFIG_FILE = "/etc/ots-server.ini"
+def config_file_name():
+    """
+    Returns the config file path.
+
+    Tries /etc/ots-server.ini first. If that doesn't exist it tries config.ini
+    from ots.server directory
+    """
+    if os.path.exists(DEFAULT_CONFIG_FILE):
+        return DEFAULT_CONFIG_FILE
+
+    distributor_dirname = os.path.dirname(os.path.abspath(__file__))
+    distributor_config_filename = os.path.join(distributor_dirname,
+                                               "config.ini")
+    if not os.path.exists(distributor_config_filename):
+        raise Exception("%s not found"%(distributor_config_filename))
+    return distributor_config_filename

@@ -24,7 +24,7 @@
 Factory method to create TaskRunner from a config file 
 """
 
-DEFAULT_CONFIG_FILE = "/etc/ots-server.ini"
+
 
 #Disable spurious pylint warnings
 
@@ -35,6 +35,7 @@ import ConfigParser
 import os
 
 from ots.server.distributor.taskrunner import TaskRunner
+from ots.server.config import config_file_name
 
 def taskrunner_factory(device_group,
                        timeout,
@@ -60,7 +61,7 @@ def taskrunner_factory(device_group,
     """
 
     if not config_file:
-        config_file = _default_config_filename()
+        config_file = config_file_name()
 
     config = ConfigParser.ConfigParser()
     config.read(config_file)
@@ -79,20 +80,3 @@ def taskrunner_factory(device_group,
                                                      "timeout_worker_testrun"))
     return taskrunner
 
-
-def _default_config_filename():
-    """
-    Returns the default config file path.
-
-    Tries /etc/ots-server.ini first. If that does not work, tries config.ini
-    from ots.server.distributor directory
-    """
-    if os.path.exists(DEFAULT_CONFIG_FILE):
-        return DEFAULT_CONFIG_FILE
-
-    distributor_dirname = os.path.dirname(os.path.abspath(__file__))
-    distributor_config_filename = os.path.join(distributor_dirname,
-                                               "config.ini")
-    if not os.path.exists(distributor_config_filename):
-        raise Exception("%s not found"%(distributor_config_filename))
-    return distributor_config_filename

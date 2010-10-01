@@ -23,15 +23,16 @@
 from setuptools import setup, find_packages
 
 setup(
-      name = "ots.common",
+      name = "ots.tools",
+      description="Various helper tools for OTS",
       author = "ext-teemu.a.vainio@nokia.com",
       version =  0.1,
       include_package_data = True,
       namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
       packages = find_packages(),
       zip_safe = False,
+
+      entry_points={
+        "console_scripts":
+            ["ots_trigger = ots.tools.trigger.ots_trigger:main",],},
       )

@@ -231,17 +231,6 @@ class Testrun(object):
         return True
 
 
-    def get_emmc_url(self):
-        """
-        Returns emmcurl from options.
-        """
-        try:
-            self.log.debug("emmcurl: %s" % self.options['emmcurl'])
-            return self.options['emmcurl']
-        except (KeyError, TypeError):
-            self.log.debug("emmcurl: "" (default value)")
-            return ""
-
     def scratchbox_testing_enabled(self):
         """
         Returns true if testrun has scratchbox testing enabled in options.

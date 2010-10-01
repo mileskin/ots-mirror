@@ -20,18 +20,30 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
+"""
+A simple forking xmlrpc server for serving the ots public interface
+"""
 
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
+from SocketServer import ForkingMixIn
+from ots.server.xmlrpc.public import request_sync
+
+try:    
+    from ots_extensions import ots_config
+except ImportError: # If no custom config found, use the default
+    from ots.server.testrun_host import default_ots_config as ots_config
+
+
+
+class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
+    pass
+
+
+def main():
+    config = (ots_config.xmlrpc_host, ots_config.xmlrpc_port)
+    server = OtsForkingServer(config, SimpleXMLRPCRequestHandler)
+    server.register_function(request_sync)
+    server.serve_forever()
+
+if __name__ == "__main__":
+    main()

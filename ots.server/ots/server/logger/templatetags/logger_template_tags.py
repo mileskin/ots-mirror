@@ -20,18 +20,26 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
+# Ignoring: Invalid name "register" 
+#           (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
+# register should be written lowercase letters
+# pylint: disable-msg=C0103
+""" Template tags for logger
+"""
+import time, logging
+from django import template
+register = template.Library()
 
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+@register.filter
+def convert_epoch_to_string(value):
+    """ Converts epoch value to string
+    """
+    return time.ctime(float(value))
+
+@register.filter
+def result_judge(levelname, levelnumber):
+    if int(levelnumber) >= logging.ERROR:
+        strOut = '<div class="red"><b>%s</b></div>' % levelname
+    else:
+        strOut = levelname
+    return strOut

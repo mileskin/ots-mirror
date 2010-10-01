@@ -20,18 +20,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
+from django.conf.urls.defaults import *
+from ots.server.logger.views import *
 
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+urlpatterns = patterns('',
+    (r'^(?P<servicename>\w+)/(?P<run_id>\d+)/$', create_message),
+    (r'^view/$', advanced_message_viewer),
+    (r'^view/details/(?P<log_id>\d+)/$', view_message_details),
+    (r'^view/(?P<servicename>\w+)/(?P<run_id>\d+)/$', basic_message_viewer),
+)

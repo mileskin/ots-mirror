@@ -20,18 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
+#This shouldn't be necessary 
+#http://bugs.python.org/setuptools/issue36
 
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+
+__import__('pkg_resources').declare_namespace(__name__)

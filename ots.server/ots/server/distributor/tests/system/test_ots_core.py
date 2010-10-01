@@ -488,7 +488,7 @@ class TestOTSCore(unittest.TestCase):
     @staticmethod
     def _distributor_config_filename():
         distributor_dirname = os.path.dirname(
-                              os.path.abspath(ots.server.distributor.__file__))
+                              os.path.abspath(ots.server.__file__))
         distributor_config_filename = os.path.join(distributor_dirname,
                                                   "config.ini")
         if not os.path.exists(distributor_config_filename):

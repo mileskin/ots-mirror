@@ -20,18 +20,34 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
+import unittest
+from ots.server.input.default import Default
 
-setup(
-      name = "ots.common",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-#      packages = ['ots.common',
-#                  'ots.common.testdefinition',
-#                  'ots.common.interfaces',
-#                  'ots.common.results'],
-      packages = find_packages(),
-      zip_safe = False,
-      )
+
+
+class testDefaultPlugin(unittest.TestCase):
+    
+
+    def setUp(self):
+
+        self.plugin = Default()
+            
+    def tearDown(self):
+        pass
+
+        
+    def test_store_url(self):
+        self.plugin.store_url("asdf","asdf")
+
+    def test_get_changed_packages(self):
+        self.plugin.get_changed_packages(3)
+
+    def test_store_file(self):
+        self.plugin.store_file("asdf", "asdf", "asdf", "asdf")
+
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()
