@@ -23,6 +23,7 @@
 """
 The Signal for a DTO
 """
+import sys
 
 ###################
 
@@ -42,7 +43,7 @@ except ImportError:
     conf_stub = types.ModuleType("django.conf")
     conf_stub.settings = SettingsStub()
     sys.modules["django.conf"] = conf_stub
-    LOGGER.debug("Monkey patching django.conf")
+#    LOGGER.debug("Monkey patching django.conf")
 
 from django.dispatch.dispatcher import Signal
 
