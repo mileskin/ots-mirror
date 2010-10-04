@@ -58,7 +58,7 @@ def _conductor_command(options, host_testing):
     if options['test_packages']:
         cmd.extend( ["-t", options['test_packages']] )
     if options['testrun_timeout']:
-        cmd.extend( ["-e", options['testrun_timeout']] )
+        cmd.extend( ["-m", options['testrun_timeout']] )
 
     if host_testing == True:
         cmd.extend( ['-o'] )
