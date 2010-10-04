@@ -24,7 +24,7 @@
 from ots.common.interfaces.taengine import TAEngine
 from ots.server.conductorengine.conductor_command import get_commands
 from ots.server.distributor.api import OtsQueueDoesNotExistError, \
-    OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
+     OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
 from ots.server.distributor.api import taskrunner_factory
 from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import STATUS_SIGNAL
@@ -51,6 +51,7 @@ class ConductorEngine(TAEngine):
         self._test_list = dict()
         self._storage_address = ""
         self._test_filter = ""
+        self._testrun_timeout = 0
         self._flasher = ""
         self._taskrunner = taskrunner
     
@@ -65,6 +66,7 @@ class ConductorEngine(TAEngine):
         self._emmc_flash_parameter = testrun.get_option('emmc')
         self._testrun_id = testrun.get_testrun_id()        
         self._flasher = testrun.get_option('flasher')
+        self._testrun_timeout = testrun.get_testrun_timeout()
 
         # Check for device tests
         if testrun.get_testpackages():
@@ -141,6 +143,7 @@ class ConductorEngine(TAEngine):
                             self._testrun_id,
                             self._storage_address,
                             self._test_filter,
+                            self._testrun_timeout,
                             self._flasher)
 
         try:

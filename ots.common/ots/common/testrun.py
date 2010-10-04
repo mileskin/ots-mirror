@@ -53,6 +53,7 @@ class Testrun(object):
         self.options = {}
         self.result_objects = []
         self.testpackagedata = []
+        self.testrun_timeout = 0
 
         self.state = "NOT_STARTED"        
         self.status_info = "" # Status info string. Can contain any string.
@@ -318,6 +319,15 @@ class Testrun(object):
         """sets image url"""
         self.image_url = image
         self.log.debug("Image url set to %s" % image)
+
+    def set_testrun_timeout(self, testrun_timeout):
+        """ Sets timeout for testruns """
+        self.testrun_timeout = testrun_timeout
+        self.log.debug("Testrun timeout set to %s" % testrun_timeout)
+
+    def get_testrun_timeout(self):
+        """ returns testrun timeout """
+        return self.testrun_timeout
 
     def get_rootstrap_url(self):
         """returns rootstrap url"""
