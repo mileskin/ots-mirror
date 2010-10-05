@@ -87,7 +87,7 @@ def request_sync(program, request, notify_list, options):
     test_packages = _string_2_list(options.get("packages",""))
     testplan_id =  options.get('plan', None)
     is_executed =  options.get('execute') != 'false'
-    testrun_timeout = options.get('testrun_timeout')
+    testrun_timeout = options.get('testrun_timeout', '0')
     #
     options = _repack_options(options)
     #
