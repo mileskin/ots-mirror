@@ -78,7 +78,7 @@ class TestrunHost(object):
                      test_packages,
                      image_url=None,
                      rootstrap_url=None,
-                     testrun_timeout=0):
+                     testrun_timeout="0"):
         """Initializes a new testrun. Returns testrun ID"""
         
         self.testrun_id = testrun_id

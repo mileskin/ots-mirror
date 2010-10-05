@@ -50,6 +50,11 @@ class TestTestrun(unittest.TestCase):
         self.testrun.options["device"]["devicegroup"] = group
         self.assertEquals(self.testrun.get_device_group(), group)
 
+    def test_set_and_get_testrun_timeout(self):
+        timeout = "60"
+        self.testrun.set_testrun_timeout(timeout)
+        self.assertEquals(self.testrun.get_testrun_timeout(), timeout)
+
     def test_executed_packages(self):
         self.assertEquals(self.testrun.get_all_executed_packages(), dict())
         pkgs = dict()

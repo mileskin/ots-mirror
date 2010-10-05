@@ -130,7 +130,7 @@ def get_commands(distribution_model,
                  testrun_id, 
                  storage_address, 
                  test_filter,
-                 testrun_timeout,
+                 testrun_timeout="0",
                  flasher=""):
     """Returns a list of conductor commands based on the options"""
 
