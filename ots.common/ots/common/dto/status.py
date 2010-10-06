@@ -20,6 +20,9 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+
+CONDUCTOR_STATES = ["FINISHED", "FLASHING", "TESTING", "STORING_RESULTS"]
+
 class Status(object):
 
     def __init__(self, state, status_info):

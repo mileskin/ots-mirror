@@ -28,20 +28,27 @@ Very much a spike
 import sys
 import os
 import logging
+import logging.config
 
 from ots.server.hub.testrun import testrun
 from ots.server.hub.options import Options
-from ots.server.hub.init_logging import init_logging
 from ots.server.hub.plugins import ReportPlugin
 from ots.server.hub.plugins import BifhPlugin
 
 LOG = logging.getLogger(__name__)
 
-
 #FIXME: Hackish implementation WIP whilst DataStoring in development 
 from ots.report_plugin.tests.test_report_plugin import DataStoringStub 
 DATA_STORING_STUB = DataStoringStub()
 
+
+def _init_logging():
+    """
+    Initialise the logging from the configuration file
+    """
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    conf = os.path.join(dirname, "logging.conf")
+    logging.config.fileConfig(conf)
 
 def run(sw_product, request_id, notify_list, run_test, **kwargs):
     """
@@ -72,9 +79,8 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
                                  options.hw_packages,
                                  options.image,
                                  target_packages)
-    if report_plugin is not None:
-        init_logging(request_id, report_plugin.testrun_id)
 
+    _init_logging()
     #Preprocessing_steps_here?
 
     try:

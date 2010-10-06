@@ -65,13 +65,4 @@ def demo():
         taskrunner.run, **options_dict)
 
 if __name__ == "__main__":
-    formatter = \
-             logging.Formatter\
-             ("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.DEBUG)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
     demo()
