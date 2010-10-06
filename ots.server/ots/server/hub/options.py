@@ -140,24 +140,24 @@ class Options(object):
     @property
     def gate(self):
         """
-        @rtype: TODO
-        @return: TODO
+        @rtype: C{str}
+        @return: The "quality gate" or integration stage this testrun relates to
         """
         return self._gate
 
     @property
     def label(self):
         """
-        @rtype: TODO
-        @return: TODO
+        @rtype: C{str}
+        @return: A label for the testrun type. (e.g. Regression, Sanity Check)
         """
         return self._label
 
     @property
     def device(self):
         """
-        @rtype: TODO
-        @return: TODO
+        @rtype: C{dict}
+        @return: A dictionary of device properties this testrun requires
         """
         if self._device is not None:
             return self._string_2_dict(self._device)
@@ -167,8 +167,8 @@ class Options(object):
     @property
     def emmc(self):
         """
-        @rtype: TODO
-        @return: TODO
+        @rtype: C{str}
+        @return: Url to the additional content image (memory card image)
         """
         return self._emmc
 
@@ -192,7 +192,7 @@ class Options(object):
     def testfilter(self):
         """
         @rtype: C{str}
-        @return: TODO
+        @return: The test filter string for testrunner-lite
         """
         if self._testfilter is not None:
             testfilter = self._testfilter.replace('"',"'")
@@ -225,9 +225,9 @@ class Options(object):
         Converts a spaced string to an array
 
         @param string: The string for conversion
-        @type product: C{string}
+        @type product: C{str}
 
-        @rtype: C{list} consisting of C{string}
+        @rtype: C{list} consisting of C{str}
         @return: The converted string
         """
         if string:
@@ -243,9 +243,9 @@ class Options(object):
         to a dictionary
 
         @param string: The string for conversion
-        @type product: C{string}
+        @type product: C{str}
 
-        @rtype: C{dict} consisting of C{string}
+        @rtype: C{dict} consisting of C{str}
         @return: The converted string
         """
         spaces = re.compile(r'\s+')
@@ -266,7 +266,7 @@ class Options(object):
 
         Raises ValueError if invalid packages given
 
-        @type test_packages: D{List} consiting of D{string}
+        @type test_packages: D{List} consiting of D{str}
         @param test_packages: List of test package names
 
         """
