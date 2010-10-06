@@ -57,7 +57,7 @@ def _conductor_command(options, host_testing):
         cmd.extend( ["--flasherurl", options['flasherurl']] )
     if options['test_packages']:
         cmd.extend( ["-t", options['test_packages']] )
-    if options['testrun_timeout']:
+    if options['testrun_timeout'] and options['testrun_timeout'] != "0":
         cmd.extend( ["-m", options['testrun_timeout']] )
 
     if host_testing == True:
