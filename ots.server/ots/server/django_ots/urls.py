@@ -27,8 +27,13 @@ from django.conf.urls.defaults import *
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+
     # Example:
     (r'^logger/', include('ots.server.logger.urls')),
+
+    (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
+
+
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
