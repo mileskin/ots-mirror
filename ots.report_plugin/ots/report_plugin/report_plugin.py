@@ -35,7 +35,7 @@ The ReportPlugin
 import logging
 import datetime
 
-from ots.common.framework.plugin_base import PluginBase
+from ots.common.framework.api import PluginBase
 from ots.results.api import TestrunResult
 
 

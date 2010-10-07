@@ -34,7 +34,7 @@ Obfuscation or hiding of implementation details?
 """
 
 from ots.server.hub.application_id import get_application_id
-from ots.common.framework.load_plugins import plugin_factory
+from ots.common.framework.api import plugin_factory
 
 class PluginMetaclass(type):
     """

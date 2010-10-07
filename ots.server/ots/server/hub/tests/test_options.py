@@ -22,7 +22,8 @@
 
 import unittest
 
-from ots.server.hub.options import Options, options_factory
+from ots.server.hub.options import Options
+
 
 class TestOptions(unittest.TestCase):
 
@@ -155,10 +156,6 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertFalse(options.is_email_attachments_on)
 
-    def test_options_factory(self):
-        options = options_factory({"image" : "www.nokia.com",
-                                   "email-attachments" : "on"})
-        self.assertTrue(options.is_email_attachments_on)
 
 if __name__ == "__main__":
     unittest.main()

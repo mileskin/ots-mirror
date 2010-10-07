@@ -31,7 +31,7 @@ import logging
 import logging.config
 
 from ots.server.hub.testrun import testrun
-from ots.server.hub.options import Options
+from ots.server.hub.options_factory import options_factory
 from ots.server.hub.plugins import ReportPlugin
 from ots.server.hub.plugins import BifhPlugin
 
@@ -68,7 +68,7 @@ def run(sw_product, request_id, notify_list, run_test, **kwargs):
         target_packages = bifh_plugin.get_target_packages(request_id)
 
     #Options
-    options = Options(**kwargs)
+    options = options_factory(sw_product, kwargs)
     #FIXME: Hackish initialisation as Datastoring is a WIP
     report_plugin = ReportPlugin(DATA_STORING_STUB,
                                  request_id,

@@ -22,8 +22,10 @@
 
 import unittest
 
-from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerResultsPass
-from ots.server.hub.tests.mock_taskrunner import MockTaskRunnerError
+from ots.server.hub.tests.component.mock_taskrunner \
+                         import MockTaskRunnerResultsPass
+from ots.server.hub.tests.component.mock_taskrunner \
+                         import MockTaskRunnerError
 from ots.server.hub.hub import run
 
 options_dict = {"image" : "www.nokia.com" ,

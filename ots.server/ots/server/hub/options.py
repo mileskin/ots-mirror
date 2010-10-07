@@ -48,23 +48,6 @@ BENCHMARK = "-benchmark"
 
 VALID_PKG_SUFFIXES = [TESTS, TEST, BENCHMARK]
 
-#################################
-# Options Factory
-#################################
-
-def options_factory(options_dict):
-    """
-    @type options_dict : C{dict}
-    @param options_dict: The dictionary of options
-
-    Adapts the options dictionary to the interface
-    """
-    #sanitise the options dict
-    #hyphens aren't Python friendly
-    options_dict = dict([(k.replace("-","_"), v) for k,v in
-                         options_dict.items()])
-    return Options(**options_dict)
-
 ###################################
 # Options
 ###################################
@@ -85,7 +68,7 @@ class Options(object):
         @param: The image url
 
 
-        """
+        """  
         self._image = image
         if packages is None:
             packages = []
