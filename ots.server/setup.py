@@ -31,6 +31,9 @@ setup(
       namespace_packages = ["ots", "ots.server"],
       packages = find_packages(),
       install_requires = ['ots.results'],
+      entry_points={"console_scripts":
+                    ["ots_server = ots.server.xmlrpc.server:main",]
+                    },
       zip_safe = False,
       data_files=[('/etc', ['ots-server.ini'])]
       )
