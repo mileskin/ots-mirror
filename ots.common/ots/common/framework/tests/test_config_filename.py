@@ -20,18 +20,23 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import os
+
+import unittest
+
 from ots.common.framework.config_filename import config_filename
 
-class PluginBase(object):
+class TestConfigFilename(unittest.TestCase):
 
-    application_id = None # The name of the application
-    application_path = None #The root path of the application
+    def test_config_filename_1(self):
+        self.assertEquals(['ots', 'ots.common', 'ots', 'common', 'config.ini'],
+                          config_filename().split("/")[-5:])
 
-    def _config_filename(self):
-        """
-        @rtype: C{str}
-        @rparam the config file path.
-        """
-        return config_filename(self.application_id,
-                        self.application_path)
-      
+    def test_config_filename_2(self):
+        dirname = os.path.split(os.path.split(
+                os.path.dirname(os.path.abspath(__file__)))[0])[0]
+        self.assertEquals(['ots', 'ots.common', 'ots', 'common', 'config.ini'],
+                        config_filename("config", dirname).split("/")[-5:])
+
+if __name__ == "__main__":
+    unittest.main()

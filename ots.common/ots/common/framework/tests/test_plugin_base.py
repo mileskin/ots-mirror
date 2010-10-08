@@ -32,11 +32,6 @@ class TestPluginBase(unittest.TestCase):
         pi = PluginBase() 
         self.assertEquals(['ots', 'ots.common', 'ots', 'common', 'config.ini'],
                           pi._config_filename().split("/")[-5:])
-        pi.DEFAULT_CONFIG_FILEPATH = os.path.dirname(os.path.abspath(__file__))
-        self.assertEquals(['ots', 'ots.common', 'ots', 'common',
-                           'framework', 'tests', 'config.ini'],
-                          pi._config_filename().split("/")[-7:])
-
 
 if __name__ == "__main__":
     unittest.main()

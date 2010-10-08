@@ -20,6 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Configuration requires design decisions
+"""
+
 import os
 
 DEFAULT_CONFIG_FILEPATH = "/etc/"
