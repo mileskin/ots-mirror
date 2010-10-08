@@ -40,9 +40,14 @@ class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
 
 
 def main():
+
     config = (ots_config.xmlrpc_host, ots_config.xmlrpc_port)
     server = OtsForkingServer(config, SimpleXMLRPCRequestHandler)
     server.register_function(request_sync)
+    print "Starting OTS xmlrpc server..."
+    print 
+    print "Using config file %s" % ots_config.__file__
+    print "Host: %s, Port: %s" % config
     server.serve_forever()
 
 if __name__ == "__main__":
