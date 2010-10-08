@@ -19,7 +19,3 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
-
-from ots.common.framework.plugin_base import PluginBase
-from ots.common.framework.load_plugins import plugin_factory
-from ots.common.framework.config_filename import config_filename

@@ -20,6 +20,15 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.framework.plugin_base import PluginBase
-from ots.common.framework.load_plugins import plugin_factory
-from ots.common.framework.config_filename import config_filename
+import unittest 
+
+from ots.server.xmlrpc.server import _config
+
+class TestServer(unittest.TestCase):
+
+    def test_config(self):
+        self.assertEquals(('"your_hostname_here"', '8080'),
+                          _config())
+
+if __name__ == "__main__":
+    unittest.main()

@@ -20,8 +20,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import os
-
 class PluginException(Exception):
     pass
 
