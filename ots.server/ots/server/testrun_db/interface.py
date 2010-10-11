@@ -78,7 +78,10 @@ def get_testrun_link(testrun_id):
     db_testrun = Testrun.objects.get(id=testrun_id)
     stored_links = db_testrun.link_set.all()
     # Return only the first link for now...
-    ret_val = stored_links[0].url
+    try:
+        ret_val = stored_links[0].url
+    except IndexError:
+        ret_val = ""
     return ret_val
 
 
