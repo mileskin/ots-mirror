@@ -20,8 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 import unittest
+import datetime
 from ots.server.testrun_db import interface
 from ots.server.testrun_db import models
+from ots.common.testrun import Testrun
 
 from django.test.utils import setup_test_environment
 setup_test_environment()
@@ -35,6 +37,49 @@ class TestInterface(unittest.TestCase):
         testrun_id = interface.init_new_testrun(swproduct = swproduct)
         db_testrun = models.Testrun.objects.get(id=testrun_id)
         self.assertEquals(db_testrun.swproduct, swproduct)
+
+    def test_update_testrun(self):
+        swproduct = "meego_1"
+        testrun_id = interface.init_new_testrun(swproduct = swproduct)
+        testrun_object = Testrun()
+
+        state = "FINISHED"
+        status_info = "yes, it really is finished!"
+        testrun_object.set_state(state, status_info)
+
+        image_url = "http://dummyurl"
+        testrun_object.set_image_url(image_url)
+
+        build_id = "5"
+        testrun_object.set_request_id(build_id)
+
+        starttime = datetime.datetime.now()
+        endtime = starttime + datetime.timedelta(hours=1)
+        testrun_object.starttime = starttime
+        testrun_object.endtime = endtime
+
+
+        result = "ERROR"
+        error_code = "1969"
+        error_info = "meltdown"
+        testrun_object.set_result(result)
+        testrun_object.set_error_code(error_code)
+        testrun_object.set_error_info(error_info)
+
+        interface.update_testrun(testrun_object, testrun_id)
+
+        db_testrun = models.Testrun.objects.get(id=testrun_id)
+        self.assertEquals(db_testrun.state, state)
+        self.assertEquals(db_testrun.status_info, status_info)
+        self.assertEquals(db_testrun.imageurl, image_url)
+        self.assertEquals(db_testrun.build_id, build_id)
+        self.assertEquals(db_testrun.starttime, starttime)
+        self.assertEquals(db_testrun.endtime, endtime)
+        self.assertEquals(db_testrun.result, result)
+        self.assertEquals(db_testrun.error_code, error_code)
+        self.assertEquals(db_testrun.error_info, error_info)
+
+
 
     def test_add_testrun_link(self):
         testrun_id = interface.init_new_testrun(swproduct = "swproduct")

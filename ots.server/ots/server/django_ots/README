@@ -1,3 +1,0 @@
-Edit settings.py so suit your needs (DB settings, email etc)
-Create DB: "python manage.py syncdb"
-
