@@ -50,7 +50,7 @@ from socket import gethostname
 
 from ots.common.testrun import Testrun
 
-from ots.worker.api import worker_factory
+
 import ots.worker
 import ots.worker.tests
 
@@ -60,6 +60,8 @@ from ots.server.distributor.taskrunner import _testrun_queue_name
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.distributor.queue_exists import queue_exists
 from ots.server.distributor.dev_utils.delete_queues import delete_queue
+from ots.server.distributor.tests.system.worker_processes import WorkerProcesses
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -85,22 +87,6 @@ CASE_TEMPLATE = """
 </case>
 """
 
-   
-
-def start_worker(config_filename):
-    """
-    Start the OTS Worker
-    Helper for multiprocessing purposes
-    """
-    #Make sure ots_mock is on the PATH
-    dirname = os.path.dirname(os.path.abspath(ots.worker.__file__))
-    os.path.join(dirname, "tests")
-    mock_dir = os.path.join(dirname, "tests")
-    new_path =  os.environ["PATH"] + ":" + mock_dir
-    os.environ["PATH"] = new_path
-    #create and start it
-    worker = worker_factory(config_filename)
-    worker.start()
 
 ################################################
 
@@ -112,32 +98,27 @@ TESTS_MODULE_DIRNAME = os.path.split(MODULE_DIRNAME)[0]
 
 
 
-class TestOTSCore(unittest.TestCase):
+class TestDistribution(unittest.TestCase):
 
     def setUp(self):
+
+        self.worker_processes = WorkerProcesses()
 
         config = ConfigParser.ConfigParser()
         config.read(self._worker_config_filename())
         self.queue = config.get('Worker','queue')
-
-        # make sure there is no messages left in the worker queue from previous
-        # runs:
-        try:
-            delete_queue("localhost", self.queue)
-        except:
-            pass
-        self._worker_processes = []
-#        self.assertFalse(self._queue_exists(self._worker_config_filename()),
-#                         "There is another Worker running.")      
+        #make sure there is no messages left in the worker queue 
+        #from previous runs:
+        #try:
+        #    delete_queue("localhost", self.queue)
+        #except:
+        #    pass
         self.testrun = Testrun()
-
         self.testrun_id = None
           
     def tearDown(self):
-        for worker_process in self._worker_processes:
-            worker_process.terminate()
-        time.sleep(2)
-        self._remove_zip_file(TEST_DEFINITION_ZIP)
+        self.worker_processes.terminate()
+        #self._remove_zip_file(TEST_DEFINITION_ZIP)
         self._remove_files_created_by_remote_commands()
         if self.queue:
             delete_queue("localhost", self.queue)
@@ -193,139 +174,15 @@ class TestOTSCore(unittest.TestCase):
         if os.path.exists(baz):
             os.rmdir(baz)
         
-    def _start_worker_process(self):
-        """
-        Start a Worker in a separate process
-        """
-        if not DEBUG:
-            worker_config_filename = self._worker_config_filename()
-            worker_process = multiprocessing.Process(target = start_worker,
-                                                 args=(worker_config_filename,))
-            worker_process.start()
-            time.sleep(2)
-            self._worker_processes.append(worker_process)
-
     ###################
     # Tests
     ###################
-
-
-    def test_worker_side_timeout_single_task(self):
-        """
-        Check that worker timeout works properly.
-        It should send error message about the timeout and
-        "finished" state change
-
-        """
-
-        self._start_worker_process() 
-        self.testrun_id = 111      
-        taskrunner = taskrunner_factory(
-                             device_group = "foo", 
-                             timeout = 1,
-                             testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
-        command = ["sleep", "10"]
-
-        taskrunner.add_task(command)
-        self.cb_called = False
-        def cb_handler(signal, **kwargs):
-            self.cb_called = True
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
-            self.assertEquals(kwargs['sender'], 'TaskRunner')
-
-        ERROR_SIGNAL.connect(cb_handler) 
-        time_before_run = time.time()
-        taskrunner.run()
-        time_after_run = time.time()
-        duration = time_after_run - time_before_run
-
-        self.assertTrue(self.cb_called)
-        self.assertTrue(duration < 6) # Should be less than 10 seconds
-
-
-    def test_worker_side_timeout_multiple_tasks_multiple_workers(self):
-        """
-        Check that worker timeout works properly with multiple tasks.
-        It should send error message about the timeout and
-        "finished" state change
-
-        """
-
-        self._start_worker_process() 
-        self._start_worker_process() 
-        self.testrun_id = 111      
-        taskrunner = taskrunner_factory(
-                             device_group = "foo", 
-                             timeout = 1,
-                             testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
-
-        command = ["sleep", "10"]
-
-        taskrunner.add_task(command)
-        taskrunner.add_task(command)
-        self.cb_called = 0
-        def cb_handler(signal, **kwargs):
-            self.cb_called += 1
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
-            self.assertEquals(kwargs['sender'], 'TaskRunner')
-
-        ERROR_SIGNAL.connect(cb_handler) 
-        time_before_run = time.time()
-        taskrunner.run()
-        time_after_run = time.time()
-        duration = time_after_run - time_before_run
-
-        self.assertTrue(self.cb_called == 2)
-        self.assertTrue(duration < 6) # Should be less than 10 seconds
-
-    def test_worker_side_timeout_multiple_tasks_one_worker(self):
-        """
-        Check that worker timeout works properly with multiple tasks one worker.
-        It should send error message about the timeout and
-        "finished" state change
-
-        """
-
-        self._start_worker_process() 
-
-        self.testrun_id = 111      
-        taskrunner = taskrunner_factory(
-                             device_group = "foo", 
-                             timeout = 1,
-                             testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
-        command = ["sleep", "10"]
-        taskrunner.add_task(command)
-        command = ["echo"]
-        taskrunner.add_task(command)
-        self.cb_called = 0
-        def cb_handler(signal, **kwargs):
-            self.cb_called += 1
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
-            self.assertEquals(kwargs['sender'], 'TaskRunner')
-
-        ERROR_SIGNAL.connect(cb_handler) 
-        time_before_run = time.time()
-        taskrunner.run()
-        time_after_run = time.time()
-        duration = time_after_run - time_before_run
-
-        self.assertEquals(self.cb_called, 1) # Only one of the commands fails
-        self.assertTrue(duration < 6) # Should be less than 10 seconds
-
-
-
 
     def test_one_task_one_worker(self):
         """
         Check that the results come back OK from the Worker 
         """
-        self._start_worker_process() 
+        self.worker_processes.start()
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              device_group = "foo", 
@@ -365,6 +222,7 @@ class TestOTSCore(unittest.TestCase):
         time.sleep(1)
         time_after_run = time.time()
 
+    
         if not DEBUG:
             foo = os.path.join(MODULE_DIRNAME, "foo") 
             foo_time = os.path.getctime(foo)
@@ -383,9 +241,10 @@ class TestOTSCore(unittest.TestCase):
             self.assertTrue(self.results_file_received)
             self.assertTrue(self.test_definition_file_received)
 
-    def test_two_tasks_one_worker(self):
 
-        self._start_worker_process()
+
+    def test_two_tasks_one_worker(self):
+        self.worker_processes.start()
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              device_group = "foo", 
@@ -429,8 +288,7 @@ class TestOTSCore(unittest.TestCase):
 
 
     def test_two_tasks_two_worker(self):
-        self._start_worker_process()
-        self._start_worker_process()
+        self.worker_processes.start(2)
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              device_group = "foo", 
