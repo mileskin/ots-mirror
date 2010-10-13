@@ -122,10 +122,10 @@ MODULE_DIRNAME = os.path.dirname(os.path.abspath(__file__))
 TESTS_MODULE_DIRNAME = os.path.split(MODULE_DIRNAME)[0]
 
 #################################
-# TEST DISTRIBUTION
+# TEST DEVICE DISTRIBUTION
 #################################
 
-class TestDistribution(unittest.TestCase):
+class TestDeviceDistribution(unittest.TestCase):
 
     def setUp(self):
         #make sure there is no messages left in the worker queue 
