@@ -20,6 +20,24 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+
+"""
+Component Test for OTS-Core 
+
+Runs an Integration Test on Components:
+
+- ots.server.distributor
+- ots.worker
+- ots.common
+
+and the ots_mock
+
+Prerequisites:
+
+ - RabbitMQ server running on localhost
+"""
+
+
 import os
 import time
 import unittest
