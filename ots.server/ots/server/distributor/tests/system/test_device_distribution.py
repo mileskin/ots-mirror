@@ -57,6 +57,8 @@ from ots.server.distributor.tests.system.worker_processes import WorkerProcesses
 
 DEBUG = False
 
+DEVICE_GROUP = "foo"
+
 ################################################
 # TEMPLATES
 ################################################
@@ -128,6 +130,8 @@ TESTS_MODULE_DIRNAME = os.path.split(MODULE_DIRNAME)[0]
 class TestDeviceDistribution(unittest.TestCase):
 
     def setUp(self):
+        self.queue = DEVICE_GROUP
+
         #make sure there is no messages left in the worker queue 
         #from previous runs:
         try:
@@ -136,7 +140,7 @@ class TestDeviceDistribution(unittest.TestCase):
             pass
         #
         self.worker_processes = WorkerProcesses()
-        self.queue = "foo"
+
         self.testrun = Testrun()
         self.testrun_id = None
           
@@ -162,7 +166,7 @@ class TestDeviceDistribution(unittest.TestCase):
         self.worker_processes.start()
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
-                             device_group = "foo", 
+                             device_group = DEVICE_GROUP, 
                              timeout = 10,
                              testrun_id = self.testrun_id,
                              config_file = self._distributor_config_filename())
@@ -222,7 +226,7 @@ class TestDeviceDistribution(unittest.TestCase):
         self.worker_processes.start()
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
-                             device_group = "foo", 
+                             device_group = DEVICE_GROUP, 
                              timeout = 10,
                              testrun_id = self.testrun_id,
                              config_file = self._distributor_config_filename())
@@ -267,7 +271,7 @@ class TestDeviceDistribution(unittest.TestCase):
         self.worker_processes.start(2)
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
-                             device_group = "foo", 
+                             device_group = DEVICE_GROUP, 
                              timeout = 10,
                              testrun_id = self.testrun_id,
                              config_file = self._distributor_config_filename())
