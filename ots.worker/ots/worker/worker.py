@@ -53,8 +53,7 @@ class Worker(object):
     Worker class 
     """
 
-    def __init__(self, vhost, host, port, username, password, queue, 
-                       routing_key, services_exchange):
+    def __init__(self, vhost, host, port, username, password, devicegroup):
         """
         Initialise the class, read config, set up logging
         """
@@ -63,9 +62,7 @@ class Worker(object):
         self._port = port
         self._username = username
         self._password = password
-        self._queue = queue 
-        self._routing_key = routing_key 
-        self._services_exchange = services_exchange
+        self._devicegroup = devicegroup
         self._timeout = None
                
     def start(self):
@@ -82,14 +79,12 @@ class Worker(object):
                                       self._username,
                                       self._password)
         self._task_broker = TaskBroker(self._connection, 
-                                       self._queue, 
-                                       self._routing_key,
-                                       self._services_exchange)
+                                       self._devicegroup)
         logger.debug("Starting the server. " + \
                          "{vhost:'%s', queue:'%s', routing_key:'%s'}" % 
                      (self._vhost,
-                      self._queue,
-                      self._routing_key))
+                      self._devicegroup,
+                      self._devicegroup))
         self._task_broker.run()
 
 
@@ -130,12 +125,6 @@ def _init_logging(config_filename = None):
 
     root_logger.addHandler(output_handler)
 
-def _edit_config(config_filename):
-    """
-    Fire up nano to allow the editing of the config 
-    """
-    subprocess.call("nano %s"%(config_filename), shell=True)
-
 def worker_factory(config_filename):
     """
     Laborious boot strapping from config
@@ -148,21 +137,11 @@ def worker_factory(config_filename):
     port = config.getint('Worker','port')
     username = config.get('Worker','username')
     password = config.get('Worker','password')
-    queue = config.get('Worker','queue')
-    routing_key = config.get('Worker','routing_key')
-    services_exchange = config.get('Worker','services_exchange')
+    devicegroup = config.get('Worker','devicegroup')
     
-    if queue == "fix_me" or routing_key == "fix_me":
-        _edit_config(config_filename)
-
-        print
-        print "Now restart ots_worker"
-        print
-        sys.exit()
 
     return Worker(vhost=vhost, host=host, port=port, username=username,
-                  password=password, queue=queue, routing_key=routing_key, 
-                  services_exchange=services_exchange)
+                  password=password, devicegroup=devicegroup)
        
 def main():
     """

@@ -69,7 +69,7 @@ class TestTaskBroker(unittest.TestCase):
                                 username = "guest",
                                 password = "guest")
         connection.connect()
-        task_broker = TaskBroker(connection, "test", "test", "test")
+        task_broker = TaskBroker(connection, "test")
         if dispatch_func:
             task_broker._dispatch = dispatch_func
         task_broker._init_connection()
