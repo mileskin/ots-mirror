@@ -53,7 +53,13 @@ class Worker(object):
     Worker class 
     """
 
-    def __init__(self, vhost, host, port, username, password, devicegroup):
+    def __init__(self,
+                 vhost,
+                 host,
+                 port,
+                 username,
+                 password,
+                 device_properties):
         """
         Initialise the class, read config, set up logging
         """
@@ -62,7 +68,7 @@ class Worker(object):
         self._port = port
         self._username = username
         self._password = password
-        self._devicegroup = devicegroup
+        self._device_properties = device_properties
         self._timeout = None
                
     def start(self):
@@ -79,12 +85,12 @@ class Worker(object):
                                       self._username,
                                       self._password)
         self._task_broker = TaskBroker(self._connection, 
-                                       self._devicegroup)
-        logger.debug("Starting the server. " + \
-                         "{vhost:'%s', queue:'%s', routing_key:'%s'}" % 
-                     (self._vhost,
-                      self._devicegroup,
-                      self._devicegroup))
+                                       self._device_properties)
+        logger.debug("Starting the worker. " + \
+                         "server: %s:%s, device_properties: %s" % 
+                     (self._host,
+                      self._port,
+                      self._device_properties))
         self._task_broker.run()
 
 
@@ -137,11 +143,13 @@ def worker_factory(config_filename):
     port = config.getint('Worker','port')
     username = config.get('Worker','username')
     password = config.get('Worker','password')
-    devicegroup = config.get('Worker','devicegroup')
-    
+
+    device_properties = dict()
+    for key, value in config.items("Device"):
+        device_properties[key] = value
 
     return Worker(vhost=vhost, host=host, port=port, username=username,
-                  password=password, devicegroup=devicegroup)
+                  password=password, device_properties=device_properties)
        
 def main():
     """

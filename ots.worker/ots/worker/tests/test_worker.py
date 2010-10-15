@@ -37,7 +37,7 @@ class TestWorker(unittest.TestCase):
         self.assertEquals(5672, worker._port)
         self.assertEquals("guest", worker._username)
         self.assertEquals("guest", worker._password)
-        self.assertEquals("foo", worker._devicegroup)
+        self.assertEquals("foo", worker._device_properties["devicegroup"])
 
 if __name__ == "__main__":
     unittest.main()

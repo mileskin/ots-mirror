@@ -93,9 +93,9 @@ class TaskBroker(object):
     Pulls messages containing Tasks from AMQP 
     Dispatch the Tasks as a process
     """   
-    def __init__(self, connection, devicegroup):
+    def __init__(self, connection, device_properties):
         self._connection = connection
-        self.devicegroup = devicegroup
+        self._device_properties = device_properties
         self._keep_looping = True
         self._consumer_tag = ""
 
@@ -123,27 +123,30 @@ class TaskBroker(object):
         Start consuming messages from the queue
         Ensures that only one message is taken at a time
         """
-        self.channel.basic_qos(0, 1, False)
-        self._consumer_tag = self.channel.basic_consume(queue = self.devicegroup, 
-                                                   callback = self._on_message)
+
+        self._consumer_tag = \
+            self.channel.basic_consume(queue = self._device_properties["devicegroup"],
+                                       callback = self._on_message)
+        LOGGER.info("consume on queue: %s" %\
+                        self._device_properties["devicegroup"])
 
     def _init_connection(self):
         """
         Initialise the connection to AMQP.
         Queue and Services Exchange are both durable
         """
-        self.channel.queue_declare(queue = self.devicegroup, 
+        self.channel.queue_declare(queue = self._device_properties["devicegroup"], 
                                    durable = True,
                                    exclusive = False, 
                                    auto_delete = False)
-        self.channel.exchange_declare(exchange = self.devicegroup,
+        self.channel.exchange_declare(exchange = self._device_properties["devicegroup"],
                                       type = 'direct', 
                                       durable = True,
                                       auto_delete = False)
-        self.channel.queue_bind(queue = self.devicegroup,
-                                exchange = self.devicegroup,
-                                routing_key = self.devicegroup)
-
+        self.channel.queue_bind(queue = self._device_properties["devicegroup"],
+                                exchange = self._device_properties["devicegroup"],
+                                routing_key = self._device_properties["devicegroup"])
+        self.channel.basic_qos(0, 1, False)
     ###############################################
     # LOOPING / HANDLING / DISPATCHING
     ###############################################
@@ -209,10 +212,8 @@ class TaskBroker(object):
         finally:
             self._publish_task_state_change(task_id, response_queue)
 
-            LOGGER.info("consume on queue: %s" % self.devicegroup)
-            self._consumer_tag = \
-                self.channel.basic_consume(queue = self.devicegroup,
-                                           callback = self._on_message)
+
+            self._consume()
 
     def _dispatch(self, command, timeout):
         """

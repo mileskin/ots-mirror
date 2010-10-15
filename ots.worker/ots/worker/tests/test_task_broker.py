@@ -69,7 +69,9 @@ class TestTaskBroker(unittest.TestCase):
                                 username = "guest",
                                 password = "guest")
         connection.connect()
-        task_broker = TaskBroker(connection, "test")
+        properties = dict()
+        properties["devicegroup"] = "test"
+        task_broker = TaskBroker(connection, properties)
         if dispatch_func:
             task_broker._dispatch = dispatch_func
         task_broker._init_connection()
