@@ -22,11 +22,14 @@
 
 import unittest
 
+from socket import gethostname
+
 from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerResultsPass
 from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerError
-from ots.server.hub.hub import run
+from ots.server.hub.hub import _run
+from ots.server.hub.hub import _timeout, _storage_address
 
 options_dict = {"image" : "www.nokia.com" ,
                 "rootstrap" : "www.meego.com",
@@ -47,15 +50,23 @@ options_dict = {"image" : "www.nokia.com" ,
 
 class TestHub(unittest.TestCase):
 
-    def test_run_pass(self):
+    def test_timeout(self):
+        self.assertEquals(30, _timeout())
+
+    def test_storage_address(self):
+        self.assertEquals(gethostname()+":1982", _storage_address())
+
+    #FIXME API churn 
+        
+    def _test_run_pass(self):
         mock_taskrunner = MockTaskRunnerResultsPass()
-        run("foo", "bar", "baz",
-            mock_taskrunner.run, **options_dict)
+        _run("foo", "bar", "baz",
+             mock_taskrunner.run, **options_dict)
 
 
-    def test_run_error(self):
+    def _test_run_error(self):
         mock_taskrunner = MockTaskRunnerError()
-        run("foo", "bar", "baz",
+        _run("foo", "bar", "baz",
             mock_taskrunner.run, **options_dict)
 
 if __name__ == "__main__":

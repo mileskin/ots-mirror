@@ -34,6 +34,8 @@ from ots.common.framework.api import config_filename
 
 from ots.server.hub.hub import run
 from ots.server.hub.application_id import get_application_id
+from ots.server.distributor.api import TaskRunner
+
 
 class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
     pass
