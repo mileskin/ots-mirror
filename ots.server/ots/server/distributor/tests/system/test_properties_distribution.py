@@ -65,17 +65,18 @@ from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.distributor.dev_utils.delete_queues import delete_queue
 from ots.server.distributor.tests.system.worker_processes import WorkerProcesses
 
-DEVICE_GROUP = "food" 
 
 class TestPropertiesDistribution(unittest.TestCase):
 
     def setUp(self):
-        self.queue = DEVICE_GROUP
+        self.queues = ["foo", "foo.bar"]
 
         #make sure there is no messages left in the worker queue 
         #from previous runs:
+
         try:
-            delete_queue("localhost", self.queue)
+            for queue in self.queues:
+                delete_queue("localhost", queue)
         except:
             pass
         #
@@ -86,8 +87,9 @@ class TestPropertiesDistribution(unittest.TestCase):
           
     def tearDown(self):
         self.worker_processes.terminate()
-        if self.queue:
-            delete_queue("localhost", self.queue)
+        if self.queues:
+            for queue in self.queues:
+                delete_queue("localhost", queue)
         if self.testrun_id:
             delete_queue("localhost", _testrun_queue_name(self.testrun_id))
 
@@ -95,24 +97,35 @@ class TestPropertiesDistribution(unittest.TestCase):
     # Test Single Property
     #############################
 
-    def test_property_0(self):
+#    def test_property_0(self):
+    def test_worker_consumes_from_both_queues(self):
         """
         Test (None, None, "property")
         """
         #Check arrived at correct worker
         #Check one and only one worker takes the task
-        self.worker_processes.start(routing_key = "food.#")
+        self.worker_processes.start(1)
 
         self.testrun_id = 111      
-        taskrunner = taskrunner_factory(
-                             device_group = DEVICE_GROUP, 
+        
+        taskrunner1 = taskrunner_factory(
+                             device_group = self.queues[0], 
                              timeout = 10,
                              testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename(),
-                             routing_key = "food.pie")
+                             config_file = self._distributor_config_filename())
        
-        taskrunner.add_task(["echo","foo"])
-        taskrunner.run()
+        taskrunner1.add_task(["echo","foo"])
+        taskrunner1.run()
+
+        taskrunner2 = taskrunner_factory(
+                             device_group = self.queues[1],
+                             timeout = 10,
+                             testrun_id = self.testrun_id,
+                             config_file = self._distributor_config_filename())
+       
+        taskrunner2.add_task(["echo","foo"])
+        taskrunner2.run()
+
 
     def _test_property_1(self):
         """

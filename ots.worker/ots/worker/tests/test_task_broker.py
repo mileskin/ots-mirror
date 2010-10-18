@@ -36,6 +36,7 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 
+
 def queue_size():
     """
     Gets the number of messages in the queue
@@ -54,6 +55,12 @@ def queue_size():
 
 class TestTaskBroker(unittest.TestCase):
 
+    def _get_properties(self):
+        properties = dict()
+        properties["devicegroup"] = "test"
+        properties["devicename"] = "testname"
+        return properties
+
     def tearDown(self):
 
         # A quick and dirty way to make sure "test" queue gets cleaned
@@ -69,9 +76,7 @@ class TestTaskBroker(unittest.TestCase):
                                 username = "guest",
                                 password = "guest")
         connection.connect()
-        properties = dict()
-        properties["devicegroup"] = "test"
-        task_broker = TaskBroker(connection, properties)
+        task_broker = TaskBroker(connection, self._get_properties())
         if dispatch_func:
             task_broker._dispatch = dispatch_func
         task_broker._init_connection()
@@ -129,6 +134,57 @@ class TestTaskBroker(unittest.TestCase):
         time.sleep(5)
         channel.wait()
         time.sleep(5)
+
+    def test_consume_from_multiple_queues(self):
+        """
+        Check that worker consumes messages from multiple queues properly
+        """
+        def check_queue_size(*args,**kwargs):
+            """
+            Closure to attach to _dispatch 
+            to check the queue size
+            """
+            _queue_size = queue_size()
+            #print "Queue size:", _queue_size 
+            self.assertEquals(self.expected_size, _queue_size)
+        pre_queue_size = queue_size()
+
+        #SetUp the TaskBroker but override _dispatch
+        task_broker = self.create_task_broker(dispatch_func=check_queue_size)
+
+        #Publish a Couple of Messages to both queues
+        channel = task_broker.channel
+
+        queues = task_broker._get_queues(self._get_properties())
+        for queue in queues:
+
+            channel.basic_publish(amqp.Message(dumps(self.create_message('foo', 1, '', 1))),
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            
+            channel.basic_publish(amqp.Message(dumps(self.create_message('bar', 1, '', 1))),
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            
+       
+        #Set to Consume
+        task_broker._consume()
+ 
+        #Check we have two new messages on the 
+        post_queue_size = queue_size()
+        expected_queue_size = 2 + pre_queue_size 
+        self.assertEqual(expected_queue_size, post_queue_size)
+        
+        #Messages should come off the queue one at a time
+        self.expected_size = 1
+        channel.wait()
+        self.expected_size = 0
+        time.sleep(5)
+        channel.wait()
+        time.sleep(5)
+
 
     def test_init_connection(self):
         #use test durable code here

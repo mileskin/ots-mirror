@@ -49,11 +49,12 @@ class WorkerProcesses(object):
     Utility class to allow a number of Workers to be launched
     """
 
-    def __init__(self):
+    def __init__(self, config_file=None):
         """
         Create a number of Workers in a separate process
         """
         self._processes = []
+        self._config_file = config_file
 
     def start(self, no_of_workers = 1):
         """
@@ -63,7 +64,10 @@ class WorkerProcesses(object):
         @param no_of_processes : The number of Workers
         """
         for proc in range(no_of_workers):
-            worker_config_filename = self._worker_config_filename()
+            if self._config_file:
+                worker_config_filename = self._config_file
+            else:
+                worker_config_filename = self._worker_config_filename()
             worker_process = multiprocessing.Process(
                                          target = start_worker,
                                          args=(worker_config_filename,))

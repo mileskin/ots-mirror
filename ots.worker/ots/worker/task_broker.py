@@ -344,7 +344,9 @@ class TaskBroker(object):
         @rtype: C{list} 
         @return: A list of queues the worker should consume from
         """
-        queues = [device_properties["devicegroup"]]
+        queues = []
+        queues.append(device_properties["devicegroup"])
+        queues.append(device_properties["devicegroup"]+"."+device_properties["devicename"])
 
         return queues
     
