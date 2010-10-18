@@ -57,8 +57,9 @@ def _conductor_command(options, host_testing):
         cmd.extend( ["--flasherurl", options['flasherurl']] )
     if options['test_packages']:
         cmd.extend( ["-t", options['test_packages']] )
-    if options['testrun_timeout'] and options['testrun_timeout'] != "0":
-        cmd.extend( ["-m", options['testrun_timeout']] )
+    # Use global timeout as conductor testrun timeout
+    if options['timeout'] and options['timeout'] != "0":
+        cmd.extend( ["-m", options['timeout']] )
 
     if host_testing == True:
         cmd.extend( ['-o'] )
@@ -130,7 +131,7 @@ def get_commands(distribution_model,
                  testrun_id, 
                  storage_address, 
                  test_filter,
-                 testrun_timeout="0",
+                 timeout,
                  flasher=""):
     """Returns a list of conductor commands based on the options"""
 
@@ -140,7 +141,7 @@ def get_commands(distribution_model,
     options['testrun_id'] = testrun_id
     options['storage_address'] = storage_address
     options['testfilter'] = test_filter
-    options['testrun_timeout'] = testrun_timeout
+    options['timeout'] = timeout
     options['flasherurl'] = flasher
 
     cmds = []

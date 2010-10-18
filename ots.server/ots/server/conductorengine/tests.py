@@ -68,8 +68,6 @@ class TestRunStub(object):
         elif arg == "emmc":
             return "asdfasdf"
         return '"blah"'
-    def get_testrun_timeout(self):
-        return "60"
     def add_result_object(self, result):
         self.result_objects.append(result)
     def set_state(self, state, status_info):
@@ -118,7 +116,7 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_conductor_command_without_testpackages(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"", 'testrun_timeout':"60" }
+                   'flasherurl':"", 'test_packages':"", 'timeout':"60" }
         expected = ['/usr/bin/kickstart',  
                     "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '60']
 
@@ -130,7 +128,7 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_conductor_command_with_emmc_flash(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"Gordon", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"", 'testrun_timeout':"60" }
+                   'flasherurl':"", 'test_packages':"", 'timeout':"60" }
         expected = ['/usr/bin/kickstart',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
                     '-i', '1', '-c', 'foo', '-m', '60']
@@ -144,7 +142,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"", \
-                   'testrun_timeout':"60" }
+                   'timeout':"60" }
         expected = ['/usr/bin/kickstart',
                     "-u", 'www.nokia.com',
                     '-i', '1',
@@ -160,7 +158,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests", \
-                   'testrun_timeout':"60"  }
+                   'timeout':"60"  }
         expected = ['/usr/bin/kickstart',
                     "-u", 'www.nokia.com',
                     '-i', '1',
@@ -184,12 +182,13 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
 
 
         expected_cmds = [['/usr/bin/kickstart', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz", '-m', '0']]
+                          '-t', "foo,bar,baz", '-m', '30']]
         
         cmds = get_commands(distribution_model, 
                             image_url, 
@@ -197,7 +196,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                             emmc_flash_parameter,
                             testrun_id,
                             storage_address,
-                            test_filter)
+                            test_filter,
+                            timeout)
         
         self.assertEquals(cmds, expected_cmds)
 
@@ -211,11 +211,11 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
-
+        timeout = "20"
 
         expected_cmds = [['/usr/bin/kickstart', 
                           '-u', 'http://image/url/image.bin', 
-                          '-f', '-testsuite=testrunner-tests', '-m', '0']]
+                          '-f', '-testsuite=testrunner-tests', '-m', '20']]
         
         cmds = get_commands(distribution_model, 
                             image_url, 
@@ -223,7 +223,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                             emmc_flash_parameter,
                             testrun_id,
                             storage_address,
-                            test_filter)
+                            test_filter,
+                            timeout)
         
         self.assertEquals(cmds, expected_cmds)
 
@@ -235,7 +236,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmds = [['/usr/bin/kickstart',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz", '-m', '0',
+                          '-t', "foo,bar,baz", '-m', '20',
                           '-o']]
 
 
@@ -245,7 +246,8 @@ class TestHardwareTestRunner(unittest.TestCase):
         emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
-        test_filter = "-testsuite=testrunner-tests"  
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "20"
 
         cmds = get_commands(distribution_model, 
                             image_url, 
@@ -253,7 +255,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                             emmc_flash_parameter,
                             testrun_id,
                             storage_address,
-                            test_filter)
+                            test_filter,
+                            timeout)
         
         self.assertEquals(cmds, expected_cmds)
 
@@ -265,12 +268,12 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmds = [['/usr/bin/kickstart', 
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz", '-m', '0',
+                          '-t', "foo,bar,baz", '-m', '20',
                           ';',
                           '/usr/bin/kickstart',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz", '-m', '0',
+                          '-t', "foo,bar,baz", '-m', '20',
                           '-o']]
 
 
@@ -281,6 +284,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "20"
 
         cmds = get_commands(distribution_model, 
                             image_url, 
@@ -288,7 +292,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                             emmc_flash_parameter,
                             testrun_id,
                             storage_address,
-                            test_filter)
+                            test_filter,
+                            timeout)
         
         self.assertEquals(cmds, expected_cmds)
 
@@ -318,7 +323,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
-        testrun_timeout = "60"
+        timeout = "60"
         flasher = "asdfasdf/asdf"
 
         cmds = get_commands(distribution_model, 
@@ -328,7 +333,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                             testrun_id,
                             storage_address,
                             test_filter,
-                            testrun_timeout,
+                            timeout,
                             flasher)
         
         self.assertEquals(cmds, expected_cmds)
@@ -341,11 +346,11 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmd_1 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "foo", '-m', '0']
+                        '-t', "foo", '-m', '30']
         expected_cmd_2 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "bar", '-m', '0']
+                        '-t', "bar", '-m', '30']
 
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
@@ -354,6 +359,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
 
         commands = get_commands(distribution_model, 
                                 image_url, 
@@ -361,7 +367,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
-                                test_filter)
+                                test_filter,
+                                timeout)
 
 
 
@@ -378,7 +385,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmd_1 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "foo", '-m', '0']
+                        '-t', "foo", '-m', '30']
 
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
@@ -387,6 +394,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
 
         commands = get_commands(distribution_model, 
                                 image_url, 
@@ -394,7 +402,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
-                                test_filter)
+                                test_filter,
+                                timeout)
 
 
 
@@ -408,12 +417,12 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmd_1 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "foo", '-m', '0',
+                        '-t', "foo", '-m', '30',
                         '-o']
         expected_cmd_2 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "bar", '-m', '0',
+                        '-t', "bar", '-m', '30',
                         '-o']
 
         distribution_model = "perpackage"
@@ -423,13 +432,15 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
         commands = get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
-                                test_filter)
+                                test_filter,
+                                timeout)
         
         self.assertEquals(len(commands), 2)
         self.assertEquals(commands[0], expected_cmd_1)
@@ -442,20 +453,20 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmd_1 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "foo", '-m', '0']
+                        '-t', "foo", '-m', '10']
         expected_cmd_2 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "bar", '-m', '0']
+                        '-t', "bar", '-m', '10']
         expected_cmd_3 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "baz", '-m', '0',
+                        '-t', "baz", '-m', '10',
                         '-o']
         expected_cmd_4 = ['/usr/bin/kickstart', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "yaz", '-m', '0',
+                        '-t', "yaz", '-m', '10',
                         '-o']
 
         distribution_model = "perpackage"
@@ -463,7 +474,8 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_list = {'device':"foo,bar",'host':"baz,yaz"}
         emmc_flash_parameter = "" 
         testrun_id = "" 
-        storage_address = "" 
+        storage_address = ""
+        timeout = "10"
         test_filter = "-testsuite=testrunner-tests"  
         commands = get_commands(distribution_model, 
                                 image_url, 
@@ -471,7 +483,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
-                                test_filter)
+                                test_filter,
+                                timeout)
 
         self.assertEquals(len(commands), 4)
         self.assertEquals(commands[0], expected_cmd_1)
@@ -490,6 +503,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
         self.assertRaises(ValueError,
                           get_commands,
                           distribution_model, 
@@ -498,7 +512,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                           emmc_flash_parameter,
                           testrun_id,
                           storage_address,
-                          test_filter)
+                          test_filter,
+                          timeout)
 
 
 
@@ -557,7 +572,7 @@ class TestConductorEngine(unittest.TestCase):
                           '-c', 'host:port',
                           '-f', '"\'blah\'"',
                           '--flasherurl', 'asdf/asdfasdf',
-                          '-t', '1,2,3', '-m', '60',
+                          '-t', '1,2,3', '-m', 3600,
                           ';',
                           '/usr/bin/kickstart',
                           '-u', 'www.nokia.com',
@@ -566,7 +581,7 @@ class TestConductorEngine(unittest.TestCase):
                           '-c', 'host:port',
                           '-f', '"\'blah\'"',
                           '--flasherurl', 'asdf/asdfasdf',
-                          '-t', '4,5,6', '-m', '60',
+                          '-t', '4,5,6', '-m', 3600,
                           '-o']]
         self.assertEquals(taskrunner.tasks, expected_tasks)
         self.assertEquals(taskrunner.executed, True)

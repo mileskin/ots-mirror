@@ -56,8 +56,6 @@ def ots_trigger(options):
         ots_options['timeout'] = options.timeout
     if options.distribution:
         ots_options['distribution_model'] = options.distribution
-    if options.testrun_timeout:
-        ots_options['testrun_timeout'] = options.testrun_timeout
 
     ots_interface = xmlrpclib.Server("http://%s/" % options.server)
     return ots_interface.request_sync(sw_product,
@@ -139,10 +137,6 @@ def parse_commandline_arguments():
                       type="string",
                       help="task distribution model(for example 'perpackage')",
                       metavar="DISTMODEL")
-
-    parser.add_option("-w", "--testrun_timeout", dest="testrun_timeout",
-                      action="store", type="string", help="Testrun timeout",
-                      metavar="TESTRUNTIMEOUT", default="0")
 
 
     # parser returns options and args even though we only need options

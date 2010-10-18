@@ -101,52 +101,6 @@ class testTestrunHost(unittest.TestCase):
 
 
 
-    def test_init_testrun_with_timeout(self):
-
-        build_id = 666
-        testrun_id = 1234
-        sw_product = "swproduct1"
-        ots_options = dict()
-        ots_options["set_option"] = "something"
-        email_list = ["dummy@localhost"]
-        test_packages = ["dummy-tests"]
-        image_url = "url/image.bin"
-        testrun_timeout = "60"
-        rootstrap_url = None
-        self.host._load_default_options = self.load_mock_options
-        self.host._init_assetplugin = self.init_assetplugin_mock
-        returned_id = self.host.init_testrun(build_id,
-                                             testrun_id,
-                                             sw_product,
-                                             ots_options,
-                                             email_list,
-                                             test_packages,
-                                             image_url,
-                                             rootstrap_url,
-                                             testrun_timeout)
-
-        self.assertEquals(returned_id, testrun_id)
-        self.assertEquals(self.host.testrun.get_option("set_option"),
-                          ots_options["set_option"])
-
-        self.assertEquals(self.host.testrun.get_option("default_option"),
-                          "default_value")
-
-        self.assertEquals(self.host.testrun.get_email_list(),
-                          email_list)
-
-        self.assertEquals(self.host.testrun.get_image_url(),
-                          image_url)
-
-        self.assertEquals(self.host.testrun.get_testpackages(),
-                          test_packages)
-
-        self.assertEquals(self.host.testrun.get_option("distribution_model"),
-                          "default")
-
-        self.assertEquals(self.host.testrun.get_testrun_timeout(),
-                          testrun_timeout)
-
     def _mock_targetpackages(self, build_id):
         return []
 

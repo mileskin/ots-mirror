@@ -77,8 +77,7 @@ class TestrunHost(object):
                      email_list,
                      test_packages,
                      image_url=None,
-                     rootstrap_url=None,
-                     testrun_timeout="0"):
+                     rootstrap_url=None):
         """Initializes a new testrun. Returns testrun ID"""
         
         self.testrun_id = testrun_id
@@ -91,7 +90,6 @@ class TestrunHost(object):
         self.testrun.set_options(options)
         self.testrun.set_email_list(email_list)        
         self.testrun.set_image_url(image_url)
-        self.testrun.set_testrun_timeout(testrun_timeout)
 
 
         self.input_plugin = extension_points.get_inputplugin(self.testrun)

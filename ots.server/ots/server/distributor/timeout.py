@@ -41,7 +41,7 @@ class Timeout(object):
     """
 
 
-    def __init__(self, global_timeout, queue_timeout, testrun_timeout=0):
+    def __init__(self, global_timeout, queue_timeout, preparation_timeout):
         """
  
         @type global_timeout C{int} 
@@ -53,7 +53,7 @@ class Timeout(object):
         """
         self.queue_timeout = queue_timeout
         self.global_timeout = global_timeout
-        self.testrun_timeout = testrun_timeout
+        self.preparation_timeout = preparation_timeout
 
     def __del__(self):
         self.stop()
@@ -123,4 +123,4 @@ class Timeout(object):
         connection to worker is permanently lost.
         """
         return self.queue_timeout + self.global_timeout + \
-               self.testrun_timeout
+               self.preparation_timeout

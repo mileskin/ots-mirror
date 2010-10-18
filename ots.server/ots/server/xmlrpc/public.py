@@ -87,7 +87,6 @@ def request_sync(program, request, notify_list, options):
     test_packages = _string_2_list(options.get("packages",""))
     testplan_id =  options.get('plan', None)
     is_executed =  options.get('execute') != 'false'
-    testrun_timeout = options.get('testrun_timeout', '0')
     #
     options = _repack_options(options)
     #
@@ -109,8 +108,7 @@ def request_sync(program, request, notify_list, options):
             #
             result = _run_test(log, request, testrun_id, 
                             program, options, notify_list,
-                            test_packages, image_url, rootstrap_url,
-                            testrun_timeout)
+                            test_packages, image_url, rootstrap_url)
     return result
 
 ###########################################
@@ -228,7 +226,7 @@ def _repack_options(options):
     return options
 
 def _run_test(log, request, testrun_id, program, options, notify_list,
-              test_packages, image_url, rootstrap_url, testrun_timeout):
+              test_packages, image_url, rootstrap_url):
 
     """
     Run the test on the TestrunHost
@@ -275,8 +273,7 @@ def _run_test(log, request, testrun_id, program, options, notify_list,
                               notify_list,
                               test_packages,
                               image_url,
-                              rootstrap_url,
-                              testrun_timeout)
+                              rootstrap_url)
 
             host.register_ta_plugins()
             host.register_results_plugins()
