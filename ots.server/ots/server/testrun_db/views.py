@@ -20,19 +20,4 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
-
-setup(
-      name = "ots.tools",
-      description="Various helper tools for OTS",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-      packages = find_packages(),
-      zip_safe = False,
-
-      entry_points={
-        "console_scripts":
-            ["ots_trigger = ots.tools.trigger.ots_trigger:main",],},
-      )
+# Create your views here.

@@ -20,19 +20,25 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
+from django.conf.urls.defaults import *
 
-setup(
-      name = "ots.tools",
-      description="Various helper tools for OTS",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1.1,
-      include_package_data = True,
-      namespace_packages = ['ots'],
-      packages = find_packages(),
-      zip_safe = False,
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
 
-      entry_points={
-        "console_scripts":
-            ["ots_trigger = ots.tools.trigger.ots_trigger:main",],},
-      )
+urlpatterns = patterns('',
+
+    # Example:
+    (r'^logger/', include('ots.server.logger.urls')),
+
+    (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
+
+
+
+    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
+    # to INSTALLED_APPS to enable admin documentation:
+    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    # Uncomment the next line to enable the admin:
+    # (r'^admin/(.*)', admin.site.root),
+)

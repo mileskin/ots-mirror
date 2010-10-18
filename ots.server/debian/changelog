@@ -1,3 +1,10 @@
+ots-server (0.1.1-1) unstable; urgency=low
+
+  * Improved simple xmlprc server output
+  * Added django based ots server setup files
+
+ -- Teemu Vainio <teemu.vainio@ixonos.com>  Mon, 11 Oct 2010 16:26:12 +0300
+
 ots-server (0.1.0-1) unstable; urgency=low
 
   * Added all essential server side components. Ots is now able to run testruns
