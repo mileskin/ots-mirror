@@ -64,21 +64,63 @@ from ots.server.distributor.taskrunner import _testrun_queue_name
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.distributor.dev_utils.delete_queues import delete_queue
 from ots.server.distributor.tests.system.worker_processes import WorkerProcesses
+from ots.server.distributor.exceptions import OtsQueueDoesNotExistError
+from ots.server.distributor.exceptions import OtsQueueTimeoutError
 
+# all used queues based on worker config files under data/
+ALL_QUEUES = [
+    "group1",
+    "group1.device1",
+    "group1.device1.hwid1",
+    "group1.device1.hwid2",
+    "group1.device2",
+    "group1.device2.hwid1",
+    "group2",
+    "group2.device1",
+    "group2.device1.hwid1",
+    ]
+
+def _config_path(file):
+    "returns the absolute path to the config file under data/ directory"
+    module = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(module,"data", file)
 
 class TestPropertiesDistribution(unittest.TestCase):
 
+    def cleanup(self):
+        try:
+            for queue in ALL_QUEUES:
+                delete_queue("localhost", queue)
+                os.system("rm -f /tmp/%s" %queue)
+        except:
+            pass
+        
+    def run_task(self, group):
+        """
+        sends 'echo $PPID >> /tmp/group' command to the group and makes sure it is executed
+        by checking that the file exists. Returns the $PPID value read from the file
+        """
+        self.assertFalse(os.path.isfile("/tmp/%s" % group))
+        taskrunner1 = taskrunner_factory(
+                             device_group = group, 
+                             timeout = 2,
+                             testrun_id = self.testrun_id,
+                             config_file = self._distributor_config_filename())
+       
+        taskrunner1.add_task(["echo", "$PPID",">>","/tmp/%s" % group])
+        taskrunner1.run()
+        self.assertTrue(os.path.isfile("/tmp/%s" % group))
+        f = open('/tmp/%s'% group, 'r')
+        read_data = f.read()
+        f.close()
+        os.system("rm -f /tmp/%s" % group)
+        return read_data
+
     def setUp(self):
-        self.queues = ["foo", "foo.bar"]
 
         #make sure there is no messages left in the worker queue 
         #from previous runs:
-
-        try:
-            for queue in self.queues:
-                delete_queue("localhost", queue)
-        except:
-            pass
+        self.cleanup()
         #
         self.worker_processes = WorkerProcesses()
 
@@ -87,89 +129,95 @@ class TestPropertiesDistribution(unittest.TestCase):
           
     def tearDown(self):
         self.worker_processes.terminate()
-        if self.queues:
-            for queue in self.queues:
-                delete_queue("localhost", queue)
+        self.cleanup()
         if self.testrun_id:
             delete_queue("localhost", _testrun_queue_name(self.testrun_id))
 
-    #############################
-    # Test Single Property
-    #############################
 
-#    def test_property_0(self):
-    def test_worker_consumes_from_both_queues(self):
-        """
-        Test (None, None, "property")
-        """
-        #Check arrived at correct worker
-        #Check one and only one worker takes the task
-        self.worker_processes.start(1)
+    def test_worker_consumes_from_all_queues(self):
+        # Starts 1 worker with group1, device1, hwid1
+        # Checks that worker consumes from all queues
+        #
+        self.worker_processes.start(1, _config_path("group1_device1_hwid1.ini"))
 
         self.testrun_id = 111      
         
-        taskrunner1 = taskrunner_factory(
-                             device_group = self.queues[0], 
-                             timeout = 10,
-                             testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
-       
-        taskrunner1.add_task(["echo","foo"])
-        taskrunner1.run()
+        self.run_task("group1")
+        self.run_task("group1.device1")
+        self.run_task("group1.device1.hwid1")
 
-        taskrunner2 = taskrunner_factory(
-                             device_group = self.queues[1],
-                             timeout = 10,
-                             testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
-       
-        taskrunner2.add_task(["echo","foo"])
-        taskrunner2.run()
+    def test_worker_consumes_only_from_right_queues(self):
+        # Starts 1 worker with group1, device1, hwid1
+        # Checks that worker consumes only from right queues
+        #
+
+        # Start another worker to make sure "false" queues exist
+        worker1 = self.worker_processes.start(1, _config_path("group1_device1_hwid1.ini"))
 
 
-    def _test_property_1(self):
-        """
-        Test for (None, "property", None)
-        """
-        #Check arrived at correct worker
-        #Check one and only one worker takes the task
-        pass
+        # Start the actual worker we want to test
+        worker2 = self.worker_processes.start(1, _config_path("group1.ini"))
+        
 
-    def _test_property_2(self):
-        """
-        Test for (None, "property", None)
-        """
-        #Check arrived at correct worker
-        #Check one and only one worker takes the task
-        pass
+        self.testrun_id = 111
 
-    #############################
-    # Test Multiple Propertys
-    #############################
+        # This can go to one of the workers
+        task_pid = int(self.run_task("group1"))
+        self.assertTrue(task_pid == worker1[0] or task_pid == worker2[0])
 
-    def _test_property_1_0(self):
-        """
-        Test (None, "property_1", "property_0")
-        """
-        #Check arrived at correct worker
-        #Check one and only one worker takes the task
-        pass
+        # These should go to worker1
+        task_pid = int(self.run_task("group1.device1"))
+        self.assertEquals(task_pid, worker1[0])
 
-    def _test_property_2_1(self):
-        """
-        Test ("property_2", "property_1", None)
-        """
-        #Check arrived at correct worker
-        #Check one and only one worker takes the task
-        pass
+        task_pid = int(self.run_task("group1.device1.hwid1"))
+        self.assertEquals(task_pid, worker1[0])
 
-    def _test_property_3_2_1(self):
-        """
-        Test ("property_2", "property_1", "property_0")
-        """
-        #Check arrived at correct worker
-        #Check one and only one worker takes the task
-        pass
+        # Make sure workers don't follow wrong queues does not get executed
+        self.assertRaises(OtsQueueDoesNotExistError, self.run_task, "group2")
+        self.assertRaises(OtsQueueDoesNotExistError, self.run_task, "group1.device2")
+        self.assertRaises(OtsQueueDoesNotExistError, self.run_task, "group1.device1.hwid2")
+        self.assertRaises(OtsQueueDoesNotExistError, self.run_task, "group1.device2.hwid1")
+
+
+
+    def test_workers_consume_only_from_right_queues_with_multiple_workers(self):
+
+        worker1 = self.worker_processes.start(1, _config_path("group1_device1_hwid1.ini"))
+        worker2 = self.worker_processes.start(1, _config_path("group1_device1_hwid2.ini"))
+        worker3 = self.worker_processes.start(1, _config_path("group1_device2_hwid1.ini"))
+        worker4 = self.worker_processes.start(1, _config_path("group1.ini"))
+        worker5 = self.worker_processes.start(1, _config_path("group2_device1_hwid1.ini"))
+
+        time.sleep(2)
+
+
+        self.testrun_id = 111
+
+        # This can go to workers 1,2,3,4
+        expected_pids = (worker1[0], worker2[0], worker3[0], worker4[0])
+        task_pid = int(self.run_task("group1"))
+        self.assertTrue(task_pid in expected_pids)
+
+        # This should go to worker1
+        task_pid = int(self.run_task("group1.device1.hwid1"))
+        self.assertEquals(task_pid, worker1[0])
+
+        # This should go to worker2
+        task_pid = int(self.run_task("group1.device1.hwid2"))
+        self.assertEquals(task_pid, worker2[0])
+
+        # This should go to worker3
+        task_pid = int(self.run_task("group1.device2"))
+        self.assertEquals(task_pid, worker3[0])
+
+        # This should go to worker3
+        task_pid = int(self.run_task("group1.device2.hwid1"))
+        self.assertEquals(task_pid, worker3[0])
+
+        # This should go to worker5
+        task_pid = int(self.run_task("group2"))
+        self.assertEquals(task_pid, worker5[0])
+
 
     ###############################
     # HELPERS
@@ -178,9 +226,9 @@ class TestPropertiesDistribution(unittest.TestCase):
     @staticmethod
     def _distributor_config_filename():
         distributor_dirname = os.path.dirname(
-                              os.path.abspath(ots.server.__file__))
+                              os.path.abspath(__file__))
         distributor_config_filename = os.path.join(distributor_dirname,
-                                                  "config.ini")
+                                                  "test_config.ini")
         if not os.path.exists(distributor_config_filename):
             raise Exception("%s not found"%(distributor_config_filename))
         return distributor_config_filename
@@ -188,12 +236,12 @@ class TestPropertiesDistribution(unittest.TestCase):
 
 if __name__ == "__main__":
     import logging
-    root_logger = logging.getLogger('')
-    root_logger.setLevel(logging.DEBUG)
-    log_handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    log_handler.setFormatter(formatter)
-    log_handler.setLevel(logging.DEBUG)
-    root_logger.addHandler(log_handler)
+#    root_logger = logging.getLogger('')
+#    root_logger.setLevel(logging.DEBUG)
+#    log_handler = logging.StreamHandler()
+#    formatter = logging.Formatter(
+#        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+#    log_handler.setFormatter(formatter)
+#    log_handler.setLevel(logging.DEBUG)
+#    root_logger.addHandler(log_handler)
     unittest.main()

@@ -49,41 +49,48 @@ class WorkerProcesses(object):
     Utility class to allow a number of Workers to be launched
     """
 
-    def __init__(self, config_file=None):
+    def __init__(self):
         """
         Create a number of Workers in a separate process
         """
         self._processes = []
-        self._config_file = config_file
 
-    def start(self, no_of_workers = 1):
+    def start(self, no_of_workers = 1, config_file=""):
         """
         Start the processes
 
         @type no_of_processes : C{int}
         @param no_of_processes : The number of Workers
+
+        @rtype: C{list} of C{int}
+        @returns: pids of the started processes
         """
+        if config_file:
+            worker_config_filename = config_file
+        else:
+            worker_config_filename = self._worker_config_filename()
+        pids = []
         for proc in range(no_of_workers):
-            if self._config_file:
-                worker_config_filename = self._config_file
-            else:
-                worker_config_filename = self._worker_config_filename()
             worker_process = multiprocessing.Process(
                                          target = start_worker,
                                          args=(worker_config_filename,))
             worker_process.start()
+            pids.append(worker_process.pid)
             self._processes.append(worker_process)
-            print "Starting Worker..."
-        time.sleep(2)
+#            print "Starting Worker..."
+        time.sleep(1)
+        return pids
  
     def terminate(self):
         """
         Terminate all the Workers
         """
         for proc in self._processes:
-            print "Killing Worker..."
+#            print "Killing Worker..."
             proc.terminate()
         time.sleep(2)
+        self._processes = []
+
 
     @staticmethod
     def _worker_config_filename():
