@@ -346,8 +346,17 @@ class TaskBroker(object):
         """
         queues = []
         queues.append(device_properties["devicegroup"])
-        queues.append(device_properties["devicegroup"]+"."+device_properties["devicename"])
+        if "devicename" in device_properties.keys():
+            queues.append(device_properties["devicegroup"]+\
+                          "."+device_properties["devicename"])
+            if "deviceid" in device_properties.keys():
+                queues.append(device_properties["devicegroup"]+\
+                              "."+device_properties["devicename"]+\
+                              "."+device_properties["deviceid"])
 
+        # Reverse queues to give "more specific queues" higher priority
+        queues.reverse()
+        
         return queues
     
       
