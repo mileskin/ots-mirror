@@ -27,49 +27,42 @@
 import logging
 LOGGER = logging.getLogger(__name__)
 
+# First one is mandatory, others optional
+VALID_PROPERTIES = ("devicegroup", "devicename", "deviceid")
                 
-def get_routing_key(values):
+def get_routing_key(device_properties):
     """
-    Defines the routing key based on the key format and values
+    Defines the routing key based on the key format and device_properties
     
-    @param values: Contains the input values for the key
-    @type values: c{dictionary} 
+    @param device_properties: Contains the input device_properties for the key
+    @type device_properties: c{dictionary} 
         
     @return: The generated routing key as a string
     @rtype: c{string}
     """
-    _remove_extra_values(values)
-
+    
+    _check_input(device_properties)
 
     routing_key = ""
-    for key in self.key_format:
-        if key in values.keys():
-            routing_key = routing_key+"."+values[key]
-        else:
-            routing_key = routing_key+".dontcare"
-        
+    for key in VALID_PROPERTIES:
+        if key in device_properties.keys():
+            routing_key = routing_key+"."+device_properties[key]
     return routing_key.lstrip(".") # Remove the first dot
-       
 
 
-def _remove_extra_values(values):
+def _check_input(device_properties):
     """
-    Checks for extra values in the value dictionary. Removes extra
-    values and Prints a warning message to log if extra values are found
+    Checks for extra values in the value dictionary. Prints a warning message to log if
+    extra values are found
     """
-    for key in values.keys():
-        if key not in self.key_format:
+    if not VALID_PROPERTIES[0] in device_properties.keys():
+        raise Exception("Mandatory device property '%s' missing "% VALID_PROPERTIES[0])
+    for key in device_properties.keys():
+        if key not in VALID_PROPERTIES:
             LOGGER.warning('Ignoring unsupported device property "%s"' % key)
-            del values[key]
+            del device_properties[key]
+
                 
-            
-        
-        
-
-        
-
-            
-
 def get_queues(device_properties):
     """
     Returns a list of queues the worker should consume from based on device
@@ -83,14 +76,14 @@ def get_queues(device_properties):
     @return: A list of queues the worker should consume from
     """
     queues = []
-    queues.append(device_properties["devicegroup"])
-    if "devicename" in device_properties.keys():
-        queues.append(device_properties["devicegroup"]+\
-                      "."+device_properties["devicename"])
-        if "deviceid" in device_properties.keys():
-            queues.append(device_properties["devicegroup"]+\
-                          "."+device_properties["devicename"]+\
-                          "."+device_properties["deviceid"])
+    queues.append(device_properties[VALID_PROPERTIES[0]])
+    if VALID_PROPERTIES[1] in device_properties.keys():
+        queues.append(device_properties[VALID_PROPERTIES[0]]+\
+                      "."+device_properties[VALID_PROPERTIES[1]])
+        if VALID_PROPERTIES[2] in device_properties.keys():
+            queues.append(device_properties[VALID_PROPERTIES[0]]+\
+                          "."+device_properties[VALID_PROPERTIES[1]]+\
+                          "."+device_properties[VALID_PROPERTIES[2]])
 
     # Reverse queues to give "more specific queues" higher priority
     queues.reverse()
