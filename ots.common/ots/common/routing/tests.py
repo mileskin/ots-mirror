@@ -23,19 +23,45 @@
 # ***** END LICENCE BLOCK ***** 
 
 import unittest
-import routing
+from ots.common.routing.routing import get_queues
 
 class TestRouting(unittest.TestCase):
     
     def setUp(self):
-        self.key_format = ["group","type", "build", "network"]
-        self.routing = routing.Routing(self.key_format)
+#        self.key_format = ["group","type", "build", "network"]
+#        self.routing = routing.Routing(self.key_format)
+        pass
     
     def tearDown(self):
         pass    
 
+    def test_get_queues_device_group_only(self):
+
+        properties = dict()
+        properties["devicegroup"] = "test"
+        queues = get_queues(properties)
+        self.assertEquals(queues, ["test"])
         
-    def test_get_routing_key_with_valid_values(self):
+    def test_get_queues_device_group_and_name(self):
+        properties = dict()
+        properties["devicegroup"] = "test"
+        properties["devicename"] = "testname"
+        queues = get_queues(properties)
+        self.assertEquals(queues, ["test.testname", "test"])
+        
+    def test_get_queues_device_group_name_and_id(self):
+        properties = dict()
+        properties["devicegroup"] = "test"
+        properties["devicename"] = "testname"
+        properties["deviceid"] = "hw1"
+        queues = get_queues(properties)
+        self.assertEquals(queues, [ "test.testname.hw1", "test.testname", "test"])
+        
+
+
+
+        
+    def _test_get_routing_key_with_valid_values(self):
         values = {}
         values["group"] = "group1"
         values["type"] = "type1"
@@ -48,7 +74,7 @@ class TestRouting(unittest.TestCase):
         self.assertEquals(key, expected_key)
         
         
-    def test_get_routing_key_with_no_values(self):
+    def _test_get_routing_key_with_no_values(self):
         values = {}
         
         expected_key = "dontcare.dontcare.dontcare.dontcare"
@@ -56,7 +82,7 @@ class TestRouting(unittest.TestCase):
         key = self.routing.get_routing_key(values)
         self.assertEquals(key, expected_key)
 
-    def test_get_routing_key_with_some_values(self):
+    def _test_get_routing_key_with_some_values(self):
         values = {}
         values["group"] = "group1"
         values["network"] = "true"
@@ -66,7 +92,7 @@ class TestRouting(unittest.TestCase):
         key = self.routing.get_routing_key(values)
         self.assertEquals(key, expected_key)
 
-    def test_get_routing_key_with_some_values2(self):
+    def _test_get_routing_key_with_some_values2(self):
         values = {}
         values["network"] = "true"
         
@@ -75,7 +101,7 @@ class TestRouting(unittest.TestCase):
         key = self.routing.get_routing_key(values)
         self.assertEquals(key, expected_key)
     
-    def test_get_routing_key_with_extra_values(self):
+    def _test_get_routing_key_with_extra_values(self):
         values = {}
         values["group"] = "group1"
         values["asdfasdf"] = "asdfasdfasdf"
@@ -89,7 +115,7 @@ class TestRouting(unittest.TestCase):
         self.assertEquals(key, expected_key)
     
 
-    def test_get_list_of_queues_with_valid_values(self):
+    def _test_get_list_of_queues_with_valid_values(self):
         values = {}
         values["group"] = "group1"
         values["type"] = "type1"
@@ -122,7 +148,7 @@ class TestRouting(unittest.TestCase):
         
 
 
-    def test_get_list_of_queues_with_extra_values(self):
+    def _test_get_list_of_queues_with_extra_values(self):
         values = {}
         values["group"] = "group1"
         values["type"] = "type1"
@@ -156,7 +182,7 @@ class TestRouting(unittest.TestCase):
         
 
 
-    def test_get_list_of_queues_with_missing_values(self):
+    def _test_get_list_of_queues_with_missing_values(self):
         values = {}
         values["group"] = "group1"
         values["type"] = "type1"

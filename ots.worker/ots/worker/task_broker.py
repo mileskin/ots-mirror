@@ -51,6 +51,7 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 from ots.common.protocol import OTSProtocol, OTSMessageIO
+from ots.common.routing.routing import get_queues
 
 LOGGER = logging.getLogger(__name__)
 
@@ -95,7 +96,7 @@ class TaskBroker(object):
     """   
     def __init__(self, connection, device_properties):
         self._connection = connection
-        self._queues = self._get_queues(device_properties)
+        self._queues = get_queues(device_properties)
         self._keep_looping = True
         self._consumer_tags = dict()
 
@@ -335,30 +336,6 @@ class TaskBroker(object):
             stop = True
         return stop
 
-    @staticmethod
-    def _get_queues(device_properties):
-        """
-        Returns a list of queues the worker should consume from based on device
-        properties
-        
-        @rtype: C{list} 
-        @return: A list of queues the worker should consume from
-        """
-        queues = []
-        queues.append(device_properties["devicegroup"])
-        if "devicename" in device_properties.keys():
-            queues.append(device_properties["devicegroup"]+\
-                          "."+device_properties["devicename"])
-            if "deviceid" in device_properties.keys():
-                queues.append(device_properties["devicegroup"]+\
-                              "."+device_properties["devicename"]+\
-                              "."+device_properties["deviceid"])
-
-        # Reverse queues to give "more specific queues" higher priority
-        queues.reverse()
-        
-        return queues
-    
       
     ################################
     # PUBLIC METHODS

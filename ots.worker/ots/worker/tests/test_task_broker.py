@@ -33,6 +33,7 @@ from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
 from ots.common.protocol import OTSProtocol
 from ots.common.protocol import get_version as get_ots_protocol_version
+from ots.common.routing.routing import get_queues
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
@@ -92,7 +93,7 @@ class TestTaskBroker(unittest.TestCase):
         task_broker = self.create_task_broker()
 
         channel = task_broker.channel
-        queues = task_broker._get_queues(self._get_properties())
+        queues = get_queues(self._get_properties())
         for queue in queues:
             channel.queue_delete(queue = queue, nowait = True)
 
@@ -214,7 +215,7 @@ class TestTaskBroker(unittest.TestCase):
         self.counter = 0
 
         def show_queues():
-            queues = task_broker._get_queues(self._get_properties())
+            queues = get_queues(self._get_properties())
             total_messages = 0
             for queue in queues:
                 print "queue %s: %s messages" % (queue, _queue_size(queue))
@@ -235,7 +236,7 @@ class TestTaskBroker(unittest.TestCase):
         #Publish a Couple of Messages to both queues
         channel = task_broker.channel
 
-        queues = task_broker._get_queues(self._get_properties())
+        queues = get_queues(self._get_properties())
         self.assertEquals(len(queues), 2)
         for queue in queues:
             self.assertEquals(_queue_size(queue), 0)
@@ -264,31 +265,6 @@ class TestTaskBroker(unittest.TestCase):
         for queue in queues: # Make sure all queues are empty
             self.assertEquals(_queue_size(queue), 0)
 
-    def test_get_queues_device_group_only(self):
-
-        properties = dict()
-        properties["devicegroup"] = "test"
-        task_broker = self.create_task_broker()
-        queues = task_broker._get_queues(properties)
-        self.assertEquals(queues, ["test"])
-        
-    def test_get_queues_device_group_and_name(self):
-        properties = dict()
-        properties["devicegroup"] = "test"
-        properties["devicename"] = "testname"
-        task_broker = self.create_task_broker()
-        queues = task_broker._get_queues(properties)
-        self.assertEquals(queues, ["test.testname", "test"])
-        
-    def test_get_queues_device_group_name_and_id(self):
-        properties = dict()
-        properties["devicegroup"] = "test"
-        properties["devicename"] = "testname"
-        properties["deviceid"] = "hw1"
-        task_broker = self.create_task_broker()
-        queues = task_broker._get_queues(properties)
-        self.assertEquals(queues, [ "test.testname.hw1", "test.testname", "test"])
-        
 
         
     def test_init_connection(self):
