@@ -38,7 +38,11 @@ class ConductorEngine(TAEngine):
     TAEngine component for ots distributor.
     """
 
-    def __init__(self, ots_config, taskrunner=None):
+    def __init__(self,
+                 ots_config,
+                 taskrunner=None,
+                 custom_distribution_schema=None):
+        
         self._ots_config = ots_config 
         self.log = logging.getLogger(__name__)
         self.log.debug("Initialising Ots Adapter")

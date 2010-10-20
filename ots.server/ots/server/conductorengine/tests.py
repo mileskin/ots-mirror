@@ -25,7 +25,7 @@
 import sys
 import unittest
 
-from ots.server.conductorengine.conductor_command import _conductor_command
+from ots.server.conductorengine.conductor_command import conductor_command
 from ots.server.conductorengine.conductor_command import get_commands
 from ots.server.conductorengine.conductorengine import ConductorEngine
 
@@ -120,7 +120,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected = ['/usr/bin/kickstart',  
                     "-u", 'www.nokia.com', '-i', '1', '-c', 'foo']
 
-        result = _conductor_command(options,
+        result = conductor_command(options,
                                    host_testing = False)
         self.assertEquals(expected, result) 
 
@@ -133,7 +133,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
                     '-i', '1', '-c', 'foo']
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(expected, result)
 
@@ -148,7 +148,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf"]
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(result, expected)
 
@@ -164,7 +164,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                     '--flasherurl', "asdfasdf/asdf",
                     "-t", "my-tests"]
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(result, expected)
 

@@ -25,7 +25,7 @@ A module for generating conductor commands based on testrun options
 """
 
 
-def _conductor_command(options, host_testing):
+def conductor_command(options, host_testing):
     """
     Creates a conductor command from the arguments. 
 
@@ -75,13 +75,13 @@ def _perpackage_distribution_cmds(test_list, options):
     if 'device' in test_list:
         for test_package in test_list['device'].split(","):
             options['test_packages'] = test_package
-            cmd = _conductor_command(options, host_testing = False)
+            cmd = conductor_command(options, host_testing = False)
             commands.append(cmd)
 
     if 'host' in test_list:
         for test_package in test_list['host'].split(","):
             options['test_packages'] = test_package
-            cmd = _conductor_command(options, host_testing = True)
+            cmd = conductor_command(options, host_testing = True)
             commands.append(cmd)
 
     return commands
@@ -94,17 +94,17 @@ def _default_distribution_cmds(test_list, options):
 
     if not test_list:
         options['test_packages'] = ""
-        cmd = _conductor_command(options, host_testing = False)
+        cmd = conductor_command(options, host_testing = False)
         single_cmd.extend(cmd)
 
     if 'device' in test_list:
         options['test_packages'] = test_list['device']
-        cmd = _conductor_command(options, host_testing = False)
+        cmd = conductor_command(options, host_testing = False)
         single_cmd.extend(cmd)
 
     if 'host' in test_list:
         options['test_packages'] = test_list['host']
-        cmd = _conductor_command(options, host_testing = True)
+        cmd = conductor_command(options, host_testing = True)
         # If there are device tests, have a ; to do them both.
         # Note: This means they're run under one timeout, in one shell.
         #       Coming improvements in task distribution could soon
