@@ -22,6 +22,7 @@
 
 """Ots TA Engine plugin"""
 from ots.common.interfaces.taengine import TAEngine
+from ots.common.routing.routing import get_routing_key
 from ots.server.conductorengine.conductor_command import get_commands
 from ots.server.distributor.api import OtsQueueDoesNotExistError, \
     OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
@@ -30,6 +31,7 @@ from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import STATUS_SIGNAL
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
+
 
 import logging 
 
@@ -43,7 +45,7 @@ class ConductorEngine(TAEngine):
         self.log = logging.getLogger(__name__)
         self.log.debug("Initialising Ots Adapter")
         self._distribution_model = None
-        self._device_group = ""
+        self._routing_key = ""
         self._timeout = None
         self._image_url = ""
         self._emmc_flash_parameter = ""
@@ -59,7 +61,7 @@ class ConductorEngine(TAEngine):
         Hardware specific unpacking helper method
         """
         self._distribution_model = testrun.get_option('distribution_model')
-        self._device_group = testrun.get_device_group()
+        self._routing_key = get_routing_key(testrun.get_option("device"))
         self._timeout = testrun.get_timeout()*60
         self._image_url = testrun.get_image_url()
         self._emmc_flash_parameter = testrun.get_option('emmc')
@@ -94,7 +96,7 @@ class ConductorEngine(TAEngine):
         self._init_ots_from_testrun(testrun)
 
         if not self._taskrunner:
-            self._taskrunner = taskrunner_factory(self._device_group,
+            self._taskrunner = taskrunner_factory(self._routing_key,
                                                   self._timeout,
                                                   testrun.get_testrun_id())
 
@@ -150,8 +152,8 @@ class ConductorEngine(TAEngine):
             self._taskrunner.run()
 
         except OtsQueueDoesNotExistError:
-            error_info = "Device group '%s' does not exist" \
-                % (self._device_group)
+            error_info = "Queue '%s' does not exist" \
+                % (self._routing_key)
             testrun.set_error_info(error_info)
             testrun.set_result("ERROR")
             self.log.exception(error_info)
