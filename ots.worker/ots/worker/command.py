@@ -107,7 +107,7 @@ class Command(object):
 
             except (SoftTimeoutException, HardTimeoutException, CommandFailed):
                 self.log.debug("command %s attempt %d failed"% \
-                                   (self.command, retries))
+                                   (self.command, tries))
 
             tries = tries + 1
             time.sleep(sleep_between_retries)
