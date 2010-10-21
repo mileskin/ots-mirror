@@ -112,7 +112,8 @@ class TestrunHost(object):
     def register_ta_plugins(self):
         """Registers ta plugins to testrun"""
         config = ots_config.results_storage_config
-        distribution_models = extension_points.get_custom_distribution_models()
+        distribution_models = \
+            extension_points.get_custom_distribution_models(self.testrun)
         eng = ConductorEngine(config,
                               custom_distribution_models = distribution_models)
         self._register_test_engine(eng)

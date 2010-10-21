@@ -74,7 +74,7 @@ def get_testrun_link(testrun_id):
     """
     return "n/a"
 
-def get_custom_distribution_models():
+def get_custom_distribution_models(testrun):
     """
     @rtype: c{list} of c{tuples}
     @return: List of custom distribution models. Each model should be tuple
