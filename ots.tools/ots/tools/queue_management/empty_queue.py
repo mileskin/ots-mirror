@@ -43,7 +43,7 @@ def empty_queue(host, queue_name):
 def main():
 
     if len(sys.argv) != 3:
-        print "Usage python empty_queues host queue_name"
+        print "Usage python empty_queue host queue_name"
         sys.exit()
     host = sys.argv[1]
     queue_name = sys.argv[2]

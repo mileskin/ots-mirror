@@ -42,7 +42,7 @@ def delete_queue(host, queue_name):
 def main():
     import sys  
     if len(sys.argv) != 3:
-        print "Usage python delete_queues host queue_name"
+        print "Usage python delete_queue host queue_name"
         sys.exit()
     host = sys.argv[1]
     queue_name = sys.argv[2]
