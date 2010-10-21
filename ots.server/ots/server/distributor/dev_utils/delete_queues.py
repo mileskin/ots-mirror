@@ -38,8 +38,8 @@ def delete_queue(host, queue_name):
                                  insist = False)
     channel = connection.channel()
     channel.queue_delete(queue = queue_name, nowait=True)
-   
-if __name__ == "__main__":
+
+def main():
     import sys  
     if len(sys.argv) != 3:
         print "Usage python delete_queues host queue_name"
@@ -48,3 +48,7 @@ if __name__ == "__main__":
     queue_name = sys.argv[2]
     print host, queue_name
     delete_queue(host, queue_name)
+
+   
+if __name__ == "__main__":
+    main()

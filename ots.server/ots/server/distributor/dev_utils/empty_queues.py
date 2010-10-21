@@ -23,10 +23,11 @@
 """
 Empty the queue of messages 
 """
+import sys  
 
 from amqplib import client_0_8 as amqp
 
-def main(host, queue_name):
+def empty_queue(host, queue_name):
     port = 5672
     userid = "guest"
     password = "guest"
@@ -39,14 +40,16 @@ def main(host, queue_name):
     channel = connection.channel()
     channel.queue_purge(queue = queue_name, nowait=True)
     #print dir(channel)
+def main():
 
-
-if __name__ == "__main__":
-    import sys  
     if len(sys.argv) != 3:
         print "Usage python empty_queues host queue_name"
         sys.exit()
     host = sys.argv[1]
     queue_name = sys.argv[2]
     print host, queue_name
-    main(host, queue_name)
+    empty_queue(host, queue_name)
+
+
+if __name__ == "__main__":
+    main()
