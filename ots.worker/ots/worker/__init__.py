@@ -22,7 +22,9 @@
 
 #This shouldn't be necessary 
 #http://bugs.python.org/setuptools/issue36
-
+"""
+OTS Worker components
+"""
 import warnings
 warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
 

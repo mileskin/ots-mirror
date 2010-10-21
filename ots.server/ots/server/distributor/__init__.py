@@ -22,7 +22,9 @@
 
 #This shouldn't be necessary 
 #http://bugs.python.org/setuptools/issue36
-
+"""
+This component takes care of distributing tasks to AMQP server
+"""
 import warnings
 warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
 
