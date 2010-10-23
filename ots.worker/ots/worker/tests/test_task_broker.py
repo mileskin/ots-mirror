@@ -42,31 +42,6 @@ from ots.worker.command import CommandFailed
 # Utility Functions
 ##########################################
 
-def _init_queue(channel, queue, exchange, routing_key):
-    """
-    Initialise a durable queue and a direct exchange
-    with a routing_key of the name of the queue
-
-    @type channel: C{amqplib.client_0_8.channel.Channel}  
-    @param channel: The AMQP channel
-
-    @rtype queue: C{string}  
-    @return queue: The queue name
-    """
-    channel.queue_declare(queue = queue, 
-                          durable = False, 
-                          exclusive = False,
-                          auto_delete=True)
-    channel.exchange_declare(exchange = exchange,
-                             type = 'direct',
-                             durable = False,
-                             auto_delete = True)
-    channel.queue_bind(queue = queue,
-                       exchange = exchange,
-                       routing_key = routing_key)
-
-
-
 def _queue_size(queue):
     """
     Get the size of the queue 
@@ -236,7 +211,6 @@ class TestTaskBroker(unittest.TestCase):
         self.assertEquals(_queue_size("test"), 3)
 
     def test_on_message_timeout(self):
-        import logging
         logging.basicConfig()
         #send a sleep command
         cmd_msg = CommandMessage(['sleep', '2'], 'test', 1, timeout = 1)
@@ -263,10 +237,8 @@ class TestTaskBroker(unittest.TestCase):
         Check that incompatible versions dont
         pull messages from the queue
         """
-        self.assertTrue(_queue_size("test") is None)
+        #self.assertTrue(_queue_size("test_v") is None)
         logging.basicConfig()
-        #msg1 = self.create_message('echo foo', 1, 'test', 1,
-        #                           min_worker_version = 10)
         cmd_msg = CommandMessage(['echo', 'foo'], 'test', 1, timeout = 1)
         msg = pack_message(cmd_msg)
         task_broker = _task_broker_factory()
@@ -287,10 +259,6 @@ class TestTaskBroker(unittest.TestCase):
                                           virtual_host = "/", 
                                           insist = False)
         channel = connection.channel()
-        _init_queue(channel, 
-                    "test", 
-                    "test",
-                    "test")
         self.received = False
         def cb(message):
             channel.basic_ack(delivery_tag = message.delivery_tag)

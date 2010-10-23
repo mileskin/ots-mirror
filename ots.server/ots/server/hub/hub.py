@@ -40,7 +40,7 @@ from ots.server.hub.testrun import testrun
 from ots.server.hub.options_factory import options_factory
 from ots.server.hub.plugins import ReportPlugin
 from ots.server.hub.plugins import BifhPlugin
-from ots.server.hub.conductor_command import get_commands
+from ots.server.hub.conductor_commands import get_commands
 from ots.server.hub.application_id import get_application_id
 
 
@@ -114,8 +114,6 @@ def _primed_taskrunner(testrun_uuid, timeout, storage_address, options):
     rparam: The storage address 
     """
     taskrunner = taskrunner_factory(options.device, timeout, testrun_uuid)
- 
-    #Is this the API for kickstart?
     cmds = get_commands(options.is_package_distributed,
                         options.image_url,
                         options.hw_packages,
