@@ -50,11 +50,11 @@ LOG = logging.getLogger(__name__)
 from ots.report_plugin.tests.test_report_plugin import DataStoringStub 
 DATA_STORING_STUB = DataStoringStub()
 
-
 def _init_logging():
     """
     Initialise the logging from the configuration file
     """
+    #FIXME
     dirname = os.path.dirname(os.path.abspath(__file__))
     conf = os.path.join(dirname, "logging.conf")
     logging.config.fileConfig(conf)
@@ -93,25 +93,27 @@ def _storage_address():
     return "%s:%s"%(storage_host, storage_port)     
 
 #####################
+# HELPERS
+#####################
 
 def _primed_taskrunner(testrun_uuid, timeout, storage_address, options): 
     """
     Get a Taskrunner loaded with Tasks and ready to Run
 
-    type testrun_uuid:
-    param testrun_uuid:
+    type testrun_uuid: C{str}
+    param testrun_uuid: The unique identifier for the testrun
 
-    type timeout:
-    param timeout:
+    type timeout: C{int}
+    param timeout: The timeout in minutes
 
-    type storage_address:
-    param storage_address: 
+    type storage_address: C{str}
+    param storage_address: The storage address
 
-    type options: 
-    param options:
+    type options: L{Options}
+    param options: The testrun Options 
 
-    rtype: C{str}
-    rparam: The storage address 
+    rtype: L{Taskrunner}
+    rparam: A loaded Taskrunner 
     """
     taskrunner = taskrunner_factory(options.device, timeout, testrun_uuid)
     cmds = get_commands(options.is_package_distributed,
@@ -127,32 +129,29 @@ def _primed_taskrunner(testrun_uuid, timeout, storage_address, options):
         taskrunner.add_task(cmd)
     return taskrunner
 
-
-
-def run(sw_product, request_id, notify_list, **kwargs):
-    #FIXME the epydoc for the new api once stabilised
-    sw_product = sw_product.lower()
-    
-    options = options_factory(sw_product, kwargs)
-    taskrunner = _primed_taskrunner(testrun_uuid, 
-                                    _timeout(),
-                                    _storage_address(),
-                                    options)
-    run(sw_product, request_id, notify_list, taskrunner.run, options)
-
 def _run(sw_product, request_id, testrun_uuid, 
         notify_list, run_test, options):
-
-    #FIXME the epydoc for the new api once stabilised
     """
-    @type sw_product: C{string}
+    The keystone function in the running of the tests.
+    Start the run and delegates data to the plugins
+
+    @type sw_product: C{str}
     @param sw_product: Name of the sw product this testrun belongs to
 
-    @type request_id: C{string}
+    @type request_id: C{str}
     @param request_id: An identifier for the request from the client
 
+    @type testrun_uuid: C{str}
+    @param: The unique identifier for the testrun
+
+    @type notify_list: C{list}
     @param notify_list: Email addresses for notifications
-    @type product: C{list}
+   
+    @type run_test: C{callable}
+    @param run_test: The run test callable
+
+    @type options : L{Options}
+    @param options: The Options for the testrun
     """
     bifh_plugin = BifhPlugin(request_id)
     target_packages = []
@@ -196,3 +195,34 @@ def _run(sw_product, request_id, testrun_uuid,
 
 
     #Some post_processing steps here?
+
+#########################################
+# PUBLIC
+#########################################
+
+def run(sw_product, request_id, notify_list, options_dict):
+    """
+    The interface for the hub.
+    Processes the raw parameters and fires a testrun
+
+    @type sw_product: C{str}
+    @param sw_product: Name of the sw product this testrun belongs to
+
+    @type request_id: C{str}
+    @param request_id: An identifier for the request from the client
+
+    @type notify_list: C{list}
+    @param notify_list: Email addresses for notifications
+
+    #FIXME legacy interface 
+    @type options_dict: C{dict}
+    @param options_dict: A dictionary of options
+    """
+    sw_product = sw_product.lower()
+    
+    options = options_factory(sw_product, options_dict)
+    taskrunner = _primed_taskrunner(testrun_uuid, 
+                                    _timeout(),
+                                    _storage_address(),
+                                    options)
+    _run(sw_product, request_id, notify_list, taskrunner.run, options)
