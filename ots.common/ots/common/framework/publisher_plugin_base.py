@@ -24,7 +24,7 @@ from ots.common.plugin_base import PluginBase
 
 class PublisherPluginBase(PluginBase):
 
-    def __init__(self, request_id, testrun_uuid, sw_product, image):
+    def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
         pass
 
     #############################################
@@ -65,12 +65,6 @@ class PublisherPluginBase(PluginBase):
         @type results : C{ots.common.dto.results}
         @param results : The results
         """
-        pass
-
-    def set_delegated_params(self, **kwargs):
-        """
-        """
-        #FIXME describe this
         pass
 
     def set_all_publisher_uris(self, uris_dict):

@@ -40,6 +40,7 @@ from ots.server.hub.testrun import Testrun
 from ots.server.hub.options_factory import options_factory
 from ots.server.hub.conductor_commands import get_commands
 from ots.server.hub.application_id import get_application_id
+from ots.server.hub.publishers import Publishers
 
 LOG = logging.getLogger(__name__)
 
@@ -122,53 +123,6 @@ def _primed_taskrunner(testrun_uuid, timeout, storage_address, options):
         taskrunner.add_task(cmd)
     return taskrunner
 
-def _share_uris(publishers, testrun_uuid):
-    """
-    Share the URI information amongst all the loaded Publishers
-
-    @type publishers : C{list} of C{ots.common.publisher_plugin_base}
-    @param publishers : A list of all the PublisherPlugins
-    """
-    all_publisher_uris = {}
-    for publisher in publishers:
-        publisher.set_testrun_uuid(testrun_uuid)
-        publisher.set_delegated_parameters(delegated_params)
-        all_publisher_uris.update(publisher.get_this_publisher_uris())
-    for publisher in publishers:
-        publisher.set_all_publisher_uris(all_publisher_uris)
-    
-
-def publishers_factory(request_id, testrun_uuid, sw_product, 
-                       image, delegated_params):
-    """
-    Bootstrap Publishers
-
-    @type request_id: C{str}
-    @param request_id: An identifier for the request from the client
-
-    @type testrun_uuid: C{str}
-    @param: The unique identifier for the testrun
-
-    @type sw_product: C{str}
-    @param sw_product: Name of the sw product this testrun belongs to
-
-    @type image : C{str}
-    @param image : The URL of the image
-
-    @type delegated_params : C{dict}
-    @param delegated_params : #FIXME
-
-    @rtype: C{list} of C{ots.common.framework.publisher_plugin_base}
-    @return: The Publisher plugins
-    """
-    #FIXME make Publishers a single aggregate class
-    publishers = []
-    for publisher_klass in plugins_iter("PublisherPluginBase"):
-        publisher = publisher_klass(request_id,testrun_uuid, sw_product, image)
-        publishers.append(publisher) 
-    _share_uris(publishers, testrun_uuid)
-    return publishers
-
 def _run(sw_product, request_id, testrun_uuid, 
         notify_list, run_test, options):
     """
@@ -195,31 +149,32 @@ def _run(sw_product, request_id, testrun_uuid,
     """    
     try:
         LOG.debug("Initialising Testrun")
-        publishers = publishers_factory(request_id, 
-                                        testrun_uuid, 
-                                        sw_product, 
-                                        options.image
-                                        delegated_parameters)
+        #FIXME delegated_parameters
+        delegated_parameters = {}
+        publishers = Publishers(request_id, 
+                                testrun_uuid, 
+                                sw_product, 
+                                options.image
+                                delegated_parameters)
         is_hw_enabled = bool(len(options.hw_packages))
         is_host_enabled = bool(len(options.host_packages))
         testrun = Testrun(is_hw_enabled = is_hw_enabled, 
                           is_host_enabled = is_host_enabled)
         testrun_result = testrun.run()
         LOG.debug("Testrun finished with result: %s"%(result))
-        for publisher in publishers
-            publisher.set_testrun_result(testrun_result)
-            publisher.set_expected_packages(expected_packages)
-            publisher.set_tested_packages(tested_packages)
-            publisher.set_results(results)
+        
+        publishers.set_testrun_result(testrun_result)
+        publishers.set_expected_packages(expected_packages)
+        publishers.set_tested_packages(tested_packages)
+        publishers.set_results(results)
             
     except Exception, err:
         LOG.debug("Testrun Exception: %s"%(err))
         import traceback
         LOG.debug(traceback.format_exc())
-        for publisher in publishers:
-            publisher.set_exception(sys.exc_info()[1])
+        publishers.set_exception(sys.exc_info()[1])
 
-    publisher.publish() 
+    publishers.publish() 
 
 
 #########################################
@@ -245,7 +200,6 @@ def run(sw_product, request_id, notify_list, options_dict):
     @param options_dict: A dictionary of options
     """
     sw_product = sw_product.lower()
-    
     options = options_factory(sw_product, options_dict)
     taskrunner = _primed_taskrunner(testrun_uuid, 
                                     _timeout(),
