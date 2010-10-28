@@ -24,7 +24,7 @@ from ots.common.plugin_base import PluginBase
 
 class PublisherPluginBase(PluginBase):
 
-    def __init__(self, request_id, sw_product, image):
+    def __init__(self, request_id, testrun_uuid, sw_product, image):
         pass
 
     #############################################
@@ -67,13 +67,13 @@ class PublisherPluginBase(PluginBase):
         """
         pass
 
-    def set_delegated_parameters(self, **kwargs):
+    def set_delegated_params(self, **kwargs):
         """
         """
         #FIXME describe this
         pass
 
-    def set_uris(self, uris_dict):
+    def set_all_publisher_uris(self, uris_dict):
         """
         @type: C{dict} of C{str} : C{str}
         @param: A Dictionary of uris for the published data 
@@ -85,7 +85,7 @@ class PublisherPluginBase(PluginBase):
     # Getters
     ###########################################
 
-    def get_uris(self):
+    def get_this_publisher_uris(self):
         """
         @rtype: C{dict} of C{str} : C{str}
         @rparam: A Dictionary of uris for the published data 

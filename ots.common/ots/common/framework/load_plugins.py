@@ -70,3 +70,23 @@ def plugin_factory(name):
     except StopIteration:
         LOG.debug("No entry point: %s"%(name))
     return ret_val
+
+def plugins_iter(name):
+    """
+    @type name: C{str}
+    @param name: The name of the plugin
+
+    @rtype: C{klass}
+    @rparam: The Plugin Klass
+    """
+    #FIXME: WIP
+    ret_val = None
+    for entry_point in working_set.iter_entry_points(name):
+        LOG.debug("Loading module '%s'"% (entry_point))
+        module = entry_point.load()
+        if hasattr(module, name):
+            yield getattr(module, name)
+        else:
+            LOG.debug("%s has no attribute %s"%(module, name))
+   
+
