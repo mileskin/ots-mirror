@@ -205,4 +205,6 @@ def run(sw_product, request_id, notify_list, options_dict):
                                     _timeout(),
                                     _storage_address(),
                                     options)
-    _run(sw_product, request_id, notify_list, taskrunner.run, options)
+    testrun_uuid = uuid.uuid1().hex
+    _run(sw_product, request_id, testrun_uuid, notify_list, 
+         taskrunner.run, options)

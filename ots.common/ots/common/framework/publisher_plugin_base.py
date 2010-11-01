@@ -67,6 +67,13 @@ class PublisherPluginBase(PluginBase):
         """
         pass
 
+    def set_test_definition_xml(self, test_definition):
+        """
+        @type test_definition : C{file}
+        @param test_definition : The test definition xml
+        """
+        pass
+
     def set_all_publisher_uris(self, uris_dict):
         """
         @type: C{dict} of C{str} : C{str}

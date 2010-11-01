@@ -20,19 +20,33 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import unittest 
+#WIP
 
-import ots.common
+import sys
+import uuid
 
-from ots.common.amqp.codec import pack_message, unpack_message
+from PyQt4 import QtGui
 
-class TestCodec(unittest.TestCase):
+from ots.common.framework.plugin_base import PluginBase 
+
+class PublisherWidget(QtGui.QWidget):
+
+    def __init__(self, parent, testrun_uuid):
+        QtGui.QWidget.__init__(self, parent)
+        self.setWindowTitle("Testrun: %s"%(testrun_uuid))
+        print testrun_uuid
+      
+class PubPluginDemo(PluginBase):
     
-    def test_pack(self): 
-        pass
+    def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
+        app = QtGui.QApplication(sys.argv)
+        self.publisher_widget = PublisherWidget(None, testrun_uuid)
+        self.publisher_widget.show()
+        app.exec_()
 
-    def test_unpack(self):
-        pass
+    def set_results(self, results):
+        print results
+        
 
 if __name__ == "__main__":
-    unittest.main()
+    PubPluginDemo(111, uuid.uuid1().hex, "demo", "www.meego.com")
