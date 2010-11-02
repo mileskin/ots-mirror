@@ -39,8 +39,8 @@ DEFAULT_TIMEOUT = "90"  #default test case timeout
 ALL_ENVIRONMENT = ['hardware']
 DEFAULT_SCHEMA = "/usr/share/test-definition/testdefinition-tm_terms.xsd"
 
-module = os.path.dirname(os.path.abspath(__file__))
-TEST_XSD = os.path.join(module, "data", "testdefinition-tm_terms.xsd")
+MODULE = os.path.dirname(os.path.abspath(__file__))
+TEST_XSD = os.path.join(MODULE, "data", "testdefinition-tm_terms.xsd")
 
 class TestDefinitionParser(object):
     """

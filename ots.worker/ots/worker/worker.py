@@ -43,7 +43,7 @@ from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
 from ots.worker.get_version import get_version 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
@@ -67,12 +67,15 @@ class Worker(object):
         self._routing_key = routing_key 
         self._services_exchange = services_exchange
         self._timeout = None
-               
+        self._connection = None
+        self._task_broker = None
+                
+ 
     def start(self):
         """
         Starts the ots worker server running
         """
-        logger.debug('Initialising the server')
+        LOGGER.debug('Initialising the server')
         # If stop flag is there, remove it
         if os.path.exists(STOP_SIGNAL_FILE):
             os.system("rm -fr "+STOP_SIGNAL_FILE)
@@ -85,7 +88,7 @@ class Worker(object):
                                        self._queue, 
                                        self._routing_key,
                                        self._services_exchange)
-        logger.debug("Starting the server. " + \
+        LOGGER.debug("Starting the server. " + \
                          "{vhost:'%s', queue:'%s', routing_key:'%s'}" % 
                      (self._vhost,
                       self._queue,

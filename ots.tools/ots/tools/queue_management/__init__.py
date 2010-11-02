@@ -1,3 +1,6 @@
+#!/usr/bin/python -tt
+
+
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -19,3 +22,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+
+"""
+Tools for managing ots queues from command line
+"""

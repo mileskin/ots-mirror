@@ -22,6 +22,9 @@
 
 #This shouldn't be necessary 
 #http://bugs.python.org/setuptools/issue36
+"""
+Tools for interacting with ots system
+"""
 
 import warnings
 warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")

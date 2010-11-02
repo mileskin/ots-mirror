@@ -34,5 +34,8 @@ setup(
 
       entry_points={
         "console_scripts":
-            ["ots_trigger = ots.tools.trigger.ots_trigger:main",],},
+            ["ots_trigger = ots.tools.trigger.ots_trigger:main",
+             "ots_empty_queue = ots.tools.queue_management.empty_queue:main",
+             "ots_delete_queue = ots.tools.queue_management.delete_queue:main",
+             ],},
       )
