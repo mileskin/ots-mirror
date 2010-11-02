@@ -20,4 +20,15 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.framework.load_plugins import plugins_iter
+import unittest
+
+from ots.server.hub.publishers import Publishers
+
+class TestPublishers(unittest.TestCase):
+
+    def test_init(self):
+        publishers = Publishers(111, 222, "sw_product" , "image")
+        #TODO
+
+if __name__ == "__main__":
+    unittest.main()

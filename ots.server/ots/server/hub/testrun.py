@@ -53,19 +53,23 @@ class Testrun(object):
         self.expected_packages = None
         self.tested_packages = None
         self.run_test = None
+        self.is_hw_enabled = is_hw_enabled
+        self.is_host_enabled = is_host_enabled
+        self.insignificant_tests_matter = insignificant_tests_matter
         
     def run(self):
         #blocking call returns when test completed   
         ret_val = TestrunResult.FAIL
-        run_test()
-        self.expected_packages = expected_packages
-        self.tested_packages = tested_packages
+        self.run_test()
+        self.expected_packages = self._dto_handler.expected_packages
+        self.tested_packages = self._dto_handler.tested_packages
         is_valid_run(self.expected_packages,
                      self.tested_packages,
-                     is_hw_enabled,
-                     is_host_enabled)
-        ret_val = go_nogo_gauge(dto_handler.results_xmls,
-                                insignificant_tests_matter)
+                     self.is_hw_enabled,
+                     self.is_host_enabled)
+        self.results = self._dto_handler.results_xmls
+        ret_val = go_nogo_gauge(self._dto_handler.results_xmls,
+                                self.insignificant_tests_matter)
         return ret_val
 
                       

@@ -37,6 +37,7 @@ from pkg_resources import working_set
 
 from ots.common.framework.load_plugins import _find_plugins, load_plugins
 from ots.common.framework.load_plugins import plugin_factory
+from ots.common.framework.load_plugins import plugins_iter 
 
 class TestFindPlugins(unittest.TestCase):
 
@@ -60,6 +61,12 @@ class TestFindPlugins(unittest.TestCase):
     def test_plugin_factory(self):
         test_plugin = plugin_factory("TestPlugin")
         self.assertEquals((None, 222), test_plugin().foo(222))
+
+    def test_plugins_iter(self):
+        test_plugins = list(plugins_iter(self.plugin_dir, "TestPlugin"))
+        self.assertEquals(1, len(test_plugins))
+        self.assertEquals("TestPlugin", test_plugins[0].__name__)
+        
 
 if __name__ == "__main__":
     unittest.main()

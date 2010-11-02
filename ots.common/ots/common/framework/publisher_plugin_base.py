@@ -20,9 +20,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.plugin_base import PluginBase
-
-class PublisherPluginBase(PluginBase):
+class PublisherPluginBase(object):
 
     def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
         pass

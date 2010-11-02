@@ -20,6 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import os
+
+from ots.common.framework.api import  plugins_iter
+
 class Publishers(object):
 
     def __init__(self, request_id, testrun_uuid, 
@@ -43,8 +47,11 @@ class Publishers(object):
         """
         #FIXME: describe the intent behind kwargs 
 
+
+        root_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+        plugin_dir = os.path.join(root_dir, "plugins")
         self._publishers = []
-        for publisher_klass in plugins_iter("PublisherPluginBase"):
+        for publisher_klass in plugins_iter(plugin_dir, "ots.publisher_plugin"):
             publisher = publisher_klass(request_id,
                                         testrun_uuid, 
                                         sw_product, 
@@ -105,7 +112,7 @@ class Publishers(object):
         @param: The Exception raised by the Testrun 
         """
         for publisher in self._publishers:
-            publisher.set_exception(packages)
+            publisher.set_exception(exception)
 
     def set_results(self, results):
         """
@@ -113,7 +120,7 @@ class Publishers(object):
         @param results : The results
         """
         for publisher in self._publishers:
-            publisher.set_exception(packages)
+            publisher.set_results(results)
         
     ###########################################
     # Getters

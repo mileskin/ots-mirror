@@ -22,71 +22,31 @@
 
 import logging
 
-from pkg_resources import working_set, Environment
+import pkg_resources
 
 LOG = logging.getLogger(__name__)
 
-def _find_plugins(plugin_dir):
+def plugins_iter(plugin_dir, entry_point):
     """
-    @type plugin_dir: C{str}
-    @param plugin_dir: The path name of the plugin directory
+    @type plugin_dir : C{str}
+    @param plugin_dir : The fqname of the plugin directory 
 
-    @rtype: C{list} of C{pkg_resources.Distribution}
-    @rparam: A list of plugins
+    @type entry_point : C{str}
+    @param entry_point : The Entry Point to be loaded 
+    
+    @ytype : C{obj}
+    @yparam : The loaded Entry Point 
     """
-
-    env = Environment([plugin_dir])
-    plugins, errors =  working_set.find_plugins(env)
-    if errors:
-        LOG.debug("Error finding plugins: %s"%(errors))
-    return plugins
-
-def load_plugins(plugin_dir):
-    """
-    @type plugin_dir: C{str}
-    @param plugin_dir: The path name of the plugin directory
-    """
-    for package in _find_plugins(plugin_dir):
-        LOG.debug("Activating: '%s'"%(package.egg_name()))
-        working_set.add(package)
-
-def plugin_factory(name):
-    """
-    @type name: C{str}
-    @param name: The name of the plugin
-
-    @rtype: C{klass}
-    @rparam: The Plugin Klass
-    """
-    ret_val = None
-    try:
-        entry_point = working_set.iter_entry_points(name).next()
-        LOG.debug("Loading module '%s'"% (entry_point))
-        module = entry_point.load()
-        if hasattr(module, name):
-            ret_val = getattr(module, name)
-        else:
-            LOG.debug("%s has no attribute %s"%(module, name))
-    except StopIteration:
-        LOG.debug("No entry point: %s"%(name))
-    return ret_val
-
-def plugins_iter(name):
-    """
-    @type name: C{str}
-    @param name: The name of the plugin
-
-    @rtype: C{klass}
-    @rparam: The Plugin Klass
-    """
-    #FIXME: WIP
-    ret_val = None
-    for entry_point in working_set.iter_entry_points(name):
-        LOG.debug("Loading module '%s'"% (entry_point))
-        module = entry_point.load()
-        if hasattr(module, name):
-            yield getattr(module, name)
-        else:
-            LOG.debug("%s has no attribute %s"%(module, name))
-   
-
+    pkg_resources.working_set.add_entry(plugin_dir)
+    pkg_env=pkg_resources.Environment([plugin_dir])
+    plugins={}
+    for name in pkg_env:
+        egg=pkg_env[name][0]
+        LOG.debug("Activating egg: %s"%(egg))
+        egg.activate()
+        modules=[]
+        for name in egg.get_entry_map(entry_point):
+            entry_point=egg.get_entry_info(entry_point, name)
+            LOG.debug("Loading entry point: %s"%(entry_point))
+            cls=entry_point.load()
+            yield cls

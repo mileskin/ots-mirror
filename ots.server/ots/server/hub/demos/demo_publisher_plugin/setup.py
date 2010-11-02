@@ -20,33 +20,13 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#WIP
+from setuptools import setup
 
-import sys
-import uuid
-
-from PyQt4 import QtGui
-
-from ots.common.framework.plugin_base import PluginBase 
-
-class PublisherWidget(QtGui.QWidget):
-
-    def __init__(self, parent, testrun_uuid):
-        QtGui.QWidget.__init__(self, parent)
-        self.setWindowTitle("Testrun: %s"%(testrun_uuid))
-        print testrun_uuid
-      
-class PubPluginDemo(PluginBase):
-    
-    def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
-        app = QtGui.QApplication(sys.argv)
-        self.publisher_widget = PublisherWidget(None, testrun_uuid)
-        self.publisher_widget.show()
-        app.exec_()
-
-    def set_results(self, results):
-        print results
-        
-
-if __name__ == "__main__":
-    PubPluginDemo(111, uuid.uuid1().hex, "demo", "www.meego.com")
+setup(
+    name="PyQtPublisher",
+    version="0.8",
+    packages=['pyqt_publisher_plugin'],
+    entry_points="""
+    [ots.publisher_plugin]
+     = pyqt_publisher_plugin.pyqt_publisher:PyQtPublisher
+    """)

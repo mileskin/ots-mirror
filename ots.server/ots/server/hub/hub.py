@@ -30,9 +30,8 @@ import logging
 import logging.config
 import uuid
 import ConfigParser
+import traceback
 from socket import gethostname
-
-from ots.common.framework.api import config_filename, plugins_iter
 
 from ots.server.distributor.api import taskrunner_factory
 
@@ -111,11 +110,11 @@ def _primed_taskrunner(testrun_uuid, timeout, storage_address, options):
     """
     taskrunner = taskrunner_factory(options.device, timeout, testrun_uuid)
     cmds = get_commands(options.is_package_distributed,
-                        options.image_url,
+                        options.image,
                         options.hw_packages,
                         options_host_packages,
                         options.emmc,
-                        options.testrun_uuid,
+                        testrun_uuid,
                         storage_address,
                         options.testfilter,
                         options.flasher)
@@ -124,7 +123,7 @@ def _primed_taskrunner(testrun_uuid, timeout, storage_address, options):
     return taskrunner
 
 def _run(sw_product, request_id, testrun_uuid, 
-        notify_list, run_test, options):
+        notify_list, run_test, options, **kwargs):
     """
     The keystone function in the running of the tests.
     Start a Testrun and publish the data 
@@ -147,30 +146,30 @@ def _run(sw_product, request_id, testrun_uuid,
     @type options : L{Options}
     @param options: The Options for the testrun
     """    
+   
+    LOG.debug("Initialising Testrun")
+    publishers = Publishers(request_id, 
+                            testrun_uuid, 
+                            sw_product, 
+                            options.image,
+                            **kwargs)
+
     try:
-        LOG.debug("Initialising Testrun")
-        #FIXME delegated_parameters
-        delegated_parameters = {}
-        publishers = Publishers(request_id, 
-                                testrun_uuid, 
-                                sw_product, 
-                                options.image
-                                delegated_parameters)
         is_hw_enabled = bool(len(options.hw_packages))
         is_host_enabled = bool(len(options.host_packages))
         testrun = Testrun(is_hw_enabled = is_hw_enabled, 
                           is_host_enabled = is_host_enabled)
+        testrun.run_test = run_test
         testrun_result = testrun.run()
-        LOG.debug("Testrun finished with result: %s"%(result))
+        LOG.debug("Testrun finished with result: %s"%(testrun_result))
         
         publishers.set_testrun_result(testrun_result)
-        publishers.set_expected_packages(expected_packages)
-        publishers.set_tested_packages(tested_packages)
-        publishers.set_results(results)
+        publishers.set_expected_packages(testrun.expected_packages)
+        publishers.set_tested_packages(testrun.tested_packages)
+        publishers.set_results(testrun.results)
             
     except Exception, err:
         LOG.debug("Testrun Exception: %s"%(err))
-        import traceback
         LOG.debug(traceback.format_exc())
         publishers.set_exception(sys.exc_info()[1])
 
