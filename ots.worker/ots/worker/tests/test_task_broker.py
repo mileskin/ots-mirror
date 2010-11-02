@@ -96,6 +96,7 @@ def _task_broker_factory(dispatch_func = None):
 class TestTaskBroker(unittest.TestCase):
         
     def setUp(self):
+        _queue_delete("test")
         self.assertTrue(_queue_size("test") is None)
         
     def tearDown(self):

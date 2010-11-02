@@ -29,7 +29,9 @@
 #ots.common
 #############
 
-nosetests ots.common/ots/common -e testdefinitionparser -e testrun_id -e test_package -e testrundata -e _check_input_defined -e testcase -e testsuite -e testset -e testpackagedata -e test_definition -e testdata -e testrun 
+nosetests ots.common/ots/common/framework/tests/test_*
+nosetests ots.common/ots/common/dto/tests/test_* 
+nosetests ots.common/ots/common/amqp/tests/test_* -e testrun_queue_name
 
 #############
 #ots.server

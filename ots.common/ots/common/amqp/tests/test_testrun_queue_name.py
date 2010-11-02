@@ -20,13 +20,14 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+
 import unittest
 
-from ots.common.testrun_queue_name import testrun_queue_name
+from ots.common.amqp.testrun_queue_name import testrun_queue_name
 
 class TestTestRunQueueName(unittest.TestCase):
 
-    def test_testrun_queue_name(self):
+    def test_queue_name(self):
         self.assertEquals("r1", testrun_queue_name(1))
 
 if __name__ == "__main__":

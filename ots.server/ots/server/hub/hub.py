@@ -33,8 +33,9 @@ import ConfigParser
 import traceback
 from socket import gethostname
 
-from ots.server.distributor.api import taskrunner_factory
+from ots.common.framework.config_filename import config_filename
 
+from ots.server.distributor.api import taskrunner_factory
 from ots.server.hub.testrun import Testrun
 from ots.server.hub.options_factory import options_factory
 from ots.server.hub.conductor_commands import get_commands
