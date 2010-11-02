@@ -23,10 +23,10 @@
 from setuptools import setup
 
 setup(
-    name="PyQtPublisher",
+    name="PySidePublisher",
     version="0.8",
-    packages=['pyqt_publisher_plugin'],
+    packages=['pyside_publisher_plugin'],
     entry_points="""
     [ots.publisher_plugin]
-     = pyqt_publisher_plugin.pyqt_publisher:PyQtPublisher
+     = pyside_publisher_plugin.pyside_publisher:PySidePublisher
     """)

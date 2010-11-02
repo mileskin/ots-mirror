@@ -24,19 +24,19 @@ import sys
 import uuid
 import logging 
 
-from PyQt4 import QtGui
+from PySide import QtGui
 
 from ots.common.framework.publisher_plugin_base import PublisherPluginBase 
 
 LOG = logging.getLogger(__name__)
 
-class PublisherWidget(QtGui.QDialog):
+class PublisherDialog(QtGui.QDialog):
     """
     Publishes results from a Testrun
     """
 
     def __init__(self, parent, testrun_uuid, text):
-        QtGui.QWidget.__init__(self, parent)
+        QtGui.QDialog.__init__(self, parent)
         self.setWindowTitle("Testrun: %s"%(testrun_uuid))
         self.resize(500, 70)        
         layout = QtGui.QVBoxLayout(self)
@@ -57,7 +57,7 @@ class PublisherWidget(QtGui.QDialog):
 
         layout.addItem(spacer)
         
-class PyQtPublisher(PublisherPluginBase):
+class PySidePublisher(PublisherPluginBase):
     """
     A small demonstration on how to create a
     Publisher Plugin for OTS 
@@ -65,9 +65,9 @@ class PyQtPublisher(PublisherPluginBase):
     
     def __init__(self, request_id, testrun_uuid, sw_product, image, 
                  parent = None, text = None,**kwargs):
-        LOG.debug("Initialising PyQtPublisher")
+        LOG.debug("Initialising PySidePublisher")
         LOG.debug("Parent: %s"%(parent))
-        self.publisher_widget = PublisherWidget(parent, testrun_uuid, text)
+        self.publisher_widget = PublisherDialog(parent, testrun_uuid, text)
         self.publisher_widget.show()
        
     def set_testrun_result(self, result):

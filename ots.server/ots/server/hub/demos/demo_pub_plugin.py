@@ -28,8 +28,8 @@ integrate with OTS
 import sys
 import uuid
 
-from PyQt4 import QtGui
-from PyQt4 import QtCore
+from PySide import QtGui
+from PySide import QtCore
 
 from ots.server.hub.tests.component.mock_taskrunner import \
                                             MockTaskRunnerResultsPass
@@ -88,7 +88,7 @@ def run(parent, text):
 def main():
     """
     Run a stubbed up Testrun
-    within a small PyQt app 
+    within a small PySide app 
     to show the use of the Publisher Plugin
     """
     app = QtGui.QApplication(sys.argv)
