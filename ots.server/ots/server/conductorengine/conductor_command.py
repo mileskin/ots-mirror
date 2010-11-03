@@ -25,7 +25,7 @@ A module for generating conductor commands based on testrun options
 """
 
 
-def _conductor_command(options, host_testing):
+def conductor_command(options, host_testing):
     """
     Creates a conductor command from the arguments. 
 
@@ -63,87 +63,3 @@ def _conductor_command(options, host_testing):
 
     return cmd
 
-
-def _perpackage_distribution_cmds(test_list, options):
-    """Creates a separate task (conductor command) for each test package"""
-
-    commands = []
-
-    if not test_list:
-        raise ValueError("test_list not defined for distribution model")
-
-    if 'device' in test_list:
-        for test_package in test_list['device'].split(","):
-            options['test_packages'] = test_package
-            cmd = _conductor_command(options, host_testing = False)
-            commands.append(cmd)
-
-    if 'host' in test_list:
-        for test_package in test_list['host'].split(","):
-            options['test_packages'] = test_package
-            cmd = _conductor_command(options, host_testing = True)
-            commands.append(cmd)
-
-    return commands
-
-
-def _default_distribution_cmds(test_list, options):
-    """Creates one task (one command line) for all test packages"""
-
-    single_cmd = []
-
-    if not test_list:
-        options['test_packages'] = ""
-        cmd = _conductor_command(options, host_testing = False)
-        single_cmd.extend(cmd)
-
-    if 'device' in test_list:
-        options['test_packages'] = test_list['device']
-        cmd = _conductor_command(options, host_testing = False)
-        single_cmd.extend(cmd)
-
-    if 'host' in test_list:
-        options['test_packages'] = test_list['host']
-        cmd = _conductor_command(options, host_testing = True)
-        # If there are device tests, have a ; to do them both.
-        # Note: This means they're run under one timeout, in one shell.
-        #       Coming improvements in task distribution could soon
-        #       facilitate in improving this too.
-        if single_cmd:
-            single_cmd.append(';')
-        single_cmd.extend(cmd)
-
-    return [single_cmd]
-
-
-##################################
-# Public
-##################################
-
-
-def get_commands(distribution_model,
-                 image_url, 
-                 test_list, 
-                 emmc_flash_parameter, 
-                 testrun_id, 
-                 storage_address, 
-                 test_filter,
-                 flasher=""):
-    """Returns a list of conductor commands based on the options"""
-
-    options = dict()
-    options['image_url'] = image_url
-    options['emmc_flash_parameter'] = emmc_flash_parameter
-    options['testrun_id'] = testrun_id
-    options['storage_address'] = storage_address
-    options['testfilter'] = test_filter
-    options['flasherurl'] = flasher
-
-    cmds = []
-    if distribution_model == "perpackage":
-        cmds = _perpackage_distribution_cmds(test_list,
-                                              options)
-    else:
-        cmds = _default_distribution_cmds(test_list,
-                                          options)
-    return cmds

@@ -25,8 +25,8 @@
 import sys
 import unittest
 
-from ots.server.conductorengine.conductor_command import _conductor_command
-from ots.server.conductorengine.conductor_command import get_commands
+from ots.server.conductorengine.conductor_command import conductor_command
+from ots.server.conductorengine.conductorengine import _get_commands
 from ots.server.conductorengine.conductorengine import ConductorEngine
 
 from ots.server.distributor.api import OtsQueueDoesNotExistError, \
@@ -120,7 +120,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected = ['/usr/bin/kickstart',  
                     "-u", 'www.nokia.com', '-i', '1', '-c', 'foo']
 
-        result = _conductor_command(options,
+        result = conductor_command(options,
                                    host_testing = False)
         self.assertEquals(expected, result) 
 
@@ -133,7 +133,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
                     '-i', '1', '-c', 'foo']
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(expected, result)
 
@@ -148,7 +148,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf"]
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(result, expected)
 
@@ -164,7 +164,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                     '--flasherurl', "asdfasdf/asdf",
                     "-t", "my-tests"]
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(result, expected)
 
@@ -187,7 +187,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz"]]
         
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -196,6 +196,39 @@ class TestHardwareTestRunner(unittest.TestCase):
                             test_filter)
         
         self.assertEquals(cmds, expected_cmds)
+
+
+    def test_custom_distribution_models(self):
+        """Check that custom distribution models can be used"""
+        self.model_called = 0
+
+        def custom_model1(test_list, options):
+            self.model_called = 1
+            return ["asdf"]
+
+        distribution_model = "custom1"
+        image_url = 'http://image/url/image.bin'
+        test_list = {'device':"foo,bar,baz"}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = "-testsuite=testrunner-tests"  
+
+
+        expected_cmds = ["asdf"]
+        
+        cmds = _get_commands(distribution_model, 
+                            image_url, 
+                            test_list,
+                            emmc_flash_parameter,
+                            testrun_id,
+                            storage_address,
+                            test_filter,
+                            custom_distribution_models =\
+                             [("custom1", custom_model1)])
+        
+        self.assertEquals(cmds, expected_cmds)
+
 
     def test_device_tests_with_no_packages(self):
         """Check conductor command without test packages for device"""
@@ -213,7 +246,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests']]
         
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -243,7 +276,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
 
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -278,7 +311,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
 
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -316,7 +349,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
         flasher = "asdfasdf/asdf"
 
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -349,7 +382,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
 
-        commands = get_commands(distribution_model, 
+        commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
@@ -382,7 +415,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
 
-        commands = get_commands(distribution_model, 
+        commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
@@ -417,7 +450,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
-        commands = get_commands(distribution_model, 
+        commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
@@ -459,7 +492,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
-        commands = get_commands(distribution_model, 
+        commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
@@ -485,7 +518,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         self.assertRaises(ValueError,
-                          get_commands,
+                          _get_commands,
                           distribution_model, 
                           image_url, 
                           test_list,

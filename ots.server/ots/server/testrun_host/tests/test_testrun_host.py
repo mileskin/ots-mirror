@@ -151,6 +151,49 @@ class testTestrunHost(unittest.TestCase):
         self.assertEquals(self.host.testrun.get_error_info(),
                           "Invalid testpackage(s): ['dummy-tests-invalid']")
 
+    def test_validate_custom_distribution_model(self):
+        build_id = 666
+        testrun_id = 1234
+        sw_product = "swproduct1"
+        ots_options = dict()
+        ots_options["distribution_model"] = "custom_distribution"
+        email_list = ["dummy@localhost"]
+        test_packages = ["dummy-tests"]
+        image_url = "url/image.bin"
+        self.host._load_default_options = self.load_mock_options
+        self.host._init_assetplugin = self.init_assetplugin_mock
+        self.host.init_testrun(build_id,
+                               testrun_id,
+                               sw_product,
+                               ots_options,
+                               email_list,
+                               test_packages,
+                               image_url)
+        self.host._validate_distribution_model([("custom_distribution", None)])
+
+    def test_validate_bad_custom_distribution_model(self):
+        build_id = 666
+        testrun_id = 1234
+        sw_product = "swproduct1"
+        ots_options = dict()
+        ots_options["distribution_model"] = "unsupported_custom_distribution"
+        email_list = ["dummy@localhost"]
+        test_packages = ["dummy-tests"]
+        image_url = "url/image.bin"
+        self.host._load_default_options = self.load_mock_options
+        self.host._init_assetplugin = self.init_assetplugin_mock
+        self.host.init_testrun(build_id,
+                               testrun_id,
+                               sw_product,
+                               ots_options,
+                               email_list,
+                               test_packages,
+                               image_url)
+        self.assertRaises(ValueError,
+                          self.host._validate_distribution_model,
+                          [("custom_distribution", None)])
+
+
 
     def test_init_testrun_bad_distribution_model(self):
 
@@ -164,15 +207,14 @@ class testTestrunHost(unittest.TestCase):
         image_url = "url/image.bin"
         self.host._load_default_options = self.load_mock_options
         self.host._init_assetplugin = self.init_assetplugin_mock
-        self.assertRaises(ValueError,
-                          self.host.init_testrun,
-                          build_id,
-                          testrun_id,
-                          sw_product,
-                          ots_options,
-                          email_list,
-                          test_packages,
-                          image_url)
+        self.host.init_testrun(build_id,
+                               testrun_id,
+                               sw_product,
+                               ots_options,
+                               email_list,
+                               test_packages,
+                               image_url)
+        self.assertRaises(ValueError, self.host.register_ta_plugins)
         self.assertEquals(self.host.testrun.get_error_info(),
                           "Invalid distribution model: unsupported-value")
 
@@ -188,15 +230,15 @@ class testTestrunHost(unittest.TestCase):
         image_url = "url/image.bin"
         self.host._load_default_options = self.load_mock_options
         self.host._init_assetplugin = self.init_assetplugin_mock
-        self.assertRaises(ValueError,
-                          self.host.init_testrun,
-                          build_id,
-                          testrun_id,
-                          sw_product,
-                          ots_options,
-                          email_list,
-                          test_packages,
-                          image_url)
+
+        self.host.init_testrun(build_id,
+                               testrun_id,
+                               sw_product,
+                               ots_options,
+                               email_list,
+                               test_packages,
+                               image_url)
+        self.assertRaises(ValueError, self.host.register_ta_plugins)
         self.assertEquals(self.host.testrun.get_error_info(),
             "Test packages must be defined for specified distribution model 'perpackage'")
 
@@ -205,7 +247,6 @@ class testTestrunHost(unittest.TestCase):
         mock = Testrun_mock()
         self.host.testrun = mock
         self.host.register_ta_plugins()
-
         self.assertTrue(self.host.test_engines)
 
 
@@ -231,6 +272,19 @@ class Testrun_mock(object):
         self.target_packages.append("pkg%s" % self.n)
         ++self.n
         return pkgs
+
+    def get_option(self, option):
+        if option == "distribution_model":
+            return "default"
+        return ""
+
+    def set_state(self, state, status_info):
+        pass
+    def set_error_info(self, error):
+        pass
+
+    def set_result(self, result):
+        pass
 
     def get_result_objects(self):
         return []
