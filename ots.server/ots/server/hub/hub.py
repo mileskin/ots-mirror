@@ -21,12 +21,14 @@
 # ***** END LICENCE BLOCK *****
 
 """
-The Hub provides a focal point for inter-component data-flow.
+The Hub provides a focal point for inter-component data-flow in the
+OTS system.
 
-Hence OTS suggests a centralised topology with the Hub as it's
-central component.
+Hence OTS suggests a centralised topology 
+with the Hub as it's central component.
 
 The role of the Hub is the high level management of a single Testrun.
+
 Specifically:
 
  - Receive test request from third-party client

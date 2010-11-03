@@ -23,7 +23,7 @@
 
 import unittest
 
-from ots.server.allocator.allocator import _storage_address
+from ots.server.allocator.primed_taskrunner import _storage_address
 
 class TestAllocator(unittest.TestCase):
 

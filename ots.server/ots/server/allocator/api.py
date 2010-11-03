@@ -20,4 +20,4 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.server.allocator.allocator import primed_taskrunner
+from ots.server.allocator.primed_taskrunner import primed_taskrunner
