@@ -169,7 +169,7 @@ class testTestrunHost(unittest.TestCase):
                                email_list,
                                test_packages,
                                image_url)
-        self.host._validate_distribution_model(["custom_distribution"])
+        self.host._validate_distribution_model([("custom_distribution", None)])
 
     def test_validate_bad_custom_distribution_model(self):
         build_id = 666
@@ -191,7 +191,7 @@ class testTestrunHost(unittest.TestCase):
                                image_url)
         self.assertRaises(ValueError,
                           self.host._validate_distribution_model,
-                          ["custom_distribution"])
+                          [("custom_distribution", None)])
 
 
 

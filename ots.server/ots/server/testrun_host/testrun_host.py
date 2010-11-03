@@ -433,7 +433,8 @@ class TestrunHost(object):
         """
 
         valid_values = ['default', 'perpackage']
-        valid_values.extend(custom_models)
+        for model in custom_models:
+            valid_values.append(model[0])
         model = self.testrun.get_option('distribution_model')
 
         if model not in valid_values:
