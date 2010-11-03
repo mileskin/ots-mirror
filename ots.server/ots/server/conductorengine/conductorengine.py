@@ -62,6 +62,7 @@ class ConductorEngine(TAEngine):
         """
         self._distribution_model = testrun.get_option('distribution_model')
         self._routing_key = get_routing_key(testrun.get_option("device"))
+        self.log.info("Using routing key %s" % self._routing_key)
         self._timeout = testrun.get_timeout()*60
         self._image_url = testrun.get_image_url()
         self._emmc_flash_parameter = testrun.get_option('emmc')

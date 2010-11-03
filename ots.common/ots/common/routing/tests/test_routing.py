@@ -55,6 +55,12 @@ class TestRouting(unittest.TestCase):
         queues = get_queues(properties)
         self.assertEquals(queues, [ "test.testname.hw1", "test.testname", "test"])
         
+    def test_get_queues_name_missing(self):
+        properties = dict()
+        properties["devicegroup"] = "test"
+        properties["deviceid"] = "hw1"
+        self.assertRaises(Exception, get_queues, properties)
+
 
     def test_get_routing_key_device_group_only(self):
 
@@ -77,6 +83,13 @@ class TestRouting(unittest.TestCase):
         properties["deviceid"] = "hw1"
         routing_key = get_routing_key(properties)
         self.assertEquals(routing_key, "test.testname.hw1")
+
+    def test_get_routing_key_name_missing(self):
+        properties = dict()
+        properties["devicegroup"] = "test"
+        properties["deviceid"] = "hw1"
+        self.assertRaises(Exception, get_routing_key, properties)
+
         
     def test_get_routing_key_no_properties(self):
         properties = dict()

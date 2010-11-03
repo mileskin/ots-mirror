@@ -57,6 +57,13 @@ def _check_input(device_properties):
     """
     if not VALID_PROPERTIES[0] in device_properties.keys():
         raise Exception("Mandatory device property '%s' missing "% VALID_PROPERTIES[0])
+
+    if VALID_PROPERTIES[1] not in device_properties and\
+           VALID_PROPERTIES[2] in device_properties:
+        raise Exception("Device property '%s' needs to be defined if '%s' is defined"% \
+                        (VALID_PROPERTIES[1], VALID_PROPERTIES[2]))
+
+
     for key in device_properties.keys():
         if key not in VALID_PROPERTIES:
             LOGGER.warning('Ignoring unsupported device property "%s"' % key)
@@ -75,6 +82,7 @@ def get_queues(device_properties):
     @rtype: C{list} 
     @return: A list of queues the worker should consume from
     """
+    _check_input(device_properties)
     queues = []
     queues.append(device_properties[VALID_PROPERTIES[0]])
     if VALID_PROPERTIES[1] in device_properties.keys():
