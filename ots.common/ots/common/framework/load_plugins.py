@@ -22,31 +22,35 @@
 
 import logging
 
-import pkg_resources
+from pkg_resources import Environment, working_set
 
 LOG = logging.getLogger(__name__)
 
-def plugins_iter(plugin_dir, entry_point):
+def plugins_iter(plugin_dir, ep_name):
     """
     @type plugin_dir : C{str}
     @param plugin_dir : The fqname of the plugin directory 
 
-    @type entry_point : C{str}
-    @param entry_point : The Entry Point to be loaded 
+    @type ep_name : C{str}
+    @param ep_name : The name of the Entry Point to be loaded 
     
     @ytype : C{obj}
     @yparam : The loaded Entry Point 
     """
-    pkg_resources.working_set.add_entry(plugin_dir)
-    pkg_env=pkg_resources.Environment([plugin_dir])
+    #TODO review this code
+    working_set.add_entry(plugin_dir)
+    pkg_env = Environment([plugin_dir])
     plugins={}
-    for name in pkg_env:
-        egg=pkg_env[name][0]
+    for env_name in pkg_env:
+        egg = pkg_env[env_name][0]
         LOG.debug("Activating egg: %s"%(egg))
         egg.activate()
-        modules=[]
-        for name in egg.get_entry_map(entry_point):
-            entry_point=egg.get_entry_info(entry_point, name)
+        for name in egg.get_entry_map(ep_name):
+            entry_point = egg.get_entry_info(ep_name, name)
             LOG.debug("Loading entry point: %s"%(entry_point))
-            cls=entry_point.load()
+            cls = entry_point.load()
             yield cls
+    for entry_point in working_set.iter_entry_points(ep_name):
+        LOG.debug("Loading entry point: %s"%(entry_point))
+        cls = entry_point.load()
+        yield cls
