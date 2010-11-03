@@ -21,7 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 import unittest
-from ots.server.hub.conductor_commands import ConductorCommands
+from ots.server.allocator.conductor_commands import ConductorCommands
 
 class TestConductorCommands(unittest.TestCase):
 

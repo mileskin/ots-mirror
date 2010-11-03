@@ -113,15 +113,15 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals("foo", options.emmc)
 
-    def test_package_distributed(self):
+    def test_priority(self):
         kwargs = {"image" : "www.nokia.com",
                   "distribution_model" : "perpackage"}
         options = Options(**kwargs)
-        self.assertTrue(options.is_package_distributed)
+        self.assertEquals(1, options.priority)
         kwargs = {"image" : "www.nokia.com",
                   "distribution_model" : "foo"}
         options = Options(**kwargs)
-        self.assertFalse(options.is_package_distributed)
+        self.assertEquals(2, options.priority)
 
     def test_flasher(self):
         kwargs = {"image" : "www.nokia.com",

@@ -21,7 +21,21 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Very much a spike
+The Hub provides a focal point for inter-component data-flow.
+
+Hence OTS suggests a centralised topology with the Hub as it's
+central component.
+
+The role of the Hub is the high level management of a single Testrun.
+Specifically:
+
+ - Receive test request from third-party client
+ - Allocate Tasks 
+ - Dispatch Testrun
+ - Receives results
+ - Publish results
+ - Persist monitoring data
+
 """
 
 import sys
@@ -35,10 +49,11 @@ from socket import gethostname
 
 from ots.common.framework.config_filename import config_filename
 
-from ots.server.distributor.api import taskrunner_factory
+
+from ots.server.allocator.api import primed_taskrunner
+
 from ots.server.hub.testrun import Testrun
 from ots.server.hub.options_factory import options_factory
-from ots.server.hub.conductor_commands import get_commands
 from ots.server.hub.application_id import get_application_id
 from ots.server.hub.publishers import Publishers
 
@@ -69,59 +84,6 @@ def _timeout():
     config = ConfigParser.ConfigParser()
     config.read(conf)       
     return int(config.get('ots.server.hub', 'timeout'))
-
-def _storage_address():
-    """
-    rtype: C{str}
-    rparam: The storage address 
-    """
-    server_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-    app_id = get_application_id() 
-    conf = config_filename(app_id, server_path)
-    config = ConfigParser.ConfigParser()
-    config.read(conf)
-    storage_host = str(config.get('ots.server.hub', 'storage_host'))
-    if not storage_host:
-        storage_host = gethostname()
-    storage_port = str(config.get('ots.server.hub', 'storage_port'))  
-    return "%s:%s"%(storage_host, storage_port)     
-
-#####################
-# HELPERS
-#####################
-
-def _primed_taskrunner(testrun_uuid, timeout, storage_address, options): 
-    """
-    Get a Taskrunner loaded with Tasks and ready to Run
-
-    type testrun_uuid: C{str}
-    param testrun_uuid: The unique identifier for the testrun
-
-    type timeout: C{int}
-    param timeout: The timeout in minutes
-
-    type storage_address: C{str}
-    param storage_address: The storage address
-
-    type options: L{Options}
-    param options: The testrun Options 
-
-    rtype: L{Taskrunner}
-    rparam: A loaded Taskrunner 
-    """
-    taskrunner = taskrunner_factory(options.device, timeout, testrun_uuid)
-    cmds = get_commands(options.is_package_distributed,
-                        options.image,
-                        options.hw_packages,
-                        options_host_packages,
-                        options.emmc,
-                        testrun_uuid,
-                        storage_address,
-                        options.testfilter,
-                        options.flasher)
-    for cmd in cmds:
-        taskrunner.add_task(cmd)
-    return taskrunner
 
 def _run(sw_product, request_id, testrun_uuid, 
         notify_list, run_test, options, **kwargs):
@@ -201,10 +163,16 @@ def run(sw_product, request_id, notify_list, options_dict):
     """
     sw_product = sw_product.lower()
     options = options_factory(sw_product, options_dict)
-    taskrunner = _primed_taskrunner(testrun_uuid, 
+    taskrunner = primed_taskrunner(testrun_uuid, 
                                     _timeout(),
-                                    _storage_address(),
-                                    options)
+                                   options.priority,
+                                   options.device,
+                                   options.image,
+                                   options.hw_packages,
+                                   options.host_packages,
+                                   options.emmc,
+                                   options.testfilter,
+                                   options.flasher)
     testrun_uuid = uuid.uuid1().hex
     _run(sw_product, request_id, testrun_uuid, notify_list, 
          taskrunner.run, options)

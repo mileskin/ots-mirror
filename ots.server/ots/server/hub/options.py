@@ -173,12 +173,14 @@ class Options(object):
         return self._emmc
 
     @property
-    def is_package_distributed(self):
+    def priority(self):
         """
-        @rtype: C{bool}
-        @return: Is the Testrun distributed Package by Package
+        @rtype: C{int}
+        @return: The priority of the Testrun
         """
-        return self._distribution_model == PERPACKAGE
+        if self._distribution_model == PERPACKAGE:
+            return 1
+        return 2
 
     @property
     def flasher(self):

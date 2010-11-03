@@ -29,7 +29,7 @@ from ots.server.hub.tests.component.mock_taskrunner \
 from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerError
 from ots.server.hub.hub import _run
-from ots.server.hub.hub import _timeout, _storage_address
+from ots.server.hub.hub import _timeout
 
 options_dict = {"image" : "www.nokia.com" ,
                 "rootstrap" : "www.meego.com",
@@ -52,9 +52,6 @@ class TestHub(unittest.TestCase):
 
     def test_timeout(self):
         self.assertEquals(30, _timeout())
-
-    def test_storage_address(self):
-        self.assertEquals(gethostname()+":1982", _storage_address())
 
     #FIXME API churn 
         
