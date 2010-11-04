@@ -27,14 +27,17 @@ import time
 from pickle import dumps
 
 from amqplib import client_0_8 as amqp
+from amqplib.client_0_8.exceptions import AMQPChannelException
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
 from ots.common.protocol import OTSProtocol
 from ots.common.protocol import get_version as get_ots_protocol_version
+from ots.common.routing.routing import get_queues
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
+
 
 def queue_size():
     """
@@ -51,8 +54,38 @@ def queue_size():
         count = int(count)
     return count
 
+# More advanced queue_size(). TODO: Modify all tests to use this
+def _queue_size(queue):
+    """
+    Get the size of the queue
+
+    rtype: C{int} or None if there is no queue
+    rparam:  Queue Size
+    """
+    ret_val = None
+    connection = amqp.Connection(host = "localhost",
+                                 userid = "guest",
+                                 password = "guest",
+                                 virtual_host = "/",
+                                 insist = False)
+    channel = connection.channel()
+    try:
+        name, msg_count, consumers = channel.queue_declare(queue = queue,
+                                                           passive = True)
+        ret_val = msg_count
+    except AMQPChannelException:
+        pass
+    return ret_val
+
+
 
 class TestTaskBroker(unittest.TestCase):
+
+    def _get_properties(self):
+        properties = dict()
+        properties["devicegroup"] = "test"
+        properties["devicename"] = "testname"
+        return properties
 
     def tearDown(self):
 
@@ -60,7 +93,9 @@ class TestTaskBroker(unittest.TestCase):
         task_broker = self.create_task_broker()
 
         channel = task_broker.channel
-        channel.queue_delete(queue = "test", nowait = True)
+        queues = get_queues(self._get_properties())
+        for queue in queues:
+            channel.queue_delete(queue = queue, nowait = True)
 
     def create_task_broker(self, dispatch_func=None):
         connection = Connection(vhost = "/",
@@ -69,7 +104,7 @@ class TestTaskBroker(unittest.TestCase):
                                 username = "guest",
                                 password = "guest")
         connection.connect()
-        task_broker = TaskBroker(connection, "test", "test", "test")
+        task_broker = TaskBroker(connection, self._get_properties())
         if dispatch_func:
             task_broker._dispatch = dispatch_func
         task_broker._init_connection()
@@ -128,6 +163,110 @@ class TestTaskBroker(unittest.TestCase):
         channel.wait()
         time.sleep(5)
 
+    def test_consume_secondary_queue(self):
+        """
+        Check that the worker consumes messages also from the secondary queue
+        it listens to
+        """
+        def check_queue_size(*args,**kwargs):
+            """
+            Closure to attach to _dispatch 
+            to check the queue size
+            """
+            self.assertEquals(self.expected_size, _queue_size("test.testname"))
+        pre_queue_size = _queue_size("test.testname") or 0
+
+        #SetUp the TaskBroker but override _dispatch
+        task_broker = self.create_task_broker(dispatch_func=check_queue_size)
+
+        #Publish a Couple of Messages
+        channel = task_broker.channel
+        channel.basic_publish(amqp.Message(dumps(self.create_message('foo', 1, '', 1))),
+                                           mandatory = True,
+                                           exchange = "test.testname",
+                                           routing_key = "test.testname")
+
+        channel.basic_publish(amqp.Message(dumps(self.create_message('bar', 1, '', 1))),
+                                           mandatory = True,
+                                           exchange = "test.testname",
+                                           routing_key = "test.testname")
+       
+ 
+        #Check we have two new messages on the 
+        post_queue_size = _queue_size("test.testname")
+        expected_queue_size = 2 + pre_queue_size 
+        self.assertEqual(expected_queue_size, post_queue_size)
+
+        #Set to Consume
+        task_broker._consume()
+
+        
+        #Messages should come off the queue one at a time
+        self.expected_size = 1
+        channel.wait()
+        self.expected_size = 0
+        channel.wait()
+        time.sleep(5)
+
+    def test_consume_from_2_queues(self):
+        """
+        Check that worker consumes messages from 2 queues properly
+        """
+        self.counter = 0
+
+        def show_queues():
+            queues = get_queues(self._get_properties())
+            total_messages = 0
+            for queue in queues:
+                print "queue %s: %s messages" % (queue, _queue_size(queue))
+                total_messages += _queue_size(queue)
+            print "total messages: %s" % total_messages
+
+        
+        def check_queue_size(*args,**kwargs):
+            """
+            Closure to attach to _dispatch 
+            counts how many messages processed
+            """
+            self.counter += 1
+
+        #SetUp the TaskBroker but override _dispatch
+        task_broker = self.create_task_broker(dispatch_func=check_queue_size)
+
+        #Publish a Couple of Messages to both queues
+        channel = task_broker.channel
+
+        queues = get_queues(self._get_properties())
+        self.assertEquals(len(queues), 2)
+        for queue in queues:
+            self.assertEquals(_queue_size(queue), 0)
+            #print "sending 3 messages to queue %s" % queue
+            channel.basic_publish(amqp.Message(dumps(self.create_message('foo', 1, '', 1))),
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            
+            channel.basic_publish(amqp.Message(dumps(self.create_message('bar', 1, '', 1))),
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            channel.basic_publish(amqp.Message(dumps(self.create_message('baz', 1, '', 1))),
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            
+        #Set to Consume
+        task_broker._consume()
+
+        while self.counter < 6: # Process all messages
+            channel.wait()
+#            show_queues()
+        
+        for queue in queues: # Make sure all queues are empty
+            self.assertEquals(_queue_size(queue), 0)
+
+
+        
     def test_init_connection(self):
         #use test durable code here
         pass

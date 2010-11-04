@@ -39,6 +39,36 @@ class TestTestrun(unittest.TestCase):
         
         self.testrun = testrun.Testrun()
 
+
+    def test_update_device_properties(self):
+        default_options = dict()
+        default_options["device"] = {"devicegroup":"default"}
+        default_options["email"] = "off" # To make sure other options handled ok
+
+        user_options = dict()
+        user_options["device"] = {"devicename":"name"}
+
+        self.testrun.set_options(default_options)
+        self.assertEquals(self.testrun.get_option("device"),
+                                                  default_options["device"])
+
+        self.assertEquals(self.testrun.get_option("email"),
+                                                  default_options["email"])
+
+        self.testrun.set_options(user_options)
+
+        expected_device = {"devicegroup":"default",
+                           "devicename":"name"}
+
+
+        self.assertEquals(self.testrun.get_option("device"),
+                                                  expected_device)
+
+        self.assertEquals(self.testrun.get_option("email"),
+                                                  default_options["email"])
+
+        
+
     def test_target_packages(self):
         pkgs = ["pkg1", "pkg2"]
         self.testrun.set_target_packages(pkgs)

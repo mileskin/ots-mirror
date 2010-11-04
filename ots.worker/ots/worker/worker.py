@@ -53,8 +53,13 @@ class Worker(object):
     Worker class 
     """
 
-    def __init__(self, vhost, host, port, username, password, queue, 
-                       routing_key, services_exchange):
+    def __init__(self,
+                 vhost,
+                 host,
+                 port,
+                 username,
+                 password,
+                 device_properties):
         """
         Initialise the class, read config, set up logging
         """
@@ -63,9 +68,7 @@ class Worker(object):
         self._port = port
         self._username = username
         self._password = password
-        self._queue = queue 
-        self._routing_key = routing_key 
-        self._services_exchange = services_exchange
+        self._device_properties = device_properties
         self._timeout = None
         self._connection = None
         self._task_broker = None
@@ -85,14 +88,12 @@ class Worker(object):
                                       self._username,
                                       self._password)
         self._task_broker = TaskBroker(self._connection, 
-                                       self._queue, 
-                                       self._routing_key,
-                                       self._services_exchange)
-        LOGGER.debug("Starting the server. " + \
-                         "{vhost:'%s', queue:'%s', routing_key:'%s'}" % 
-                     (self._vhost,
-                      self._queue,
-                      self._routing_key))
+                                       self._device_properties)
+        LOGGER.debug("Starting the worker. " + \
+                     "server: %s:%s, device_properties: %s" % 
+                     (self._host,
+                      self._port,
+                      self._device_properties))
         self._task_broker.run()
 
 
@@ -133,12 +134,6 @@ def _init_logging(config_filename = None):
 
     root_logger.addHandler(output_handler)
 
-def _edit_config(config_filename):
-    """
-    Fire up nano to allow the editing of the config 
-    """
-    subprocess.call("nano %s"%(config_filename), shell=True)
-
 def worker_factory(config_filename):
     """
     Laborious boot strapping from config
@@ -151,21 +146,13 @@ def worker_factory(config_filename):
     port = config.getint('Worker','port')
     username = config.get('Worker','username')
     password = config.get('Worker','password')
-    queue = config.get('Worker','queue')
-    routing_key = config.get('Worker','routing_key')
-    services_exchange = config.get('Worker','services_exchange')
-    
-    if queue == "fix_me" or routing_key == "fix_me":
-        _edit_config(config_filename)
 
-        print
-        print "Now restart ots_worker"
-        print
-        sys.exit()
+    device_properties = dict()
+    for key, value in config.items("Device"):
+        device_properties[key] = value
 
     return Worker(vhost=vhost, host=host, port=port, username=username,
-                  password=password, queue=queue, routing_key=routing_key, 
-                  services_exchange=services_exchange)
+                  password=password, device_properties=device_properties)
        
 def main():
     """

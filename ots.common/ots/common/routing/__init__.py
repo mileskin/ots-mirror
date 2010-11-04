@@ -1,3 +1,5 @@
+#!/usr/bin/python -tt
+
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -18,26 +20,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
-# ***** END LICENCE BLOCK *****
+# ***** END LICENCE BLOCK ***** 
 
-import os
-
-import unittest
-
-from ots.worker.worker import worker_factory
-
-class TestWorker(unittest.TestCase):
-
-    def test_config(self):
-        dirname = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-        config = os.path.join(dirname, "config.ini")
-        worker = worker_factory(config)
-
-        self.assertEquals("/", worker._vhost)
-        self.assertEquals(5672, worker._port)
-        self.assertEquals("guest", worker._username)
-        self.assertEquals("guest", worker._password)
-        self.assertEquals("foo", worker._device_properties["devicegroup"])
-
-if __name__ == "__main__":
-    unittest.main()
+"""
+Methods for generating routing keys/queue names based on device properties
+"""

@@ -50,8 +50,6 @@ class TestRunStub(object):
     def set_result(self, result):
         self.result = result
 
-    def get_device_group(self):
-        return "swproduct1"
     def get_timeout(self):
         return 60
     def get_image_url(self):
@@ -67,7 +65,10 @@ class TestRunStub(object):
             return "asdf/asdfasdf"
         elif arg == "emmc":
             return "asdfasdf"
+        elif arg == "device":
+            return {"devicegroup":"swproduct1"}
         return '"blah"'
+
     def add_result_object(self, result):
         self.result_objects.append(result)
     def set_state(self, state, status_info):
@@ -544,7 +545,7 @@ class TestConductorEngine(unittest.TestCase):
         ots_ta_adapter._init_ots_from_testrun(test_run)
         
         self.assertEquals("swproduct1", 
-                          ots_ta_adapter._device_group)
+                          ots_ta_adapter._routing_key)
         self.assertEquals(3600, 
                           ots_ta_adapter._timeout)
         self.assertEquals("www.nokia.com",
@@ -628,8 +629,8 @@ class TestConductorEngine(unittest.TestCase):
         ots_ta_adapter._init_ots_from_testrun(testrun)
         ots_ta_adapter.execute(testrun)
         self.assertEquals(testrun.error_info,
-                          "Device group '%s' does not exist" % \
-                              testrun.get_device_group())
+                          "Queue '%s' does not exist" % \
+                              ots_ta_adapter._routing_key)
 
         self.assertEquals(testrun.result, "ERROR")
 
