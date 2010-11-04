@@ -58,13 +58,6 @@ class PublisherPluginBase(object):
         """
         pass
 
-    def set_results(self, results):
-        """
-        @type results : C{ots.common.dto.results}
-        @param results : The results
-        """
-        pass
-
     def set_test_definition_xml(self, test_definition):
         """
         @type test_definition : C{file}
@@ -79,7 +72,21 @@ class PublisherPluginBase(object):
                 for *all* Publishers in {name : uri} 
         """
         pass
-        
+
+    def set_results(self, results):
+        """
+        @type results : C{list} of C{ots.common.dto.results}
+        @param results : The Results
+        """
+        pass
+
+    def set_monitors(self, monitors):
+        """
+        @type monitors : C(list} of C{ots.common.dto.monitor}
+        @param monitors : The Monitors
+        """
+        pass
+
     ###########################################
     # Getters
     ###########################################

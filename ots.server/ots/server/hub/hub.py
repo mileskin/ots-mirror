@@ -161,6 +161,7 @@ class Hub(object):
             self.publishers.set_expected_packages(testrun.expected_packages)
             self.publishers.set_tested_packages(testrun.tested_packages)
             self.publishers.set_results(testrun.results)
+            self.publishers.set_monitors(testrun.monitors)
 
         except Exception, err:
             LOG.debug("Testrun Exception: %s"%(err))

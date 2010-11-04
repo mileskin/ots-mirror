@@ -22,9 +22,17 @@
 
 """
 Runs an OTS Testrun 
-"""
 
-#FIXME: A Placeholder module while the surrounding interfaces are defined
+Provides a thin wrapper around the DTOHandler 
+
+Adds it's value by 
+1. Checking the validity of the Run
+2. The Go / NoGo return value
+
+
+At present the callable run_test needs setting 
+prior to the run 
+"""
 
 from ots.results.api import TestrunResult
 from ots.results.api import is_valid_run
@@ -33,7 +41,9 @@ from ots.results.api import go_nogo_gauge
 from ots.server.hub.dto_handler import DTOHandler
 
 class Testrun(object):
-    
+    """
+    Run a Testrun and return results
+    """
 
     def __init__(self, is_hw_enabled = True,
                        is_host_enabled = False,
@@ -50,26 +60,60 @@ class Testrun(object):
         """
        
         self._dto_handler = DTOHandler()
-        self.expected_packages = None
-        self.tested_packages = None
+        #FIXME. Callable 
         self.run_test = None
+        #
         self.is_hw_enabled = is_hw_enabled
         self.is_host_enabled = is_host_enabled
         self.insignificant_tests_matter = insignificant_tests_matter
         
+    ###########################
+    # DELEGATES
+    ###########################
+
+    @property 
+    def expected_packages(self):
+        """
+        @rtype : C{ots.common.dto.packages}
+        @rparam : The Test Packages that should have been run
+        """
+        return self._dto_handler.expected_packages
+        
+    @property
+    def tested_packages(self):
+        """
+        @rtype : C{ots.common.dto.packages}
+        @rparam : The Test Packages that were run
+        """
+        return self._dto_handler.tested_packages
+        
+    @property
+    def monitors(self):
+        """
+        @rtype : C(list} of C{ots.common.dto.monitor}
+        @rparam : The Monitors
+        """
+        return self._dto_handler.monitors
+
+    #############################
+    # RUN
+    #############################
+    
     def run(self):
-        #blocking call returns when test completed   
+        """
+        Blocking call returns when test completed
+
+        @rtype : L{ots.results.api.TestrunResult
+        @rparam : The Go / NoGo result of the run
+        """
         ret_val = TestrunResult.FAIL
-        self.run_test()
-        self.expected_packages = self._dto_handler.expected_packages
-        self.tested_packages = self._dto_handler.tested_packages
-        is_valid_run(self.expected_packages,
-                     self.tested_packages,
-                     self.is_hw_enabled,
-                     self.is_host_enabled)
-        self.results = self._dto_handler.results_xmls
-        ret_val = go_nogo_gauge(self._dto_handler.results_xmls,
+        if self.run_test is not None:
+            self.run_test()
+            is_valid_run(self.expected_packages,
+                         self.tested_packages,
+                         self.is_hw_enabled,
+                         self.is_host_enabled)
+            self.results = self._dto_handler.results_xmls
+            ret_val = go_nogo_gauge(self._dto_handler.results_xmls,
                                 self.insignificant_tests_matter)
         return ret_val
-
-                      
