@@ -41,9 +41,7 @@ def conductor_command(options, host_testing):
         cmd: A list. First item is shell executable. 
              The rest of the items are command line parameters.
     """
-    # The old cmd line command is used for backward compatibility
-    # TODO: Change 'kickstart' to 'conductor'
-    cmd = ["/usr/bin/kickstart"]
+    cmd = ["/usr/bin/conductor"]
     cmd.extend( ["-u", options['image_url']] )
     if options['emmc_flash_parameter']:
         cmd.extend( ["-e", options['emmc_flash_parameter']] )
