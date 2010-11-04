@@ -41,7 +41,7 @@ def conductor_command(options, host_testing):
         cmd: A list. First item is shell executable. 
              The rest of the items are command line parameters.
     """
-    cmd = ["/usr/bin/conductor"]
+    cmd = ["conductor"]
     cmd.extend( ["-u", options['image_url']] )
     if options['emmc_flash_parameter']:
         cmd.extend( ["-e", options['emmc_flash_parameter']] )
