@@ -22,3 +22,4 @@
 
 from ots.common.framework.load_plugins import plugins_iter
 from ots.common.framework.config_filename import config_filename
+from ots.common.framework.publisher_plugin_base import PublisherPluginBase

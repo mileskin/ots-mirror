@@ -198,4 +198,4 @@ def get_commands(is_package_distributed,
     if is_package_distributed:
         return commands.multiple(hw_packages, host_packages)
     else:
-        return command.single(hw_packages, host_packages)
+        return commands.single(hw_packages, host_packages)

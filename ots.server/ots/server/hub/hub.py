@@ -66,6 +66,10 @@ class Hub(object):
 
     def __init__(self, sw_product, request_id, **kwargs):
         """
+        The kwargs are the dictionary of arguments provided by the 
+        request.
+        Note. That these must contain an 'image'
+
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
 
@@ -74,14 +78,16 @@ class Hub(object):
         """
         self.sw_product = sw_product.lower()
         self.request_id = request_id
+        LOG.debug("Initialising options with: '%s'"%(kwargs))
         options_factory = OptionsFactory(sw_product, kwargs)
-        options = options_factory()
+        self.options = options_factory()
         self.testrun_uuid = uuid.uuid1().hex 
         self.publishers = Publishers(request_id, 
-                                     testrun_uuid, 
+                                     self.testrun_uuid, 
                                      sw_product, 
-                                     options.image,
-                                     options_factory.extended_options_dict)
+                                     self.options.image,
+                                     **options_factory.extended_options_dict)
+        self._taskrunner = None
 
     #########################
     # HELPERS
@@ -124,19 +130,20 @@ class Hub(object):
         rtype : L{ots.server.distributor.taskrunner}
         rparam : A Taskrunner loaded with Tasks
         """
-        taskrunner = primed_taskrunner(testrun_uuid, 
-                                       self._timeout,
-                                       self.options.priority,
-                                       self.options.device,
-                                       self.options.image,
-                                       self.options.hw_packages,
-                                       self.options.host_packages,
-                                       self.options.emmc,
-                                       self.options.testfilter,
-                                       self.options.flasher,
-                                       self.publishers)
+        if self._taskrunner is None:
+            self._taskrunner = primed_taskrunner(self.testrun_uuid, 
+                                                 self._timeout,
+                                                 self.options.priority,
+                                                 self.options.device,
+                                                 self.options.image,
+                                                 self.options.hw_packages,
+                                                 self.options.host_packages,
+                                                 self.options.emmc,
+                                                 self.options.testfilter,
+                                                 self.options.flasher,
+                                                 self.publishers)
 
-        return taskrunner
+        return self._taskrunner
 
     ################################
     # RUN
@@ -149,14 +156,14 @@ class Hub(object):
 
         LOG.debug("Initialising Testrun")
         try:
-            is_hw_enabled = bool(len(options.hw_packages))
-            is_host_enabled = bool(len(options.host_packages))
+            is_hw_enabled = bool(len(self.options.hw_packages))
+            is_host_enabled = bool(len(self.options.host_packages))
             testrun = Testrun(is_hw_enabled = is_hw_enabled, 
                               is_host_enabled = is_host_enabled)
-            testrun.run_test = run_test
+            #FIXME: Cheap hack to make testable
+            testrun.run_test = self.taskrunner.run
             testrun_result = testrun.run()
             LOG.debug("Testrun finished with result: %s"%(testrun_result))
-
             self.publishers.set_testrun_result(testrun_result)
             self.publishers.set_expected_packages(testrun.expected_packages)
             self.publishers.set_tested_packages(testrun.tested_packages)
