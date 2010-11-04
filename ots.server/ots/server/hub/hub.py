@@ -36,7 +36,6 @@ Specifically:
  - Dispatch Testrun
  - Receives results
  - Publish results
- - Persist monitoring data
 
 """
 
@@ -47,134 +46,125 @@ import logging.config
 import uuid
 import ConfigParser
 import traceback
-from socket import gethostname
 
-from ots.common.framework.config_filename import config_filename
-
+from ots.common.framework.api import config_filename
 
 from ots.server.allocator.api import primed_taskrunner
 
 from ots.server.hub.testrun import Testrun
-from ots.server.hub.options_factory import options_factory
+from ots.server.hub.options_factory import OptionsFactory
 from ots.server.hub.application_id import get_application_id
 from ots.server.hub.publishers import Publishers
 
 LOG = logging.getLogger(__name__)
 
-def _init_logging():
+class Hub(object):
+
     """
-    Initialise the logging from the configuration file
+    The Hub is the Keystone of the OTS system
     """
-    #FIXME
-    dirname = os.path.dirname(os.path.abspath(__file__))
-    conf = os.path.join(dirname, "logging.conf")
-    logging.config.fileConfig(conf)
 
+    def __init__(self, sw_product, request_id, **kwargs):
+        """
+        @type sw_product: C{str}
+        @param sw_product: Name of the sw product this testrun belongs to
 
-########################
-# Configuration stuff
-########################
+        @type request_id: C{str}
+        @param request_id: An identifier for the request from the client
+        """
+        self.sw_product = sw_product.lower()
+        self.request_id = request_id
+        options_factory = OptionsFactory(sw_product, kwargs)
+        options = options_factory()
+        self.testrun_uuid = uuid.uuid1().hex 
+        self.publishers = Publishers(request_id, 
+                                     testrun_uuid, 
+                                     sw_product, 
+                                     options.image,
+                                     options_factory.extended_options_dict)
 
-def _timeout():
-    """
-    rtype: C{int}
-    rparam: The timeout in minutes
-    """
-    server_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-    app_id = get_application_id() 
-    conf = config_filename(app_id, server_path)
-    config = ConfigParser.ConfigParser()
-    config.read(conf)       
-    return int(config.get('ots.server.hub', 'timeout'))
+    #########################
+    # HELPERS
+    #########################
 
-def _run(sw_product, request_id, testrun_uuid, 
-        notify_list, run_test, options, **kwargs):
-    """
-    The keystone function in the running of the tests.
-    Start a Testrun and publish the data 
+    @staticmethod
+    def _init_logging():
+        """
+        Initialise the logging from the configuration file
+        """
+        #FIXME
+        dirname = os.path.dirname(os.path.abspath(__file__))
+        conf = os.path.join(dirname, "logging.conf")
+        logging.config.fileConfig(conf)
 
-    @type sw_product: C{str}
-    @param sw_product: Name of the sw product this testrun belongs to
+    @property
+    def _timeout(self):
+        """
+        rtype: C{int}
+        rparam: The timeout in minutes
+        """
+        server_path = os.path.split(
+            os.path.dirname(os.path.abspath(__file__)))[0]
+        app_id = get_application_id() 
+        conf = config_filename(app_id, server_path)
+        config = ConfigParser.ConfigParser()
+        config.read(conf)       
+        return int(config.get('ots.server.hub', 'timeout'))
 
-    @type request_id: C{str}
-    @param request_id: An identifier for the request from the client
+    ###############################
+    # TASKRUNNER
+    ##############################
 
-    @type testrun_uuid: C{str}
-    @param: The unique identifier for the testrun
+    @property 
+    def taskrunner(self):
+        """
+        A Taskrunner loaded with Tasks as 
+        allocated by preferences
 
-    @type notify_list: C{list}
-    @param notify_list: Email addresses for notifications
-   
-    @type run_test: C{callable}
-    @param run_test: The run test callable
+        rtype : L{ots.server.distributor.taskrunner}
+        rparam : A Taskrunner loaded with Tasks
+        """
+        taskrunner = primed_taskrunner(testrun_uuid, 
+                                       self._timeout,
+                                       self.options.priority,
+                                       self.options.device,
+                                       self.options.image,
+                                       self.options.hw_packages,
+                                       self.options.host_packages,
+                                       self.options.emmc,
+                                       self.options.testfilter,
+                                       self.options.flasher,
+                                       self.publishers)
 
-    @type options : L{Options}
-    @param options: The Options for the testrun
-    """    
-   
-    LOG.debug("Initialising Testrun")
-    publishers = Publishers(request_id, 
-                            testrun_uuid, 
-                            sw_product, 
-                            options.image,
-                            **kwargs)
+        return taskrunner
 
-    try:
-        is_hw_enabled = bool(len(options.hw_packages))
-        is_host_enabled = bool(len(options.host_packages))
-        testrun = Testrun(is_hw_enabled = is_hw_enabled, 
-                          is_host_enabled = is_host_enabled)
-        testrun.run_test = run_test
-        testrun_result = testrun.run()
-        LOG.debug("Testrun finished with result: %s"%(testrun_result))
-        
-        publishers.set_testrun_result(testrun_result)
-        publishers.set_expected_packages(testrun.expected_packages)
-        publishers.set_tested_packages(testrun.tested_packages)
-        publishers.set_results(testrun.results)
-            
-    except Exception, err:
-        LOG.debug("Testrun Exception: %s"%(err))
-        LOG.debug(traceback.format_exc())
-        publishers.set_exception(sys.exc_info()[1])
+    ################################
+    # RUN
+    ################################
 
-    publishers.publish() 
+    def run(self):
+        """
+        Start a Testrun and publish the data 
+        """    
 
+        LOG.debug("Initialising Testrun")
+        try:
+            is_hw_enabled = bool(len(options.hw_packages))
+            is_host_enabled = bool(len(options.host_packages))
+            testrun = Testrun(is_hw_enabled = is_hw_enabled, 
+                              is_host_enabled = is_host_enabled)
+            testrun.run_test = run_test
+            testrun_result = testrun.run()
+            LOG.debug("Testrun finished with result: %s"%(testrun_result))
 
-#########################################
-# PUBLIC
-#########################################
+            self.publishers.set_testrun_result(testrun_result)
+            self.publishers.set_expected_packages(testrun.expected_packages)
+            self.publishers.set_tested_packages(testrun.tested_packages)
+            self.publishers.set_results(testrun.results)
 
-def run(sw_product, request_id, notify_list, options_dict):
-    """
-    The interface for the hub.
-    Processes the raw parameters and fires a testrun
+        except Exception, err:
+            LOG.debug("Testrun Exception: %s"%(err))
+            LOG.debug(traceback.format_exc())
+            self.publishers.set_exception(sys.exc_info()[1])
 
-    @type sw_product: C{str}
-    @param sw_product: Name of the sw product this testrun belongs to
-
-    @type request_id: C{str}
-    @param request_id: An identifier for the request from the client
-
-    @type notify_list: C{list}
-    @param notify_list: Email addresses for notifications
-
-    #FIXME legacy interface 
-    @type options_dict: C{dict}
-    @param options_dict: A dictionary of options
-    """
-    sw_product = sw_product.lower()
-    options = options_factory(sw_product, options_dict)
-    taskrunner = primed_taskrunner(testrun_uuid, 
-                                    _timeout(),
-                                   options.priority,
-                                   options.device,
-                                   options.image,
-                                   options.hw_packages,
-                                   options.host_packages,
-                                   options.emmc,
-                                   options.testfilter,
-                                   options.flasher)
-    testrun_uuid = uuid.uuid1().hex
-    _run(sw_product, request_id, testrun_uuid, notify_list, 
-         taskrunner.run, options)
+        self.publishers.publish() 

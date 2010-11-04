@@ -20,8 +20,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.server.distributor.api import taskrunner_factory
+import os
+from socket import gethostname
+import ConfigParser
 
+from ots.common.framework.api import config_filename
+from ots.server.distributor.api import taskrunner_factory
 from ots.server.allocator.conductor_commands import get_commands
 
 def _storage_address():
@@ -30,14 +34,13 @@ def _storage_address():
     rparam: The storage address 
     """
     server_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-    app_id = get_application_id() 
-    conf = config_filename(app_id, server_path)
+    conf = config_filename("ots_allocator", server_path)
     config = ConfigParser.ConfigParser()
     config.read(conf)
-    storage_host = str(config.get('ots.server.hub', 'storage_host'))
+    storage_host = str(config.get('ots.server.allocator', 'storage_host'))
     if not storage_host:
         storage_host = gethostname()
-    storage_port = str(config.get('ots.server.hub', 'storage_port'))  
+    storage_port = str(config.get('ots.server.allocator', 'storage_port'))  
     return "%s:%s"%(storage_host, storage_port)     
 
 
@@ -48,7 +51,7 @@ def _storage_address():
 
 def primed_taskrunner(testrun_uuid, timeout, priority, device,
                       image, hw_packages, host_packages,
-                      emmc, testfilter, flasher): 
+                      emmc, testfilter, flasher, publishers): 
     """
     Get a Taskrunner loaded with Tasks and ready to Run
 
@@ -84,6 +87,9 @@ def primed_taskrunner(testrun_uuid, timeout, priority, device,
 
     @type flasher: C{str}
     @param flasher: The URL of the flasher
+
+    @type publishers: # FIXME
+    @param publishers: #FIXME 
 
     rtype: L{Taskrunner}
     rparam: A loaded Taskrunner 

@@ -20,5 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.config_filename import config_filename
+
+import time
+
+class Monitor(object):
+
+    def __init__(self, *arg, **kw):
+        self.timestamp = time.time() 

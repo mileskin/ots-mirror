@@ -35,7 +35,6 @@ import re
 TRUE = "true"
 FALSE = "false"
 PERPACKAGE = "perpackage"
-BIFH = "bifh"
 ON = "on"
 
 #################################
@@ -57,12 +56,9 @@ class Options(object):
     Interface for the options available to the client
     """
 
-    def __init__(self, image,
-                       packages = None, plan = None, execute = TRUE,
-                       gate = None, label = None, hosttest = None,
+    def __init__(self, image, packages = None, plan = None,hosttest = None,
                        device = None, emmc = None, distribution_model = None,
-                       flasher = None, testfilter = None, input_plugin = None,
-                       email = None, email_attachments = None, **kwargs):
+                       flasher = None, testfilter = None):
         """
         @type: C{image}
         @param: The image url
@@ -74,9 +70,6 @@ class Options(object):
             packages = []
         self._packages = packages
         self._plan = plan
-        self._execute = execute
-        self._gate = gate
-        self._label = label
         if hosttest is None:
             hosttest = []
         self._hosttest = hosttest
@@ -85,10 +78,6 @@ class Options(object):
         self._distribution_model = distribution_model
         self._flasher = flasher
         self._testfilter = testfilter
-        self._input_plugin = input_plugin
-        self._email = email
-        self._email_attachments = email_attachments
-
         self._validate_packages(self.hw_packages)
 
     ##################################
@@ -128,30 +117,6 @@ class Options(object):
         @return: The Testplan id
         """
         return self._plan
-
-    @property
-    def execute(self):
-        """
-        @rtype: C{bool}
-        @return: Execute flag
-        """
-        return self._execute != FALSE
-
-    @property
-    def gate(self):
-        """
-        @rtype: C{str}
-        @return: The "quality gate" or integration stage this testrun relates to
-        """
-        return self._gate
-
-    @property
-    def label(self):
-        """
-        @rtype: C{str}
-        @return: A label for the testrun type. (e.g. Regression, Sanity Check)
-        """
-        return self._label
 
     @property
     def device(self):
@@ -199,22 +164,6 @@ class Options(object):
         if self._testfilter is not None:
             testfilter = self._testfilter.replace('"',"'")
             return "\"%s\"" % testfilter
-
-    @property
-    def is_email_on(self):
-        """
-        @rtype: C{bool}
-        @return: Is the email switched on?
-        """
-        return self._email == ON
-
-    @property
-    def is_email_attachments_on(self):
-        """
-        @rtype: C{bool}
-        @return: Is the email attachment switched on?
-        """
-        return self._email_attachments == "on"
 
 
     ############################

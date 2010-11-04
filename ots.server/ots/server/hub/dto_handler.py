@@ -30,7 +30,7 @@ import logging
 
 from logging import LogRecord
 
-from ots.common.dto.api import Packages, Results, Environment
+from ots.common.dto.api import Packages, Results, Environment, Monitor
 from ots.common.dto.api import DTO_SIGNAL
 
 LOG = logging.getLogger(__name__)
@@ -41,7 +41,8 @@ class DTOHandler(object):
 
      - results_xmls
      - tested_packages
-     - expected_packages
+     - expected_packages#
+     - monitors
 
     OTS_Exceptions are re-raised
     LogRecords are logged
@@ -52,6 +53,7 @@ class DTOHandler(object):
         self.results_xmls = []
         self.tested_packages = None
         self.expected_packages = None
+        self.monitors = []
         
         DTO_SIGNAL.connect(self._callback)
 
@@ -113,5 +115,7 @@ class DTOHandler(object):
             self._results(dto)
         elif isinstance(dto, Packages):
             self._packages(dto)
+        elif isinstance(dto, Monitor):
+            self.monitors.append(dto)
         else:
             LOG.debug("Unknown DTO: '%s'"%(dto))

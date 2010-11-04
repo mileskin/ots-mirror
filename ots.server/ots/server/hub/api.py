@@ -20,6 +20,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.server.hub.hub import run
+from ots.server.hub.hub import Hub
 from ots.server.hub.options_factory import options_factory
 from ots.server.hub.options import Options

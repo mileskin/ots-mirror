@@ -23,6 +23,7 @@
 from ots.common.dto.environment import Environment 
 from ots.common.dto.packages import Packages
 from ots.common.dto.results import Results
+from ots.common.dto.monitor import Monitor
 from ots.common.dto.messages import CommandMessage, StateChangeMessage
 from ots.common.dto.messages import TaskCondition
 from ots.common.dto.ots_exception import OTSException

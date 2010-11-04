@@ -24,7 +24,6 @@ import unittest
 
 from ots.server.hub.options import Options
 
-
 class TestOptions(unittest.TestCase):
 
     def test_string_2_list(self):
@@ -39,7 +38,7 @@ class TestOptions(unittest.TestCase):
         self.assertEquals(expected,
                            options._string_2_dict("fruit:apples"\
                                            " veg:oranges meat:beef"))
-    def test_image_url(self):
+    def test_image(self):
         options = Options(**{"image" :"www.nokia.com"})
         self.assertEquals("www.nokia.com", options.image)
 
@@ -62,40 +61,6 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
                           options.host_packages)
-
-    def test_testplan_id(self):
-        kwargs = {"image" : "www.nokia.com",
-                  "plan" : "1111"}
-        options = Options(**kwargs)
-        self.assertEquals("1111", options.testplan_id)
-
-    def test_execute(self):
-        kwargs = {"image" : "www.nokia.com",
-                  "execute" : "true"}
-        options = Options(**kwargs)
-        self.assertTrue(options.execute)
-        kwargs = {"image" : "www.nokia.com",
-                  "execute" : "false"}
-        options = Options(**kwargs)
-        self.assertFalse(options.execute)
-
-    def test_gate(self):
-        kwargs = {"image" : "www.nokia.com"}
-        options = Options(**kwargs)
-        self.assertTrue(options.gate is None)
-        kwargs = {"image" : "www.nokia.com",
-                  "gate" : "foo"}
-        options = Options(**kwargs)
-        self.assertEquals("foo", options.gate)
-
-    def test_label(self):
-        kwargs = {"image" : "www.nokia.com"}
-        options = Options(**kwargs)
-        self.assertTrue(options.label is None)
-        kwargs = {"image" : "www.nokia.com",
-                  "label" : "foo"}
-        options = Options(**kwargs)
-        self.assertTrue("label", options.label)
 
     def test_device(self):
         kwargs = {"image" : "www.nokia.com"}
@@ -135,27 +100,6 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals('\'"\\\'hello world\\\'"\'',
                           repr(options.testfilter))
-
-    def test_is_email_on(self):
-        kwargs = {"image" : "www.nokia.com",
-                  "email" : "on"}
-        options = Options(**kwargs)
-        self.assertTrue(options.is_email_on)
-        kwargs = {"image" : "www.nokia.com",
-                  "email" : "off"}
-        options = Options(**kwargs)
-        self.assertFalse(options.is_email_on)
-
-    def test_is_email_attachments_on(self):
-        kwargs = {"image" : "www.nokia.com",
-                  "email_attachments" : "on"}
-        options = Options(**kwargs)
-        self.assertTrue(options.is_email_attachments_on)
-        kwargs = {"image" : "www.nokia.com",
-                  "email_attachments" : "off"}
-        options = Options(**kwargs)
-        self.assertFalse(options.is_email_attachments_on)
-
 
 if __name__ == "__main__":
     unittest.main()

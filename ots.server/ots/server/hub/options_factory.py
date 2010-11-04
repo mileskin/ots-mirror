@@ -30,40 +30,114 @@ Safely create the Options API from a dictionary
 setting configurable defaults
 """ 
 
-def _default_options_dict(sw_product):
+###############################
+# OPTIONS FACTORY 
+###############################
+
+class OptionsFactory(object):
     """
-    @type sw_product : C{str}
-    @param sw_product : The name of the software product
+    Factory for Options
+
+    Preprocesses the options dictionary 
+    Sorts the Options into Core and Extended Options
+    """
+
+    def __init__(self, sw_product, options_dict):
+        """
+        @type sw_product : C{str}
+        @param sw_product : The name of the software product
+
+        @type options_dict : C{dict}
+        @param options_dict: The dictionary of options
+        """
+        self._sw_product = sw_product
+        self._options_dict = options_dict
     
-    @rtype default_options_dict : C{dict} or None
-    @param default_options_dict : The dictionary of options
+    #####################################
+    # HELPER 
+    #####################################
 
-    Get the default options for the SW product
-    """
-    #FIXME: This provides the expected interface
-    #the implementation requires design decisions
-    #to make the extensibility consistent
-    dirname = os.path.dirname(os.path.abspath(__file__))
-    file = os.path.join(dirname, "options_defaults.yaml")
-    all_defaults_options_dict = yaml.load(open(file, "r"))
-    return all_defaults_options_dict.get(sw_product, {})
+    @staticmethod
+    def _default_options_dict(sw_product):
+        """
+        @type sw_product : C{str}
+        @param sw_product : The name of the software product
 
-def options_factory(sw_product, options_dict):
-    """
-    @type sw_product : C{str}
-    @param sw_product : The name of the software product
+        @rtype default_options_dict : C{dict} or None
+        @param default_options_dict : The dictionary of options
 
-    @type options_dict : C{dict}
-    @param options_dict: The dictionary of options
+        Get the default options for the SW product
+        """
+        #FIXME: This provides the expected interface
+        #the implementation requires design decisions
+        #to make the extensibility consistent
+        dirname = os.path.dirname(os.path.abspath(__file__))
+        file = os.path.join(dirname, "options_defaults.yaml")
+        all_defaults_options_dict = yaml.load(open(file, "r"))
+        return all_defaults_options_dict.get(sw_product, {})
 
-    Adapts the options dictionary to the interface 
-    Overrides the defaults depending on configuration
-    """
-    #sanitise the dict (hyphens aren't Python friendly)
-    sanitised_options_dict = dict([(k.replace("-","_"), v) 
-                                   for k,v in options_dict.items()])
-    #Get the defaults for the sw product
-    merged_options_dict = _default_options_dict(sw_product)
-    #
-    merged_options_dict.update(sanitised_options_dict)
-    return Options(**merged_options_dict)
+    #######################################
+    # PROPERTIES
+    #######################################
+
+    @property 
+    def core_options_names(self):
+        """
+        The names of the Options necessary for core functionality  
+        
+        rtype : C{tuple} of C{str}
+        rparam : The core function names 
+        """
+        
+        return Options.__init__.im_func.func_code.co_varnames
+
+    @property 
+    def extended_options_dict(self):
+        """
+        key, value pairs that aren't recognised are assumed 
+        to be part of the extended options
+
+        rtype : C{dict}
+        rparam : Additional Options passed to OTS  
+        """
+        extended_options_dict = self._options_dict.copy()
+        for key in self.core_options_names:
+            if extended_options_dict.has_key(key):
+                extended_options_dict.pop(key)
+        return extended_options_dict
+        
+    @property 
+    def core_options_dict(self):
+        """
+        Adapts the options dictionary to the interface 
+        Overrides the defaults depending on configuration
+        
+        rtype : C{dict}
+        rparam : The treated Options dictionary
+        """
+
+        #Throw out the extended options
+        core_options_dict = dict((key, self._options_dict[key]) 
+                  for key in  self.core_options_names 
+                          if key in self._options_dict)
+
+        #sanitise the dict (hyphens aren't Python friendly)
+        sanitised_options_dict = dict([(k.replace("-","_"), v) 
+                                       for k,v in core_options_dict.items()])
+        #Get the defaults for the sw product
+        merged_options_dict = self._default_options_dict(self._sw_product)
+        #
+        merged_options_dict.update(sanitised_options_dict)
+
+        return merged_options_dict
+
+    #####################################
+    # FACTORY METHOD
+    #####################################
+
+    def __call__(self):
+        """
+        rtype : C{ots.server.hub.options.Options
+        rparam : The Options
+        """
+        return Options(**self.core_options_dict)
