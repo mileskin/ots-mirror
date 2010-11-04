@@ -24,12 +24,19 @@ import unittest
 
 from socket import gethostname
 
+from ots.common.framework.api import PublisherPluginBase
+from ots.common.dto.api import OTSException
+
+from ots.server.distributor.api import TaskRunner
+
 from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerResultsPass
 from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerError
-from ots.server.hub.hub import _run
-from ots.server.hub.hub import _timeout
+
+
+from ots.server.hub.hub import Hub
+
 
 options_dict = {"image" : "www.nokia.com" ,
                 "rootstrap" : "www.meego.com",
@@ -48,23 +55,46 @@ options_dict = {"image" : "www.nokia.com" ,
                 "email" : "on",
                 "email-attachments" : "on"}
 
+
+class PublishersStub(PublisherPluginBase):
+    
+    def set_testrun_result(self, testrun_result):
+        self.testrun_result = testrun_result
+
+    def set_exception(self, exception):
+        self.exception = exception
+
 class TestHub(unittest.TestCase):
 
     def test_timeout(self):
-        self.assertEquals(30, _timeout())
+        hub = Hub("pdt", 111, image = "www.nokia.com")
+        self.assertEquals(30, hub._timeout)
 
-    #FIXME API churn 
+    def test_taskrunner(self):
+        hub = Hub("pdt", 111, **options_dict)
+        taskrunner = hub.taskrunner
+        self.assertTrue(isinstance(taskrunner, TaskRunner))
         
-    def _test_run_pass(self):
+    def test_run_pass(self):
         mock_taskrunner = MockTaskRunnerResultsPass()
-        _run("foo", "bar", "baz",
-             mock_taskrunner.run, **options_dict)
+        mock_taskrunner.run
+        hub = Hub("pdt", 111, **options_dict)
+        hub._taskrunner = mock_taskrunner
+        
+        hub.publishers = PublishersStub(None, None, None, None)
+        hub.run()
+        self.assertTrue(hub.publishers.testrun_result)
 
-
-    def _test_run_error(self):
+    def test_run_error(self):
         mock_taskrunner = MockTaskRunnerError()
-        _run("foo", "bar", "baz",
-            mock_taskrunner.run, **options_dict)
+        mock_taskrunner.run
+        hub = Hub("pdt", 111, **options_dict)
+        hub._taskrunner = mock_taskrunner
+        
+        hub.publishers = PublishersStub(None, None, None, None)
+        hub.run()
+        self.assertTrue(isinstance(hub.publishers.exception, OTSException))
+
 
 if __name__ == "__main__":
     unittest.main()

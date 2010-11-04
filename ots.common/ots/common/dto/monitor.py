@@ -20,20 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import unittest
 
-from ots.server.monitor.hub_monitor import HubMonitor
+import time
 
-class TestHubMonitor(unittest.TestCase):
+class Monitor(object):
 
-    def test_monitors_iter(self):
-        hub_monitor = HubMonitor("foo", "bar", "baz")
-        #Make some monitors... for test purposes use the HubMonitor
-        test_monitor_1 = HubMonitor("1", "1", "1")
-        test_monitor_2 = HubMonitor("2", "2", "2")
-        hub_monitor.add_monitor(test_monitor_1)
-        hub_monitor.add_monitor(test_monitor_2)
-        self.assertEquals(2, len(list(hub_monitor.monitors_iter())))
-
-if __name__ == "__main__":
-    unittest.main()
+    def __init__(self, *arg, **kw):
+        self.timestamp = time.time() 

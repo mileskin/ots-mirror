@@ -20,9 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+from socket import gethostname
 
 import unittest
 
+import ots.server.allocator
 from ots.server.allocator.primed_taskrunner import _storage_address
 
 class TestAllocator(unittest.TestCase):

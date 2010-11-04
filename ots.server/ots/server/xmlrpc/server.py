@@ -32,8 +32,9 @@ from SocketServer import ForkingMixIn
 
 from ots.common.framework.api import config_filename
 
-from ots.server.hub.hub import run
-from ots.server.hub.application_id import get_application_id
+from ots.server.hub.api import Hub 
+from ots.server.hub.api import get_application_id
+
 from ots.server.distributor.api import TaskRunner
 
 
@@ -53,12 +54,41 @@ def _config():
     return config.get('ots.server.xmlrpc', 'host'), \
            config.get('ots.server.xmlrpc', 'port')
 
+
+
+#############################
+# REQUEST_SYNC
+#############################
+
+def request_sync(sw_product, request_id, notify_list, options_dict):
+    """
+    Convenience function for the interface for the hub.
+    Processes the raw parameters and fires a testrun
+
+    @type sw_product: C{str}
+    @param sw_product: Name of the sw product this testrun belongs to
+
+    @type request_id: C{str}
+    @param request_id: An identifier for the request from the client
+
+    @type notify_list: C{list}
+    @param notify_list: Email addresses for notifications
+
+    #FIXME legacy interface 
+    @type options_dict: C{dict}
+    @param options_dict: A dictionary of options
+    """
+    options_dict["notify_list"] = notify_list
+    hub = Hub(sw_product, request_id, options_dict)
+    hub.run()
+
+
 def main():
     """
     Top level script for XMLRPC interface
     """
     server = OtsForkingServer(_config(), SimpleXMLRPCRequestHandler)
-    server.register_function(run)
+    server.register_function(request_sync)
     print "Starting OTS xmlrpc server..."
     print 
     print "Using config file %s" % ots_config.__file__

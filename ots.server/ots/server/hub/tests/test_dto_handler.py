@@ -27,6 +27,7 @@ import logging.handlers
 
 from ots.common.dto.api import Results
 from ots.common.dto.api import Packages
+from ots.common.dto.api import Monitor 
 
 from ots.server.hub.dto_handler import DTOHandler
 
@@ -61,6 +62,12 @@ class TestDTOHandler(unittest.TestCase):
         dto_handler._packages(pkgs)
         self.assertEquals(["pkg1", "pkg2", "pkg3", "pkg4"],
                            dto_handler.expected_packages.packages("env"))
+
+    def test_monitors(self):
+        dto_handler = DTOHandler()
+        monitor = Monitor()
+        dto_handler._callback(None, monitor) 
+        self.assertEquals(monitor, dto_handler.monitors[0])
 
     def test_callback_exception(self):
         dto_handler = DTOHandler()

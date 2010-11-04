@@ -22,22 +22,41 @@
 
 import unittest
 
-from ots.server.hub.options_factory import _default_options_dict
-from ots.server.hub.options_factory import options_factory
+from ots.server.hub.options_factory import OptionsFactory 
+
 
 class TestOptionsFactory(unittest.TestCase):
     
     def test_default_options_dict(self):
+        options_factory = OptionsFactory(None, None)
         expected = {'devicegroup' : 'examplegroup'}
-        d = _default_options_dict("example_sw_product")
+        d = options_factory._default_options_dict("example_sw_product")
         self.assertEquals(expected, d["device"])
 
-    def test_options_factory(self):
-        options = options_factory("example_sw_product",
-                                  {"image" : "www.nokia.com",
+    def test_core_options_names(self):
+        names = OptionsFactory(None, None).core_options_names
+        expected = ('self', 'image', 'packages', 'plan', 'hosttest', 
+                    'device', 'emmc', 'distribution_model', 'flasher', 
+                    'testfilter')
+        self.assertEquals(expected, names)
+
+    def test_extended_options_dict(self):
+        d = {'image' : 'image', 'packages' : 'packages', 
+             'plan' : 'plan', 'hosttest' : 'hosttest', 
+             'device' : 'device', 'emmc' : 'emmc', 
+             'distribution_model' : 'distribution_model', 
+             'flasher' : 'flasher', 'testfilter' : 'testfilter',
+             'foo' : 'foo', 'bar' : 'bar', 'baz' : 'baz'}
+        ext_opts = OptionsFactory(None, d).extended_options_dict
+        self.assertEquals({'foo' : 'foo', 'bar' : 'bar', 'baz' : 'baz'},
+                           ext_opts)
+
+
+    def test_factory(self):
+        options = OptionsFactory("example_sw_product",
+                                 {"image" : "www.nokia.com",
                                   "email-attachments" : "on",
-                                   "device" : "foo:bar"})
-        self.assertTrue(options.is_email_attachments_on)
+                                  "device" : "foo:bar"})()
         expected = {'foo' : 'bar'}
         self.assertEquals(expected, options.device)
         
