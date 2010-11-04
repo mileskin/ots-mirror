@@ -27,10 +27,12 @@ ots public xml-rpc interface
 import logging
 import logging.handlers
 import datetime
+import copy
 import re
 
+from multiprocessing import Queue
 from ots.server.testrun_host.testrun_host import TestrunHost
-
+from ots.server.xmlrpc.handleprocesses import HandleProcesses
 
 # Extension point mechanism
 try:
@@ -45,9 +47,9 @@ except ImportError: # If no custom config found, use the default
     from ots.server.testrun_host import default_ots_config as ots_config
 
 
-
-PLAN_NAME = "Testplan %s"
 REQUEST_ERROR = 'ERROR'
+REQUEST_FAIL = 'FAIL'
+REQUEST_PASS = 'PASS'
 
 # Django Models are metaclasses 
 # pylint: disable-msg=E1101
@@ -79,41 +81,194 @@ def request_sync(program, request, notify_list, options):
     #Important: We are relaxed about what is supplied by the client.
     #Deduce as much as possible, apply defaults for missing parameters 
 
-    result = REQUEST_ERROR
-
     #Unpack the necessary parameters out of the options dict
     image_url = options.get("image", '')
     rootstrap_url = options.get("rootstrap", '')
     test_packages = _string_2_list(options.get("packages",""))
-    testplan_id =  options.get('plan', None)
+    # TODO: This is for unit testing purposes. Remove if possible.
     is_executed =  options.get('execute') != 'false'
-    #
-    options = _repack_options(options)
-    #
-    if is_executed:
-        testrun_id = extension_points.init_new_testrun(program,
-                                                       testplan_id = testplan_id,
-                                                       testplan_name = PLAN_NAME % request,
-                                                       gate = options.get('gate', "unknown"),
-                                                       label = options.get('label', "unknown"))
 
-        if testrun_id is not None:
-            #Now we have the id the logging can commence
-            _initialize_logger(request, testrun_id)
-            log = logging.getLogger(__name__)
-            log.info(("Incoming request: program: %s,"\
-                      " request: %s, notify_list: %s, "\
-                      "options: %s") %\
-                      (program, request, notify_list, options))
-            #
-            result = _run_test(log, request, testrun_id, 
-                            program, options, notify_list,
-                            test_packages, image_url, rootstrap_url)
-    return result
+    try:
+        options = _repack_options(options)
+    except IndexError:
+        return REQUEST_ERROR
+
+    if not is_executed:
+        return REQUEST_ERROR
+
+    # Create process handler and testrun and start them
+    process_handler = HandleProcesses()
+    testrun_list, process_queues =  _create_testruns(options, request, \
+                                        program, notify_list, test_packages, \
+                                        image_url, rootstrap_url)
+    for testrun in testrun_list:
+        process_handler.add_process(_execute_testrun, testrun)
+
+    # Check that we have tasks to run
+    if not process_handler.child_processes:
+        return REQUEST_ERROR
+
+    # Start processes ...
+    process_handler.start_processes()
+    # Read process queues
+    results = _read_queues(process_queues)
+    # Join processes
+    process_handler.join_processes()
+
+    # Check return values from testruns
+    return _check_testruns_result_values(results.values())
 
 ###########################################
 # HELPER METHODS
 ###########################################
+
+def _execute_testrun(pq, request, program, current_options, notify_list,
+                     test_packages, image_url, rootstrap_url):
+    """
+    Starting point for process that handles testrun. Starts logging, execute
+    _run_test and puts result to queue    
+
+    @param pq: Process queue
+    @type pq: L{multiprocess.Queue}
+
+    @param request: request id 
+    @type request: C{string}
+
+    @param program: Software program 
+    @type program: C{string}
+
+    @param current_options: Parameters that affect the test request behaviour 
+    @type current_options: C{dict}
+
+    @param notify_list: Email addresses for notifications 
+    @type notify_list: C{list}
+    
+    @param test_packages: A list of test packages. May be empty list.
+    @type test_packages: C{list}
+
+    @param image_url: The url of the image
+    @type image_url: C{string}
+
+    @param rootstrap_url: The url of the roostrap
+    @type rootstrap_url: C{string}
+    """
+    # Default result
+    result = REQUEST_ERROR
+
+    testrun_id = extension_points.create_testrun_id(program, request, \
+                                                    current_options)
+
+    if testrun_id is not None:
+        #Now we have the id the logging can commence
+        _initialize_logger(request, testrun_id)
+        log = logging.getLogger(__name__)
+        log.info(("Incoming request: program: %s,"\
+                  " request: %s, notify_list: %s, "\
+                  "options: %s") %\
+                  (program, request, notify_list, current_options))
+
+        result = _run_test(log, request, testrun_id,
+                           program, current_options, notify_list,
+                           test_packages, image_url, rootstrap_url)
+
+    pq.put({testrun_id : result})
+
+def _read_queues(process_queues):
+    """
+    Returns testrun_id and result pairs
+
+    @param process_queues: List that contains queues used by processes
+    @type process_queues: C{list}
+
+    @rtype: C{dict}
+    @return: Dictionary that contains testrun_id and result pairs
+    """
+    queue_results = {}
+    for process_queue in process_queues:
+        queue_results.update(process_queue.get())
+    return queue_results
+
+def _check_testruns_result_values(result_values):
+    """
+    Checks overall testrun status and returns value
+
+    @param return_values: List containing result values from executed testruns
+    @type return_values: C{list}
+
+    @rtype: C{list} consisting of C{string}
+    @return: The converted string
+    """
+    if REQUEST_ERROR in result_values:
+        return REQUEST_ERROR
+    elif REQUEST_FAIL in result_values:
+        return REQUEST_FAIL
+    return REQUEST_PASS
+
+def _create_testruns(options, request, program, notify_list,
+                    test_packages, image_url, rootstrap_url):
+    """
+    Returns testrun_list and process_queues
+
+    @param options: Dict that contains data for testrun
+    @type options: C{dict}
+
+    @param request: BUILD request id 
+    @type product: C{string}
+
+    @param program: Software program
+    @type program: C{string}
+
+    @param notify_list: Email addresses for notifications 
+    @type product: C{list}
+    
+    @param test_packages: A list of test packages. May be empty list.
+    @type notify_list: C{list}
+
+    @param image_url: The url of the image
+    @type image)url: C{string}
+
+    @param rootstrap_url: The url of the roostrap
+    @type rootstrap_url: C{string}
+
+    @rtype: C{dict}, C{Queue)
+    @return: testrun_list which contains arguments in tuple
+             for each subprocess
+    """
+    testrun_list = []
+    process_queues = []
+
+    if options.get('device'):
+        # Separate devigroups for different testrun_id's
+        for devicespec in options['device']:
+            if not devicespec.get('devicegroup'):
+                continue
+            current_options, pq = _prepare_testrun(options)
+            process_queues.append(pq)
+            current_options['device'] = \
+                           {'devicegroup': devicespec['devicegroup']}
+            testrun_list.append((pq, request, program, current_options, \
+                                 notify_list, test_packages, image_url, \
+                                 rootstrap_url))
+    else:
+        current_options, pq = _prepare_testrun(options)
+        process_queues.append(pq)
+        testrun_list.append((pq, request, program, current_options, \
+                             notify_list, test_packages, image_url, \
+                             rootstrap_url))
+
+    return testrun_list, process_queues
+
+def _prepare_testrun(options):
+    """
+    Returns deepcopy of options and process queue
+
+    @param options: Dict that contains data for testrun
+    @type options: C{dict}
+
+    @rtype: C{dict}, C{Queue)
+    @return: deepcopy of dictionary and process queue
+    """
+    return copy.deepcopy(options), Queue()
 
 def _generate_log_id_string(build_id, testrun_id):
     """
@@ -176,9 +331,10 @@ def _string_2_list(string):
     else:
         return []
 
-def _string_2_dict(string):
+def _parse_multiple_devicegroup_specs(string):
     """
-    Converts a spaced string of form 'foo:1 bar:2 baz:3'
+    Converts a spaced string of form 'devicegroup:one sim:operator1;
+                                      devicegroup:two sim:operator2'
     to a dictionary
 
     @param string: The string for conversion  
@@ -187,9 +343,18 @@ def _string_2_dict(string):
     @rtype: C{dict} consisting of C{string}
     @return: The converted string
     """
-    spaces = re.compile(r'\s+')
-    return dict([ pair.split(':', 1) for pair \
-                       in spaces.split(string) if ':' in pair ])
+    temp_array = []
+    devicegroups = []
+    for splitted_str in string.split(';'):
+        temp_array.append(splitted_str.split())
+    for devicegroup in temp_array:
+        unit_dict = {}
+        for prop in xrange(len(devicegroup)):
+            prop_pair = devicegroup[prop].split(':', 1)
+            unit_dict.update({prop_pair[0]: prop_pair[1]})
+        devicegroups.append(unit_dict)
+
+    return devicegroups
 
 def _repack_options(options):
     """
@@ -211,13 +376,13 @@ def _repack_options(options):
             = _string_2_list(options.get("engine", ""))
     if 'device' in options:
         conditioned_options["device"] \
-            = _string_2_dict(options.get("device",""))
+            = _parse_multiple_devicegroup_specs(options.get("device", ""))
     if 'emmc' in options:
         conditioned_options['emmc'] = options['emmc']
     if 'email-attachments' in options:
         if options['email-attachments'] == 'on':
             conditioned_options['email-attachments'] = True
-        else: 
+        else:
             conditioned_options['email-attachments'] = False
 
     #Currently some options are still not defined at interface level
@@ -233,7 +398,6 @@ def _run_test(log, request, testrun_id, program, options, notify_list,
 
     @param log: The python logger
     @type log: L{logging.Logger}
-
 
     @param request: BUILD request id 
     @type product: C{string}
