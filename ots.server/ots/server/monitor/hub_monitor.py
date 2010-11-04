@@ -55,16 +55,11 @@ class HubMonitor(object):
         """
         self._monitors.append(monitor)
 
-    def monitors_iter(self, component_namespace = None):
+    def monitors_iter(self):
         """
-        @type component_namespace: C{str}
-        @param monitor: The namespace of the Component 
+        @ytype : L{ots.common.dto.monitor}
+        @yparam : The Monitor  
         """
         for monitor in self._monitors:
-            if component_namespace is None:
-                yield monitor
-            else:
-                ns_length = len(component_namespace.split("."))
-                monitor_ns = ".".join(monitor.__module__.split(".")[:ns_length])
-                if component_namespace == monitor_ns:
-                    yield monitor
+            yield monitor
+            

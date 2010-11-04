@@ -34,10 +34,6 @@ class TestHubMonitor(unittest.TestCase):
         hub_monitor.add_monitor(test_monitor_1)
         hub_monitor.add_monitor(test_monitor_2)
         self.assertEquals(2, len(list(hub_monitor.monitors_iter())))
-        self.assertEquals(2, 
-                   len(list(hub_monitor.monitors_iter("ots.server.monitor"))))
-        self.assertEquals(0, 
-                   len(list(hub_monitor.monitors_iter("ots.server.hub"))))
 
 if __name__ == "__main__":
     unittest.main()
