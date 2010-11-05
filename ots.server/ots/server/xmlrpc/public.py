@@ -63,16 +63,16 @@ def request_sync(program, request, notify_list, options):
     Fires the test request and waits for it to finish
 
     @param program: program
-    @type product: C{string}
+    @type program: C{string}
 
     @param request: BUILD request id 
-    @type product: C{string}
+    @type request: C{string}
 
     @param notify_list: Email addresses for notifications 
-    @type product: C{list}
+    @type notify_list: C{list}
 
     @param options: Parameters that affect the test request behaviour 
-    @type product: C{dict}
+    @type options: C{dict}
 
     @rtype: C{string}
     @return: Pass / Fail or Error
@@ -192,8 +192,8 @@ def _check_testruns_result_values(result_values):
     """
     Checks overall testrun status and returns value
 
-    @param return_values: List containing result values from executed testruns
-    @type return_values: C{list}
+    @param result_values: List containing result values from executed testruns
+    @type result_values: C{list}
 
     @rtype: C{list} consisting of C{string}
     @return: The converted string
@@ -213,24 +213,24 @@ def _create_testruns(options, request, program, notify_list,
     @type options: C{dict}
 
     @param request: BUILD request id 
-    @type product: C{string}
+    @type request: C{string}
 
     @param program: Software program
     @type program: C{string}
 
     @param notify_list: Email addresses for notifications 
-    @type product: C{list}
+    @type notify_list: C{list}
     
     @param test_packages: A list of test packages. May be empty list.
-    @type notify_list: C{list}
+    @type test_packages: C{list}
 
     @param image_url: The url of the image
-    @type image)url: C{string}
+    @type image_url: C{string}
 
     @param rootstrap_url: The url of the roostrap
     @type rootstrap_url: C{string}
 
-    @rtype: C{dict}, C{Queue)
+    @rtype: C{dict}, C(Queue)
     @return: testrun_list which contains arguments in tuple
              for each subprocess
     """
@@ -265,7 +265,7 @@ def _prepare_testrun(options):
     @param options: Dict that contains data for testrun
     @type options: C{dict}
 
-    @rtype: C{dict}, C{Queue)
+    @rtype: C{dict}, C(Queue)
     @return: deepcopy of dictionary and process queue
     """
     return copy.deepcopy(options), Queue()
@@ -320,7 +320,7 @@ def _string_2_list(string):
     Converts a spaced string to an array
 
     @param string: The string for conversion  
-    @type product: C{string}
+    @type string: C{string}
 
     @rtype: C{list} consisting of C{string}
     @return: The converted string
@@ -334,11 +334,10 @@ def _string_2_list(string):
 def _parse_multiple_devicegroup_specs(string):
     """
     Converts a spaced string of form 'devicegroup:one sim:operator1;
-                                      devicegroup:two sim:operator2'
-    to a dictionary
+    devicegroup:two sim:operator2' to a dictionary
 
     @param string: The string for conversion  
-    @type product: C{string}
+    @type string: C{string}
 
     @rtype: C{dict} consisting of C{string}
     @return: The converted string
@@ -362,7 +361,7 @@ def _repack_options(options):
     into the form accepted by OTS
 
     @param options: The options parameters 
-    @type product: C{dict}
+    @type options: C{dict}
 
     @rtype: C{dict} 
     @return: The conditioned options parameters
@@ -400,7 +399,7 @@ def _run_test(log, request, testrun_id, program, options, notify_list,
     @type log: L{logging.Logger}
 
     @param request: BUILD request id 
-    @type product: C{string}
+    @type request: C{string}
 
     @param testrun_id: The OTS testrun_id
     @type testrun_id: C{string}
@@ -409,16 +408,16 @@ def _run_test(log, request, testrun_id, program, options, notify_list,
     @type program: C{string}
 
     @param options: Parameters that affect the test request behaviour 
-    @type product: C{dict}
+    @type options: C{dict}
 
     @param notify_list: Email addresses for notifications 
-    @type product: C{list}
+    @type notify_list: C{list}
     
     @param test_packages: A list of test packages. May be empty list.
-    @type notify_list: C{list}
+    @type test_packages: C{list}
 
     @param image_url: The url of the image
-    @type image)url: C{string}
+    @type image_url: C{string}
 
     @param rootstrap_url: The url of the roostrap
     @type rootstrap_url: C{string}

@@ -36,15 +36,22 @@ class HandleProcesses(object):
         self.child_processes = []
 
     def add_process(self, target_func, *args):
+        """
+        Add child process instances
+
+        @param target_func: Function where child process starts execution
+        @type target_func: C{function}
+
+        @param args: arguments for target function
+        @type args: C{args}
+        """
+
         self.child_processes.append(Process(target=target_func, \
                                     args=(args[0])))
 
     def start_processes(self):
         """
         Starts child process instances
-
-        @param child_processes: List that contains process instances
-        @type child_processes: C{list}
         """
         for process in self.child_processes:
             process.start()
@@ -52,9 +59,6 @@ class HandleProcesses(object):
     def join_processes(self):
         """
         Joins child process instances
-
-        @param child_processes: List that contains process instances
-        @type child_processes: C{list}
         """
         for process in self.child_processes:
             process.join()
