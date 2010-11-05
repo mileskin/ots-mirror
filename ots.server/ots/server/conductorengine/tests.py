@@ -247,6 +247,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "20"
 
+
         expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests', '-m', '20']]
