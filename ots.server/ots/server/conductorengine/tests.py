@@ -118,7 +118,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"" }
-        expected = ['/usr/bin/conductor',  
+        expected = ['conductor',  
                     "-u", 'www.nokia.com', '-i', '1', '-c', 'foo']
 
         result = conductor_command(options,
@@ -130,7 +130,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"Gordon", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"" }
-        expected = ['/usr/bin/conductor',  
+        expected = ['conductor',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
                     '-i', '1', '-c', 'foo']
 
@@ -143,7 +143,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"" }
-        expected = ['/usr/bin/conductor',
+        expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
@@ -158,7 +158,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests" }
-        expected = ['/usr/bin/conductor',
+        expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
@@ -183,7 +183,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
 
 
-        expected_cmds = [['/usr/bin/conductor', 
+        expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz"]]
@@ -243,7 +243,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
 
 
-        expected_cmds = [['/usr/bin/conductor', 
+        expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests']]
         
@@ -262,7 +262,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         """Check conductor command with test packages for host"""
 
 
-        expected_cmds = [['/usr/bin/conductor',
+        expected_cmds = [['conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz",
@@ -292,12 +292,12 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_and_host_tests_no_flasher(self):
         """Check conductor command with packages for device and host, without flasherurl."""
 
-        expected_cmds = [['/usr/bin/conductor', 
+        expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz",
                           ';',
-                          '/usr/bin/conductor',
+                          'conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz",
@@ -327,13 +327,13 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_and_host_tests_with_flasher(self):
         """Check conductor command with packages for device and host, with flasherurl."""
 
-        expected_cmds = [['/usr/bin/conductor', 
+        expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
                           '--flasherurl', "asdfasdf/asdf",
                           '-t', "foo,bar,baz",
                           ';',
-                          '/usr/bin/conductor',
+                          'conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '--flasherurl', "asdfasdf/asdf",
@@ -366,11 +366,11 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_tests_with_packages_in_distribution_perpackage(self):
         """Test distribution perpackage - device_tests_with_packages"""
 
-        expected_cmd_1 = ['/usr/bin/conductor', 
+        expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "foo"]
-        expected_cmd_2 = ['/usr/bin/conductor', 
+        expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "bar"]
@@ -403,7 +403,7 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_tests_with_one_pkg_in_distribution_perpackage(self):
         """Test distribution perpackage - device_tests_with_packages"""
 
-        expected_cmd_1 = ['/usr/bin/conductor', 
+        expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "foo"]
@@ -433,12 +433,12 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_host_tests_with_packages_in_distribution_perpackage(self):
         """Test distribution perpackage - host_tests"""
 
-        expected_cmd_1 = ['/usr/bin/conductor', 
+        expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "foo", 
                         '-o']
-        expected_cmd_2 = ['/usr/bin/conductor', 
+        expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "bar",
@@ -467,20 +467,20 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_and_host_tests_in_distribution_perpackage(self):
         """Test distribution perpackage - device_and_host_tests"""
 
-        expected_cmd_1 = ['/usr/bin/conductor', 
+        expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "foo"]
-        expected_cmd_2 = ['/usr/bin/conductor', 
+        expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "bar"]
-        expected_cmd_3 = ['/usr/bin/conductor', 
+        expected_cmd_3 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "baz",
                         '-o']
-        expected_cmd_4 = ['/usr/bin/conductor', 
+        expected_cmd_4 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "yaz",
@@ -578,7 +578,7 @@ class TestConductorEngine(unittest.TestCase):
         testrun = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(testrun)
         ots_ta_adapter.execute(testrun)
-        expected_tasks = [['/usr/bin/conductor',
+        expected_tasks = [['conductor',
                           '-u', 'www.nokia.com',
                           '-e', 'asdfasdf',
                           '-i', '2222',
@@ -587,7 +587,7 @@ class TestConductorEngine(unittest.TestCase):
                           '--flasherurl', 'asdf/asdfasdf',
                           '-t', '1,2,3',
                           ';',
-                          '/usr/bin/conductor',
+                          'conductor',
                           '-u', 'www.nokia.com',
                           '-e', 'asdfasdf',
                           '-i', '2222',
