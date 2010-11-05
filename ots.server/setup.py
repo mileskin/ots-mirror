@@ -25,7 +25,7 @@ from setuptools import setup, find_packages
 setup(
       name = "ots.server",
       author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1.1,
+      version = "0.1.1",
       include_package_data = True,
       namespace_packages = ['ots', "ots.server"],
       packages = find_packages(),

@@ -36,7 +36,6 @@ class ResponseClient(object):
 
     def __init__(self, server_host, testrun_id, response_queue = None):
 
-        self.log = logging.getLogger(__file__)
         self.host = server_host
         self.testrun_id = testrun_id
         self.conn = None

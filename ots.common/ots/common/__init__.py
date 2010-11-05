@@ -19,7 +19,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
-
+"""
+Common OTS components for server and worker
+"""
 #This shouldn't be necessary 
 #http://bugs.python.org/setuptools/issue36
 

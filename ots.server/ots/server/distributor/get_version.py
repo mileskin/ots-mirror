@@ -19,6 +19,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+"""
+Get the version from the PKG-INFO
+"""
 
 import os
 import ots.server
@@ -35,7 +38,9 @@ def get_version():
     pkg_info_path = os.path.join(egg_path, "EGG-INFO", "PKG-INFO")
     if not os.path.exists(pkg_info_path):
         #So we have a developer egg
-        pkg_info_path = os.path.join(egg_path,"ots.server.egg-info", "PKG-INFO")
+        pkg_info_path = os.path.join(egg_path, 
+                                     "ots.server.egg-info",
+                                     "PKG-INFO")
     if os.path.exists(pkg_info_path):
         pkg_info = open(pkg_info_path, "r")
         for line in pkg_info.readlines():

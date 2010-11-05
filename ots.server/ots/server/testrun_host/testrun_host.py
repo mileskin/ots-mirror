@@ -103,7 +103,6 @@ class TestrunHost(object):
         self._validate_testpackages(test_packages)
         self.testrun.set_testpackages(test_packages)
         self._validate_image_url()
-        self._validate_distribution_model()
         self.testrun.set_image_name(image_url.split("/")[-1])
         self._init_assetplugin()
         return self.testrun.get_testrun_id()
@@ -112,7 +111,12 @@ class TestrunHost(object):
     def register_ta_plugins(self):
         """Registers ta plugins to testrun"""
         config = ots_config.results_storage_config
-        self._register_test_engine(ConductorEngine(config))
+        distribution_models = \
+            extension_points.get_custom_distribution_models(self.testrun)
+        self._validate_distribution_model(custom_models = distribution_models)
+        eng = ConductorEngine(config,
+                              custom_distribution_models = distribution_models)
+        self._register_test_engine(eng)
         
     def register_results_plugins(self):
         """Registers results plugins to testrun"""
@@ -417,7 +421,7 @@ class TestrunHost(object):
             self.testrun.set_result("ERROR")
             raise ValueError(error_msg)
 
-    def _validate_distribution_model(self):
+    def _validate_distribution_model(self, custom_models = []):
         """
         Checks the validitity of given distribution model.
 
@@ -429,6 +433,8 @@ class TestrunHost(object):
         """
 
         valid_values = ['default', 'perpackage']
+        for model in custom_models:
+            valid_values.append(model[0])
         model = self.testrun.get_option('distribution_model')
 
         if model not in valid_values:

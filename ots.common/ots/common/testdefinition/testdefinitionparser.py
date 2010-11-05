@@ -34,13 +34,16 @@ from testpackagedata import TestPackageData, PreSteps, PostSteps
 from minixsv import pyxsval
 
 
+OTS_TESTDEFINITION = "OTS_TESTDEFINITION"
+TEST_DEFINITION_XSD = "testdefinition-tm_terms.xsd"
+
 DEFAULT_TIMEOUT = "90"  #default test case timeout
 
 ALL_ENVIRONMENT = ['hardware']
 DEFAULT_SCHEMA = "/usr/share/test-definition/testdefinition-tm_terms.xsd"
 
-module = os.path.dirname(os.path.abspath(__file__))
-TEST_XSD = os.path.join(module, "data", "testdefinition-tm_terms.xsd")
+MODULE = os.path.dirname(os.path.abspath(__file__))
+TEST_XSD = os.path.join(MODULE, "data", "testdefinition-tm_terms.xsd")
 
 class TestDefinitionParser(object):
     """
@@ -133,6 +136,12 @@ class TestDefinitionParser(object):
                     os.path.dirname(os.path.abspath(__file__)), self.test_xsd)
         else:
             self.xsd_file_path = DEFAULT_SCHEMA
+
+        if not os.path.isfile(self.xsd_file_path):
+            env = os.environ
+            if env.has_key(OTS_TESTDEFINITION):
+                dirname = env[OTS_TESTDEFINITION]
+                self.xsd_file_path = os.path.join(dirname, TEST_DEFINITION_XSD)
 
         if not os.path.isfile(self.xsd_file_path):
             raise Exception("XSD file missing: %s" % self.xsd_file_path)

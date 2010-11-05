@@ -25,8 +25,8 @@
 import sys
 import unittest
 
-from ots.server.conductorengine.conductor_command import _conductor_command
-from ots.server.conductorengine.conductor_command import get_commands
+from ots.server.conductorengine.conductor_command import conductor_command
+from ots.server.conductorengine.conductorengine import _get_commands
 from ots.server.conductorengine.conductorengine import ConductorEngine
 
 from ots.server.distributor.api import OtsQueueDoesNotExistError, \
@@ -50,8 +50,6 @@ class TestRunStub(object):
     def set_result(self, result):
         self.result = result
 
-    def get_device_group(self):
-        return "swproduct1"
     def get_timeout(self):
         return 60
     def get_image_url(self):
@@ -67,7 +65,10 @@ class TestRunStub(object):
             return "asdf/asdfasdf"
         elif arg == "emmc":
             return "asdfasdf"
+        elif arg == "device":
+            return {"devicegroup":"swproduct1"}
         return '"blah"'
+
     def add_result_object(self, result):
         self.result_objects.append(result)
     def set_state(self, state, status_info):
@@ -116,11 +117,11 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_conductor_command_without_testpackages(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"", 'timeout':"60" }
-        expected = ['/usr/bin/kickstart',  
-                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '60']
+                   'flasherurl':"", 'test_packages':"" }
+        expected = ['conductor',  
+                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo']
 
-        result = _conductor_command(options,
+        result = conductor_command(options,
                                    host_testing = False)
         self.assertEquals(expected, result) 
 
@@ -128,12 +129,12 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_conductor_command_with_emmc_flash(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"Gordon", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"", 'timeout':"60" }
-        expected = ['/usr/bin/kickstart',  
+                   'flasherurl':"", 'test_packages':"" }
+        expected = ['conductor',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
-                    '-i', '1', '-c', 'foo', '-m', '60']
+                    '-i', '1', '-c', 'foo']
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(expected, result)
 
@@ -141,15 +142,14 @@ class TestHardwareTestRunner(unittest.TestCase):
 
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"asdfasdf/asdf", 'test_packages':"", \
-                   'timeout':"60" }
-        expected = ['/usr/bin/kickstart',
+                   'flasherurl':"asdfasdf/asdf", 'test_packages':"" }
+        expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
-                    '--flasherurl', "asdfasdf/asdf", '-m', '60']
+                    '--flasherurl', "asdfasdf/asdf"]
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(result, expected)
 
@@ -157,16 +157,15 @@ class TestHardwareTestRunner(unittest.TestCase):
 
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests", \
-                   'timeout':"60"  }
-        expected = ['/usr/bin/kickstart',
+                   'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests" }
+        expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf",
-                    "-t", "my-tests", '-m', '60']
+                    "-t", "my-tests"]
 
-        result = _conductor_command(options, 
+        result = conductor_command(options, 
                                    host_testing = False)
         self.assertEquals(result, expected)
 
@@ -185,12 +184,12 @@ class TestHardwareTestRunner(unittest.TestCase):
         timeout = "30"
 
 
-        expected_cmds = [['/usr/bin/kickstart', 
+        expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz", '-m', '30']]
         
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -200,6 +199,41 @@ class TestHardwareTestRunner(unittest.TestCase):
                             timeout)
         
         self.assertEquals(cmds, expected_cmds)
+
+
+    def test_custom_distribution_models(self):
+        """Check that custom distribution models can be used"""
+        self.model_called = 0
+
+        def custom_model1(test_list, options):
+            self.model_called = 1
+            return ["asdf"]
+
+        distribution_model = "custom1"
+        image_url = 'http://image/url/image.bin'
+        test_list = {'device':"foo,bar,baz"}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "60"
+
+
+        expected_cmds = ["asdf"]
+        
+        cmds = _get_commands(distribution_model, 
+                            image_url, 
+                            test_list,
+                            emmc_flash_parameter,
+                            testrun_id,
+                            storage_address,
+                            test_filter,
+                            timeout,
+                            custom_distribution_models =\
+                             [("custom1", custom_model1)])
+        
+        self.assertEquals(cmds, expected_cmds)
+
 
     def test_device_tests_with_no_packages(self):
         """Check conductor command without test packages for device"""
@@ -213,11 +247,11 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "20"
 
-        expected_cmds = [['/usr/bin/kickstart', 
+        expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests', '-m', '20']]
         
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -233,7 +267,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         """Check conductor command with test packages for host"""
 
 
-        expected_cmds = [['/usr/bin/kickstart',
+        expected_cmds = [['conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz", '-m', '20',
@@ -249,7 +283,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"
         timeout = "20"
 
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -265,12 +299,12 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_and_host_tests_no_flasher(self):
         """Check conductor command with packages for device and host, without flasherurl."""
 
-        expected_cmds = [['/usr/bin/kickstart', 
+        expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz", '-m', '20',
                           ';',
-                          '/usr/bin/kickstart',
+                          'conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz", '-m', '20',
@@ -286,7 +320,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "20"
 
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -302,13 +336,13 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_and_host_tests_with_flasher(self):
         """Check conductor command with packages for device and host, with flasherurl."""
 
-        expected_cmds = [['/usr/bin/kickstart', 
+        expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
                           '--flasherurl', "asdfasdf/asdf",
                           '-t', "foo,bar,baz", '-m', '60',
                           ';',
-                          '/usr/bin/kickstart',
+                          'conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '--flasherurl', "asdfasdf/asdf",
@@ -326,7 +360,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         timeout = "60"
         flasher = "asdfasdf/asdf"
 
-        cmds = get_commands(distribution_model, 
+        cmds = _get_commands(distribution_model, 
                             image_url, 
                             test_list,
                             emmc_flash_parameter,
@@ -343,11 +377,11 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_tests_with_packages_in_distribution_perpackage(self):
         """Test distribution perpackage - device_tests_with_packages"""
 
-        expected_cmd_1 = ['/usr/bin/kickstart', 
+        expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "foo", '-m', '30']
-        expected_cmd_2 = ['/usr/bin/kickstart', 
+        expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "bar", '-m', '30']
@@ -361,7 +395,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
 
-        commands = get_commands(distribution_model, 
+        commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
@@ -382,7 +416,7 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_tests_with_one_pkg_in_distribution_perpackage(self):
         """Test distribution perpackage - device_tests_with_packages"""
 
-        expected_cmd_1 = ['/usr/bin/kickstart', 
+        expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "foo", '-m', '30']
@@ -396,7 +430,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
 
-        commands = get_commands(distribution_model, 
+        commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
@@ -414,12 +448,12 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_host_tests_with_packages_in_distribution_perpackage(self):
         """Test distribution perpackage - host_tests"""
 
-        expected_cmd_1 = ['/usr/bin/kickstart', 
+        expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "foo", '-m', '30',
                         '-o']
-        expected_cmd_2 = ['/usr/bin/kickstart', 
+        expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "bar", '-m', '30',
@@ -433,7 +467,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
-        commands = get_commands(distribution_model, 
+        commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
@@ -450,20 +484,20 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_device_and_host_tests_in_distribution_perpackage(self):
         """Test distribution perpackage - device_and_host_tests"""
 
-        expected_cmd_1 = ['/usr/bin/kickstart', 
+        expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "foo", '-m', '10']
-        expected_cmd_2 = ['/usr/bin/kickstart', 
+        expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "bar", '-m', '10']
-        expected_cmd_3 = ['/usr/bin/kickstart', 
+        expected_cmd_3 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "baz", '-m', '10',
                         '-o']
-        expected_cmd_4 = ['/usr/bin/kickstart', 
+        expected_cmd_4 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
                         '-t', "yaz", '-m', '10',
@@ -477,7 +511,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         storage_address = ""
         timeout = "10"
         test_filter = "-testsuite=testrunner-tests"  
-        commands = get_commands(distribution_model, 
+        commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
@@ -505,7 +539,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
         self.assertRaises(ValueError,
-                          get_commands,
+                          _get_commands,
                           distribution_model, 
                           image_url, 
                           test_list,
@@ -532,7 +566,7 @@ class TestConductorEngine(unittest.TestCase):
         ots_ta_adapter._init_ots_from_testrun(test_run)
         
         self.assertEquals("swproduct1", 
-                          ots_ta_adapter._device_group)
+                          ots_ta_adapter._routing_key)
         self.assertEquals(3600, 
                           ots_ta_adapter._timeout)
         self.assertEquals("www.nokia.com",
@@ -565,23 +599,23 @@ class TestConductorEngine(unittest.TestCase):
         testrun = TestRunStub()
         ots_ta_adapter._init_ots_from_testrun(testrun)
         ots_ta_adapter.execute(testrun)
-        expected_tasks = [['/usr/bin/kickstart',
+        expected_tasks = [['conductor',
                           '-u', 'www.nokia.com',
                           '-e', 'asdfasdf',
                           '-i', '2222',
                           '-c', 'host:port',
                           '-f', '"\'blah\'"',
                           '--flasherurl', 'asdf/asdfasdf',
-                          '-t', '1,2,3', '-m', 3600,
+                          '-t', '1,2,3', '-m', '3600',
                           ';',
-                          '/usr/bin/kickstart',
+                          'conductor',
                           '-u', 'www.nokia.com',
                           '-e', 'asdfasdf',
                           '-i', '2222',
                           '-c', 'host:port',
                           '-f', '"\'blah\'"',
                           '--flasherurl', 'asdf/asdfasdf',
-                          '-t', '4,5,6', '-m', 3600,
+                          '-t', '4,5,6', '-m', '3600',
                           '-o']]
         self.assertEquals(taskrunner.tasks, expected_tasks)
         self.assertEquals(taskrunner.executed, True)
@@ -616,8 +650,8 @@ class TestConductorEngine(unittest.TestCase):
         ots_ta_adapter._init_ots_from_testrun(testrun)
         ots_ta_adapter.execute(testrun)
         self.assertEquals(testrun.error_info,
-                          "Device group '%s' does not exist" % \
-                              testrun.get_device_group())
+                          "Queue '%s' does not exist" % \
+                              ots_ta_adapter._routing_key)
 
         self.assertEquals(testrun.result, "ERROR")
 

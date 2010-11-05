@@ -1,3 +1,5 @@
+#!/usr/bin/python -tt
+
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -18,4 +20,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
-# ***** END LICENCE BLOCK *****
+# ***** END LICENCE BLOCK ***** 
+
+"""
+Methods for generating routing keys/queue names based on device properties
+"""

@@ -1,3 +1,6 @@
+#!/usr/bin/python -tt
+
+
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -21,30 +24,5 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Delete the queue of messages 
+Tools for managing ots queues from command line
 """
-
-from amqplib import client_0_8 as amqp
-
-def delete_queue(host, queue_name):
-    port = 5672
-    userid = "guest"
-    password = "guest"
-    virtual_host = "/"
-    connection = amqp.Connection(host = ("%s:%s" %(host,port)),
-                                 userid = userid,
-                                 password = password,
-                                 virtual_host = virtual_host,
-                                 insist = False)
-    channel = connection.channel()
-    channel.queue_delete(queue = queue_name, nowait=True)
-   
-if __name__ == "__main__":
-    import sys  
-    if len(sys.argv) != 3:
-        print "Usage python delete_queues host queue_name"
-        sys.exit()
-    host = sys.argv[1]
-    queue_name = sys.argv[2]
-    print host, queue_name
-    delete_queue(host, queue_name)

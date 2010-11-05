@@ -51,6 +51,7 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 from ots.common.protocol import OTSProtocol, OTSMessageIO
+from ots.common.routing.routing import get_queues
 
 LOGGER = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class NotConnectedError(Exception):
 # Command Class to Function
 ########################################
 
-def _start_process(command, timeout=0):
+def _start_process(command):
     """
     Starts the specified process
 
@@ -78,13 +79,7 @@ def _start_process(command, timeout=0):
     @type timeout: int
     @param timeout: The timeout to apply to the Task
     """
-    if not timeout:
-        task = Command(command)
-    else:
-        task = Command(command, 
-                       soft_timeout=timeout,
-                       hard_timeout=timeout + 5)
-
+    task = Command(command)
     task.execute()
 
 
@@ -97,15 +92,11 @@ class TaskBroker(object):
     Pulls messages containing Tasks from AMQP 
     Dispatch the Tasks as a process
     """   
-    def __init__(self, connection, queue, routing_key, services_exchange,
-                 enable_task_timeout):
+    def __init__(self, connection, device_properties):
         self._connection = connection
-        self.queue = queue
-        self.routing_key = routing_key
-        self.services_exchange = services_exchange
-        self.enable_task_timeout = enable_task_timeout
+        self._queues = get_queues(device_properties)
         self._keep_looping = True
-        self._consumer_tag = ""
+        self._consumer_tags = dict()
 
         self._task_state = cycle(TASK_STATE_RESPONSES)
 
@@ -129,29 +120,44 @@ class TaskBroker(object):
     def _consume(self):
         """
         Start consuming messages from the queue
-        Ensures that only one message is taken at a time
         """
-        self.channel.basic_qos(0, 1, False)
-        self._consumer_tag = self.channel.basic_consume(queue = self.queue, 
-                                                   callback = self._on_message)
+        for queue in self._queues:
+
+            self._consumer_tags[queue] = \
+                               self.channel.basic_consume(queue = queue,
+                                                          callback = self._on_message)
+            LOGGER.info("consume on queue: %s" % queue)
+                        
+
+
+    def _stop_consuming(self):
+        """
+        Cancel consuming from queues. This is needed for proper load balancing.
+        Otherwise the server will push next task to the consumer as soon as the
+        ongoing is acked.
+        """
+        for queue in self._queues:
+            self.channel.basic_cancel(self._consumer_tags[queue])
 
     def _init_connection(self):
         """
         Initialise the connection to AMQP.
         Queue and Services Exchange are both durable
         """
-        self.channel.queue_declare(queue = self.queue, 
-                                   durable = True,
-                                   exclusive = False, 
-                                   auto_delete = False)
-        self.channel.exchange_declare(exchange = self.services_exchange,
-                                      type = 'direct', 
-                                      durable = True,
-                                      auto_delete = False)
-        self.channel.queue_bind(queue = self.queue,
-                                exchange = self.services_exchange,
-                                routing_key = self.routing_key)
+        for queue in self._queues:
+            self.channel.queue_declare(queue = queue, 
+                                       durable = True,
+                                       exclusive = False, 
+                                       auto_delete = False)
+            self.channel.exchange_declare(exchange = queue,
+                                          type = 'direct', 
+                                          durable = True,
+                                          auto_delete = False)
+            self.channel.queue_bind(queue = queue,
+                                    exchange = queue,
+                                    routing_key = queue)
 
+        self.channel.basic_qos(0, 1, False)
     ###############################################
     # LOOPING / HANDLING / DISPATCHING
     ###############################################
@@ -187,14 +193,14 @@ class TaskBroker(object):
         Response Queue is kept informed of the status
         """
         LOGGER.debug("Received Message")
-        self.channel.basic_cancel(self._consumer_tag)
+        self._stop_consuming()
         self.channel.basic_ack(delivery_tag = message.delivery_tag)
         command, timeout, response_queue, task_id, version = \
                                     OTSMessageIO.unpack_command_message(message)
         self._publish_task_state_change(task_id, response_queue)
 
         try:
-            self._dispatch(command, timeout)
+            self._dispatch(command)
 
         except (HardTimeoutException, SoftTimeoutException):
             LOGGER.error("Process timed out")
@@ -217,12 +223,10 @@ class TaskBroker(object):
         finally:
             self._publish_task_state_change(task_id, response_queue)
 
-            LOGGER.info("consume on queue: %s" % self.queue)
-            self._consumer_tag = \
-                self.channel.basic_consume(queue = self.queue,
-                                           callback = self._on_message)
 
-    def _dispatch(self, command, timeout=0):
+            self._consume()
+
+    def _dispatch(self, command):
         """
         Dispatch the Task. Currently as a Process (Blocking)
                 
@@ -237,11 +241,7 @@ class TaskBroker(object):
         elif not command == OTSProtocol.COMMAND_IGNORE:
 
             LOGGER.debug("Running command: '%s'"%(command))
-
-            # Disable timeouts
-            if not self.enable_task_timeout:
-                timeout = 0
-            _start_process(command = command, timeout = timeout)
+            _start_process(command = command)
 
     #######################################
     # HELPERS
@@ -307,7 +307,7 @@ class TaskBroker(object):
         Delegate to connection cleanup
         """
         try:
-            self.channel.basic_cancel(self._consumer_tag)
+            self._stop_consuming()
         except:
             pass
         if self._connection:
@@ -333,6 +333,7 @@ class TaskBroker(object):
             LOGGER.info("Worker was asked to stop after testrun ready.")
             stop = True
         return stop
+
       
     ################################
     # PUBLIC METHODS

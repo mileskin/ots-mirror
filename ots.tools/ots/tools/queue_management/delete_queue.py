@@ -20,24 +20,37 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import os
+"""
+Delete the queue of messages 
+"""
 
-import unittest
+from amqplib import client_0_8 as amqp
 
-from ots.worker.worker import worker_factory
+def delete_queue(host, queue_name):
+    """Delete a queue from AMQP server"""
+    port = 5672
+    userid = "guest"
+    password = "guest"
+    virtual_host = "/"
+    connection = amqp.Connection(host = ("%s:%s" %(host, port)),
+                                 userid = userid,
+                                 password = password,
+                                 virtual_host = virtual_host,
+                                 insist = False)
+    channel = connection.channel()
+    channel.queue_delete(queue = queue_name, nowait=True)
 
-class TestWorker(unittest.TestCase):
+def main():
+    """Main function"""
+    import sys  
+    if len(sys.argv) != 3:
+        print "Usage python delete_queue host queue_name"
+        sys.exit()
+    host = sys.argv[1]
+    queue_name = sys.argv[2]
+    print host, queue_name
+    delete_queue(host, queue_name)
 
-    def test_config(self):
-        dirname = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-        config = os.path.join(dirname, "config.ini")
-        worker = worker_factory(config)
-
-        self.assertEquals("/", worker._vhost)
-        self.assertEquals(5672, worker._port)
-        self.assertEquals("guest", worker._username)
-        self.assertEquals("guest", worker._password)
-        self.assertEquals("foo", worker._device_properties["devicegroup"])
-
+   
 if __name__ == "__main__":
-    unittest.main()
+    main()

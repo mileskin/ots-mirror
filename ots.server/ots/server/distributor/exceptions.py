@@ -36,9 +36,6 @@ class OtsConnectionError(Exception):
     """A generic amqp connection error"""
     pass
 
-class OtsNotConnectedError(Exception):
-    pass
-
 class OtsQueueTimeoutError(Exception):
     """Exception raised if none of the tasks was started before queue timeout"""
     def __init__(self, timeout_length, *args, **kwargs):

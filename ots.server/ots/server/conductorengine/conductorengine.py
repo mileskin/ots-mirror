@@ -22,7 +22,9 @@
 
 """Ots TA Engine plugin"""
 from ots.common.interfaces.taengine import TAEngine
-from ots.server.conductorengine.conductor_command import get_commands
+from ots.server.conductorengine.default_distribution_models import perpackage_distribution
+from ots.server.conductorengine.default_distribution_models import single_task_distribution
+from ots.common.routing.routing import get_routing_key
 from ots.server.distributor.api import OtsQueueDoesNotExistError, \
      OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
 from ots.server.distributor.api import taskrunner_factory
@@ -31,6 +33,7 @@ from ots.server.distributor.api import STATUS_SIGNAL
 from ots.server.distributor.api import ERROR_SIGNAL
 from ots.server.distributor.api import PACKAGELIST_SIGNAL
 
+
 import logging 
 
 class ConductorEngine(TAEngine):
@@ -38,12 +41,16 @@ class ConductorEngine(TAEngine):
     TAEngine component for ots distributor.
     """
 
-    def __init__(self, ots_config, taskrunner=None):
+    def __init__(self,
+                 ots_config,
+                 taskrunner=None,
+                 custom_distribution_models=[]):
+        
         self._ots_config = ots_config 
         self.log = logging.getLogger(__name__)
         self.log.debug("Initialising Ots Adapter")
         self._distribution_model = None
-        self._device_group = ""
+        self._routing_key = ""
         self._timeout = None
         self._image_url = ""
         self._emmc_flash_parameter = ""
@@ -53,13 +60,15 @@ class ConductorEngine(TAEngine):
         self._test_filter = ""
         self._flasher = ""
         self._taskrunner = taskrunner
+        self._custom_distribution_models = custom_distribution_models
     
     def _init_ots_from_testrun(self, testrun):
         """
         Hardware specific unpacking helper method
         """
         self._distribution_model = testrun.get_option('distribution_model')
-        self._device_group = testrun.get_device_group()
+        self._routing_key = get_routing_key(testrun.get_option("device"))
+        self.log.info("Using routing key %s" % self._routing_key)
         self._timeout = testrun.get_timeout()*60
         self._image_url = testrun.get_image_url()
         self._emmc_flash_parameter = testrun.get_option('emmc')
@@ -94,7 +103,7 @@ class ConductorEngine(TAEngine):
         self._init_ots_from_testrun(testrun)
 
         if not self._taskrunner:
-            self._taskrunner = taskrunner_factory(self._device_group,
+            self._taskrunner = taskrunner_factory(self._routing_key,
                                                   self._timeout,
                                                   testrun.get_testrun_id())
 
@@ -134,16 +143,17 @@ class ConductorEngine(TAEngine):
         ERROR_SIGNAL.connect(error_callback)
         PACKAGELIST_SIGNAL.connect(packagelist_callback)
 
-        cmds = get_commands(self._distribution_model,
-                            self._image_url,
-                            self._test_list,
-                            self._emmc_flash_parameter,
-                            self._testrun_id,
-                            self._storage_address,
-                            self._test_filter,
-                            self._timeout,
-                            self._flasher)
-
+        cmds = _get_commands(self._distribution_model,
+                             self._image_url,
+                             self._test_list,
+                             self._emmc_flash_parameter,
+                             self._testrun_id,
+                             self._storage_address,
+                             self._test_filter,
+                             self._timeout,
+                             self._flasher,
+                             self._custom_distribution_models)
+        
         try:
 
             for cmd in cmds:
@@ -151,8 +161,8 @@ class ConductorEngine(TAEngine):
             self._taskrunner.run()
 
         except OtsQueueDoesNotExistError:
-            error_info = "Device group '%s' does not exist" \
-                % (self._device_group)
+            error_info = "Queue '%s' does not exist" \
+                % (self._routing_key)
             testrun.set_error_info(error_info)
             testrun.set_result("ERROR")
             self.log.exception(error_info)
@@ -189,3 +199,42 @@ class ConductorEngine(TAEngine):
     def name(self):
         """Returns the name of the engine"""
         return "ConductorEngine"
+
+
+def _get_commands(distribution_model,
+                  image_url, 
+                  test_list, 
+                  emmc_flash_parameter, 
+                  testrun_id, 
+                  storage_address, 
+                  test_filter,
+                  timeout,
+                  flasher="",
+                  custom_distribution_models = []):
+    """Returns a list of conductor commands based on the options"""
+
+    options = dict()
+    options['image_url'] = image_url
+    options['emmc_flash_parameter'] = emmc_flash_parameter
+    options['testrun_id'] = testrun_id
+    options['storage_address'] = storage_address
+    options['testfilter'] = test_filter
+    options['flasherurl'] = flasher
+    options['timeout'] = str(timeout)
+
+    cmds = []
+
+    # Try custom distribution models first
+    for dist in custom_distribution_models:
+        if distribution_model == dist[0]:
+            return(dist[1](test_list, options))
+            
+
+    # Or use defaults
+    if distribution_model == "perpackage":
+        cmds = perpackage_distribution(test_list,
+                                       options)
+    else: # Default to single task distribution if nothing else matches
+        cmds = single_task_distribution(test_list,
+                                        options)
+    return cmds

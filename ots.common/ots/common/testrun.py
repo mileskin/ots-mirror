@@ -200,6 +200,12 @@ class Testrun(object):
 
     def set_options(self, options):
         """Set options dictionary"""
+        # Device properties need special update so that we don't overwrite the
+        # default values if user defines only some of the properties
+        if "device" in options and "device" in self.options:
+            self.options["device"].update(options["device"])
+            del options["device"]
+            
         self.options.update(options)
         self.log.info("Updated options: %s" % self.options)
 

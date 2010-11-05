@@ -32,8 +32,6 @@ Factory method to create TaskRunner from a config file
 #pylint: disable-msg=F0401
 
 import ConfigParser
-import os
-
 from ots.server.distributor.taskrunner import TaskRunner
 from ots.server.config import config_file_name
 

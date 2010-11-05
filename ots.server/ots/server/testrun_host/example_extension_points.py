@@ -73,3 +73,11 @@ def get_testrun_link(testrun_id):
     This returns a link to testrun results
     """
     return "n/a"
+
+def get_custom_distribution_models(testrun):
+    """
+    @rtype: c{list} of c{tuples}
+    @return: List of custom distribution models. Each model should be tuple
+             consisting of (distribution_model_name, a callable)
+    """
+    return []

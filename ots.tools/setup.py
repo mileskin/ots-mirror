@@ -26,7 +26,7 @@ setup(
       name = "ots.tools",
       description="Various helper tools for OTS",
       author = "ext-teemu.a.vainio@nokia.com",
-      version =  0.1.1,
+      version = "0.1.1",
       include_package_data = True,
       namespace_packages = ['ots'],
       packages = find_packages(),
@@ -34,5 +34,8 @@ setup(
 
       entry_points={
         "console_scripts":
-            ["ots_trigger = ots.tools.trigger.ots_trigger:main",],},
+            ["ots_trigger = ots.tools.trigger.ots_trigger:main",
+             "ots_empty_queue = ots.tools.queue_management.empty_queue:main",
+             "ots_delete_queue = ots.tools.queue_management.delete_queue:main",
+             ],},
       )

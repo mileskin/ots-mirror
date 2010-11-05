@@ -357,10 +357,10 @@ class TaskRunner(object):
         while 1:
             try:
                 self._channel.wait()
-            except socket.error, e:
+            except socket.error, err:
                 # interrupted system call exception need to be ignored so that
                 # testruns don't fail on apache graceful restart
-                if e[0] == errno.EINTR:
+                if err[0] == errno.EINTR:
                     LOGGER.debug("Interrupted system call. Ignoring...")
                 else:
                     raise
