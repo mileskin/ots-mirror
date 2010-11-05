@@ -68,7 +68,7 @@ class PySidePublisher(PublisherPluginBase):
         LOG.debug("Initialising PySidePublisher")
         LOG.debug("Parent: %s"%(parent))
         self.publisher_widget = PublisherDialog(parent, testrun_uuid, text)
-        self.publisher_widget.show()
+        self.publisher_dialog.show()
        
     def set_testrun_result(self, result):
         result_text = "No Packages"
@@ -77,10 +77,10 @@ class PySidePublisher(PublisherPluginBase):
                 result_text = "Pass"
             else:
                 result_text = "Fail"
-        self.publisher_widget.result_label.setText("Result: %s"%(result_text))
+        self.publisher_dialog.result_label.setText("Result: %s"%(result_text))
 
     def get_this_publisher_uris(self):
         return {id(self) : None}
 
     def set_all_publisher_uris(self, uris):
-        self.publisher_widget.uris_label.setText("URIs: %s"%(uris))
+        self.publisher_dialog.uris_label.setText("URIs: %s"%(uris))

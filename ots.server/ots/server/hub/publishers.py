@@ -20,11 +20,25 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Publishers applies the Composite Pattern
+to provide an interface to the Publisher Plugins
+available to OTS 
+"""
+
 import os
 
+import logging
+
+from ots.common.framework.api import PublisherPluginBase
 from ots.common.framework.api import  plugins_iter
 
-class Publishers(object):
+LOG = logging.getLogger(__name__)
+
+class Publishers(PublisherPluginBase):
+    """
+    The Publishers Plugins 
+    """
 
     def __init__(self, request_id, testrun_uuid, 
                        sw_product, image, **kwargs):
@@ -41,11 +55,8 @@ class Publishers(object):
 
         @type image : C{str}
         @param image : The URL of the image
-
-        @type delegated_params : C{dict}
-        @param delegated_params : #FIXME
         """
-        #FIXME: describe the intent behind kwargs 
+
 
 
         root_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -57,6 +68,7 @@ class Publishers(object):
                                         sw_product, 
                                         image,
                                         **kwargs)
+            LOG.debug("Adding publisher: '%s'"%(publisher))
             self._publishers.append(publisher) 
         self._share_uris(testrun_uuid)
     
@@ -145,5 +157,3 @@ class Publishers(object):
         """
         for publisher in self._publishers:
             publisher.publish()
-
-

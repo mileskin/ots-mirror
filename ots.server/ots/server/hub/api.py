@@ -21,5 +21,5 @@
 # ***** END LICENCE BLOCK *****
 
 from ots.server.hub.hub import Hub
-from ots.server.hub.options_factory import options_factory
+from ots.server.hub.options_factory import OptionsFactory
 from ots.server.hub.options import Options

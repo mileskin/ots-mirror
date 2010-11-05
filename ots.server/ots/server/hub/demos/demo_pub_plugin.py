@@ -33,8 +33,12 @@ from PySide import QtCore
 
 from ots.server.hub.tests.component.mock_taskrunner import \
                                             MockTaskRunnerResultsPass
-from ots.server.hub.hub import _run 
+from ots.server.hub.api import Hub 
 
+
+#################################
+# Demo Dialog
+#################################
 
 class DemoDialog(QtGui.QWidget):
     """
@@ -60,30 +64,51 @@ class DemoDialog(QtGui.QWidget):
     def run(self):
         run(self, text = self.line_edit.text())
        
+############################
+# EXAMPLE OPTIONS
+############################
+
+options_dict = {"image" : "www.nokia.com" ,
+                "rootstrap" : "www.meego.com",
+                "packages" : "hw_pkg1-test pkg2-test pkg3-test",
+                "plan" : "111",
+                "execute" : "true",
+                "gate" : "foo",
+                "label": "bar",
+                "hosttest" : "host_pkg1-test host_pkg2-test host_pkg3-test",
+                "device" : "baz",
+                "emmc" : "",
+                "distribution-model" : "",
+                "flasher" : "",
+                "testfilter" : "",
+                "input_plugin" : "bifh",
+                "email" : "on",
+                "email-attachments" : "on"}
+
+##########################
+# RUN 
+##########################
+
 def run(parent, text):
     """
+    Run a Stubbed Testrunner on the Hub
+
     @type parent : C{QWidget}
     @param parent : The Parent Widget
 
     @type text : C{str}
     @param text : Demonstrate extension of API
     """
-    mock_task_runner = MockTaskRunnerResultsPass()
-    run_test = mock_task_runner.run
-    testrun_uuid = uuid.uuid1().hex
+    mock_taskrunner = MockTaskRunnerResultsPass()
+    options_dict["parent"] = parent
+    options_dict["text"] = text
+    hub = Hub("pdt", 111, **options_dict)
+    hub._taskrunner = mock_taskrunner
+    hub.run()
 
-    class OptionsStub():
-        image =  "www.meego.com"
-        is_package_distributed = False
-        hw_packages = []
-        host_packages = []
-        emmc = "emmc"
-        testfilter = None
-        flasher = None
-    options_stub = OptionsStub()
-    _run("sw_product", "request_id", testrun_uuid, 
-         ["a", "b", "c"], run_test, 
-         options_stub, parent = parent, text = text)
+#############################
+# MAIN
+#############################
 
 def main():
     """

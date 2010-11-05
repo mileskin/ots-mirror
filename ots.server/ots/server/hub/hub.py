@@ -21,8 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 """
-The Hub provides a focal point for inter-component data-flow in the
-OTS system.
+The Hub provides a focal point for inter-component 
+data-flow in the OTS system.
 
 Hence OTS suggests a centralised topology 
 with the Hub as it's central component.
