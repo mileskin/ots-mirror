@@ -128,24 +128,32 @@ class Publishers(PublisherPluginBase):
 
     def set_results(self, results):
         """
-        @type results : C{ots.common.dto.results}
+        @type results : C{list} of C{ots.common.dto.results}
         @param results : The results
         """
         for publisher in self._publishers:
             publisher.set_results(results)
-        
+
+    def set_monitors(self, monitors):
+        """
+        @type monitors : C{list} of C{ots.common.dto.monitor}
+        @param monitors : The monitors
+        """
+        for publisher in self._publishers:
+            publisher.set_monitors(monitors)
+
     ###########################################
     # Getters
     ###########################################
 
     def get_uris(self):
         """
-        @rtype: C{dict} of C{str} : C{str}
-        @rparam: A Dictionary of uris for the published data 
+        @ytype: C{dict} of C{str} : C{str}
+        @yparam: A Dictionary of uris for the published data 
                  for the Publishers {name : uri} 
         """
         for publisher in self._publishers:
-            publisher.set_exception(packages)
+            yield publisher.get_uris()
         
     ##########################################
     # Publish 

@@ -103,6 +103,7 @@ def run(parent, text):
     options_dict["parent"] = parent
     options_dict["text"] = text
     hub = Hub("pdt", 111, **options_dict)
+    #The taskrunner is replaced by the Mock here!
     hub._taskrunner = mock_taskrunner
     hub.run()
 
