@@ -52,7 +52,7 @@ import ots.server.distributor
 from ots.server.distributor.taskrunner import RESULTS_SIGNAL
 from ots.server.distributor.taskrunner import _testrun_queue_name
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
-from ots.server.distributor.dev_utils.delete_queues import delete_queue
+from ots.tools.queue_management.delete_queue import delete_queue
 from ots.server.distributor.tests.system.worker_processes import WorkerProcesses
 
 DEBUG = False
