@@ -27,7 +27,7 @@ available to OTS
 """
 
 import os
-
+import traceback
 import logging
 
 from ots.common.framework.api import PublisherPluginBase
@@ -56,20 +56,21 @@ class Publishers(PublisherPluginBase):
         @type image : C{str}
         @param image : The URL of the image
         """
-
-
-
         root_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
         plugin_dir = os.path.join(root_dir, "plugins")
         self._publishers = []
         for publisher_klass in plugins_iter(plugin_dir, "ots.publisher_plugin"):
-            publisher = publisher_klass(request_id,
+            try:
+                publisher = publisher_klass(request_id,
                                         testrun_uuid, 
                                         sw_product, 
                                         image,
                                         **kwargs)
-            LOG.debug("Adding publisher: '%s'"%(publisher))
-            self._publishers.append(publisher) 
+                LOG.debug("Adding publisher: '%s'"%(publisher))
+                self._publishers.append(publisher)
+            except Exception, err:
+                LOG.debug("Error initialising Plugin")
+                LOG.debug(traceback.format_exc())
         self._share_uris(testrun_uuid)
     
     ##########################################

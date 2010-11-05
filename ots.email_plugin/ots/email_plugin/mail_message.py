@@ -174,18 +174,22 @@ class MailMessage(object):
             self.subject_template = DEFAULT_MESSAGE_SUBJECT
 
     def _body(self, sw_product, request_id, testrun_uuid,
-              executed_packages, result, exception, links, build_url):
+                    tested_packages, result, exception, 
+                    links, build_url):
         """
         """
         #FIXME epydoc
         build_link = build_url % request_id
+
+
+        
         return self.message_template % (sw_product, 
-                                        request_uuid, 
-                                        testrun_id,
-                               format_packages(executed_packages), 
-                               format_result(result, exception), 
-                               format_links(links), 
-                               build_link)
+                                        request_id, 
+                                        testrun_uuid,
+                                        format_packages(tested_packages), 
+                                        format_result(result, exception), 
+                                        format_links(links), 
+                                        build_link)
 
     def _subject(self, sw_product, request_id, result):
         """
@@ -196,9 +200,10 @@ class MailMessage(object):
                                         result)
       
     def message(self, result, result_files, exception, 
-                       executed_packages, sw_product, 
-                       request_id, testrun_uuid, links,
-                       notify_list, email_attachments):
+                      tested_packages, sw_product, 
+                      request_id, testrun_uuid, source_uris,
+                      notify_list, email_attachments,
+                      build_url):
         """
         
         """
@@ -208,17 +213,17 @@ class MailMessage(object):
 
         #Body
         body = self._body(sw_product, request_id, testrun_uuid,
-                          executed_packages, result, exception, 
-                          links, build_url)
+                          tested_packages, result, exception, 
+                          source_uris, build_url)
         bodypart = MIMEText(body)
         msg.attach(bodypart)
 
         #Attachments
         if result_files and email_attachments:
-        try:
-            attach_as_zip_file(msg, result_files, testrun_uuid)
-        except:
-            LOG.error("Error creating email attachement:",
+            try:
+                attach_as_zip_file(msg, result_files, testrun_uuid)
+            except:
+                LOG.error("Error creating email attachement:",
                       exc_info = True)
 
         #Headers
