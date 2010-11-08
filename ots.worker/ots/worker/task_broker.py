@@ -202,15 +202,6 @@ class TaskBroker(object):
         try:
             self._dispatch(command)
 
-        except (HardTimeoutException, SoftTimeoutException):
-            LOGGER.error("Process timed out")
-            error_info = "Global timeout"
-            error_code = "6001"
-            self._publish_error_message(task_id,
-                                        response_queue,
-                                        error_info,
-                                        error_code)
-
         except (CommandFailed):
             LOGGER.error("Process failed")
             error_info = "Task execution failed"
