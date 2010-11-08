@@ -24,18 +24,11 @@ from setuptools import setup, find_packages
 
 setup(
       name = "ots.server",
-      author = "ext-teemu.a.vainio@nokia.com",
-      version = "0.1.1",
+      author = "teemu.vainio@ixonos.com",
+      version = "0.1.2",
       include_package_data = True,
       namespace_packages = ['ots', "ots.server"],
       packages = find_packages(),
-#      packages = ['ots.server.distributor',
-#                  'ots.server.email_backend',
-#                  'ots.server.input',
-#                  'ots.server.logger',
-#                  'ots.server.testrun_host',
-#                  'ots.server.xmlrpc',
-#                  'ots.server.conductorengine'],
       entry_points={"console_scripts":
                     ["ots_server = ots.server.xmlrpc.server:main",]
                     },
