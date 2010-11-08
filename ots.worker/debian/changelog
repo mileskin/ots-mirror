@@ -1,3 +1,13 @@
+ots-worker (0.1.2-1) unstable; urgency=low
+
+  * Added support for device properties FEA#8024
+  * Added support for custom distribution models FEA#9035
+  * Moved queue management scripts to ots.tools
+  * Changed conductor command from "/usr/bin/kickstart" to "conductor"
+  * Pylint fixes
+
+ -- Teemu Vainio <teemu.vainio@ixonos.com>  Mon, 08 Nov 2010 10:33:18 +0200
+
 ots-worker (0.1.1-1) unstable; urgency=low
 
   * Improved simple xmlprc server output
