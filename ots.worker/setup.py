@@ -24,11 +24,10 @@ from setuptools import setup, find_packages
 
 setup(
     name = "ots.worker",
-    author = "ext-teemu.a.vainio@nokia.com",
-    version = "0.1.1",
+    author = "teemu.vainio@ixonos.com",
+    version = "0.1.2",
     include_package_data = True,
     namespace_packages = ['ots'],
-#    packages = ['ots.worker', 'ots.worker.conductor'],
     packages = find_packages(),
     zip_safe = False,
     entry_points={"console_scripts": 
