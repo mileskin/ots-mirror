@@ -1,7 +1,7 @@
 ots-common (0.1.2-1) unstable; urgency=low
 
-  * Added support for device properties FEA#8024
-  * Added support for custom distribution models FEA#9035
+  * Added support for device properties (BMC#8024)
+  * Added support for custom distribution models (BMC#9035)
   * Moved queue management scripts to ots.tools
   * Changed conductor command from "/usr/bin/kickstart" to "conductor"
   * Pylint fixes
