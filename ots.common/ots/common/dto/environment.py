@@ -69,3 +69,4 @@ class Environment(object):
         return "<%s.Environment (%s) at %s>"%(__name__, 
                                               self.environment, 
                                               hex(id(self)))
+

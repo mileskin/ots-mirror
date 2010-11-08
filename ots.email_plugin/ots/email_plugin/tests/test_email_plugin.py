@@ -43,10 +43,7 @@ class TestEmailPlugin(unittest.TestCase):
 
     def test_mail_message(self):
         email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com")
-        self.assertEquals("multipart/mixed",
-                          email_plugin.mail_message.get_content_type())
-
-
+        self.assertTrue(isinstance(email_plugin.mail_message, str))
 
 if __name__ == "__main__":
     unittest.main()

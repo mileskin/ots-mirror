@@ -30,9 +30,10 @@ Requires an SMTP server
 
 import logging
 import datetime
+import smtplib
 
 from ots.common.framework.api import PublisherPluginBase
-from ots.results.api import TestrunResult
+#from ots.results.api import TestrunResult
 from ots.email_plugin.mail_message import MailMessage 
 
 LOG = logging.getLogger(__name__)
@@ -46,13 +47,16 @@ ON = "on"
 #FIXME
 
 def get_from_address():
-    return None
+    return "tom@sarasola.co.uk"
 
 def get_message_body():
     return None
 
 def get_message_subject():
     return None
+
+def get_smtp_server():
+    return "localhost"
 
 ##############################
 # EmailPlugin
@@ -116,7 +120,7 @@ class EmailPlugin(PublisherPluginBase):
         self._results = None
         self._exception = None
         self._tested_packages = []
-        self._notify_list = None
+        self._notify_list = notify_list
 
     ##########################################
     # DEFAULTED PROPERTIES
@@ -175,24 +179,25 @@ class EmailPlugin(PublisherPluginBase):
     @property
     def mail_message(self):
         """
-        @rtype : C{MIMEMultipart}
+        @rtype : C{str}
         @rparam : Mail message
         """
         if self._mail_message is None:
             self._mail_message = MailMessage(get_from_address(),
                                         get_message_body(),
                                         get_message_subject())
-        return self._mail_message.message(self._testrun_result, 
-                                          self._results, 
-                                          self._exception, 
-                                          self._tested_packages, 
-                                          self.sw_product, 
-                                          self.request_id, 
-                                          self.testrun_uuid, 
-                                          self._source_uris,
-                                          self.notify_list, 
-                                          self._email_attachments,
-                                          self.build_url)
+        message = self._mail_message.message(self.request_id, 
+                                             self.testrun_uuid, 
+                                             self.sw_product,
+                                             self._testrun_result,  
+                                             self._results, 
+                                             self._exception, 
+                                             self._tested_packages, 
+                                             self._source_uris,
+                                             self.notify_list, 
+                                             self._email_attachments,
+                                             self.build_url)
+        return message.as_string()
         
       
     #################################################
@@ -205,15 +210,8 @@ class EmailPlugin(PublisherPluginBase):
         @type: C{dict} of C{str} : C{str}
         @param: Uris of other reporting tools 
         """
-        self._source_uris = source_uris
-        
-    def set_target_uris(self, uris):
-        """
-        @type: C{list} of C{str}
-        @param: Uris of other reporting tools 
-        """
-        self._target_uris = uri
-               
+        self._source_uris = uris_dict
+    
     def set_testrun_result(self, testrun_result):
         """
         @type: C{ots.common.testrun_result}
@@ -242,15 +240,27 @@ class EmailPlugin(PublisherPluginBase):
         """
         self._tested_packages = packages
 
-    def publish():
+    def publish(self):
         """
         Sends the email
         """
-        to_address_list = self.email_list()
-        if not to_address_list:
-            raise EmailPublisherException("No address list")        
-        failed_addresses = mailer.sendmail(from_address, 
-                                           to_address_list, 
-                                           self.mail_message)
-        LOG.error("Error in sending mail to following addresses:")
-        LOG.error(str(failed_addresses))    
+        if self._notify_list is not None:
+            failed_addresses = None
+            server_url = get_smtp_server()
+            print "Using smtp server: '%s'"%(server_url)
+            mail_server = smtplib.SMTP(server_url)
+            try:
+                failed_addresses = mail_server.sendmail(get_from_address(), 
+                                                        self._notify_list, 
+                                                        self.mail_message)
+            
+            except smtplib.SMTPRecipientsRefused:
+                failed_addresses = self._notify_list
+            finally:   
+                mail_server.close()
+            if failed_addresses:
+                
+                LOG.error("Error in sending mail to following addresses:")
+                LOG.error(str(failed_addresses)) 
+        else:
+            LOG.error("No address list")

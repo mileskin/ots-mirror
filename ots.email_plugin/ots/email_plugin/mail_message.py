@@ -20,93 +20,18 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from zipfile import ZipFile
-from zipfile import ZipInfo
-from zipfile import ZIP_DEFLATED
-from tempfile import gettempdir
+
 from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 
-###########################
-# DEFAULT TEMPLATES 
-###########################
-
-DEFAULT_MESSAGE_BODY = \
-"SW Product     : %s\n"\
-"Build ID: %s\n"\
-"OTS testrun ID: %s\n"\
-"\n"\
-"Test packages:\n"\
-"%s"\
-"\n"\
-"Test result: %s\n"\
-"\n"\
-"Test result details:\n"\
-"\n"\
-"%s\n"\
-"\n"\
-"Build request:\n"\
-"%s\n"
-
-DEFAULT_MESSAGE_SUBJECT = "[OTS] [%s] Req#%s: %s"
+from ots.email_plugin.templates import DEFAULT_MESSAGE_BODY
+from ots.email_plugin.templates import DEFAULT_MESSAGE_SUBJECT
+from ots.email_plugin.attachment import attach_as_zip_file
 
 #########################
-# Helpers
-#########################
-
-def attach_as_zip_file(msg, result_files, unique_id):
-    """
-    Create a zip file containing result_files and attach it to msg.
-    msg must be MIMEMultipart object.
-    """
-
-    #create temp file for ZipFile.
-    zipname = 'OTS_testrun_%s.zip' % unique_id
-    tmp_file = os.path.join(gettempdir(), "tmp_file_%s" % zipname)
-
-    zipped = ZipFile(tmp_file, 'w')
-
-    LOG.debug("Created temporary file: %s" % tmp_file)
-
-    #add results files to zip file
-    for resultfile in result_files:
-        filename = "%s-%s" % (resultfile.environment, resultfile.filename)
-        info = ZipInfo(filename)
-        info.date_time = time.localtime(time.time())[:6] #now
-        info.external_attr = 0666 << 16L # read-write access to everyone
-        info.compress_type = ZIP_DEFLATED
-        zipped.writestr(info, resultfile.content)
-
-    #calling close is required to finalize zip file. Closes tmp_file.
-    #This is why we cannot use usual tempfiles - they are removed automatically 
-    #when closed.
-    zipped.close()
-
-    zipped_content = open(tmp_file).read()
-
-    ctype = 'application/zip'
-    maintype, subtype = ctype.split('/', 1)
-    attachment = MIMEBase(maintype, subtype)
-    attachment.set_payload(zipped_content)
-    encoders.encode_base64(attachment)
-    attachment.add_header('Content-Disposition', 'attachment', 
-                          filename = zipname )
-
-    #attach to message
-    msg.attach(attachment)
-
-    LOG.debug("Attached file %s containing %s files" \
-              % (zipname, len(result_files)))
-
-    #delete temp file
-    os.unlink(tmp_file)
-    LOG.debug("Deleted temporary file: %s" % tmp_file)
-
-
-#########################
-# Type Formatting
+# FORMATTING HELPERS
 #########################
     
 def format_result(result, exception, verbose = False):
@@ -135,7 +60,9 @@ def format_links(links):
     @rtype: C{str}
     @rparam: The formatted result 
     """
-    return "\n".join(["%s: %s"%(text, url) for text,url in links])
+    #FIXME
+    return str(links)
+    #return "\n".join(["%s: %s"%(text, url) for text,url in links])
 
 
 def format_packages(packages):
@@ -148,12 +75,11 @@ def format_packages(packages):
     if not packages:
         return "(none)\n"
     packages_str = ""
-    for (environment, pkg_list) in packages.items():
+    for (env, pkg_list) in packages.items():
         pkgs = " ".join([pkg for pkg in pkg_list])
-        packages_str += "  " + environment + ": " + pkgs + "\n"
+        packages_str += "  " + env.environment + ": " + pkgs + "\n"
     return packages_str
     
-
 
 ################################
 # MailMessage
@@ -161,6 +87,9 @@ def format_packages(packages):
 
 
 class MailMessage(object):
+    """
+    Builds a Mime Message from the Templates
+    """
 
     def __init__(self, from_address,
                        message_template = None, 
@@ -173,61 +102,130 @@ class MailMessage(object):
         if not self.subject_template:
             self.subject_template = DEFAULT_MESSAGE_SUBJECT
 
-    def _body(self, sw_product, request_id, testrun_uuid,
-                    tested_packages, result, exception, 
-                    links, build_url):
-        """
-        """
-        #FIXME epydoc
-        build_link = build_url % request_id
+    #################################
+    # HELPERS
+    #################################
 
+    def _body(self, request_id, testrun_uuid, sw_product,
+                    result, exception, tested_packages,  
+                    source_uris, build_url):
+        """
+        @type request_id: C{str}
+        @param request_id: An identifier for the request from the client
 
+        @type testrun_uuid: C{str}
+        @param The unique identifier for the testrun
+
+        @type sw_product: C{str}
+        @param sw_product: Name of the sw product this testrun belongs to
+
+        @type: C{ots.common.testrun_result}
+        @param: The testrun result
         
+        @type results : C{list} of C{ots.common.dto.results}
+        @param results : The Results
+        
+        @type: C{Exception}
+        @param: The Exception
+        
+        @type tested_packages : C{ots.common.dto.packages}
+        @param tested_packages: The Test Packages that were run
+
+        @type source_uris : C{dict} of C{str} : C{str}
+        @param source_uris : Uris of other reporting tools 
+
+        @type build_url : C{str}
+        @param build_url : The build url
+                
+        @rtype : C{str}
+        @rparam : The Body of the email message
+        """
+        build_link = build_url % request_id
         return self.message_template % (sw_product, 
                                         request_id, 
                                         testrun_uuid,
                                         format_packages(tested_packages), 
                                         format_result(result, exception), 
-                                        format_links(links), 
+                                        format_links(source_uris), 
                                         build_link)
 
-    def _subject(self, sw_product, request_id, result):
+    def _subject(self, request_id, sw_product, result):
         """
+        @type request_id: C{str}
+        @param request_id: An identifier for the request from the client
+
+        @type sw_product: C{str}
+        @param sw_product: Name of the sw product this testrun belongs to
+
+        @type: C{ots.common.testrun_result}
+        @param: The testrun result
+
+        @rtype : C{str}
+        @rtype : The subject
         """
-        #FIXME epydoc
         return self.subject_template % (sw_product, 
                                         request_id, 
                                         result)
+
+    ######################################
+    # PUBLIC
+    ######################################
       
-    def message(self, result, result_files, exception, 
-                      tested_packages, sw_product, 
-                      request_id, testrun_uuid, source_uris,
+    def message(self, request_id, testrun_uuid, sw_product,
+                      result, result_files, exception, 
+                      tested_packages,  
+                      source_uris,
                       notify_list, email_attachments,
                       build_url):
+
         """
+        @type request_id: C{str}
+        @param request_id: An identifier for the request from the client
+
+        @type testrun_uuid: C{str}
+        @param The unique identifier for the testrun
+
+        @type sw_product: C{str}
+        @param sw_product: Name of the sw product this testrun belongs to
+
+        @type: C{ots.common.testrun_result}
+        @param: The testrun result
         
+        @type results : C{list} of C{ots.common.dto.results}
+        @param results : The Results
+        
+        @type: C{Exception}
+        @param: The Exception
+        
+        @type tested_packages : C{ots.common.dto.packages}
+        @param tested_packages: The Test Packages that were run
+
+        @type source_uris : C{dict} of C{str} : C{str}
+        @param source_uris : Uris of other reporting tools 
+
+        @type notify_list : C{list}
+        @param notify_list : The email notify list 
+  
+        @type email_attachments : C{bool}
+        @param email_attachments : Is the email attachment switched on?
+        
+        @type build_url : C{str}
+        @param build_url : The build url
+                
+        @rtype : C{MIMEMultipart}
+        @rparam : Mail message
         """
-        #FIXME epydoc
-
         msg = MIMEMultipart()
-
-        #Body
-        body = self._body(sw_product, request_id, testrun_uuid,
-                          tested_packages, result, exception, 
-                          source_uris, build_url)
-        bodypart = MIMEText(body)
-        msg.attach(bodypart)
-
-        #Attachments
+        msg["Subject"] = self._subject(request_id, sw_product, result)
+        msg["From"] = self.from_address
+        msg["To"] = ", ".join(notify_list)
+        msg.attach(MIMEText(self._body(request_id, sw_product, testrun_uuid,
+                                       result, exception, tested_packages, 
+                                       source_uris, build_url)))
         if result_files and email_attachments:
             try:
                 attach_as_zip_file(msg, result_files, testrun_uuid)
             except:
                 LOG.error("Error creating email attachement:",
                       exc_info = True)
-
-        #Headers
-        msg["Subject"] = self._subject(sw_product, request_id, result)
-        msg["From"] = self.from_address
-        msg["To"] = ", ".join(notify_list)
         return msg
