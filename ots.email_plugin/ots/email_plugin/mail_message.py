@@ -20,21 +20,26 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import logging
 
 from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 
+from ots.results.api import result_2_string
+
 from ots.email_plugin.templates import DEFAULT_MESSAGE_BODY
 from ots.email_plugin.templates import DEFAULT_MESSAGE_SUBJECT
 from ots.email_plugin.attachment import attach_as_zip_file
+
+LOG = logging.getLogger(__name__)
 
 #########################
 # FORMATTING HELPERS
 #########################
     
-def format_result(result, exception, verbose = False):
+def format_result(result, exception):
     """
     Test result string for mail message body
 
@@ -47,12 +52,13 @@ def format_result(result, exception, verbose = False):
     @rtype: C{str}
     @rparam: The formatted result 
     """
+    result = result_2_string(result)
     if exception is not None:
         return "%s (%s)" % (result, exception.strerror)
     #FIXME: verbose code
-    return str(result)
+    return result
 
-def format_links(links):
+def format_source_uris(source_uris_dict):
     """ 
     @type links: C{list} of C{tuple} of C{str},C{str}
     @param links: The links to the results
@@ -60,9 +66,8 @@ def format_links(links):
     @rtype: C{str}
     @rparam: The formatted result 
     """
-    #FIXME
-    return str(links)
-    #return "\n".join(["%s: %s"%(text, url) for text,url in links])
+    return "\n".join(["%s: %s"%(text, url) 
+                      for text,url in source_uris_dict.items()])
 
 
 def format_packages(packages):
@@ -146,7 +151,7 @@ class MailMessage(object):
                                         testrun_uuid,
                                         format_packages(tested_packages), 
                                         format_result(result, exception), 
-                                        format_links(source_uris), 
+                                        format_source_uris(source_uris), 
                                         build_link)
 
     def _subject(self, request_id, sw_product, result):

@@ -33,3 +33,6 @@ class TestrunResult:
     PASS = True
     FAIL = False
 
+def result_2_string(result):
+    d = {None: "No Cases", True : "Pass", False : "Fail"}
+    return d[result]

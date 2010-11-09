@@ -45,7 +45,9 @@ import StringIO
 from ots.common.dto.api import Packages
 from ots.email_plugin.api import EmailPlugin
     
-RECIPIENT = "galvin.tom@gmail.com"
+#FIXME Add your test email recipient here
+
+RECIPIENT = "foo@bar.com"
 
 def pop_inbox():
     """
