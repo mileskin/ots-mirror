@@ -332,7 +332,7 @@ class TestBackwardCompatibility(unittest.TestCase):
     def test_global_timeout(self):
         global_timeout = 2
         queue_timeout = 10
-        preparation_timeout = 0
+        preparation_timeout = 2
         taskrunner = TaskRunner("guest", "guest", "localhost",
                                 "/", "ots", 5672, "test_taskrunner", 
                                 1, global_timeout, queue_timeout,
@@ -366,7 +366,8 @@ class TestBackwardCompatibility(unittest.TestCase):
         
         # In backward compatibility mode timeout is global timeout and not
         # global_timeout + queue_timeout
-        self.assertTrue(duration < global_timeout+queue_timeout)
+        self.assertTrue(duration < global_timeout+\
+                        queue_timeout+preparation_timeout)
 
     def _publish_message(self, response_queue, state):
 

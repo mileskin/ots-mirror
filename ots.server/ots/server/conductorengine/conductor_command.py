@@ -56,7 +56,7 @@ def conductor_command(options, host_testing):
     if options['test_packages']:
         cmd.extend( ["-t", options['test_packages']] )
     # Use global timeout as conductor testrun timeout
-    if options.get('timeout') and options['timeout'] != 0:
+    if options['timeout']:
         cmd.extend( ["-m", str(options['timeout'])] )
 
     if host_testing == True:

@@ -97,10 +97,7 @@ class Timeout(object):
             LOGGER.error("Global timeout (server side)")
             raise OtsGlobalTimeoutError
 
-        if not single_task:
-            timeout = self._calculate_new_timeout()
-        else:
-            timeout = self.global_timeout
+        timeout = self._calculate_new_timeout()
         LOGGER.info("Setting server side global timeout to %s minutes" \
                           % (timeout/60))
         signal.signal(signal.SIGALRM, global_timeout_handler)

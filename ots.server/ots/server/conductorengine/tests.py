@@ -117,9 +117,9 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_conductor_command_without_testpackages(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"" }
+                   'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
-                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo']
+                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '30']
 
         result = conductor_command(options,
                                    host_testing = False)
@@ -129,10 +129,10 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_conductor_command_with_emmc_flash(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"Gordon", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"" }
+                   'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
-                    '-i', '1', '-c', 'foo']
+                    '-i', '1', '-c', 'foo', '-m', '30']
 
         result = conductor_command(options, 
                                    host_testing = False)
@@ -142,12 +142,13 @@ class TestHardwareTestRunner(unittest.TestCase):
 
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"asdfasdf/asdf", 'test_packages':"" }
+                   'flasherurl':"asdfasdf/asdf", 'test_packages':"", 
+                   'timeout':"30" }
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
-                    '--flasherurl', "asdfasdf/asdf"]
+                    '--flasherurl', "asdfasdf/asdf", '-m', '30']
 
         result = conductor_command(options, 
                                    host_testing = False)
@@ -157,13 +158,14 @@ class TestHardwareTestRunner(unittest.TestCase):
 
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests" }
+                   'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
+                   'timeout':"30" }
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf",
-                    "-t", "my-tests"]
+                    "-t", "my-tests", '-m', '30']
 
         result = conductor_command(options, 
                                    host_testing = False)
