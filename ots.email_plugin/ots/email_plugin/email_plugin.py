@@ -47,7 +47,7 @@ ON = "on"
 #FIXME
 
 def get_from_address():
-    return "tom@sarasola.co.uk"
+    return "foo@bar.com"
 
 def get_message_body():
     return None
