@@ -199,7 +199,7 @@ class Executor(object):
         errors = 0
         if self.testrun_timeout:
             self.log.info("Testrun timeout set to %s seconds" % \
-                          self.testrun_timeout)
+                          int(self.testrun_timeout))
         else:
             self.log.info("Testrun timeout not specified")
 

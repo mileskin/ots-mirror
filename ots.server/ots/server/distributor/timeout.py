@@ -82,7 +82,7 @@ class Timeout(object):
         signal.signal(signal.SIGALRM, queue_timeout_handler)
         signal.alarm(self.queue_timeout)
 
-    def task_started(self, single_task = False):
+    def task_started(self):
         """sets timeout. Previous timeout will be overwritten."""
         def global_timeout_handler(signum, frame):
             """
@@ -97,6 +97,7 @@ class Timeout(object):
             LOGGER.error("Global timeout (server side)")
             raise OtsGlobalTimeoutError
 
+        # Use calculate_new_timeout for every task
         timeout = self._calculate_new_timeout()
         LOGGER.info("Setting server side global timeout to %s minutes" \
                           % (timeout/60))

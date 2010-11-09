@@ -232,7 +232,7 @@ class TaskRunner(object):
                 if msg == 'started':
                     task = self._tasks[0]
                     status = OTSProtocol.STATE_TASK_STARTED
-                    self.timeout_handler.task_started(single_task = True)
+                    self.timeout_handler.task_started()
                     task.transition(status)
                     return 
 
