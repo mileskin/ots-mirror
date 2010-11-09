@@ -115,7 +115,7 @@ class EmailPlugin(PublisherPluginBase):
         #
         self._mail_message = None
         #
-        self._source_uris = []
+        self._source_uris = {}
         self._testrun_result = None
         self._results = None
         self._exception = None

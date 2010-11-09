@@ -97,7 +97,7 @@ class PublisherPluginBase(object):
         @rparam: A Dictionary of uris for the published data 
                  for *this* Publisher in {name : uri} 
         """
-        pass
+        return {}
 
     ##########################################
     # Publish 

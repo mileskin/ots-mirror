@@ -20,57 +20,94 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import time
+
+import StringIO
+
 from zipfile import ZipFile
 from zipfile import ZipInfo
 from zipfile import ZIP_DEFLATED
 
-from tempfile import gettempdir
+from email import encoders
+from email.mime.base import MIMEBase
 
-def attach_as_zip_file(msg, result_files, unique_id):
+##########################################
+# PRIVATE METHODS
+##########################################
+
+def _zip_info(environment, name):
     """
-    Create a zip file containing result_files and attach it to msg.
-    msg must be MIMEMultipart object.
+    @type environment : C{str}
+    @param environment : The environment name
+
+    @type name : C{str}
+    @param name : The name of the file
+
+    @rtype : C{ZipInfo}
+    @param : The Zip Info 
     """
+    filename = "%s-%s" % (environment, name)
+    info = ZipInfo(filename)
+    info.date_time = time.localtime(time.time())[:6] #now
+    info.external_attr = 0666 << 16L # read-write access to everyone
+    info.compress_type = ZIP_DEFLATED
+    return info    
 
-    #create temp file for ZipFile.
-    zipname = 'OTS_testrun_%s.zip' % unique_id
-    tmp_file = os.path.join(gettempdir(), "tmp_file_%s" % zipname)
+def _zip_file(testrun_uuid, results_list):
+    """
+    @type testrun_uuid : C{str}
+    @param testrun_uuid : The Testrun uuid
 
-    zipped = ZipFile(tmp_file, 'w')
+    @type results : C{list} of C{ots.common.dto.results}
+    @param results : The results
 
-    LOG.debug("Created temporary file: %s" % tmp_file)
+    @rtype : C{StringIO}
+    @param : The Zipped File
+    """
+    string_io = StringIO.StringIO()
+    zip_file = ZipFile(string_io, 'w')
+    for results in results_list:
+        file = results.results_xml
+        env = results.environment
+        info = _zip_info(env.environment, results.results_xml.name)
+        zip_file.writestr(info, file.read())
+    zip_file.close()
+    string_io.seek(0)
+    return string_io
 
-    #add results files to zip file
-    for resultfile in result_files:
-        filename = "%s-%s" % (resultfile.environment, resultfile.filename)
-        info = ZipInfo(filename)
-        info.date_time = time.localtime(time.time())[:6] #now
-        info.external_attr = 0666 << 16L # read-write access to everyone
-        info.compress_type = ZIP_DEFLATED
-        zipped.writestr(info, resultfile.content)
+def _zip_name(testrun_uuid):
+    """
+    @type testrun_uuid : C{str}
+    @param testrun_uuid : The Testrun uuid
+    
+    @rtype : C{str}
+    @rparam : The name of the zipfile
+    """
+    return 'OTS_testrun_%s.zip' % testrun_uuid
 
-    #calling close is required to finalize zip file. Closes tmp_file.
-    #This is why we cannot use usual tempfiles - they are removed automatically 
-    #when closed.
-    zipped.close()
+#############################################
+# ATTACHMENT
+#############################################
 
-    zipped_content = open(tmp_file).read()
+def attachment(testrun_uuid, results_list):
+    """
+    Create a zip file containing result files
+    
+    @type testrun_uuid : C{str}
+    @param testrun_uuid : The Testrun uuid
 
+    @type results : C{list} of C{ots.common.dto.results}
+    @param results : The results
+
+    @rtype : C{MIMEBase}
+    @param : The attachment
+    """ 
+    zipped_content = _zip_file(testrun_uuid, results_list).read()
     ctype = 'application/zip'
     maintype, subtype = ctype.split('/', 1)
     attachment = MIMEBase(maintype, subtype)
     attachment.set_payload(zipped_content)
     encoders.encode_base64(attachment)
     attachment.add_header('Content-Disposition', 'attachment', 
-                          filename = zipname )
-
-    #attach to message
-    msg.attach(attachment)
-
-    LOG.debug("Attached file %s containing %s files" \
-              % (zipname, len(result_files)))
-
-    #delete temp file
-    os.unlink(tmp_file)
-    LOG.debug("Deleted temporary file: %s" % tmp_file)
-
+                          filename = _zip_name(testrun_uuid))
+    return attachment

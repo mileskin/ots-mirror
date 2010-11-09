@@ -22,9 +22,6 @@
 
 """
 Possible Testrun outcomes
-
-Class based "enumerate" style type that keeps backward compatibility 
-with string implementation 
 """ 
 
 class TestrunResult:
@@ -33,6 +30,13 @@ class TestrunResult:
     PASS = True
     FAIL = False
 
-def result_2_string(result):
+def result_2_string(testrun_result):
+    """
+    @type testrun_result : L{TestrunResult}
+    @param testrun_result : A Testrun result
+
+    @rtype : C {str}
+    @rparam : A string representation of the Result
+    """
     d = {None: "No Cases", True : "Pass", False : "Fail"}
-    return d[result]
+    return d[testrun_result]

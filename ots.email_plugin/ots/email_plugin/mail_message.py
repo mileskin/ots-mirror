@@ -31,7 +31,7 @@ from ots.results.api import result_2_string
 
 from ots.email_plugin.templates import DEFAULT_MESSAGE_BODY
 from ots.email_plugin.templates import DEFAULT_MESSAGE_SUBJECT
-from ots.email_plugin.attachment import attach_as_zip_file
+from ots.email_plugin.attachment import attachment
 
 LOG = logging.getLogger(__name__)
 
@@ -229,7 +229,8 @@ class MailMessage(object):
                                        source_uris, build_url)))
         if result_files and email_attachments:
             try:
-                attach_as_zip_file(msg, result_files, testrun_uuid)
+                attachment = attachment(result_files, testrun_uuid)
+                msg.attach(attachment)
             except:
                 LOG.error("Error creating email attachement:",
                       exc_info = True)
