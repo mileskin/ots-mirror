@@ -45,9 +45,3 @@ nosetests ots.server/ots/server/hub/tests/test_* -e testrun
 #ots.worker
 #############
 nosetests ots.worker/ots/worker/tests/test_*
-
-####################
-#ots.report_plugin 
-####################
-
-nosetests ots.report_plugin/ots/report_plugin/tests/test_*
