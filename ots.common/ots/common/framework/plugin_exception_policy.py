@@ -20,7 +20,21 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.config_filename import config_filename
-from ots.common.framework.publisher_plugin_base import PublisherPluginBase
-from ots.common.framework.plugin_exception_policy import plugin_exception_policy
+import traceback
+import logging 
+
+LOG = logging.getLogger(__name__)
+
+class plugin_exception_policy:
+
+    def __init__(self, swallow = True):
+        self.swallow = swallow
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, type, value, tb):        
+        LOG.error(traceback.format_tb(tb))
+        if self.swallow:
+            LOG.debug("Swallowing exception")
+        return self.swallow 

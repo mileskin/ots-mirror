@@ -30,5 +30,31 @@ class TestPublishers(unittest.TestCase):
         publishers = Publishers(111, 222, "sw_product" , "image")
         #TODO
 
+    def test_safe_delegate_to_publishers(self):
+        publishers = Publishers(111, 222, "sw_product" , "image")
+        class PublisherStub:
+            called = False
+            def set_expected_packages(self, packages):
+                self.called = True
+        stub = PublisherStub()
+        publishers._publishers = [stub]
+        self.assertFalse(stub.called)
+        publishers._safe_delegate_to_publishers("set_expected_packages", "foo")
+        self.assertTrue(stub.called)
+        
+
+    def _test_exception_policy(self):
+        publishers = Publishers(111, 222, "sw_product" , "image")
+        class MyException(Exception):
+            pass
+        class PublisherStub:
+            def set_expected_packages(self, packages):
+                raise MyException
+        publishers._publishers = [PublisherStub()]
+        publishers.set_expected_packages(None)
+        publishers.SWALLOW_EXCEPTIONS = False
+        self.assertRaises(MyException, publishers.set_expected_packages, None)
+        
+
 if __name__ == "__main__":
     unittest.main()

@@ -31,14 +31,22 @@ import traceback
 import logging
 
 from ots.common.framework.api import PublisherPluginBase
-from ots.common.framework.api import  plugins_iter
+from ots.common.framework.api import plugins_iter
+from ots.common.framework.api import plugin_exception_policy
 
 LOG = logging.getLogger(__name__)
+
+################################
+# PUBLISHERS
+################################
 
 class Publishers(PublisherPluginBase):
     """
     The Publishers Plugins 
     """
+
+    #The policy for handling exceptions of the Publisher Plugins
+    SWALLOW_EXCEPTIONS = True
 
     def __init__(self, request_id, testrun_uuid, 
                        sw_product, image, **kwargs):
@@ -60,6 +68,7 @@ class Publishers(PublisherPluginBase):
         plugin_dir = os.path.join(root_dir, "plugins")
         self._publishers = []
         for publisher_klass in plugins_iter(plugin_dir, "ots.publisher_plugin"):
+            print publisher_klass
             try:
                 publisher = publisher_klass(request_id,
                                         testrun_uuid, 
@@ -90,6 +99,18 @@ class Publishers(PublisherPluginBase):
         for publisher in self._publishers:
             publisher.set_all_publisher_uris(all_publisher_uris)
 
+
+    def _safe_delegate_to_publishers(self, method_name, *args, **kwargs):
+        """
+        Call the `method_name` on all the registered publishers
+        """
+        for publisher in self._publishers:
+            with plugin_exception_policy(self.SWALLOW_EXCEPTIONS):
+                if hasattr(publisher, method_name):
+                    method = getattr(publisher, method_name)
+                    return method(*args, **kwargs)
+
+
     #############################################
     # Setters
     #############################################
@@ -99,49 +120,48 @@ class Publishers(PublisherPluginBase):
         @type packages : C{ots.common.dto.packages}
         @param packages: The Test Packages that should have been run
         """
-        for publisher in self._publishers:
-            publisher.set_expected_packages(packages)
-
+        return self._safe_delegate_to_publishers("set_expected_packages",
+                                                 packages)
+     
     def set_tested_packages(self, packages):
         """
         @type packages : C{ots.common.dto.packages}
         @param packages: The Test Packages that were run
         """
-        for publisher in self._publishers:
-            publisher.set_tested_packages(packages)
+        return self._safe_delegate_to_publishers("set_tested_packages",
+                                                 packages)
 
     def set_testrun_result(self, testrun_result):
         """
         @type packages : C{ots.results.testrun_result
         @param packages: The result of the Testrun
         """
-        #FIXME move testrun result to common? 
-        for publisher in self._publishers:
-            publisher.set_testrun_result(testrun_result)
+        return self._safe_delegate_to_publishers("set_testrun_result",
+                                                 testrun_result)
 
     def set_exception(self, exception):
         """
         @type: C{Exception}
         @param: The Exception raised by the Testrun 
         """
-        for publisher in self._publishers:
-            publisher.set_exception(exception)
+        return self._safe_delegate_to_publishers("set_exception",
+                                                 testrun_result)
 
     def set_results(self, results):
         """
         @type results : C{list} of C{ots.common.dto.results}
         @param results : The results
         """
-        for publisher in self._publishers:
-            publisher.set_results(results)
+        return self._safe_delegate_to_publishers("set_result",
+                                                 testrun_result)
 
     def set_monitors(self, monitors):
         """
         @type monitors : C{list} of C{ots.common.dto.monitor}
         @param monitors : The monitors
         """
-        for publisher in self._publishers:
-            publisher.set_monitors(monitors)
+        return self._safe_delegate_to_publishers("set_monitors",
+                                                 testrun_result)
 
     ###########################################
     # Getters
@@ -164,5 +184,5 @@ class Publishers(PublisherPluginBase):
         """
         Publish the results of the Testrun
         """
-        for publisher in self._publishers:
-            publisher.publish()
+        return self._safe_delegate_to_publishers("publish",
+                                                 testrun_result)

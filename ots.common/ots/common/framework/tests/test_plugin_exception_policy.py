@@ -20,7 +20,24 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.config_filename import config_filename
-from ots.common.framework.publisher_plugin_base import PublisherPluginBase
+import unittest
+
 from ots.common.framework.plugin_exception_policy import plugin_exception_policy
+
+class TestPluginExceptionPolicy(unittest.TestCase):
+
+    def test_plugin_exception_policy_swallows(self):
+        with plugin_exception_policy(True):
+            raise Exception
+
+    def test_plugin_exception_policy_raises(self):
+        class MyException(Exception):
+            pass
+        def raises():
+            with plugin_exception_policy(False):
+                raise MyException
+        self.assertRaises(MyException, raises)
+
+
+if __name__ == "__main__":
+    unittest.main()
