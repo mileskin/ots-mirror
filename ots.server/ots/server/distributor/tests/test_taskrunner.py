@@ -363,10 +363,8 @@ class TestBackwardCompatibility(unittest.TestCase):
         self.assertRaises(OtsGlobalTimeoutError, taskrunner.run)
         time_after_run = time.time()
         duration = time_after_run - time_before_run
-        
-        # In backward compatibility mode timeout is global timeout and not
-        # global_timeout + queue_timeout
-        self.assertTrue(duration < global_timeout+\
+       
+        self.assertTrue(round(duration) == global_timeout+\
                         queue_timeout+preparation_timeout)
 
     def _publish_message(self, response_queue, state):
