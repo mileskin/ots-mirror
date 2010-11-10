@@ -38,6 +38,5 @@ class TestPluginExceptionPolicy(unittest.TestCase):
                 raise MyException
         self.assertRaises(MyException, raises)
 
-
 if __name__ == "__main__":
     unittest.main()

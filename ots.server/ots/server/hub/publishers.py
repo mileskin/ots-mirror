@@ -24,6 +24,9 @@
 Publishers applies the Composite Pattern
 to provide an interface to the Publisher Plugins
 available to OTS 
+
+The Exception Handling is as defined by 
+SWALLOW_EXCEPTIONS
 """
 
 import os
@@ -68,19 +71,15 @@ class Publishers(PublisherPluginBase):
         plugin_dir = os.path.join(root_dir, "plugins")
         self._publishers = []
         for publisher_klass in plugins_iter(plugin_dir, "ots.publisher_plugin"):
-            print publisher_klass
-            try:
+            LOG.debug("Publisher found: '%s'"%(publisher_klass))
+            with plugin_exception_policy(self.SWALLOW_EXCEPTIONS):
                 publisher = publisher_klass(request_id,
                                         testrun_uuid, 
                                         sw_product, 
                                         image,
                                         **kwargs)
                 LOG.debug("Adding publisher: '%s'"%(publisher))
-                self._publishers.append(publisher)
-            except Exception, err:
-                LOG.debug("Error initialising Plugin")
-                LOG.debug(traceback.format_exc())
-        self._share_uris(testrun_uuid)
+                self._share_uris(testrun_uuid)
     
     ##########################################
     # HELPERS
@@ -99,17 +98,19 @@ class Publishers(PublisherPluginBase):
         for publisher in self._publishers:
             publisher.set_all_publisher_uris(all_publisher_uris)
 
-
-    def _safe_delegate_to_publishers(self, method_name, *args, **kwargs):
+    def _delegator_iter(self, method_name, *args, **kwargs):
         """
         Call the `method_name` on all the registered publishers
+        Exception Handling as dictated by policy
+
+        @type : C{str}
+        @param : The name of the method to call on the Publisher
         """
         for publisher in self._publishers:
             with plugin_exception_policy(self.SWALLOW_EXCEPTIONS):
                 if hasattr(publisher, method_name):
                     method = getattr(publisher, method_name)
-                    return method(*args, **kwargs)
-
+                    yield method(*args, **kwargs)
 
     #############################################
     # Setters
@@ -120,62 +121,58 @@ class Publishers(PublisherPluginBase):
         @type packages : C{ots.common.dto.packages}
         @param packages: The Test Packages that should have been run
         """
-        return self._safe_delegate_to_publishers("set_expected_packages",
-                                                 packages)
+        list(self._delegator_iter("set_expected_packages", packages))
      
     def set_tested_packages(self, packages):
         """
         @type packages : C{ots.common.dto.packages}
         @param packages: The Test Packages that were run
         """
-        return self._safe_delegate_to_publishers("set_tested_packages",
-                                                 packages)
-
+        list(self._delegator_iter("set_tested_packages", packages))
+        
     def set_testrun_result(self, testrun_result):
         """
         @type packages : C{ots.results.testrun_result
         @param packages: The result of the Testrun
         """
-        return self._safe_delegate_to_publishers("set_testrun_result",
-                                                 testrun_result)
-
+        list(self._delegator_iter("set_testrun_result", testrun_result))
+        
     def set_exception(self, exception):
         """
         @type: C{Exception}
         @param: The Exception raised by the Testrun 
         """
-        return self._safe_delegate_to_publishers("set_exception",
-                                                 testrun_result)
-
+        list(self._delegator_iter("set_exception", set_exception))
+        
     def set_results(self, results):
         """
         @type results : C{list} of C{ots.common.dto.results}
         @param results : The results
         """
-        return self._safe_delegate_to_publishers("set_result",
-                                                 testrun_result)
-
+        list(self._delegator_iter("set_results", results))
+        
     def set_monitors(self, monitors):
         """
         @type monitors : C{list} of C{ots.common.dto.monitor}
         @param monitors : The monitors
         """
-        return self._safe_delegate_to_publishers("set_monitors",
-                                                 testrun_result)
-
+        list(self._delegator_iter("set_monitors", monitors))
+        
     ###########################################
     # Getters
     ###########################################
 
     def get_uris(self):
         """
-        @ytype: C{dict} of C{str} : C{str}
-        @yparam: A Dictionary of uris for the published data 
+        @rtype: C{dict} of C{str} : C{str}
+        @rparam: A Dictionary of uris for the published data 
                  for the Publishers {name : uri} 
         """
-        for publisher in self._publishers:
-            yield publisher.get_uris()
-        
+        uris_dict_all = {}
+        for uris_dict in self._delegator_iter("get_uris"):
+            uris_dict_all.update(uris_dict)
+        return uris_dict_all
+
     ##########################################
     # Publish 
     ##########################################
@@ -184,5 +181,4 @@ class Publishers(PublisherPluginBase):
         """
         Publish the results of the Testrun
         """
-        return self._safe_delegate_to_publishers("publish",
-                                                 testrun_result)
+        list(self._delegator_iter("publish", packages))

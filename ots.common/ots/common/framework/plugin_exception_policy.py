@@ -20,13 +20,20 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Simple Context Manager 
+"""
+
 import traceback
 import logging 
 
 LOG = logging.getLogger(__name__)
 
 class plugin_exception_policy:
-
+    """
+    Plugin Exception Policy 
+    currently on or off
+    """
     def __init__(self, swallow = True):
         self.swallow = swallow
 

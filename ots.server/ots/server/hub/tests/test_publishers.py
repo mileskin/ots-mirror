@@ -26,29 +26,44 @@ from ots.server.hub.publishers import Publishers
 
 class TestPublishers(unittest.TestCase):
 
-    def test_init(self):
-        publishers = Publishers(111, 222, "sw_product" , "image")
-        #TODO
-
-    def test_safe_delegate_to_publishers(self):
+    def test_delegators_iter_setter(self):
         publishers = Publishers(111, 222, "sw_product" , "image")
         class PublisherStub:
             called = False
             def set_expected_packages(self, packages):
                 self.called = True
-        stub = PublisherStub()
-        publishers._publishers = [stub]
-        self.assertFalse(stub.called)
-        publishers._safe_delegate_to_publishers("set_expected_packages", "foo")
-        self.assertTrue(stub.called)
+        stub_1 = PublisherStub()
+        stub_2 = PublisherStub()
+        publishers._publishers = [stub_1, stub_2]
+        self.assertFalse(stub_1.called)
+        self.assertFalse(stub_2.called)
+        publishers.set_expected_packages("foo")
+        self.assertTrue(stub_1.called)
+        self.assertTrue(stub_2.called)
         
-
-    def _test_exception_policy(self):
+    def test_delegator_iter_getter(self):
+        publishers = Publishers(111, 222, "sw_product" , "image")
+        class PublisherStub1:
+            def get_uris(self):
+                return {"Parrot" : "Norwegian Blue", "Cheese" : "Wensleydale"}
+        stub_1 = PublisherStub1()
+        class PublisherStub2:
+            def get_uris(self):
+                return {"Song" : "Lumberjack", "Walk" : "Funny"}
+        stub_2 = PublisherStub2()
+        publishers._publishers = [stub_1, stub_2]
+        expected = {'Cheese': 'Wensleydale', 
+                    'Song': 'Lumberjack', 
+                    'Parrot': 'Norwegian Blue', 
+                    'Walk': 'Funny'}
+        self.assertEquals(expected, publishers.get_uris())
+       
+    def test_exception_policy(self):
         publishers = Publishers(111, 222, "sw_product" , "image")
         class MyException(Exception):
             pass
         class PublisherStub:
-            def set_expected_packages(self, packages):
+            def set_expected_packages(self, *args):
                 raise MyException
         publishers._publishers = [PublisherStub()]
         publishers.set_expected_packages(None)
