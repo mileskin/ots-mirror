@@ -40,12 +40,11 @@ import time
 import sys
 import zipfile
 
-from ots.common.testdefinition.api import TestDefinitionParser
+from xml.etree import ElementTree as ET
+
 from ots.worker.responseclient import ResponseClient
 
 DUMMY_RESULTS_FILENAME = "dummy_results_file.xml"
-
-
 
 HOST = "localhost"
 
@@ -59,16 +58,25 @@ def _results_xml(filename):
     f = open(fqname, "r")
     return f.read()
 
+def _steps_iter(xml):
+    """
+    Crude parser of TestDefinition Files
+    """
+    element = ET.XML(xml)
+    for suite in element.findall("suite"):
+        for set in suite.findall("set"):
+             for case in set.findall("case"):
+                 for step in case.findall("step"):
+                      yield step.text
+
 def _run_tests(test_definition_xml):
     """
     Executes the test steps from the test_definition_xml
     """
-    td_parser = TestDefinitionParser(input_xml = test_definition_xml)
-    test_package_data = td_parser.parse_test_definition()
-    set = test_package_data.suites[0].getTestsets()[0]
-    for case in set.getTestcases():
-        for step in case.getSteps():
-            os.system(step)
+    f = open("f", "w")
+    f.write(test_definition_xml)
+    for step in _steps_iter(test_definition_xml):
+        os.system(step)
 
 def _get_test_definition_file(package, testrun_id):
     """
