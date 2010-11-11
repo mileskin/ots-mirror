@@ -243,7 +243,6 @@ class TestOTSCore(unittest.TestCase):
 
         def cb_handler(signal, dto, **kwargs):
             self.cb_called = True
-            print 11111111, dto, type(dto)
             filename = dto.results_xml.name 
             if filename == "test_definition.xml":
                 self.test_definition_file_received = True
