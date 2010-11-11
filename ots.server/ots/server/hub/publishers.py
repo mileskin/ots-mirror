@@ -29,9 +29,13 @@ The Exception Handling is as defined by
 SWALLOW_EXCEPTIONS
 """
 
+#Python2.5 support
+from __future__ import with_statement
+
 import os
 import traceback
 import logging
+
 
 from ots.common.framework.api import PublisherPluginBase
 from ots.common.framework.api import plugins_iter

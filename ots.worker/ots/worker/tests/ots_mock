@@ -73,8 +73,6 @@ def _run_tests(test_definition_xml):
     """
     Executes the test steps from the test_definition_xml
     """
-    f = open("f", "w")
-    f.write(test_definition_xml)
     for step in _steps_iter(test_definition_xml):
         os.system(step)
 
