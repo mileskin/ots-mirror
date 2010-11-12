@@ -151,9 +151,13 @@ class Hub(object):
 
     def run(self):
         """
-        Start a Testrun and publish the data 
-        """    
+        Start a Testrun and publish the data
 
+        @rtype : C{bool}
+        @rparam : True if the Testrun passes otherwise False
+        """    
+        testrun_result = None
+        ret_val = False
         LOG.debug("Initialising Testrun")
         try:
             is_hw_enabled = bool(len(self.options.hw_packages))
@@ -176,3 +180,6 @@ class Hub(object):
             self.publishers.set_exception(sys.exc_info()[1])
 
         self.publishers.publish() 
+        if testrun_result:
+            ret_val = True
+        return ret_val

@@ -20,14 +20,32 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Component Test for XMLRPC server
 
-[ots.server.hub]
+Need to edit the ots.server.xmlrpc.server.py and set DEBUG=True
 
-#Timeout in minutes
-timeout = 30 
+and have the server running
 
-[ots.server.xmlrpc]
+python server.py
 
-host = localhost
-port = 8080
+"""
 
+import unittest
+
+import xmlrpclib 
+
+class TestXMLRPCServer(unittest.TestCase):
+
+    def test_server(self):
+        server = xmlrpclib.Server("http://localhost:8080/")
+        ret_val = server.request_sync("foo", 
+                                      111, 
+                                      ["foo", "bar"], 
+                                      {"image":"www"})
+        self.assertTrue(ret_val)
+
+if __name__ == "__main__":
+    unittest.main()
+
+    

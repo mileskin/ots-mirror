@@ -37,6 +37,19 @@ from ots.server.hub.api import get_application_id
 
 from ots.server.distributor.api import TaskRunner
 
+################################
+# HACKISH TESTING CAPABILITIES
+################################
+
+DEBUG = False
+
+if DEBUG:
+    from ots.server.hub.tests.component.mock_taskrunner import \
+                                       MockTaskRunnerResultsPass
+    
+###########################
+# OTS FORKING SERVER
+###########################
 
 class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
     pass
@@ -52,7 +65,7 @@ def _config():
     config = ConfigParser.ConfigParser()
     config.read(conf)       
     return config.get('ots.server.xmlrpc', 'host'), \
-           config.get('ots.server.xmlrpc', 'port')
+           int(config.get('ots.server.xmlrpc', 'port'))
 
 
 
@@ -79,10 +92,11 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
     @param options_dict: A dictionary of options
     """
     options_dict["notify_list"] = notify_list
-    hub = Hub(sw_product, request_id, options_dict)
-    hub.run()
-
-
+    hub = Hub(sw_product, request_id, **options_dict)
+    if DEBUG:
+        hub._taskrunner = MockTaskRunnerResultsPass()
+    return hub.run()
+    
 def main():
     """
     Top level script for XMLRPC interface
@@ -91,8 +105,7 @@ def main():
     server.register_function(request_sync)
     print "Starting OTS xmlrpc server..."
     print 
-    print "Using config file %s" % ots_config.__file__
-    print "Host: %s, Port: %s" % config
+    print "Host: %s, Port: %s" % _config()
     server.serve_forever()
 
 if __name__ == "__main__":

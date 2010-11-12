@@ -146,7 +146,7 @@ class Publishers(PublisherPluginBase):
         @type: C{Exception}
         @param: The Exception raised by the Testrun 
         """
-        list(self._delegator_iter("set_exception", set_exception))
+        list(self._delegator_iter("set_exception", exception))
         
     def set_results(self, results):
         """
@@ -185,4 +185,4 @@ class Publishers(PublisherPluginBase):
         """
         Publish the results of the Testrun
         """
-        list(self._delegator_iter("publish", packages))
+        list(self._delegator_iter("publish"))

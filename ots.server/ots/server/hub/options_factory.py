@@ -30,6 +30,9 @@ Safely create the Options API from a dictionary
 setting configurable defaults
 """ 
 
+class OptionsFactoryException(Exception):
+    pass
+
 ###############################
 # OPTIONS FACTORY 
 ###############################
@@ -140,4 +143,6 @@ class OptionsFactory(object):
         rtype : C{ots.server.hub.options.Options
         rparam : The Options
         """
+        if not self.core_options_dict.has_key("image"):
+            raise OptionsFactoryException("Missing `image` parameter")
         return Options(**self.core_options_dict)
