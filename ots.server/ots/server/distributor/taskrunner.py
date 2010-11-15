@@ -169,8 +169,17 @@ class TaskRunner(object):
         @type routing_key: C{routing_key}
         @param routing_key: AMQP routing_key (device group) 
  
-        @type testrun id: C{int}
-        @param testrun id: The testrun id
+        @type testrun_id: C{int}
+        @param testrun_id: The testrun id
+
+        @type timeout: C{int}
+        @param timeout: global timeout
+
+        @type queue_timeout: C{int}
+        @param timeout: queue timeout
+
+        @type preparation_timeout: C{int}
+        @param timeout: preparation timeout
         """
         #AMQP configuration
         self._username = username
