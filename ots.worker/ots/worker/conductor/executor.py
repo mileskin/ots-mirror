@@ -599,7 +599,7 @@ class Executor(object):
             except (SoftTimeoutException, HardTimeoutException), e:
                 # testrunner-lite killed by timeout, we need to collect
                 # files, so we don't want to raise ConductorError
-                self.log.error("Testrunner timed out during execution %s" % e)
+                self.log.error("Testrunner timed out during execution of %s" % e)
                 ret_value = False
             except CommandFailed:
                 self._testrunner_lite_error_handler(cmdstr, cmd.return_value)
