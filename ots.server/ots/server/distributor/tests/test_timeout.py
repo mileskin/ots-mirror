@@ -55,7 +55,7 @@ class TestTimeout(unittest.TestCase):
 
     def test_global_timeout_raised(self):
         def run(): # A dummy timeouting function
-            time.sleep(3)
+            time.sleep(4)
         queue_timeout = 1
         global_timeout = 1
         preparation_timeout = 1
