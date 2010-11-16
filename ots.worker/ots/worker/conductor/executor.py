@@ -227,7 +227,7 @@ class Executor(object):
 
                 # Break out if timer has expired ...
                 if not testrun_status:
-                    error_info = "Execution of test package %s timed out" \
+                    error_info = "Timeout while executing test package %s" \
                                  % test_package
                     errors = self._testrun_error_handler(errors, error_info, \
                                                          "1091")
