@@ -57,14 +57,17 @@ class Options(object):
     """
 
     def __init__(self, image, packages = None, plan = None,hosttest = None,
-                       device = None, emmc = None, distribution_model = None,
-                       flasher = None, testfilter = None):
+                 device = None, emmc = None, distribution_model = None,
+                 flasher = None, testfilter = None, email = None,
+                 email_attachments = None, timeout = None, input_plugin = None):
         """
         @type: C{image}
         @param: The image url
 
 
-        """  
+        """
+        # TODO: Add email, timeout and input plugin functionality
+        
         self._image = image
         if packages is None:
             packages = []

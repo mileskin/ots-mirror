@@ -21,8 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 import os
-import yaml
-
+import configobj
+from ots.server.server_config_filename import server_config_filename
 from ots.server.hub.options import Options 
 
 """
@@ -61,6 +61,20 @@ class OptionsFactory(object):
     #####################################
 
     @staticmethod
+    def _sanitise_options(options_dict):
+        """
+        sanitises the options dict (hyphens aren't Python friendly)
+
+        @type options_dict : C{dict} or None
+        @param options_dict : The dictionary of options
+
+        @rtype: C{dict} or None
+        @returns: The dictionary of options with "-" replaced by "_"
+        """
+        return dict([(k.replace("-","_"), v) for k,v in options_dict.items()])
+                    
+
+    @staticmethod
     def _default_options_dict(sw_product):
         """
         @type sw_product : C{str}
@@ -74,10 +88,11 @@ class OptionsFactory(object):
         #FIXME: This provides the expected interface
         #the implementation requires design decisions
         #to make the extensibility consistent
-        dirname = os.path.dirname(os.path.abspath(__file__))
-        file = os.path.join(dirname, "options_defaults.yaml")
-        all_defaults_options_dict = yaml.load(open(file, "r"))
-        return all_defaults_options_dict.get(sw_product, {})
+        conf = server_config_filename()
+        config = configobj.ConfigObj(conf).get('swproducts')
+        # TODO: "Unknown sw product exception" should be raised if config file
+        #       does not have values for sw_product
+        return config.get(sw_product, {}) 
 
     #######################################
     # PROPERTIES
@@ -125,11 +140,11 @@ class OptionsFactory(object):
                           if key in self._options_dict)
 
         #sanitise the dict (hyphens aren't Python friendly)
-        sanitised_options_dict = dict([(k.replace("-","_"), v) 
-                                       for k,v in core_options_dict.items()])
+        sanitised_options_dict = self._sanitise_options(core_options_dict)
         #Get the defaults for the sw product
-        merged_options_dict = self._default_options_dict(self._sw_product)
-        #
+        defaults = self._default_options_dict(self._sw_product)
+        merged_options_dict = self._sanitise_options(defaults)
+
         merged_options_dict.update(sanitised_options_dict)
 
         return merged_options_dict
