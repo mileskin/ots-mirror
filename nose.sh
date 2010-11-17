@@ -45,3 +45,13 @@ nosetests ots.server/ots/server/hub/tests/test_* -e testrun
 #ots.worker
 #############
 nosetests ots.worker/ots/worker/tests/test_*
+
+###################
+#ots.email_plugin
+###################
+nosetests ots.email_plugin/ots/email_plugin/tests/test_*
+
+##############
+#ots.results
+##############
+nosetests ots.results/ots/results/tests/test_*
