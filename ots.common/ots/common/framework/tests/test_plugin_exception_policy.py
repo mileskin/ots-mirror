@@ -20,8 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+from __future__ import with_statement
 import unittest
-
 from ots.common.framework.plugin_exception_policy import plugin_exception_policy
 
 class TestPluginExceptionPolicy(unittest.TestCase):
