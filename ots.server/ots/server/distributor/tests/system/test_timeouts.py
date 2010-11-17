@@ -86,14 +86,15 @@ class TestTimeouts(unittest.TestCase):
                              timeout = 1,
                              testrun_id = self.testrun_id,
                              config_file = self._distributor_config_filename())
-        command = ["sleep", "10"]
+
+        command = ["timeout_mock", "package", str(self.testrun_id)]
 
         taskrunner.add_task(command)
         self.cb_called = False
         def cb_handler(signal, **kwargs):
             self.cb_called = True
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
+            self.assertEquals(kwargs['error_code'], "1091")
+            self.assertTrue('Timeout while executing test package' in kwargs['error_info'])
             self.assertEquals(kwargs['sender'], 'TaskRunner')
 
         ERROR_SIGNAL.connect(cb_handler) 
@@ -121,15 +122,15 @@ class TestTimeouts(unittest.TestCase):
                              testrun_id = self.testrun_id,
                              config_file = self._distributor_config_filename())
 
-        command = ["sleep", "10"]
+        command = ["timeout_mock", "package", str(self.testrun_id)]
 
         taskrunner.add_task(command)
         taskrunner.add_task(command)
         self.cb_called = 0
         def cb_handler(signal, **kwargs):
             self.cb_called += 1
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
+            self.assertEquals(kwargs['error_code'], "1091")
+            self.assertTrue('Timeout while executing test package' in kwargs['error_info'])
             self.assertEquals(kwargs['sender'], 'TaskRunner')
 
         ERROR_SIGNAL.connect(cb_handler) 
@@ -157,15 +158,15 @@ class TestTimeouts(unittest.TestCase):
                              timeout = 1,
                              testrun_id = self.testrun_id,
                              config_file = self._distributor_config_filename())
-        command = ["sleep", "10"]
+        command = ["timeout_mock", "package", str(self.testrun_id)]
         taskrunner.add_task(command)
         command = ["echo"]
         taskrunner.add_task(command)
         self.cb_called = 0
         def cb_handler(signal, **kwargs):
             self.cb_called += 1
-            self.assertEquals(kwargs['error_code'], "6001")
-            self.assertTrue('Global timeout' in kwargs['error_info'])
+            self.assertEquals(kwargs['error_code'], "1091")
+            self.assertTrue('Timeout while executing test package' in kwargs['error_info'])
             self.assertEquals(kwargs['sender'], 'TaskRunner')
 
         ERROR_SIGNAL.connect(cb_handler) 

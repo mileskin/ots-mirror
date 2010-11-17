@@ -22,11 +22,13 @@
 
 """Ots TA Engine plugin"""
 from ots.common.interfaces.taengine import TAEngine
-from ots.server.conductorengine.default_distribution_models import perpackage_distribution
-from ots.server.conductorengine.default_distribution_models import single_task_distribution
+from ots.server.conductorengine.default_distribution_models \
+     import perpackage_distribution
+from ots.server.conductorengine.default_distribution_models \
+     import single_task_distribution
 from ots.common.routing.routing import get_routing_key
 from ots.server.distributor.api import OtsQueueDoesNotExistError, \
-    OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
+     OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
 from ots.server.distributor.api import taskrunner_factory
 from ots.server.distributor.api import RESULTS_SIGNAL
 from ots.server.distributor.api import STATUS_SIGNAL
@@ -150,6 +152,7 @@ class ConductorEngine(TAEngine):
                              self._testrun_id,
                              self._storage_address,
                              self._test_filter,
+                             self._timeout,
                              self._flasher,
                              self._custom_distribution_models)
         
@@ -207,6 +210,7 @@ def _get_commands(distribution_model,
                   testrun_id, 
                   storage_address, 
                   test_filter,
+                  timeout,
                   flasher="",
                   custom_distribution_models = []):
     """Returns a list of conductor commands based on the options"""
@@ -218,6 +222,7 @@ def _get_commands(distribution_model,
     options['storage_address'] = storage_address
     options['testfilter'] = test_filter
     options['flasherurl'] = flasher
+    options['timeout'] = str(timeout)
 
     cmds = []
 

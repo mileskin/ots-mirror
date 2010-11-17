@@ -107,6 +107,10 @@ def _parse_command_line(args):
                     default=False,
                     help="Enable verbosity to debug")
 
+    parser.add_option("-m", "--timeout", dest="timeout", action="store",
+                    default="0",
+                    help="Enable global timeout for testruns")
+
     parser.add_option("--dontflash", dest="dontflash", action="store_true", 
                     default=False,
                     help="Do not set up target. Skips image/rootstrap "\
@@ -258,7 +262,9 @@ def _read_optional_config_files(custom_folder, config_dict):
     """
     Reads all .conf files from specified directory
     """
+
     log = logging.getLogger("conductor")
+
     try:
         contents = os.listdir(custom_folder)
     except (OSError, IOError), e:
@@ -337,10 +343,15 @@ def main():
     config = _read_configuration_files(options.config_file)
 
     try:
+        timeout = float(options.timeout)
         testrun = TestRunData(options, config)
-        executor = Executor(testrun, stand_alone, responseclient, gethostname())
+        executor = Executor(testrun, stand_alone, responseclient, \
+                            gethostname(), timeout)
         executor.set_target()
-    except:
+    except ValueError, e:
+        log.error("Error: %s" % e)
+        sys.exit(1)
+    except Exception:
         log.error("Unknown error while creating test!")
         log.error("Traceback follows:", exc_info=True)
         sys.exit(1)

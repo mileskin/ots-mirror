@@ -144,8 +144,9 @@ class TaskRunner(object):
     """
 
     def __init__(self, username, password, host, vhost, 
-                 services_exchange, port, 
-                 routing_key, testrun_id, timeout, queue_timeout):
+                 services_exchange, port, routing_key,
+                 testrun_id, timeout, queue_timeout,
+                 preparation_timeout):
         """
         @type username: C{str}
         @param username: AMQP username 
@@ -168,8 +169,17 @@ class TaskRunner(object):
         @type routing_key: C{routing_key}
         @param routing_key: AMQP routing_key (device group) 
  
-        @type testrun id: C{int}
-        @param testrun id: The testrun id
+        @type testrun_id: C{int}
+        @param testrun_id: The testrun id
+
+        @type timeout: C{int}
+        @param timeout: global timeout
+
+        @type queue_timeout: C{int}
+        @param timeout: queue timeout
+
+        @type preparation_timeout: C{int}
+        @param timeout: preparation timeout
         """
         #AMQP configuration
         self._username = username
@@ -190,8 +200,10 @@ class TaskRunner(object):
         #timeouts
         self._timeout = timeout
         self._queue_timeout = queue_timeout
+        self._preparation_timeout = preparation_timeout
 
-        self.timeout_handler = Timeout(timeout, queue_timeout)
+        self.timeout_handler = Timeout(timeout, queue_timeout, \
+                                       preparation_timeout)
 
 
         # Tells if we are running only a single task
@@ -229,7 +241,7 @@ class TaskRunner(object):
                 if msg == 'started':
                     task = self._tasks[0]
                     status = OTSProtocol.STATE_TASK_STARTED
-                    self.timeout_handler.task_started(single_task = True)
+                    self.timeout_handler.task_started()
                     task.transition(status)
                     return 
 

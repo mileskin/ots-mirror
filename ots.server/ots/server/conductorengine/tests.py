@@ -117,9 +117,9 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_conductor_command_without_testpackages(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"" }
+                   'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
-                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo']
+                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '30']
 
         result = conductor_command(options,
                                    host_testing = False)
@@ -129,10 +129,10 @@ class TestHardwareTestRunner(unittest.TestCase):
     def test_conductor_command_with_emmc_flash(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"Gordon", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"" }
+                   'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
-                    '-i', '1', '-c', 'foo']
+                    '-i', '1', '-c', 'foo', '-m', '30']
 
         result = conductor_command(options, 
                                    host_testing = False)
@@ -142,12 +142,13 @@ class TestHardwareTestRunner(unittest.TestCase):
 
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"asdfasdf/asdf", 'test_packages':"" }
+                   'flasherurl':"asdfasdf/asdf", 'test_packages':"", 
+                   'timeout':"30" }
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
-                    '--flasherurl', "asdfasdf/asdf"]
+                    '--flasherurl', "asdfasdf/asdf", '-m', '30']
 
         result = conductor_command(options, 
                                    host_testing = False)
@@ -157,13 +158,14 @@ class TestHardwareTestRunner(unittest.TestCase):
 
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests" }
+                   'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
+                   'timeout':"30" }
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf",
-                    "-t", "my-tests"]
+                    "-t", "my-tests", '-m', '30']
 
         result = conductor_command(options, 
                                    host_testing = False)
@@ -181,12 +183,13 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
 
 
         expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz"]]
+                          '-t', "foo,bar,baz", '-m', '30']]
         
         cmds = _get_commands(distribution_model, 
                             image_url, 
@@ -194,7 +197,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                             emmc_flash_parameter,
                             testrun_id,
                             storage_address,
-                            test_filter)
+                            test_filter,
+                            timeout)
         
         self.assertEquals(cmds, expected_cmds)
 
@@ -213,7 +217,8 @@ class TestHardwareTestRunner(unittest.TestCase):
         emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
-        test_filter = "-testsuite=testrunner-tests"  
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "60"
 
 
         expected_cmds = ["asdf"]
@@ -225,6 +230,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                             testrun_id,
                             storage_address,
                             test_filter,
+                            timeout,
                             custom_distribution_models =\
                              [("custom1", custom_model1)])
         
@@ -241,11 +247,12 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "20"
 
 
         expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin', 
-                          '-f', '-testsuite=testrunner-tests']]
+                          '-f', '-testsuite=testrunner-tests', '-m', '20']]
         
         cmds = _get_commands(distribution_model, 
                             image_url, 
@@ -253,7 +260,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                             emmc_flash_parameter,
                             testrun_id,
                             storage_address,
-                            test_filter)
+                            test_filter,
+                            timeout)
         
         self.assertEquals(cmds, expected_cmds)
 
@@ -265,7 +273,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmds = [['conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz",
+                          '-t', "foo,bar,baz", '-m', '20',
                           '-o']]
 
 
@@ -275,7 +283,8 @@ class TestHardwareTestRunner(unittest.TestCase):
         emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
-        test_filter = "-testsuite=testrunner-tests"  
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "20"
 
         cmds = _get_commands(distribution_model, 
                             image_url, 
@@ -283,7 +292,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                             emmc_flash_parameter,
                             testrun_id,
                             storage_address,
-                            test_filter)
+                            test_filter,
+                            timeout)
         
         self.assertEquals(cmds, expected_cmds)
 
@@ -295,12 +305,12 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmds = [['conductor', 
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz",
+                          '-t', "foo,bar,baz", '-m', '20',
                           ';',
                           'conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz",
+                          '-t', "foo,bar,baz", '-m', '20',
                           '-o']]
 
 
@@ -311,6 +321,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "20"
 
         cmds = _get_commands(distribution_model, 
                             image_url, 
@@ -318,7 +329,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                             emmc_flash_parameter,
                             testrun_id,
                             storage_address,
-                            test_filter)
+                            test_filter,
+                            timeout)
         
         self.assertEquals(cmds, expected_cmds)
 
@@ -331,13 +343,13 @@ class TestHardwareTestRunner(unittest.TestCase):
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
                           '--flasherurl', "asdfasdf/asdf",
-                          '-t', "foo,bar,baz",
+                          '-t', "foo,bar,baz", '-m', '60',
                           ';',
                           'conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '--flasherurl', "asdfasdf/asdf",
-                          '-t', "foo,bar,baz",
+                          '-t', "foo,bar,baz", '-m', '60',
                           '-o']]
 
 
@@ -348,6 +360,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "60"
         flasher = "asdfasdf/asdf"
 
         cmds = _get_commands(distribution_model, 
@@ -357,6 +370,7 @@ class TestHardwareTestRunner(unittest.TestCase):
                             testrun_id,
                             storage_address,
                             test_filter,
+                            timeout,
                             flasher)
         
         self.assertEquals(cmds, expected_cmds)
@@ -369,11 +383,11 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "foo"]
+                        '-t', "foo", '-m', '30']
         expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "bar"]
+                        '-t', "bar", '-m', '30']
 
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
@@ -382,6 +396,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
 
         commands = _get_commands(distribution_model, 
                                 image_url, 
@@ -389,7 +404,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
-                                test_filter)
+                                test_filter,
+                                timeout)
 
 
 
@@ -406,7 +422,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "foo"]
+                        '-t', "foo", '-m', '30']
 
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
@@ -415,6 +431,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
 
         commands = _get_commands(distribution_model, 
                                 image_url, 
@@ -422,7 +439,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
-                                test_filter)
+                                test_filter,
+                                timeout)
 
 
 
@@ -436,12 +454,12 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "foo", 
+                        '-t', "foo", '-m', '30',
                         '-o']
         expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "bar",
+                        '-t', "bar", '-m', '30',
                         '-o']
 
         distribution_model = "perpackage"
@@ -451,13 +469,15 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
         commands = _get_commands(distribution_model, 
                                 image_url, 
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
-                                test_filter)
+                                test_filter,
+                                timeout)
         
         self.assertEquals(len(commands), 2)
         self.assertEquals(commands[0], expected_cmd_1)
@@ -470,20 +490,20 @@ class TestHardwareTestRunner(unittest.TestCase):
         expected_cmd_1 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "foo"]
+                        '-t', "foo", '-m', '10']
         expected_cmd_2 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "bar"]
+                        '-t', "bar", '-m', '10']
         expected_cmd_3 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "baz",
+                        '-t', "baz", '-m', '10',
                         '-o']
         expected_cmd_4 = ['conductor', 
                         '-u', 'http://image/url/image.bin', 
                         '-f', '-testsuite=testrunner-tests',
-                        '-t', "yaz",
+                        '-t', "yaz", '-m', '10',
                         '-o']
 
         distribution_model = "perpackage"
@@ -491,7 +511,8 @@ class TestHardwareTestRunner(unittest.TestCase):
         test_list = {'device':"foo,bar",'host':"baz,yaz"}
         emmc_flash_parameter = "" 
         testrun_id = "" 
-        storage_address = "" 
+        storage_address = ""
+        timeout = "10"
         test_filter = "-testsuite=testrunner-tests"  
         commands = _get_commands(distribution_model, 
                                 image_url, 
@@ -499,7 +520,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
-                                test_filter)
+                                test_filter,
+                                timeout)
 
         self.assertEquals(len(commands), 4)
         self.assertEquals(commands[0], expected_cmd_1)
@@ -518,6 +540,7 @@ class TestHardwareTestRunner(unittest.TestCase):
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
+        timeout = "30"
         self.assertRaises(ValueError,
                           _get_commands,
                           distribution_model, 
@@ -526,7 +549,8 @@ class TestHardwareTestRunner(unittest.TestCase):
                           emmc_flash_parameter,
                           testrun_id,
                           storage_address,
-                          test_filter)
+                          test_filter,
+                          timeout)
 
 
 
@@ -585,7 +609,7 @@ class TestConductorEngine(unittest.TestCase):
                           '-c', 'host:port',
                           '-f', '"\'blah\'"',
                           '--flasherurl', 'asdf/asdfasdf',
-                          '-t', '1,2,3',
+                          '-t', '1,2,3', '-m', '3600',
                           ';',
                           'conductor',
                           '-u', 'www.nokia.com',
@@ -594,7 +618,7 @@ class TestConductorEngine(unittest.TestCase):
                           '-c', 'host:port',
                           '-f', '"\'blah\'"',
                           '--flasherurl', 'asdf/asdfasdf',
-                          '-t', '4,5,6',
+                          '-t', '4,5,6', '-m', '3600',
                           '-o']]
         self.assertEquals(taskrunner.tasks, expected_tasks)
         self.assertEquals(taskrunner.executed, True)

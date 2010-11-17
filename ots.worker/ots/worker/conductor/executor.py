@@ -50,6 +50,8 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
 
 from conductorerror import ConductorError
 
+WAIT_SIGKILL = 5
+
 class TestRunData(object):
     """
     TestRunData analyzes build request specific information from url and 
@@ -129,14 +131,16 @@ class Executor(object):
     """Test executor"""
 
     def __init__(self, testrun, stand_alone, responseclient = None, 
-                 hostname = "unknown"):
+                 hostname = "unknown", testrun_timeout = 0):
 
         self.log = logging.getLogger("conductor")
         self.testrun = testrun
         self.stand_alone = stand_alone
         self.config = testrun.config
         self.responseclient = responseclient
-        self.hostname = hostname 
+        self.hostname = hostname
+        self.testrun_timeout = testrun_timeout
+        
 
         self.target = None #Test target object. Implements its own __str__().
         self.env = None    #Test environment name. String.
@@ -193,25 +197,45 @@ class Executor(object):
         self._fetch_environment_details()
 
         errors = 0
+        if self.testrun_timeout:
+            self.log.info("Testrun timeout set to %s seconds" % \
+                          int(self.testrun_timeout))
+        else:
+            self.log.info("Testrun timeout not specified")
+
+        start_time = time.time()
+
         for test_package in self.testrun.test_packages:
 
-            self.log.info("Beginning to execute test package: %s" %test_package)
-
+            self.log.info("Beginning to execute test package: %s" \
+                          % test_package)
             try:
                 self._set_paths(test_package)
                 self._create_result_folders()
                 self._install_package(test_package)
                 self._fetch_test_definition(test_package)
                 self._set_status("TESTING", test_package)
-                self._run_tests(test_package)
+     
+                # Press the timer button
+                time_current = time.time()
+                testrun_status = self._run_tests(test_package, start_time, \
+                                                 time_current)
                 self._set_status("STORING_RESULTS", test_package)
                 self._store_result_files(self.testrun.results_target_dir, 
                                          test_package)
                 self._remove_package(test_package)
 
+                # Break out if timer has expired ...
+                if not testrun_status:
+                    error_info = "Timeout while executing test package %s" \
+                                 % test_package
+                    errors = self._testrun_error_handler(errors, error_info, \
+                                                         "1091")
+                    break
+
             except ConductorError, exc:
-                self._test_execution_error_handler(exc)
-                errors += 1
+                errors = self._testrun_error_handler(errors, exc.error_info, \
+                                                     exc.error_code)
 
             self.log.info("Finished executing test package: %s" % test_package)
 
@@ -221,6 +245,11 @@ class Executor(object):
         self._include_testrun_log_file()
 
         return errors
+
+
+    def _testrun_error_handler(self, errors, error_info, error_code):
+        self._test_execution_error_handler(error_info, error_code)
+        return errors + 1   
 
 
     def _include_testrun_log_file(self):
@@ -238,13 +267,14 @@ class Executor(object):
         return 0
 
 
-    def _test_execution_error_handler(self, exc):
+    def _test_execution_error_handler(self, error_info, error_code):
         """
-        Handler for ConductorError exceptions raised during test execution.
+        Handler for testrun timed out errors and ConductorError exceptions
+        that are raised during test execution.
         """
-        self.log.error("Test execution error: %s " % exc.error_info)
+        self.log.error("Test execution error: %s " % error_info)
         if not self.stand_alone:
-            self.responseclient.set_error(exc.error_info, exc.error_code)
+            self.responseclient.set_error(error_info, error_code)
 
 
     def _create_testrun_folder(self):
@@ -538,31 +568,51 @@ class Executor(object):
                                     test_package)
 
 
-    def _run_tests(self, test_package):
+    def _run_tests(self, test_package, start_time, time_current):
         """
         Runs tests in hardware or at host.
         Writes two files (for stderr and stdout) in folder testrun.base_dir
         """
 
+        ret_value = True
         self.log.info("Running tests in %s..." % test_package)
 
         file_stdout = "%s_testrunner_stdout.txt" % test_package
         file_stderr = "%s_testrunner_stderr.txt" % test_package
         path_stdout = os.path.join(self.testrun.base_dir, file_stdout)
         path_stderr = os.path.join(self.testrun.base_dir, file_stderr)
-
         cmdstr = self._get_command_for_testrunner()
-        self.log.info("Testrunner-lite command: %s" % cmdstr)
-        cmd = Command(cmdstr) #no timeout
-        try:
-            cmd.execute()
-        except CommandFailed:
-            self._testrunner_lite_error_handler(cmdstr, cmd.return_value)
-        finally:
-            self._create_new_file(path_stdout, cmd.stdout)
-            self._create_new_file(path_stderr, cmd.stderr)
-            self._store_result_file(path_stdout, test_package)
-            self._store_result_file(path_stderr, test_package)
+
+        # Update global testrunner timer
+        current_timeout = self.testrun_timeout - \
+                          (time_current - start_time)
+
+        if not self.testrun_timeout or current_timeout > 0:
+            self.log.info("Testrunner-lite command: %s" % cmdstr)
+            if not self.testrun_timeout:
+                cmd = Command(cmdstr)
+            else:                  
+                cmd = Command(cmdstr, soft_timeout=current_timeout, hard_timeout=\
+                              current_timeout + WAIT_SIGKILL)
+            try:
+                cmd.execute()
+            except (SoftTimeoutException, HardTimeoutException), e:
+                # testrunner-lite killed by timeout, we need to collect
+                # files, so we don't want to raise ConductorError
+                self.log.error("Testrunner timed out during execution of %s" % e)
+                ret_value = False
+            except CommandFailed:
+                self._testrunner_lite_error_handler(cmdstr, cmd.return_value)
+            finally:
+                self._create_new_file(path_stdout, cmd.stdout)
+                self._create_new_file(path_stderr, cmd.stderr)
+                self._store_result_file(path_stdout, test_package)
+                self._store_result_file(path_stderr, test_package)
+        else:
+            self.log.warning("Testrun timed out while not executing tests")
+            ret_value = False
+
+        return ret_value
 
 
     def _testrunner_lite_error_handler(self, cmdstr, return_value):
@@ -609,8 +659,6 @@ class Executor(object):
 
         cmdstr = self._get_command_to_copy_results()
         self._default_ssh_command_executor(cmdstr, task)
-
-
 
     
     def _define_test_packages(self):

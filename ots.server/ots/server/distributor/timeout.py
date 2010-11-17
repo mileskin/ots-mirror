@@ -41,7 +41,7 @@ class Timeout(object):
     """
 
 
-    def __init__(self, global_timeout, queue_timeout):
+    def __init__(self, global_timeout, queue_timeout, preparation_timeout):
         """
  
         @type global_timeout C{int} 
@@ -53,6 +53,7 @@ class Timeout(object):
         """
         self.queue_timeout = queue_timeout
         self.global_timeout = global_timeout
+        self.preparation_timeout = preparation_timeout
 
     def __del__(self):
         self.stop()
@@ -81,7 +82,7 @@ class Timeout(object):
         signal.signal(signal.SIGALRM, queue_timeout_handler)
         signal.alarm(self.queue_timeout)
 
-    def task_started(self, single_task = False):
+    def task_started(self):
         """sets timeout. Previous timeout will be overwritten."""
         def global_timeout_handler(signum, frame):
             """
@@ -96,10 +97,8 @@ class Timeout(object):
             LOGGER.error("Global timeout (server side)")
             raise OtsGlobalTimeoutError
 
-        if not single_task:
-            timeout = self._calculate_new_timeout()
-        else:
-            timeout = self.global_timeout
+        # Use calculate_new_timeout for every task
+        timeout = self._calculate_new_timeout()
         LOGGER.info("Setting server side global timeout to %s minutes" \
                           % (timeout/60))
         signal.signal(signal.SIGALRM, global_timeout_handler)
@@ -121,4 +120,5 @@ class Timeout(object):
         global timeout is only a final safety mechanism if for example network
         connection to worker is permanently lost.
         """
-        return self.queue_timeout + self.global_timeout
+        return self.queue_timeout + self.global_timeout + \
+               self.preparation_timeout

@@ -1,0 +1,59 @@
+#!/usr/bin/python
+
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+
+"""
+Mock for OTS Core timeout tests
+
+Mocks out conductor. Sends timeout error message to amqp and exits.
+"""
+import sys
+
+from ots.worker.responseclient import ResponseClient
+
+HOST = "localhost"
+    
+def main(package, testrun_id):
+    """
+    Unpacks the 'package'. Run the tests
+    Feed the results file and the test definition file back 
+    
+    @type package: C{string}
+    @param package: The fully qualified name of the package 
+                   (a zipfile for demo purposes) 
+    
+    @type testrun_id: C{int} 
+    @param testrun_id: The id of the testrun    
+    """
+    print package, testrun_id
+    error_info = "Timeout while executing test package %s" \
+                 % package
+    error_code = "1091"
+    testrun_id = int(testrun_id)    
+    response_client = ResponseClient(HOST, testrun_id)
+    response_client.connect()
+    response_client.set_error(error_info, error_code)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2])

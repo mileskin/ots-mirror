@@ -60,6 +60,7 @@ STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
 TASK_STATE_RESPONSES = [OTSProtocol.STATE_TASK_STARTED,
                         OTSProtocol.STATE_TASK_FINISHED]
 
+
 class NotConnectedError(Exception):
     """Exception raised if not connected to amqp"""
     pass
@@ -68,7 +69,7 @@ class NotConnectedError(Exception):
 # Command Class to Function
 ########################################
 
-def _start_process(command, timeout):
+def _start_process(command):
     """
     Starts the specified process
 
@@ -78,10 +79,7 @@ def _start_process(command, timeout):
     @type timeout: int
     @param timeout: The timeout to apply to the Task
     """
-    task = Command(command, 
-                   soft_timeout=timeout,
-                   hard_timeout=timeout + 5)
-
+    task = Command(command)
     task.execute()
 
 
@@ -202,16 +200,7 @@ class TaskBroker(object):
         self._publish_task_state_change(task_id, response_queue)
 
         try:
-            self._dispatch(command, timeout)
-
-        except (HardTimeoutException, SoftTimeoutException):
-            LOGGER.error("Process timed out")
-            error_info = "Global timeout"
-            error_code = "6001"
-            self._publish_error_message(task_id,
-                                        response_queue,
-                                        error_info,
-                                        error_code)
+            self._dispatch(command)
 
         except (CommandFailed):
             LOGGER.error("Process failed")
@@ -228,7 +217,7 @@ class TaskBroker(object):
 
             self._consume()
 
-    def _dispatch(self, command, timeout):
+    def _dispatch(self, command):
         """
         Dispatch the Task. Currently as a Process (Blocking)
                 
@@ -243,7 +232,7 @@ class TaskBroker(object):
         elif not command == OTSProtocol.COMMAND_IGNORE:
 
             LOGGER.debug("Running command: '%s'"%(command))
-            _start_process(command = command, timeout = timeout)
+            _start_process(command = command)
 
     #######################################
     # HELPERS

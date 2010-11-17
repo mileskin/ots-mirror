@@ -97,7 +97,7 @@ class TestTaskBroker(unittest.TestCase):
         for queue in queues:
             channel.queue_delete(queue = queue, nowait = True)
 
-    def create_task_broker(self, dispatch_func=None):
+    def create_task_broker(self, dispatch_func=None, enable_task_timeout=False):
         connection = Connection(vhost = "/",
                                 host = "localhost",
                                 port = 5672,
@@ -338,7 +338,7 @@ class TestTaskBroker(unittest.TestCase):
         #send a sleep command
         msg1 = self.create_message('sleep 2', 1, 'test', 1)
 
-        task_broker = self.create_task_broker()
+        task_broker = self.create_task_broker(enable_task_timeout=True)
         channel = task_broker.channel
         # Send timeouting command
 
@@ -352,22 +352,22 @@ class TestTaskBroker(unittest.TestCase):
         channel.wait()
         time.sleep(3)
 	# We should have state change messages + timeout msg
-        self.assertEquals(queue_size(), 3)
+        self.assertEquals(queue_size(), 2)
 
 
     def test_dispatch(self):
         task_broker = self.create_task_broker()
         channel = task_broker.channel
         # Try to keep under timeouts
-        self.assertFalse(task_broker._dispatch(OTSProtocol.COMMAND_IGNORE, 1))
-        self.assertFalse(task_broker._dispatch(OTSProtocol.COMMAND_QUIT, 1))
-        self.assertFalse(task_broker._dispatch("ls -al", 1))
+        self.assertFalse(task_broker._dispatch(OTSProtocol.COMMAND_IGNORE))
+        self.assertFalse(task_broker._dispatch(OTSProtocol.COMMAND_QUIT))
+        self.assertFalse(task_broker._dispatch("ls -al"))
 
-    def test_dispatch_timeout(self):
+    def test_dispatch_without_timeout(self):
         task_broker = self.create_task_broker()
         channel = task_broker.channel
-        # Try to keep under timeouts
-        self.assertRaises(SoftTimeoutException, task_broker._dispatch, "sleep 2", 1)
+        # Timeout value is not used, when enable_task_timeout is set to False
+        task_broker._dispatch("sleep 2")
 
     def test_dispatch_failing_command(self):
         task_broker = self.create_task_broker()
@@ -375,9 +375,7 @@ class TestTaskBroker(unittest.TestCase):
         # Try to keep under timeouts
         self.assertRaises(CommandFailed,
                           task_broker._dispatch,
-                          "cat /not/existing/file",
-                          1)
-
+                          "cat /not/existing/file")
 
     def test_publish_task_state_change(self):
         task_broker = self.create_task_broker()

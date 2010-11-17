@@ -73,6 +73,8 @@ def taskrunner_factory(device_group,
                             testrun_id = testrun_id,
                             timeout = timeout,
                             queue_timeout = config.getint("Client", 
-                                                          "timeout_task_start"))
+                                                         "timeout_task_start"),
+                            preparation_timeout = config.getint("Client",
+                                                     "timeout_for_preparation"))
     return taskrunner
 

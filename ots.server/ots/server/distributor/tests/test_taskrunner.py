@@ -51,7 +51,7 @@ class TestTaskRunner(unittest.TestCase):
     def setUp(self):
         self.taskrunner = TaskRunner("guest", "guest", "localhost",
                                      "/", "ots", 5672, "test_taskrunner", 
-                                     1, 60, 1)
+                                     1, 60, 1, 1)
         self.connection = amqp.Connection(host = "localhost", 
                                           userid = "guest",
                                           password = "guest",
@@ -190,7 +190,7 @@ class TestTimeoutScenarios(unittest.TestCase):
 
         taskrunner = TaskRunner("guest", "guest", "localhost",
                                 "/", "ots", 5672, "test_taskrunner", 
-                                1, 1, 1)
+                                1, 1, 1, 1)
 
         _init_queue(self.channel, 
                     "test_taskrunner", 
@@ -208,7 +208,7 @@ class TestTimeoutScenarios(unittest.TestCase):
         # and very short global timeout to get hit after task started
         taskrunner = TaskRunner("guest", "guest", "localhost",
                                 "/", "ots", 5672, "test_taskrunner", 
-                                1, 1, 1)
+                                1, 1, 1, 1)
 
         _init_queue(self.channel, 
                     "test_taskrunner", 
@@ -247,7 +247,7 @@ class TestQueueDoesnotExist(unittest.TestCase):
     def setUp(self):
         self.taskrunner = TaskRunner("guest", "guest", "localhost",
                                      "/", "ots", 5672, "NONEXISTING_QUEUE",
-                                     1, 60, 1)
+                                     1, 60, 1, 1)
         self.connection = amqp.Connection(host = "localhost", 
                                           userid = "guest",
                                           password = "guest",
@@ -295,7 +295,7 @@ class TestBackwardCompatibility(unittest.TestCase):
     def test_task_handling(self):
         taskrunner = TaskRunner("guest", "guest", "localhost",
                                 "/", "ots", 5672, "test_taskrunner", 
-                                1, 5, 5)
+                                1, 5, 5, 5)
 
         _init_queue(self.channel, 
                     "test_taskrunner", 
@@ -332,9 +332,11 @@ class TestBackwardCompatibility(unittest.TestCase):
     def test_global_timeout(self):
         global_timeout = 2
         queue_timeout = 10
+        preparation_timeout = 2
         taskrunner = TaskRunner("guest", "guest", "localhost",
                                 "/", "ots", 5672, "test_taskrunner", 
-                                1, global_timeout, queue_timeout)
+                                1, global_timeout, queue_timeout,
+                                preparation_timeout)
 
         _init_queue(self.channel, 
                     "test_taskrunner", 
@@ -361,10 +363,9 @@ class TestBackwardCompatibility(unittest.TestCase):
         self.assertRaises(OtsGlobalTimeoutError, taskrunner.run)
         time_after_run = time.time()
         duration = time_after_run - time_before_run
-        
-        # In backward compatibility mode timeout is global timeout and not
-        # global_timeout + queue_timeout
-        self.assertTrue(duration < global_timeout+queue_timeout)
+       
+        self.assertTrue(round(duration) == global_timeout+\
+                        queue_timeout+preparation_timeout)
 
     def _publish_message(self, response_queue, state):
 

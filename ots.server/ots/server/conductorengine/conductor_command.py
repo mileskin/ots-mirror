@@ -55,9 +55,11 @@ def conductor_command(options, host_testing):
         cmd.extend( ["--flasherurl", options['flasherurl']] )
     if options['test_packages']:
         cmd.extend( ["-t", options['test_packages']] )
+    # Use global timeout as conductor testrun timeout
+    if options['timeout']:
+        cmd.extend( ["-m", str(options['timeout'])] )
 
     if host_testing == True:
         cmd.extend( ['-o'] )
 
     return cmd
-

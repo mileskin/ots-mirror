@@ -321,8 +321,8 @@ class TestrunHost(object):
     def _register_post_process_plugin(self, plugin):
         """Register post processing plugin to testrun
         
-        @type engine: L{<PostProcessPlugin>}
-        @param engine: Plugin implementing 
+        @type plugin: L{<PostProcessPlugin>}
+        @param plugin: Plugin implementing 
                        ots.common.interfaces.postprocessplugin
         
         """
