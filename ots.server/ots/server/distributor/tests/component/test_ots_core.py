@@ -514,10 +514,10 @@ class TestOTSCore(unittest.TestCase):
 
     @staticmethod
     def _distributor_config_filename():
-        distributor_dirname = os.path.dirname(
-                              os.path.abspath(ots.server.distributor.__file__))
-        distributor_config_filename = os.path.join(distributor_dirname,
-                                                  "config.ini")
+        server_dirname = os.path.dirname(
+                              os.path.abspath(ots.server.__file__))
+        distributor_config_filename = os.path.join(server_dirname,
+                                                  "ots_server.ini")
         if not os.path.exists(distributor_config_filename):
             raise Exception("%s not found"%(distributor_config_filename))
         return distributor_config_filename

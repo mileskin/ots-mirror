@@ -22,7 +22,7 @@
 
 import unittest
 
-from ots.common.api import Environment
+from ots.common.dto.api import Environment
 from ots.results.is_valid_run import is_valid_run, PackageException
 from ots.results.is_valid_run import _check_complete
 

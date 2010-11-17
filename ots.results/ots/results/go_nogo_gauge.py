@@ -24,7 +24,7 @@
 Go / NoGo on the basis of results_xmls
 """
 
-from ots.results.api import parse_results
+from ots.results.parse_results import parse_results
 from ots.results.testrun_result import TestrunResult
 
 def go_nogo_gauge(results_xmls, insignificant_tests_matter = False):

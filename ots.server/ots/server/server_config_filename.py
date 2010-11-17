@@ -20,8 +20,27 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-[ots.server.allocator]
-#
-storage_host = 
-storage_port = 1982
+"""
+Returns the ots server config file path.
+"""
 
+DEFAULT_CONFIG_FILE = "/etc/ots-server.ini"
+
+import os
+
+def server_config_filename():
+    """
+    Returns the default config file path.
+
+    Tries /etc/ots-server.ini first. If that does not work, tries ots_server.ini
+    from ots.server directory
+    """
+    if os.path.exists(DEFAULT_CONFIG_FILE):
+        return DEFAULT_CONFIG_FILE
+
+    distributor_dirname = os.path.dirname(os.path.abspath(__file__))
+    distributor_config_filename = os.path.join(distributor_dirname,
+                                               "ots_server.ini")
+    if not os.path.exists(distributor_config_filename):
+        raise Exception("%s not found"%(distributor_config_filename))
+    return distributor_config_filename

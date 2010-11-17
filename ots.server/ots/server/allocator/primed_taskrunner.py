@@ -22,9 +22,9 @@
 
 import os
 from socket import gethostname
-import ConfigParser
+import configobj
 
-from ots.common.framework.api import config_filename
+from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.api import taskrunner_factory
 from ots.server.allocator.conductor_commands import get_commands
 
@@ -34,13 +34,13 @@ def _storage_address():
     rparam: The storage address 
     """
     server_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-    conf = config_filename("ots_allocator", server_path)
-    config = ConfigParser.ConfigParser()
-    config.read(conf)
-    storage_host = str(config.get('ots.server.allocator', 'storage_host'))
+    conf = server_config_filename()
+    config = configobj.ConfigObj(conf).get('ots.server.allocator')
+    storage_host = config['storage_host']
+    print storage_host
     if not storage_host:
         storage_host = gethostname()
-    storage_port = str(config.get('ots.server.allocator', 'storage_port'))  
+    storage_port = "1982" # TODO: DEPRECATED REMOVE AFTER CONDUCTOR IS CHANGED
     return "%s:%s"%(storage_host, storage_port)     
 
 

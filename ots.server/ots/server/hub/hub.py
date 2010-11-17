@@ -44,7 +44,7 @@ import os
 import logging
 import logging.config
 import uuid
-import ConfigParser
+import configobj
 import traceback
 
 from ots.common.framework.api import config_filename
@@ -109,14 +109,8 @@ class Hub(object):
         rtype: C{int}
         rparam: The timeout in minutes
         """
-        server_path = os.path.split(
-            os.path.dirname(os.path.abspath(__file__)))[0]
-        app_id = get_application_id() 
-        conf = config_filename(app_id, server_path)
-        config = ConfigParser.ConfigParser()
-        config.read(conf)       
-        return int(config.get('ots.server.hub', 'timeout'))
-
+        return 30 # TODO: SHOULD BE READ FROM self.options!!!!!!!!
+    
     ###############################
     # TASKRUNNER
     ##############################

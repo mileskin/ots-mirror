@@ -24,17 +24,12 @@
 Factory method to create TaskRunner from a config file 
 """
 
-DEFAULT_CONFIG_FILE = "/etc/ots-server.ini"
-
-#Disable spurious pylint warnings
-
-#pylint: disable-msg=E0611
-#pylint: disable-msg=F0401
-
-import ConfigParser
+import configobj
 import os
 
+from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.taskrunner import TaskRunner
+import ots.server
 
 def taskrunner_factory(device_group,
                        timeout,
@@ -60,37 +55,20 @@ def taskrunner_factory(device_group,
     """
 
     if not config_file:
-        config_file = _default_config_filename()
+        config_file = server_config_filename()
 
-    config = ConfigParser.ConfigParser()
-    config.read(config_file)
-    taskrunner = TaskRunner(username = config.get("Client", "username"),
-                            password = config.get("Client", "password"),
-                            host = config.get("Client", "host"),    
-                            vhost = config.get("Client", "vhost"),
+    config = configobj.ConfigObj(config_file).get("ots.server.distributor")
+    print config
+    taskrunner = TaskRunner(username = config["username"],
+                            password = config["password"],
+                            host = config["host"],
+                            vhost = config["vhost"],
                             services_exchange = device_group,
-                            port = config.getint("Client", "port"), 
+                            port = config.as_int("port"), 
                             routing_key = device_group,
                             testrun_id = testrun_id,
                             timeout = timeout,
-                            queue_timeout = config.getint("Client", 
-                                                          "timeout_task_start"))
+                            queue_timeout = config.as_int("timeout_task_start"))
     return taskrunner
 
 
-def _default_config_filename():
-    """
-    Returns the default config file path.
-
-    Tries /etc/ots-server.ini first. If that does not work, tries config.ini
-    from ots.server.distributor directory
-    """
-    if os.path.exists(DEFAULT_CONFIG_FILE):
-        return DEFAULT_CONFIG_FILE
-
-    distributor_dirname = os.path.dirname(os.path.abspath(__file__))
-    distributor_config_filename = os.path.join(distributor_dirname,
-                                               "config.ini")
-    if not os.path.exists(distributor_config_filename):
-        raise Exception("%s not found"%(distributor_config_filename))
-    return distributor_config_filename
