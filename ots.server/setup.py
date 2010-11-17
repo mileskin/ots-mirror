@@ -35,5 +35,5 @@ setup(
                     ["ots_server = ots.server.xmlrpc.server:main",]
                     },
       zip_safe = False,
-      data_files=[('/etc', ['ots-server.ini'])]
+      data_files=[('/etc', ['ots/server/ots_server.ini'])]
       )
