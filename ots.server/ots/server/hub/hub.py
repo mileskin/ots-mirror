@@ -103,14 +103,6 @@ class Hub(object):
         conf = os.path.join(dirname, "logging.conf")
         logging.config.fileConfig(conf)
 
-    @property
-    def _timeout(self):
-        """
-        rtype: C{int}
-        rparam: The timeout in minutes
-        """
-        return 30 # TODO: SHOULD BE READ FROM self.options!!!!!!!!
-    
     ###############################
     # TASKRUNNER
     ##############################
@@ -126,7 +118,7 @@ class Hub(object):
         """
         if self._taskrunner is None:
             self._taskrunner = primed_taskrunner(self.testrun_uuid, 
-                                                 self._timeout,
+                                                 self.options.timeout,
                                                  self.options.priority,
                                                  self.options.device,
                                                  self.options.image,
