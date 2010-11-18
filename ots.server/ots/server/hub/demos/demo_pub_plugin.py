@@ -105,7 +105,7 @@ def run(parent, text):
     hub = Hub("pdt", 111, **options_dict)
     #The taskrunner is replaced by the Mock here!
     hub._taskrunner = mock_taskrunner
-    hub.run()
+    print "Result", hub.run()
 
 #############################
 # MAIN
