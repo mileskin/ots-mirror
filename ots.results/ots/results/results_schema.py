@@ -25,13 +25,11 @@
 Provides Class based access to Schema definition
 """
 
-import os
+import configobj
+from ots.server.server_config_filename import server_config_filename
 
-OTS_TESTDEFINITION = "OTS_TESTDEFINITION"
-TESTDEFINITION_RESULTS_XSD = "testdefinition-results.xsd"
-SCHEMA_FILENAME = os.path.join(os.environ[OTS_TESTDEFINITION], 
-                               TESTDEFINITION_RESULTS_XSD)
-
+SCHEMA_FILENAME = configobj.ConfigObj(server_config_filename())\
+                  ["ots.results"]["results_xsd"]
 
 TRUE = "true"
 FALSE = "false"
