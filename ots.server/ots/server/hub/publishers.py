@@ -36,7 +36,6 @@ import os
 import traceback
 import logging
 
-
 from ots.common.framework.api import PublisherPluginBase
 from ots.common.framework.api import plugins_iter
 from ots.common.framework.api import plugin_exception_policy
@@ -83,7 +82,8 @@ class Publishers(PublisherPluginBase):
                                         image,
                                         **kwargs)
                 LOG.debug("Adding publisher: '%s'"%(publisher))
-                self._share_uris(testrun_uuid)
+                self._publishers.append(publisher)
+        self._share_uris(testrun_uuid)
     
     ##########################################
     # HELPERS
@@ -110,6 +110,8 @@ class Publishers(PublisherPluginBase):
         @type : C{str}
         @param : The name of the method to call on the Publisher
         """
+        LOG.debug("Delegating '%s' with args: '%s', kwargs: '%s'"
+                   %(method_name, args, kwargs))
         for publisher in self._publishers:
             with plugin_exception_policy(self.SWALLOW_EXCEPTIONS):
                 if hasattr(publisher, method_name):
