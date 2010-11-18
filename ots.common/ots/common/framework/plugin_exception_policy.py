@@ -40,8 +40,9 @@ class plugin_exception_policy:
     def __enter__(self):
         pass
 
-    def __exit__(self, type, value, tb):        
-        LOG.error(traceback.format_tb(tb))
-        if self.swallow:
-            LOG.debug("Swallowing exception")
+    def __exit__(self, type, value, tb):  
+        if type is not None:
+            LOG.error(traceback.format_tb(tb))
+            if self.swallow:
+                LOG.debug("Swallowing exception")
         return self.swallow 
