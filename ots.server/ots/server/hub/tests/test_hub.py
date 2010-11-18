@@ -66,10 +66,6 @@ class PublishersStub(PublisherPluginBase):
 
 class TestHub(unittest.TestCase):
 
-    def test_timeout(self):
-        hub = Hub("pdt", 111, image = "www.nokia.com")
-        self.assertEquals(30, hub._timeout)
-
     def test_taskrunner(self):
         hub = Hub("pdt", 111, **options_dict)
         taskrunner = hub.taskrunner
