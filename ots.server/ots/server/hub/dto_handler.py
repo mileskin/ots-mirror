@@ -50,7 +50,7 @@ class DTOHandler(object):
 
 
     def __init__(self):
-        self.results_xmls = []
+        self.results = []
         self.tested_packages = None
         self.expected_packages = None
         self.monitors = []
@@ -75,7 +75,7 @@ class DTOHandler(object):
             self.tested_packages = packages
         else:
             self.tested_packages.update(packages)
-        self.results_xmls.append(result.results_xml)
+        self.results.append(result)
 
     def _packages(self, packages): 
         """
