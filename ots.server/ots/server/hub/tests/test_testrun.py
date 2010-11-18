@@ -24,7 +24,7 @@ import unittest
 
 import os
 
-from ots.common.dto.api import Packages
+from ots.common.dto.api import Packages, Results
 
 import ots.results
 from ots.results.api import TestrunResult, PackageException
@@ -45,26 +45,29 @@ class TestTestrun(unittest.TestCase):
                                       "tests", "data", 
                                       "dummy_results_file.xml")
         results_xml = open(results_fqname, "r")
-
+        results = Results("fail", results_xml.read())
         tr = Testrun()
         tr._dto_handler.expected_packages = pkgs
         tr._dto_handler.tested_packages = pkgs
-        tr._dto_handler.results_xmls = [results_xml]
+        
+
+        tr._dto_handler.results = [results]
         tr.run_test = lambda : 1
         self.assertFalse(tr.run())
       
-    def test_exception(self):
+    def test_pass(self):
         pkgs = Packages("hardware", ["pkg1", "pkg2"])
         results_dir = os.path.dirname(os.path.abspath(ots.results.__file__))
         results_fqname = os.path.join(results_dir, 
                                       "tests", "data", 
                                       "dummy_pass_file.xml")
         results_xml = open(results_fqname, "r")
+        results = Results("pass", results_xml.read())
 
         tr = Testrun()
         tr._dto_handler.expected_packages = pkgs
         tr._dto_handler.tested_packages = pkgs
-        tr._dto_handler.results_xmls = [results_xml]
+        tr._dto_handler.results = [results]
         tr.run_test = lambda : 1
         self.assertTrue(tr.run())
  
