@@ -31,15 +31,15 @@ from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.taskrunner import TaskRunner
 import ots.server
 
-def taskrunner_factory(device_group,
+def taskrunner_factory(routing_key,
                        timeout,
                        testrun_id,
                        config_file=None):
     """
     Instantiate a Taskrunner from the config file
 
-    @type device_group: C{string }  
-    @param device_group: The device group under test
+    @type routing_key : C{string }  
+    @param routing_key : The routing_key for the Task
 
     @rtype timeout: C{int}  
     @return timeout: The timeout
@@ -65,7 +65,7 @@ def taskrunner_factory(device_group,
                             vhost = config["vhost"],
                             services_exchange = device_group,
                             port = config.as_int("port"), 
-                            routing_key = device_group,
+                            routing_key = routing_key,
                             testrun_id = testrun_id,
                             timeout = timeout,
                             queue_timeout = config.as_int("timeout_task_start"))
