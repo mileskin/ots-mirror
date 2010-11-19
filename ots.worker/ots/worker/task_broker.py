@@ -102,7 +102,7 @@ class TaskBroker(object):
         self._connection = connection
         self._queues = get_queues(device_properties)
         self._keep_looping = True
-        self._consumer_tag = dict()
+        self._consumer_tags = dict()
 
         self._task_state = cycle(TASK_CONDITION_RESPONSES)
         self._amqp_log_handler = None
@@ -138,7 +138,7 @@ class TaskBroker(object):
     # AMQP Configuration
     ##############################################
 
-    def _consume(self):
+    def _start_consume(self):
         """
         Start consuming messages from the queue
         """
@@ -146,9 +146,9 @@ class TaskBroker(object):
         for queue in self._queues:
             self._consumer_tags[queue] = basic_consume(queue = queue,
                                               callback = self._on_message)
-            LOGGER.info("consume on queue: %s" % queue)
+            LOGGER.info("start consume on queue: %s" % queue)
 
-    def _stop_consuming(self):
+    def _stop_consume(self):
         """
         Cancel consuming from queues. This is needed for proper load balancing.
         Otherwise the server will push next task to the consumer as soon as the
@@ -156,24 +156,25 @@ class TaskBroker(object):
         """
         for queue in self._queues:
             self.channel.basic_cancel(self._consumer_tags[queue])
-    
+            LOGGER.info("stop consume on queue: %s" % queue)
+
     def _init_connection(self):
         """
         Initialise the connection to AMQP.
         Queue and Services Exchange are both durable
         """
         for queue in self._queues:
-            self.channel.queue_declare(queue = self.queue, 
+            self.channel.queue_declare(queue = queue, 
                                        durable = True,
                                        exclusive = False, 
                                        auto_delete = False)
-            self.channel.exchange_declare(exchange = self.services_exchange,
+            self.channel.exchange_declare(exchange = queue,
                                           type = 'direct', 
                                           durable = True,
                                           auto_delete = False)
-            self.channel.queue_bind(queue = self.queue,
-                                    exchange = self.services_exchange,
-                                    routing_key = self.routing_key)
+            self.channel.queue_bind(queue = queue,
+                                    exchange = queue,
+                                    routing_key = queue)
         self.channel.basic_qos(0, 1, False)
 
     ###############################################
@@ -214,7 +215,7 @@ class TaskBroker(object):
         Response Queue is kept informed of the status
         """
         
-        self.channel.basic_cancel(self._consumer_tag)
+        self._stop_consume()
         self.channel.basic_ack(delivery_tag = message.delivery_tag)
         #
         cmd_msg = unpack_message(message)
@@ -235,10 +236,7 @@ class TaskBroker(object):
                                     exception)
         finally:
             self._publish_task_state_change(task_id, response_queue)
-            LOGGER.info("Recommence consume on queue: %s" % self.queue)
-            self._consumer_tag = \
-                self.channel.basic_consume(queue = self.queue,
-                                           callback = self._on_message)
+            self._start_consume()
 
     def _on_message(self, message):
         """
@@ -358,7 +356,7 @@ class TaskBroker(object):
             LOGGER.info("Trying to reconnect...")
             self._connection.connect()
             self._init_connection()
-            self._consume()
+            self._start_consume()
         except Exception:
             #If rabbit is still down, we expect this to fail
             LOGGER.exception("Reconnecting failed...")
@@ -368,7 +366,7 @@ class TaskBroker(object):
         Delegate to connection cleanup
         """
         try:
-            self._stop_consuming()
+            self._stop_consume()
         except:
             pass
         if self._connection:
@@ -406,5 +404,5 @@ class TaskBroker(object):
         Initialises the AMQP connections and run the forever loop.
         """
         self._init_connection()
-        self._consume()
+        self._start_consume()
         self._loop()

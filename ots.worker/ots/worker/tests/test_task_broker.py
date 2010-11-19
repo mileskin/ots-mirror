@@ -30,7 +30,7 @@ from amqplib.client_0_8.exceptions import AMQPChannelException
 
 from ots.common.amqp.api import pack_message
 from ots.common.dto.api import CommandMessage
-from ots.common.routing.routing import get_queues
+from ots.common.routing.routing import get_queues, DEVICE_GROUP, DEVICE_NAME
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
@@ -43,6 +43,19 @@ from ots.worker.command import CommandFailed
 ##########################################
 # Utility Functions
 ##########################################
+
+
+def _get_properties():
+    """
+    Default rooting properties 
+    
+    rtype: C{dict} 
+    rparam: The Properties Dictionary
+    """
+    properties = dict()
+    properties[DEVICE_GROUP] = "test"
+    properties[DEVICE_NAME] = "testname"
+    return properties
 
 def _queue_size(queue):
     """
@@ -84,7 +97,7 @@ def _task_broker_factory(dispatch_func = None):
                             username = "guest",
                             password = "guest")
     connection.connect()
-    task_broker = TaskBroker(connection, "test", "test", "test")
+    task_broker = TaskBroker(connection, _get_properties())
     if dispatch_func:
         task_broker._dispatch = dispatch_func
     task_broker._init_connection()
@@ -95,14 +108,18 @@ def _task_broker_factory(dispatch_func = None):
 ###########################################
 
 class TestTaskBroker(unittest.TestCase):
-        
+
     def setUp(self):
-        _queue_delete("test")
-        self.assertTrue(_queue_size("test") is None)
+        queues = get_queues(_get_properties())
+        for queue in queues:
+            _queue_delete(queue)
+            self.assertTrue(_queue_size(queue) is None)
         
     def tearDown(self):
-        _queue_delete("test")
-        
+        queues = get_queues(_get_properties())
+        for queue in queues:
+            _queue_delete(queue)
+
     def test_consume(self):
         """
         Check that the consume sets the prefetch correctly 
@@ -136,7 +153,7 @@ class TestTaskBroker(unittest.TestCase):
                               routing_key = "test")
        
         self.assertEquals(2, _queue_size("test"))
-        task_broker._consume()
+        task_broker._start_consume()
         self.expected_size = 1
         channel.wait()
         self.expected_size = 0
@@ -150,7 +167,7 @@ class TestTaskBroker(unittest.TestCase):
         self.counter = 0
 
         def show_queues():
-            queues = get_queues(self._get_properties())
+            queues = get_queues(_get_properties())
             total_messages = 0
             for queue in queues:
                 print "queue %s: %s messages" % (queue, _queue_size(queue))
@@ -166,16 +183,16 @@ class TestTaskBroker(unittest.TestCase):
             self.counter += 1
 
         #SetUp the TaskBroker but override _dispatch
-        task_broker = self.create_task_broker(dispatch_func=check_queue_size)
+        task_broker = _task_broker_factory(dispatch_func = check_queue_size)
 
         #Publish a Couple of Messages to both queues
         channel = task_broker.channel
 
-        queues = get_queues(self._get_properties())
+        properties = {DEVICE_GROUP : "test",
+                      DEVICE_NAME : "testname"}
+        queues = get_queues(properties)
         self.assertEquals(len(queues), 2)
         for queue in queues:
-            self.assertEquals(_queue_size(queue), 0)
-            #
             foo_cmd_msg = CommandMessage(['foo'],'', 1, timeout = 1)
             foo_msg = pack_message(foo_cmd_msg) 
             channel.basic_publish(foo_msg,
@@ -198,7 +215,7 @@ class TestTaskBroker(unittest.TestCase):
                                   routing_key = queue)
             
         #Set to Consume
-        task_broker._consume()
+        task_broker._start_consume()
 
         while self.counter < 6: # Process all messages
             channel.wait()
@@ -216,7 +233,8 @@ class TestTaskBroker(unittest.TestCase):
             def clean_up(self):
                 self.exits = True
         connection_stub = ConnectionStub()
-        task_broker = TaskBroker(connection_stub, None, None, None)
+        properties = {DEVICE_GROUP : "test"}
+        task_broker = TaskBroker(connection_stub, properties)
         
         #Case where no stop file and keep_looping_true
         class ChannelStub:
@@ -269,7 +287,7 @@ class TestTaskBroker(unittest.TestCase):
                                   routing_key = "test")
 
         #Set to Consume
-        task_broker._consume()
+        task_broker._start_consume()
         channel.wait()
         time.sleep(1)
         channel.wait()
@@ -293,7 +311,7 @@ class TestTaskBroker(unittest.TestCase):
                               routing_key = "test")
 
         #Set to Consume
-        task_broker._consume()
+        task_broker._start_consume()
         channel.wait()
         time.sleep(3)
 	# We should have state change messages + timeout msg
@@ -315,7 +333,7 @@ class TestTaskBroker(unittest.TestCase):
                               exchange = "test",
                               routing_key = "test")
         self.assertEquals(1, _queue_size("test"))
-        task_broker._consume()
+        task_broker._start_consume()
         channel.wait()
         self.assertEquals(1, _queue_size("test"))
 

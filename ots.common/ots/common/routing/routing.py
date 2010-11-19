@@ -27,8 +27,13 @@
 import logging
 LOGGER = logging.getLogger(__name__)
 
+
 # First one is mandatory, others optional
-VALID_PROPERTIES = ("devicegroup", "devicename", "deviceid")
+DEVICE_GROUP = "devicegroup"
+DEVICE_NAME = "devicename"
+DEVICE_ID = "deviceid"
+
+VALID_PROPERTIES = (DEVICE_GROUP, DEVICE_NAME, DEVICE_ID)
                 
 def get_routing_key(device_properties):
     """
