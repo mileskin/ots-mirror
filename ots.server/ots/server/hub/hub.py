@@ -120,7 +120,7 @@ class Hub(object):
             self._taskrunner = primed_taskrunner(self.testrun_uuid, 
                                                  self.options.timeout,
                                                  self.options.priority,
-                                                 self.options.device,
+                                                 self.options.device_properties,
                                                  self.options.image,
                                                  self.options.hw_packages,
                                                  self.options.host_packages,
