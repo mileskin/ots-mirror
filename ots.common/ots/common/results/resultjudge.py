@@ -50,7 +50,8 @@ class ResultJudge(ResultBackend):
         self.testcase_results = dict() #test cases with insignificant == 'false'
         self.testcase_results_insig = dict() #insignificant == 'true'
         self.insignificant_tests_matter = insignificant_tests_matter
-        self.log.info("Insignificant test cases are taken into account")
+        if insignificant_tests_matter:
+            self.log.info("Insignificant test cases are taken into account")
 
     def _overall_result(self,
                         packages_significant_results, 
