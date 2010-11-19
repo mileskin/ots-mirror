@@ -29,14 +29,14 @@ from ots.common.framework.config_filename import config_filename
 class TestConfigFilename(unittest.TestCase):
 
     def test_config_filename_1(self):
-        self.assertEquals(['ots', 'ots.common', 'ots', 'common', 'config.ini'],
-                          config_filename().split("/")[-5:])
+        self.assertEquals(['ots.common', 'ots', 'common', 'config.ini'],
+                          config_filename().split("/")[-4:])
 
     def test_config_filename_2(self):
         dirname = os.path.split(os.path.split(
                 os.path.dirname(os.path.abspath(__file__)))[0])[0]
-        self.assertEquals(['ots', 'ots.common', 'ots', 'common', 'config.ini'],
-                        config_filename("config", dirname).split("/")[-5:])
+        self.assertEquals(['ots.common', 'ots', 'common', 'config.ini'],
+                        config_filename("config", dirname).split("/")[-4:])
 
 if __name__ == "__main__":
     unittest.main()
