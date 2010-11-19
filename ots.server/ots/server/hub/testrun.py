@@ -113,7 +113,8 @@ class Testrun(object):
                          self.tested_packages,
                          self.is_hw_enabled,
                          self.is_host_enabled)
-            self.results = self._dto_handler.results_xmls
-            ret_val = go_nogo_gauge(self._dto_handler.results_xmls,
-                                self.insignificant_tests_matter)
+            self.results = self._dto_handler.results
+            result_xmls = [result.results_xml for result in self.results]
+            ret_val = go_nogo_gauge(result_xmls,
+                                    self.insignificant_tests_matter)
         return ret_val

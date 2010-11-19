@@ -51,6 +51,9 @@ class PublisherDialog(QtGui.QDialog):
         self.result_label = QtGui.QLabel(self) 
         layout.addWidget(self.result_label)
         #
+        self.filenames_label = QtGui.QLabel(self) 
+        layout.addWidget(self.filenames_label)
+        #
         spacer = QtGui.QSpacerItem(20,40,
                                    QtGui.QSizePolicy.Minimum,
                                    QtGui.QSizePolicy.Expanding)
@@ -67,7 +70,10 @@ class PySidePublisher(PublisherPluginBase):
                  parent = None, text = None,**kwargs):
         LOG.debug("Initialising PySidePublisher")
         LOG.debug("Parent: %s"%(parent))
-        self.publisher_widget = PublisherDialog(parent, testrun_uuid, text)
+        LOG.debug("Testrun UUID: %s"%(testrun_uuid))
+        LOG.debug("Text: %s"%(text))
+        LOG.debug("kwargs: %s"%(kwargs))
+        self.publisher_dialog = PublisherDialog(parent, testrun_uuid, text)
         self.publisher_dialog.show()
        
     def set_testrun_result(self, result):
@@ -84,3 +90,17 @@ class PySidePublisher(PublisherPluginBase):
 
     def set_all_publisher_uris(self, uris):
         self.publisher_dialog.uris_label.setText("URIs: %s"%(uris))
+
+    def set_results(self, results):
+        filenames = [result.results_xml.name for result in results]
+        filenames = ','.join(filenames)
+        self.publisher_dialog.filenames_label.setText(filenames)
+
+if __name__ == "__main__":    
+    app = QtGui.QApplication(sys.argv)
+    publisher_dialog = PublisherDialog(None, 111, "hello world")
+    publisher_dialog.show()
+    publisher_dialog.result_label.setText("Result: Pass")
+    publisher_dialog.uris_label.setText("URIs: www.meego.com")
+    publisher_dialog.filenames_label.setText("quark, strangeness, charm")
+    app.exec_()
