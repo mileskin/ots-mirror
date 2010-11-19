@@ -27,6 +27,7 @@
 import logging
 LOGGER = logging.getLogger(__name__)
 
+<<<<<<< HEAD
 # First one is mandatory, others optional
 VALID_PROPERTIES = ("devicegroup", "devicename", "deviceid")
                 
@@ -36,12 +37,25 @@ def get_routing_key(device_properties):
     
     @param device_properties: Contains the input device_properties for the key
     @type device_properties: c{dictionary} 
+=======
+                
+def get_routing_key(values):
+    """
+    Defines the routing key based on the key format and values
+    
+    @param values: Contains the input values for the key
+    @type values: c{dictionary} 
+>>>>>>> c15f38f... Moved get_queues() to ots.common.routing so that all routing key related code is in one place
         
     @return: The generated routing key as a string
     @rtype: c{string}
     """
+<<<<<<< HEAD
     
     _check_input(device_properties)
+=======
+    _remove_extra_values(values)
+>>>>>>> c15f38f... Moved get_queues() to ots.common.routing so that all routing key related code is in one place
 
     routing_key = ""
     for key in VALID_PROPERTIES:
@@ -49,6 +63,7 @@ def get_routing_key(device_properties):
             routing_key = routing_key+"."+device_properties[key]
     return routing_key.lstrip(".") # Remove the first dot
 
+<<<<<<< HEAD
 
 def _check_input(device_properties):
     """
@@ -69,6 +84,28 @@ def _check_input(device_properties):
             LOGGER.warning('Ignoring unsupported device property "%s"' % key)
             del device_properties[key]
 
+=======
+    routing_key = ""
+    for key in self.key_format:
+        if key in values.keys():
+            routing_key = routing_key+"."+values[key]
+        else:
+            routing_key = routing_key+".dontcare"
+        
+    return routing_key.lstrip(".") # Remove the first dot
+       
+
+
+def _remove_extra_values(values):
+    """
+    Checks for extra values in the value dictionary. Removes extra
+    values and Prints a warning message to log if extra values are found
+    """
+    for key in values.keys():
+        if key not in self.key_format:
+            LOGGER.warning('Ignoring unsupported device property "%s"' % key)
+            del values[key]
+>>>>>>> c15f38f... Moved get_queues() to ots.common.routing so that all routing key related code is in one place
                 
 def get_queues(device_properties):
     """
@@ -93,6 +130,33 @@ def get_queues(device_properties):
                           "."+device_properties[VALID_PROPERTIES[1]]+\
                           "."+device_properties[VALID_PROPERTIES[2]])
 
+<<<<<<< HEAD
+=======
+            
+
+def get_queues(device_properties):
+    """
+    Returns a list of queues the worker should consume from based on device
+    properties
+
+    @param device_properties: The Device properties of the worker
+    @type device_properties: c{dictionary}
+
+        
+    @rtype: C{list} 
+    @return: A list of queues the worker should consume from
+    """
+    queues = []
+    queues.append(device_properties["devicegroup"])
+    if "devicename" in device_properties.keys():
+        queues.append(device_properties["devicegroup"]+\
+                      "."+device_properties["devicename"])
+        if "deviceid" in device_properties.keys():
+            queues.append(device_properties["devicegroup"]+\
+                          "."+device_properties["devicename"]+\
+                          "."+device_properties["deviceid"])
+
+>>>>>>> c15f38f... Moved get_queues() to ots.common.routing so that all routing key related code is in one place
     # Reverse queues to give "more specific queues" higher priority
     queues.reverse()
         

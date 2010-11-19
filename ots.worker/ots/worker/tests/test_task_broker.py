@@ -30,9 +30,11 @@ from amqplib.client_0_8.exceptions import AMQPChannelException
 
 from ots.common.amqp.api import pack_message
 from ots.common.dto.api import CommandMessage
+from ots.common.routing.routing import get_queues
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
+
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
@@ -88,7 +90,6 @@ def _task_broker_factory(dispatch_func = None):
     task_broker._init_connection()
     return task_broker
 
-
 ###########################################
 # TestTaskBroker
 ###########################################
@@ -119,16 +120,13 @@ class TestTaskBroker(unittest.TestCase):
 
         #Publish a Couple of Messages
         channel = task_broker.channel
-        #foo_msg = amqp.Message(dumps(self.create_message('foo', 1, '', 1)))
-        
+                
         foo_cmd_msg = CommandMessage(['foo'],'', 1, timeout = 1)
         foo_msg = pack_message(foo_cmd_msg) 
         channel.basic_publish(foo_msg,
                               mandatory = True,
                               exchange = "test",
                               routing_key = "test")
-
-        #bar_msg = amqp.Message(dumps(self.create_message('bar', 1, '', 1)))
 
         bar_cmd_msg = CommandMessage(['bar'],'', 1, timeout = 1)
         bar_msg = pack_message(bar_cmd_msg) 
@@ -143,7 +141,75 @@ class TestTaskBroker(unittest.TestCase):
         channel.wait()
         self.expected_size = 0
         channel.wait()
-       
+        time.sleep(5)
+
+    def test_consume_from_2_queues(self):
+        """
+        Check that worker consumes messages from 2 queues properly
+        """
+        self.counter = 0
+
+        def show_queues():
+            queues = get_queues(self._get_properties())
+            total_messages = 0
+            for queue in queues:
+                print "queue %s: %s messages" % (queue, _queue_size(queue))
+                total_messages += _queue_size(queue)
+            print "total messages: %s" % total_messages
+
+        
+        def check_queue_size(*args,**kwargs):
+            """
+            Closure to attach to _dispatch 
+            counts how many messages processed
+            """
+            self.counter += 1
+
+        #SetUp the TaskBroker but override _dispatch
+        task_broker = self.create_task_broker(dispatch_func=check_queue_size)
+
+        #Publish a Couple of Messages to both queues
+        channel = task_broker.channel
+
+        queues = get_queues(self._get_properties())
+        self.assertEquals(len(queues), 2)
+        for queue in queues:
+            self.assertEquals(_queue_size(queue), 0)
+            #
+            foo_cmd_msg = CommandMessage(['foo'],'', 1, timeout = 1)
+            foo_msg = pack_message(foo_cmd_msg) 
+            channel.basic_publish(foo_msg,
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            #
+            bar_cmd_msg = CommandMessage(['bar'],'', 1, timeout = 1)
+            bar_msg = pack_message(bar_cmd_msg) 
+            channel.basic_publish(bar_msg,
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            #
+            baz_cmd_msg = CommandMessage(['bar'],'', 1, timeout = 1)
+            baz_msg = pack_message(baz_cmd_msg) 
+            channel.basic_publish(baz_msg,
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            
+        #Set to Consume
+        task_broker._consume()
+
+        while self.counter < 6: # Process all messages
+            channel.wait()
+        
+        for queue in queues: # Make sure all queues are empty
+            self.assertEquals(_queue_size(queue), 0)
+        
+    def test_init_connection(self):
+        #use test durable code here
+        pass
+
     def _test_loop(self):
         class ConnectionStub:
             exits = False
