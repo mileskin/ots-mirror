@@ -58,8 +58,8 @@ class Options(object):
 
     def __init__(self, image, packages = None, plan = None,hosttest = None,
                  device = None, emmc = None, distribution_model = None,
-                 flasher = None, testfilter = None, email = None,
-                 email_attachments = None, timeout = None, input_plugin = None):
+                 flasher = None, testfilter = None, timeout = None,
+                 input_plugin = None):
         """
         @type: C{image}
         @param: The image url
@@ -80,8 +80,6 @@ class Options(object):
         self._flasher = flasher
         self._testfilter = testfilter
         self.input_plugin = input_plugin # Deprecated
-        self._email = email
-        self._email_attachments = email_attachments
         self._timeout = timeout
         self._validate_packages(self.hw_packages)
 
@@ -169,22 +167,6 @@ class Options(object):
         if self._testfilter is not None:
             testfilter = self._testfilter.replace('"',"'")
             return "\"%s\"" % testfilter
-
-    @property
-    def is_email_on(self):
-        """
-        @rtype: C{bool}
-        @return: Is the email switched on?
-        """
-        return self._email == ON
-
-    @property
-    def is_email_attachments_on(self):
-        """
-        @rtype: C{bool}
-        @return: Is the email attachment switched on?
-        """
-        return self._email_attachments == ON
 
     @property
     def timeout(self):

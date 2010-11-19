@@ -28,17 +28,16 @@ from ots.server.hub.options_factory import OptionsFactory
 class TestOptionsFactory(unittest.TestCase):
     
     def test_default_options_dict(self):
-        options_factory = OptionsFactory(None, None)
+        options_factory = OptionsFactory("example_sw_product", None)
         expected = {'devicegroup' : 'examplegroup'}
         d = options_factory._default_options_dict("example_sw_product")
         self.assertEquals(expected, d["device"])
 
     def test_core_options_names(self):
-        names = OptionsFactory(None, None).core_options_names
+        names = OptionsFactory("example_sw_product", None).core_options_names
         expected = ('self', 'image', 'packages', 'plan', 'hosttest', 
                     'device', 'emmc', 'distribution_model', 'flasher', 
-                    'testfilter', 'email','email_attachments', 'timeout',
-                    'input_plugin')
+                    'testfilter', 'timeout', 'input_plugin')
         self.assertEquals(expected, names)
 
     def test_extended_options_dict(self):
@@ -48,9 +47,13 @@ class TestOptionsFactory(unittest.TestCase):
              'distribution_model' : 'distribution_model', 
              'flasher' : 'flasher', 'testfilter' : 'testfilter',
              'foo' : 'foo', 'bar' : 'bar', 'baz' : 'baz'}
-        ext_opts = OptionsFactory(None, d).extended_options_dict
-        self.assertEquals({'foo' : 'foo', 'bar' : 'bar', 'baz' : 'baz'},
-                           ext_opts)
+        ext_opts = OptionsFactory("example_sw_product", d).extended_options_dict
+        expected = {'foo': 'foo',
+                    'bar': 'bar',
+                    'email_attachments': 'off',
+                    'baz': 'baz',
+                    'email': 'on'}
+        self.assertEquals(ext_opts, expected)
 
 
     def test_factory(self):

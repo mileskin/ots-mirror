@@ -62,14 +62,14 @@ class TestHubComponent(unittest.TestCase):
 
     def test_run_results_pass(self):
         mock_taskrunner = MockTaskRunnerResultsPass()
-        hub = Hub("pdt", 111, image="image")
+        hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner
         ret_val = hub.run()
         self.assertEquals(TestrunResult.PASS, ret_val)
 
     def test_run_results_missing(self):
         mock_taskrunner = MockTaskRunnerResultsMissing()
-        hub = Hub("pdt", 111, image="image")
+        hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner
         publisher = PublisherStub(*[None]*4)
         hub.publishers._publishers.append(publisher)
@@ -78,7 +78,7 @@ class TestHubComponent(unittest.TestCase):
         
     def test_run_results_fail(self):
         mock_taskrunner = MockTaskRunnerResultsFail() 
-        hub = Hub("pdt", 111, image="image")
+        hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner 
         ret_val = hub.run()
         self.assertEquals(TestrunResult.FAIL, ret_val)
@@ -86,7 +86,7 @@ class TestHubComponent(unittest.TestCase):
     def test_run_global_timeout(self):
         #Not really a test more an illustration of behaviour
         mock_taskrunner = MockTaskRunnerTimeout()
-        hub = Hub("pdt", 111, image="image")
+        hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner
         publisher = PublisherStub(*[None]*4)
         hub.publishers._publishers.append(publisher)
@@ -95,7 +95,7 @@ class TestHubComponent(unittest.TestCase):
 
     def test_run_model_taskrunner_error(self):
         mock_taskrunner = MockTaskRunnerError()
-        hub = Hub("pdt", 111, image="image")
+        hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner
         publisher = PublisherStub(*[None]*4)
         hub.publishers._publishers.append(publisher)

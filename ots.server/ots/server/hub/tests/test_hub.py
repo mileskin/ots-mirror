@@ -67,14 +67,14 @@ class PublishersStub(PublisherPluginBase):
 class TestHub(unittest.TestCase):
 
     def test_taskrunner(self):
-        hub = Hub("pdt", 111, **options_dict)
+        hub = Hub("example_sw_product", 111, **options_dict)
         taskrunner = hub.taskrunner
         self.assertTrue(isinstance(taskrunner, TaskRunner))
         
     def test_run_pass(self):
         mock_taskrunner = MockTaskRunnerResultsPass()
         mock_taskrunner.run
-        hub = Hub("pdt", 111, **options_dict)
+        hub = Hub("example_sw_product", 111, **options_dict)
         hub._taskrunner = mock_taskrunner
         
         hub.publishers = PublishersStub(None, None, None, None)
@@ -84,7 +84,7 @@ class TestHub(unittest.TestCase):
     def test_run_error(self):
         mock_taskrunner = MockTaskRunnerError()
         mock_taskrunner.run
-        hub = Hub("pdt", 111, **options_dict)
+        hub = Hub("example_sw_product", 111, **options_dict)
         hub._taskrunner = mock_taskrunner
         
         hub.publishers = PublishersStub(None, None, None, None)

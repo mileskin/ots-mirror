@@ -85,14 +85,11 @@ class OptionsFactory(object):
 
         Get the default options for the SW product
         """
-        #FIXME: This provides the expected interface
-        #the implementation requires design decisions
-        #to make the extensibility consistent
         conf = server_config_filename()
-        config = configobj.ConfigObj(conf).get('swproducts')
-        # TODO: "Unknown sw product exception" should be raised if config file
-        #       does not have values for sw_product
-        return config.get(sw_product, {}) 
+        config = configobj.ConfigObj(conf).get('swproducts').get(sw_product)
+        if not config:
+            raise OptionsFactoryException("Unknown SW Product")
+        return config
 
     #######################################
     # PROPERTIES
@@ -118,7 +115,12 @@ class OptionsFactory(object):
         rtype : C{dict}
         rparam : Additional Options passed to OTS  
         """
-        extended_options_dict = self._options_dict.copy()
+        #Get the default options for the sw product from conf file
+        defaults = self._default_options_dict(self._sw_product)
+        sanitised_options = self._sanitise_options(defaults)
+        sanitised_options.update(self._sanitise_options(self._options_dict))
+        extended_options_dict = sanitised_options
+
         for key in self.core_options_names:
             if extended_options_dict.has_key(key):
                 extended_options_dict.pop(key)
@@ -136,18 +138,11 @@ class OptionsFactory(object):
 
         #Throw out the extended options
         core_options_dict = dict((key, self._options_dict[key]) 
-                  for key in  self.core_options_names 
-                          if key in self._options_dict)
+                                 for key in  self.core_options_names 
+                                 if key in self._options_dict)
 
-        #sanitise the dict (hyphens aren't Python friendly)
-        sanitised_options_dict = self._sanitise_options(core_options_dict)
-        #Get the defaults for the sw product
-        defaults = self._default_options_dict(self._sw_product)
-        merged_options_dict = self._sanitise_options(defaults)
 
-        merged_options_dict.update(sanitised_options_dict)
-
-        return merged_options_dict
+        return core_options_dict
 
     #####################################
     # FACTORY METHOD
