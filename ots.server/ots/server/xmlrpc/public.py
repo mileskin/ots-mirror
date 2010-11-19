@@ -240,12 +240,24 @@ def _create_testruns(options, request, program, notify_list,
     if options.get('device'):
         # Separate devigroups for different testrun_id's
         for devicespec in options['device']:
-            if not devicespec.get('devicegroup'):
-                continue
             current_options, pq = _prepare_testrun(options)
             process_queues.append(pq)
-            current_options['device'] = \
-                           {'devicegroup': devicespec['devicegroup']}
+
+            # Check that we have valid devicespecs
+            if not _validate_devicespecs(devicespec.keys()):
+                continue
+
+            # Fetch devicespecs
+            if devicespec.get('devicegroup'):
+                current_options['device'] = \
+                                {'devicegroup': devicespec['devicegroup']}
+            if devicespec.get('devicename'):
+                current_options['device']['devicename'] = \
+                                devicespec['devicename']
+            if devicespec.get('deviceid'):
+                 current_options['device']['deviceid'] = \
+                                 devicespec['deviceid']
+
             testrun_list.append((pq, request, program, current_options, \
                                  notify_list, test_packages, image_url, \
                                  rootstrap_url))
@@ -257,6 +269,22 @@ def _create_testruns(options, request, program, notify_list,
                              rootstrap_url))
 
     return testrun_list, process_queues
+
+def _validate_devicespecs(devicespecs):
+    """
+    Returns boolean value based on devicespecs
+    validation
+
+    @param devicespecs: List that contains devicespecs
+    @type options: C{List}
+
+    @rtype: C{Boolean)
+    @return: True if devicespecs are valid, False otherwise
+    """
+    for devicespec in devicespecs:
+        if devicespec not in ['devicegroup', 'devicename', 'deviceid']:
+            return False
+    return True
 
 def _prepare_testrun(options):
     """

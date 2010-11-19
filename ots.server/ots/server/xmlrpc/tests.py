@@ -36,6 +36,7 @@ from ots.server.xmlrpc.public import _parse_multiple_devicegroup_specs
 from ots.server.xmlrpc.public import _read_queues
 from ots.server.xmlrpc.public import _prepare_testrun
 from ots.server.xmlrpc.public import _create_testruns
+from ots.server.xmlrpc.public import _validate_devicespecs
 from ots.server.xmlrpc.handleprocesses import HandleProcesses
 
 from multiprocessing import Process, Queue
@@ -292,7 +293,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         except IndexError:
             pass
 
-    def test_create_testruns_one_devicegroup(self):
+    def test_create_testrun_one_devicespec_devicegroup(self):
         options = {'device': [{'devicegroup': 'foobar_1'}], \
                    'timeout': '1'}
         testrun_list, process_queues = \
@@ -302,7 +303,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.assertTrue(len(testrun_list) == 1)
         self.assertTrue(len(process_queues) == 1)
 
-    def test_create_testruns_multiple_testruns(self):
+    def test_create_testrun_one_devicespec_devicegroup_two_devicegroups(self):
         options = {'device': [{'devicegroup': 'foobar_1'}, \
                    {'devicegroup': 'foobar_2'}], 'timeout': '1'}
         testrun_list, process_queues = \
@@ -311,6 +312,50 @@ class Test_xmlrpc_interface(unittest.TestCase):
 
         self.assertTrue(len(testrun_list) == 2)
         self.assertTrue(len(process_queues) == 2)
+
+    def test_create_testrun_multiple_devicespecs(self):
+        options = {'device': [{'devicegroup': 'foobar_1', 'devicename': 'mydevice', \
+                   'deviceid': '1'}], 'timeout': '1'}
+        testrun_list, process_queues = \
+            _create_testruns(options, 'request', 'program', 'noemail@nodomain.nodot', \
+                'foobar-tests', 'https://image_url', 'http://roostrap_url')
+
+        self.assertTrue(len(testrun_list) == 1)
+        self.assertTrue(len(process_queues) == 1)
+
+    def test_create_testrun_multiple_devicespecs_two_devicegroups(self):
+        options = {'device': [{'devicegroup': 'foobar_1', 'devicename': 'device1', \
+                   'deviceid': '1'}, {'devicegroup': 'foobar_2', 'devicename': 'device2', \
+                   'deviceid': '2'}], 'timeout': '1'}
+        testrun_list, process_queues = \
+            _create_testruns(options, 'request', 'program', 'noemail@nodomain.nodot', \
+                'foobar-tests', 'https://image_url', 'http://roostrap_url')
+
+        self.assertTrue(len(testrun_list) == 2)
+        self.assertTrue(len(process_queues) == 2)
+
+    def test_create_testrun_with_bogus_devicespec(self):
+        options = {'device': [{'bogusspec': 'foobazor'}], \
+                   'timeout': '1'}
+        testrun_list, process_queues = \
+            _create_testruns(options, 'request', 'program', 'noemail@nodomain.nodot', \
+                'foobar-tests', 'https://image_url', 'http://roostrap_url')
+
+        self.assertTrue(len(testrun_list) == 0)
+
+    def test_validate_devicespecs_true(self):
+        devicespecs = ['devicegroup', 'devicename', 'deviceid']
+        self.assertTrue(_validate_devicespecs(devicespecs))
+        self.assertTrue(_validate_devicespecs([devicespecs[0]]))
+        self.assertTrue(_validate_devicespecs([devicespecs[1]]))
+        self.assertTrue(_validate_devicespecs([devicespecs[2]]))
+
+    def test_validate_devicespecs_false(self):
+        devicespecs = ['devicegroup', 'devicename', 'bogusspec']
+        self.assertFalse(_validate_devicespecs(devicespecs))
+
+        devicespecs = ['foobarspec']
+        self.assertFalse(_validate_devicespecs(devicespecs))
 
     def test_prepare_testrun(self):
         options = {'hosttest': 'this is a hosttest',
