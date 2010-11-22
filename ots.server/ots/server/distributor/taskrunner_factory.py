@@ -53,12 +53,10 @@ def taskrunner_factory(routing_key,
     @rtype taskrunner: L{TaskRunner}  
     @return taskrunner: The TaskRunner
     """
-
     if not config_file:
         config_file = server_config_filename()
 
     config = configobj.ConfigObj(config_file).get("ots.server.distributor")
-    print config
     taskrunner = TaskRunner(username = config["username"],
                             password = config["password"],
                             host = config["host"],
