@@ -255,8 +255,8 @@ def _create_testruns(options, request, program, notify_list,
                 current_options['device']['devicename'] = \
                                 devicespec['devicename']
             if devicespec.get('deviceid'):
-                 current_options['device']['deviceid'] = \
-                                 devicespec['deviceid']
+                current_options['device']['deviceid'] = \
+                                devicespec['deviceid']
 
             testrun_list.append((pq, request, program, current_options, \
                                  notify_list, test_packages, image_url, \
