@@ -278,7 +278,7 @@ def _validate_devicespecs(devicespecs):
     @param devicespecs: List that contains devicespecs
     @type options: C{List}
 
-    @rtype: C{Boolean)
+    @rtype: C{Boolean}
     @return: True if devicespecs are valid, False otherwise
     """
     for devicespec in devicespecs:
