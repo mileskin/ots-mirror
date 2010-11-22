@@ -218,8 +218,7 @@ class TestOTSCore(unittest.TestCase):
     # Tests
     ###################
 
-
-    def test_one_task_one_worker(self):
+    def _test_one_task_one_worker(self):
         """
         Check that the results come back OK from the Worker 
         """

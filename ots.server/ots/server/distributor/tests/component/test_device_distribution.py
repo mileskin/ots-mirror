@@ -43,21 +43,42 @@ import time
 import unittest 
 import zipfile
 
-from ots.common.testrun import Testrun
+from ots.common.dto.api import DTO_SIGNAL
+from ots.common.amqp.api import testrun_queue_name 
 
 import ots.worker
 import ots.worker.tests
 
 import ots.server.distributor
-from ots.server.distributor.taskrunner import RESULTS_SIGNAL
-from ots.server.distributor.taskrunner import _testrun_queue_name
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
-from ots.tools.queue_management.delete_queue import delete_queue
-from ots.server.distributor.tests.system.worker_processes import WorkerProcesses
+from ots.server.server_config_filename import server_config_filename
+
+#FIXME
+#from ots.tools.queue_management.delete_queue import delete_queue
+from ots.server.distributor.tests.component.worker_processes import WorkerProcesses
 
 DEBUG = False
 
-DEVICE_GROUP = "foo"
+ROUTING_KEY = "foo"
+
+#FIXME remove
+
+from amqplib import client_0_8 as amqp
+
+def delete_queue(host, queue_name):
+    """Delete a queue from AMQP server"""
+    port = 5672
+    userid = "guest"
+    password = "guest"
+    virtual_host = "/"
+    connection = amqp.Connection(host = ("%s:%s" %(host, port)),
+                                 userid = userid,
+                                 password = password,
+                                 virtual_host = virtual_host,
+                                 insist = False)
+    channel = connection.channel()
+    channel.queue_delete(queue = queue_name, nowait=True)
+
 
 ################################################
 # TEMPLATES
@@ -127,10 +148,11 @@ TESTS_MODULE_DIRNAME = os.path.split(MODULE_DIRNAME)[0]
 # TEST DEVICE DISTRIBUTION
 #################################
 
+
 class TestDeviceDistribution(unittest.TestCase):
 
     def setUp(self):
-        self.queue = DEVICE_GROUP
+        self.queue = ROUTING_KEY
 
         #make sure there is no messages left in the worker queue 
         #from previous runs:
@@ -140,9 +162,10 @@ class TestDeviceDistribution(unittest.TestCase):
             pass
         #
         self.worker_processes = WorkerProcesses()
-
-        self.testrun = Testrun()
         self.testrun_id = None
+
+     
+     
           
     def tearDown(self):
         self.worker_processes.terminate()
@@ -151,7 +174,7 @@ class TestDeviceDistribution(unittest.TestCase):
         if self.queue:
             delete_queue("localhost", self.queue)
         if self.testrun_id:
-            delete_queue("localhost", _testrun_queue_name(self.testrun_id))
+            delete_queue("localhost", testrun_queue_name(self.testrun_id))
 
     ###################
     # Tests
@@ -162,14 +185,19 @@ class TestDeviceDistribution(unittest.TestCase):
         The simplest configuration...
         Check that the results come back OK from the Worker 
         """
+        
+        self.test_definition_file_received = False
+        self.results_file_received = False
+
+
         #Initialise the Taskrunner
         self.worker_processes.start()
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
-                             device_group = DEVICE_GROUP, 
+                             routing_key = ROUTING_KEY, 
                              timeout = 10,
                              testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
+                             config_file = server_config_filename())
 
         #Create a zip file with a test definition
         zipfile_name = os.path.join(TESTS_MODULE_DIRNAME,
@@ -183,21 +211,19 @@ class TestDeviceDistribution(unittest.TestCase):
         taskrunner.add_task(command)
 
         #Callback to handler results
-        self.test_definition_file_received = False
-        self.results_file_received = False
-        def cb_handler(signal, **kwargs):
+        def cb_handler(signal, dto, **kwargs):
             self.cb_called = True
-            result_object = kwargs['result']
-            filename = result_object.name() 
+            filename = dto.results_xml.name 
             if filename == "test_definition.xml":
                 self.test_definition_file_received = True
                 self.assertEquals(EXPECTED.replace(' ','').replace('\n',''), 
-                        result_object.content.replace(' ','').replace('\n',''))
+                        dto.results_xml.read().replace(' ','').replace('\n',''))
             elif filename == "dummy_results_file.xml":
                 self.results_file_received = True
                 expected = self._dummy_results_xml(filename)
-                self.assertEquals(expected, result_object.content)
-        RESULTS_SIGNAL.connect(cb_handler) 
+                self.assertEquals(expected, dto.results_xml.read())
+            
+        DTO_SIGNAL.connect(cb_handler) 
         
         #Run...
         time_before_run = time.time()
@@ -226,10 +252,10 @@ class TestDeviceDistribution(unittest.TestCase):
         self.worker_processes.start()
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
-                             device_group = DEVICE_GROUP, 
+                             routing_key = ROUTING_KEY, 
                              timeout = 10,
                              testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
+                             config_file = server_config_filename())
         #
         zipfile_1_name = os.path.join(TESTS_MODULE_DIRNAME,
                                     "data", 
@@ -271,10 +297,10 @@ class TestDeviceDistribution(unittest.TestCase):
         self.worker_processes.start(2)
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
-                             device_group = DEVICE_GROUP, 
+                             routing_key = ROUTING_KEY, 
                              timeout = 10,
                              testrun_id = self.testrun_id,
-                             config_file = self._distributor_config_filename())
+                             config_file = server_config_filename())
         #
         zipfile_1_name = os.path.join(TESTS_MODULE_DIRNAME,
                                     "data", 
@@ -355,21 +381,17 @@ class TestDeviceDistribution(unittest.TestCase):
         return worker_config_filename
 
     @staticmethod
-    def _distributor_config_filename():
-        distributor_dirname = os.path.dirname(
-                              os.path.abspath(ots.server.__file__))
-        distributor_config_filename = os.path.join(distributor_dirname,
-                                                  "config.ini")
-        if not os.path.exists(distributor_config_filename):
-            raise Exception("%s not found"%(distributor_config_filename))
-        return distributor_config_filename
-
-    @staticmethod
     def _dummy_results_xml(filename):
         dirname = os.path.dirname(os.path.abspath(ots.worker.tests.__file__))
         fqname = os.path.join(dirname, "data", filename)
         return open(fqname, "r").read()
 
+    @staticmethod 
+    def _dummy_test_definition_xml_fqname(filename):
+        distributor_dirname = os.path.dirname(
+                              os.path.abspath(ots.server.distributor.__file__))
+        return os.path.join(distributor_dirname, "tests", 
+                            "data", filename)
 
 if __name__ == "__main__": 
     import logging

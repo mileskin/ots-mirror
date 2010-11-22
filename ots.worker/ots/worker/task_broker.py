@@ -98,9 +98,17 @@ class TaskBroker(object):
     Pulls messages containing Tasks from AMQP 
     Dispatch the Tasks as a process
     """   
-    def __init__(self, connection, device_properties):
+    def __init__(self, connection, properties):
+        """
+        @type connection : 
+        @param connection :
+
+        @type properties :
+        @param properties :
+        """
+        #FIXME
         self._connection = connection
-        self._queues = get_queues(device_properties)
+        self._queues = get_queues(properties)
         self._keep_looping = True
         self._consumer_tags = dict()
 
