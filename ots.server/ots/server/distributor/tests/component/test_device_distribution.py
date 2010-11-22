@@ -53,32 +53,12 @@ import ots.server.distributor
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.server_config_filename import server_config_filename
 
-#FIXME
-#from ots.tools.queue_management.delete_queue import delete_queue
+from ots.tools.queue_management.delete_queue import delete_queue
 from ots.server.distributor.tests.component.worker_processes import WorkerProcesses
 
 DEBUG = False
 
 ROUTING_KEY = "foo"
-
-#FIXME remove
-
-from amqplib import client_0_8 as amqp
-
-def delete_queue(host, queue_name):
-    """Delete a queue from AMQP server"""
-    port = 5672
-    userid = "guest"
-    password = "guest"
-    virtual_host = "/"
-    connection = amqp.Connection(host = ("%s:%s" %(host, port)),
-                                 userid = userid,
-                                 password = password,
-                                 virtual_host = virtual_host,
-                                 insist = False)
-    channel = connection.channel()
-    channel.queue_delete(queue = queue_name, nowait=True)
-
 
 ################################################
 # TEMPLATES
