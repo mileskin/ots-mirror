@@ -115,6 +115,9 @@ class EmailPlugin(PublisherPluginBase):
         self._message_subject = config["message_subject"]
         self._smtp_server = config["smtp_server"]
 
+        if config.as_bool("disabled"): # If email plugin is disabled overwrite
+            self._email = "off"          # option
+        
 
     ##########################################
     # DEFAULTED PROPERTIES
@@ -239,7 +242,7 @@ class EmailPlugin(PublisherPluginBase):
         Sends the email
         """
         if not self.is_email_on():
-            LOG.info("email disabled")
+            LOG.info("email plugin disabled")
             return
         
         if self._notify_list is not None:
