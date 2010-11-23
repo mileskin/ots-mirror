@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testresults version="0.1" environment="environment" hwbuild="hwbuild" hwproduct="hwproduct">
+  <suite name="dummy suite" level="System">
+    <set name="dummy testset" description="description" environment="environment">
+      <case name="foo test" result="PASS" insignificant = "false">
+        <step command="foo" result="PASS">
+	  <expected_result>0</expected_result>
+	  <return_code>0</return_code>
+	  <start>2009-03-16 15:41:27</start>
+          <end>2009-03-16 15:41:57</end>
+	</step>
+      </case>
+      <case name="bar test" result ="FAIL" insignificant = "true">
+        <step command="bar" result = "FAIL">
+	  <expected_result>0</expected_result>
+	  <return_code>0</return_code>
+	  <start>2009-03-16 15:41:27</start>
+          <end>2009-03-16 15:41:57</end>
+	</step>
+      </case>
+    </set>
+  </suite>
+</testresults>
