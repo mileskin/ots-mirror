@@ -294,28 +294,6 @@ class TestTaskBroker(unittest.TestCase):
 	# We should have our command + state change messages in the queue
         self.assertEquals(_queue_size("test"), 3)
 
-    def test_on_message_timeout(self):
-
-        #send a sleep command
-        cmd_msg = CommandMessage(['sleep', '2'], 'test', 1, timeout = 1)
-        msg = pack_message(cmd_msg)
-
-        task_broker = _task_broker_factory()
-        channel = task_broker.channel
-        # Send timeouting command
-
-        channel.basic_publish(msg,
-                              mandatory = True,
-                              exchange = "test",
-                              routing_key = "test")
-
-        #Set to Consume
-        task_broker._start_consume()
-        channel.wait()
-        time.sleep(3)
-	# We should have state change messages + timeout msg
-        self.assertEquals(2, _queue_size("test"))
-
     def test_on_message_not_version_compatible(self):
         """
         Check that incompatible versions dont
@@ -367,14 +345,6 @@ class TestTaskBroker(unittest.TestCase):
         self.assertFalse(task_broker._dispatch(cmd_quit))
         cmd_ls = CommandMessage(["ls -la"], "test", 1, timeout = 1) 
         self.assertFalse(task_broker._dispatch(cmd_ls))
-
-    def test_dispatch_timeout(self):
-        task_broker = _task_broker_factory()
-        channel = task_broker.channel
-        # Try to keep under timeouts
-        cmd_sleep = CommandMessage(["sleep", "2"], "test", 1, timeout = 1)
-        self.assertRaises(SoftTimeoutException, 
-                          task_broker._dispatch, cmd_sleep)
 
     def test_dispatch_failing_command(self):
         task_broker = _task_broker_factory()
