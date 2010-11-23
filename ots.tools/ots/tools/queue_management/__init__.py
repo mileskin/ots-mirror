@@ -1,3 +1,6 @@
+#!/usr/bin/python -tt
+
+
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -20,6 +23,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.publisher_plugin_base import PublisherPluginBase
-from ots.common.framework.plugin_exception_policy import plugin_exception_policy
+"""
+Tools for managing ots queues from command line
+"""

@@ -20,6 +20,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.publisher_plugin_base import PublisherPluginBase
-from ots.common.framework.plugin_exception_policy import plugin_exception_policy
+#This shouldn't be necessary 
+#http://bugs.python.org/setuptools/issue36
+"""
+Open Testing System
+"""
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+
+__import__('pkg_resources').declare_namespace(__name__)

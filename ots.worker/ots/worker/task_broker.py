@@ -49,11 +49,13 @@ from itertools import cycle
 
 from ots.common.amqp.api import unpack_message, pack_message
 from ots.common.dto.api import StateChangeMessage, TaskCondition
+from ots.common.routing.api import get_queues
 
 import ots.worker
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException,  HardTimeoutException
 from ots.worker.command import CommandFailed
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -97,13 +99,22 @@ class TaskBroker(object):
     Pulls messages containing Tasks from AMQP 
     Dispatch the Tasks as a process
     """   
-    def __init__(self, connection, queue, routing_key, services_exchange):
-        self._connection = connection
-        self.queue = queue
-        self.routing_key = routing_key
-        self.services_exchange = services_exchange
+    def __init__(self, connection, device_properties):
+        """
+        device_properties have magic keys that
+        are dependent on the rules set out 
+        in ots.common.routing.routing 
+
+        @type connection : L{ots.worker.connection.Connection} 
+        @param connection : The connection 
+
+        @type device_properties : C{dict}
+        @param device_properties : The device_properties
+        """
+        self._connection = connection 
+        self._queues = get_queues(device_properties)
         self._keep_looping = True
-        self._consumer_tag = ""
+        self._consumer_tags = dict()
 
         self._task_state = cycle(TASK_CONDITION_RESPONSES)
         self._amqp_log_handler = None
@@ -138,32 +149,45 @@ class TaskBroker(object):
     ##############################################
     # AMQP Configuration
     ##############################################
-       
-    def _consume(self):
+
+    def _start_consume(self):
         """
         Start consuming messages from the queue
-        Ensures that only one message is taken at a time
         """
-        self.channel.basic_qos(0, 1, False)
-        self._consumer_tag = self.channel.basic_consume(queue = self.queue, 
-                                                   callback = self._on_message)
+        basic_consume = self.channel.basic_consume
+        for queue in self._queues:
+            self._consumer_tags[queue] = basic_consume(queue = queue,
+                                              callback = self._on_message)
+            LOGGER.info("start consume on queue: %s" % queue)
+
+    def _stop_consume(self):
+        """
+        Cancel consuming from queues. This is needed for proper load balancing.
+        Otherwise the server will push next task to the consumer as soon as the
+        ongoing is acked.
+        """
+        for queue in self._queues:
+            self.channel.basic_cancel(self._consumer_tags[queue])
+            LOGGER.info("stop consume on queue: %s" % queue)
 
     def _init_connection(self):
         """
         Initialise the connection to AMQP.
         Queue and Services Exchange are both durable
         """
-        self.channel.queue_declare(queue = self.queue, 
-                                   durable = True,
-                                   exclusive = False, 
-                                   auto_delete = False)
-        self.channel.exchange_declare(exchange = self.services_exchange,
-                                      type = 'direct', 
-                                      durable = True,
-                                      auto_delete = False)
-        self.channel.queue_bind(queue = self.queue,
-                                exchange = self.services_exchange,
-                                routing_key = self.routing_key)
+        for queue in self._queues:
+            self.channel.queue_declare(queue = queue, 
+                                       durable = True,
+                                       exclusive = False, 
+                                       auto_delete = False)
+            self.channel.exchange_declare(exchange = queue,
+                                          type = 'direct', 
+                                          durable = True,
+                                          auto_delete = False)
+            self.channel.queue_bind(queue = queue,
+                                    exchange = queue,
+                                    routing_key = queue)
+        self.channel.basic_qos(0, 1, False)
 
     ###############################################
     # LOOPING / HANDLING / DISPATCHING
@@ -203,7 +227,7 @@ class TaskBroker(object):
         Response Queue is kept informed of the status
         """
         
-        self.channel.basic_cancel(self._consumer_tag)
+        self._stop_consume()
         self.channel.basic_ack(delivery_tag = message.delivery_tag)
         #
         cmd_msg = unpack_message(message)
@@ -224,10 +248,7 @@ class TaskBroker(object):
                                     exception)
         finally:
             self._publish_task_state_change(task_id, response_queue)
-            LOGGER.info("Recommence consume on queue: %s" % self.queue)
-            self._consumer_tag = \
-                self.channel.basic_consume(queue = self.queue,
-                                           callback = self._on_message)
+            self._start_consume()
 
     def _on_message(self, message):
         """
@@ -347,7 +368,7 @@ class TaskBroker(object):
             LOGGER.info("Trying to reconnect...")
             self._connection.connect()
             self._init_connection()
-            self._consume()
+            self._start_consume()
         except Exception:
             #If rabbit is still down, we expect this to fail
             LOGGER.exception("Reconnecting failed...")
@@ -357,7 +378,7 @@ class TaskBroker(object):
         Delegate to connection cleanup
         """
         try:
-            self.channel.basic_cancel(self._consumer_tag)
+            self._stop_consume()
         except:
             pass
         if self._connection:
@@ -395,5 +416,5 @@ class TaskBroker(object):
         Initialises the AMQP connections and run the forever loop.
         """
         self._init_connection()
-        self._consume()
+        self._start_consume()
         self._loop()

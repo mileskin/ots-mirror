@@ -20,6 +20,22 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.publisher_plugin_base import PublisherPluginBase
-from ots.common.framework.plugin_exception_policy import plugin_exception_policy
+from setuptools import setup, find_packages
+
+setup(
+      name = "ots.tools",
+      description="Various helper tools for OTS",
+      author = "teemu.vainio@ixonos.com",
+      version = "0.1.2",
+      include_package_data = True,
+      namespace_packages = ['ots'],
+      packages = find_packages(),
+      zip_safe = False,
+
+      entry_points={
+        "console_scripts":
+            ["ots_trigger = ots.tools.trigger.ots_trigger:main",
+             "ots_empty_queue = ots.tools.queue_management.empty_queue:main",
+             "ots_delete_queue = ots.tools.queue_management.delete_queue:main",
+             ],},
+      )

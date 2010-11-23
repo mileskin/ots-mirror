@@ -62,7 +62,7 @@ class TestOptions(unittest.TestCase):
         self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
                           options.host_packages)
 
-    def test_device(self):
+    def test_device_properties(self):
         kwargs = {"image" : "www.nokia.com"}
         options = Options(**kwargs)
         kwargs = {"image" : "www.nokia.com",
@@ -70,7 +70,7 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals({'veg': 'oranges',
                            'fruit': 'apples',
-                           'meat': 'beef'}, options.device)
+                           'meat': 'beef'}, options.device_properties)
 
     def test_emmc(self):
         kwargs = {"image" : "www.nokia.com",
