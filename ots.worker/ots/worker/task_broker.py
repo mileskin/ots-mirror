@@ -72,20 +72,14 @@ class NotConnectedError(Exception):
 # Command Class to Function
 ########################################
 
-def _start_process(command, timeout):
+def _start_process(command):
     """
     Starts the specified process
 
     @type command: string
     @param command: The CL params for the Process to be run as a Task 
-
-    @type timeout: int
-    @param timeout: The timeout to apply to the Task
     """
-    task = Command(command, 
-                   soft_timeout=timeout,
-                   hard_timeout=timeout + 5)
-
+    task = Command(command)
     task.execute()
 
 
@@ -239,9 +233,7 @@ class TaskBroker(object):
         #
         try:
             self._dispatch(cmd_msg)
-        except (HardTimeoutException, 
-                SoftTimeoutException,
-                CommandFailed):
+        except CommandFailed:
             exception = sys.exc_info()[1]
             exception.task_id = task_id 
             self._publish_exception(response_queue,
@@ -278,8 +270,7 @@ class TaskBroker(object):
             self._keep_looping = False
         elif not cmd_msg.is_ignore:
             LOGGER.debug("Running command: '%s'"%(cmd_msg.command))
-            _start_process(command = cmd_msg.command, 
-                           timeout = cmd_msg.timeout)
+            _start_process(command = cmd_msg.command)
             
     ########################################
     # MESSAGE PUBLISHING
