@@ -43,6 +43,13 @@ class HandlerStub(logging.Handler):
 
 class TestDTOHandler(unittest.TestCase):
 
+    def tearDown(self):
+        log = logging.getLogger()
+        for handler in log.handlers:
+            log.removeHandler(handler)
+
+        
+
     def test_results(self):
         dto_handler = DTOHandler()
         results = Results("foo" , "<test>bar</test>", package = "pkg1",
@@ -79,7 +86,7 @@ class TestDTOHandler(unittest.TestCase):
 
     def test_callback_log_record(self):
       
-        logging.basicConfig(filename = None,
+        logging.basicConfig(filename = "/dev/null",
                             level=logging.DEBUG)
         logger = logging.getLogger()
         log_handler = HandlerStub()

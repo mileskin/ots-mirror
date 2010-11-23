@@ -102,7 +102,7 @@ def run(parent, text):
     mock_taskrunner = MockTaskRunnerResultsPass()
     options_dict["parent"] = parent
     options_dict["text"] = text
-    hub = Hub("pdt", 111, **options_dict)
+    hub = Hub("example_sw_product", 111, **options_dict)
     #The taskrunner is replaced by the Mock here!
     hub._taskrunner = mock_taskrunner
     print "Result", hub.run()

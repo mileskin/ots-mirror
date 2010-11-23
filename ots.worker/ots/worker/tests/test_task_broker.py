@@ -20,7 +20,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import logging
 import unittest 
 import subprocess
 import time
@@ -182,7 +181,7 @@ class TestTaskBroker(unittest.TestCase):
     #############################################
 
     def test_on_message(self):
-        logging.basicConfig()
+
         #send a sleep command
         #send an echo command
         #watch the response queue for state changes
@@ -212,7 +211,7 @@ class TestTaskBroker(unittest.TestCase):
         self.assertEquals(_queue_size("test"), 3)
 
     def test_on_message_timeout(self):
-        logging.basicConfig()
+
         #send a sleep command
         cmd_msg = CommandMessage(['sleep', '2'], 'test', 1, timeout = 1)
         msg = pack_message(cmd_msg)
@@ -239,7 +238,7 @@ class TestTaskBroker(unittest.TestCase):
         pull messages from the queue
         """
         #self.assertTrue(_queue_size("test_v") is None)
-        logging.basicConfig()
+
         cmd_msg = CommandMessage(['echo', 'foo'], 'test', 1, timeout = 1)
         msg = pack_message(cmd_msg)
         task_broker = _task_broker_factory()
