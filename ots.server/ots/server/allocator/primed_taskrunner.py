@@ -24,7 +24,7 @@ import os
 from socket import gethostname
 import configobj
 
-from ots.common.routing.routing import get_routing_key
+from ots.common.routing.api import get_routing_key
 
 from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.api import taskrunner_factory

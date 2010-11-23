@@ -49,12 +49,13 @@ from itertools import cycle
 
 from ots.common.amqp.api import unpack_message, pack_message
 from ots.common.dto.api import StateChangeMessage, TaskCondition
+from ots.common.routing.api import get_queues
 
 import ots.worker
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException,  HardTimeoutException
 from ots.worker.command import CommandFailed
-from ots.common.routing.routing import get_queues
+
 
 LOGGER = logging.getLogger(__name__)
 
