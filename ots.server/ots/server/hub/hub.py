@@ -47,8 +47,6 @@ import uuid
 import configobj
 import traceback
 
-from ots.common.framework.api import config_filename
-
 from ots.server.allocator.api import primed_taskrunner
 
 from ots.server.hub.testrun import Testrun

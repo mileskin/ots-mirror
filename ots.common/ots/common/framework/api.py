@@ -21,6 +21,5 @@
 # ***** END LICENCE BLOCK *****
 
 from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.config_filename import config_filename
 from ots.common.framework.publisher_plugin_base import PublisherPluginBase
 from ots.common.framework.plugin_exception_policy import plugin_exception_policy
