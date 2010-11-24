@@ -147,7 +147,7 @@ def _get_dummy_host_None(*args):
 class Test_xmlrpc_interface(unittest.TestCase):
 
     def test_request_sync(self):
-        self.id = "123007"
+        self.req_id = "123007"
 
         self.image_url = 'http://image_url'
         self.rootstrap_url = 'http://rootstrap_url'
@@ -164,7 +164,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.interface_options['rootstrap'] = self.rootstrap_url
         self.interface_options['execute'] = "false"
 
-        result = request_sync(self.sw_product, self.id, self.email_list, self.interface_options)
+        result = request_sync(self.sw_product, self.req_id, self.email_list, self.interface_options)
 
         self.assertEquals(result, 'ERROR')
 
@@ -173,7 +173,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         Try request_sync with errorneous 'device' option. Should return ERROR since no process instances are created for
         multiple devicegroup.
         """
-        self.id = "123007"
+        self.req_id = "123007"
 
         self.image_url = 'http://image_url'
         self.rootstrap_url = 'http://rootstrap_url'
@@ -189,7 +189,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.interface_options['image'] = self.image_url
         self.interface_options['rootstrap'] = self.rootstrap_url
 
-        result = request_sync(self.sw_product, self.id, self.email_list, self.interface_options)
+        result = request_sync(self.sw_product, self.req_id, self.email_list, self.interface_options)
 
         self.assertEquals(result, 'ERROR')
 
@@ -198,7 +198,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         New format for devicegroup is 'devicegroup:groupname property:value', meaning that properties for devicegroup are separated with whitespace,
         it's not valid to add whitespace after devicegroup value: 'devicegroup: groupname property:value'
         """
-        self.id = "123007"
+        self.req_id = "123007"
 
         self.image_url = 'http://image_url'
         self.rootstrap_url = 'http://rootstrap_url'
@@ -214,7 +214,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.interface_options['image'] = self.image_url
         self.interface_options['rootstrap'] = self.rootstrap_url
 
-        result = request_sync(self.sw_product, self.id, self.email_list, self.interface_options)
+        result = request_sync(self.sw_product, self.req_id, self.email_list, self.interface_options)
 
         self.assertEquals(result, 'ERROR')
 
