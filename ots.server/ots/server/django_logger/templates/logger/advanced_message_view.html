@@ -24,10 +24,12 @@
 {% extends "logger/logger_base.html" %}
 {% block content %}
 {% load logger_template_tags %}
+<a href="javascript:toggle('filter');">filter</a>
+<div id="filter" style="display:none;">
 <form name="logger_config" action="{{ page_url }}" method="post">
-<table cellspacing="15" id="test-set-table" style="width:100%;">
+<table id="test-set-table">
 	<tr>
-		<td style="width:10%">
+		<td >
 			{% if show_prev %}
 			<input type="image" name="previous_page" src="{{ MEDIA_URL }}/images/arrow_left.jpg" alt="Previous page" onclick="logger_config.submit();" />
 			{% endif %}
@@ -35,7 +37,7 @@
 			<input type="image" name="next_page" src="{{ MEDIA_URL }}/images/arrow_right.jpg" alt="Next page" onclick="logger_config.submit();" />
 			{% endif %}
 		</td>
-		<td style="width:90%;">
+		<td >
 			Service:&nbsp;
 			<select name="selected_service" onchange="logger_config.submit();">
 				{% for service in services %}
@@ -72,6 +74,7 @@
 	</tr>
 </table>
 </form>
+</div>
 <table cellspacing="15" id="test-set-table" style="width:100%">
 	<thead>
 		<tr>

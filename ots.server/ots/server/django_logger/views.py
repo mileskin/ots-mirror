@@ -93,7 +93,7 @@ def create_message(request, servicename=None, run_id=None):
 
         instance = LogMessage(
             service         = servicename,
-            run_id          = int(run_id),
+            run_id          = str(run_id),
             date            = datetime.datetime.now(),
             remote_ip       = request.META['REMOTE_ADDR'],
             remote_host     = remote_host,

@@ -34,22 +34,35 @@
     <link rel="stylesheet" 
 	  type="text/css" 
 	  media="all" 
-	  href="{{ STATIC_URL }}/django_logger/templates/logger/custom.css" />
-
+	  href="{{ MEDIA_URL }}custom.css" />
     <title>{% block title %}OTS{% endblock title %}</title>
+	<script language="javascript"> 
+	function toggle(elementName) {
+		var ele = document.getElementById(elementName);
+		if(ele.style.display == "block") {
+	    	ele.style.display = "none";
+	  	}
+		else {
+			ele.style.display = "block";
+		}
+	} 
+	</script>
   </head>
   <body>
-    <div id="header">
-      <h2 style="text-align:center;">{% block pagetitle %}OTS Logging Server{% endblock pagetitle %}</h2>
-    </div>
-	<div id="sideNavigation">	
-	</div>		
-	<div id="contentArea">
-	{% block content %}
-	{% endblock content %} 	
-	</div>	
-	<div id="footer">
-		Copyright ©2009 Nokia. All rights reserved.
+    <div class="main">
+	    <div id="header">
+	    <!-- <a id="displayText" href="javascript:toggle('footer');">show</a> -->
+	    </div>
+	      <h2 style="text-align:center;">{% block pagetitle %} {% endblock pagetitle %}</h2>
+		<div id="sideNavigation">	
+		</div>		
+		<div id="contentArea">
+		{% block content %}
+		{% endblock content %} 	
+		</div>	
+		<div id="footer">
+			<a class="footerlink" href="http://wiki.meego.com/Quality/QA-Tools/" >wiki.meego.com/Quality/QA-Tools</a>
+		</div>
 	</div>
   </body>
 </html>

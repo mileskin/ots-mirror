@@ -27,7 +27,7 @@ apache or http.
 
 import logging
 from django.http import HttpRequest
-from ots.logger_plugin.views import create_message
+from ots.server.django_logger.views import create_message
 from socket import gethostname
 
 class LocalHttpHandler(logging.Handler):
@@ -67,4 +67,4 @@ class LocalHttpHandler(logging.Handler):
             create_message(request, servicename = "ots",
                            run_id=self.testrun_id)
         except:
-            print "error in LocalHttpHandler, testrun %s" % self.testrun_id
+            print("error in LocalHttpHandler, testrun %s" % self.testrun_id)

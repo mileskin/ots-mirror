@@ -22,15 +22,14 @@
 
 import unittest
 import logging
-
+import uuid
 from django.http import HttpRequest
 
 from ots.server.django_logger.models import LogMessage
 from ots.server.django_logger.views import create_message
-from ots.server.django_logger.localhandler import LocalHttpHandler
 
 SERVICENAME = 'logmessage'
-RUN_ID      = 1
+RUN_ID      = uuid.uuid1().hex
 
 class TestLogger(unittest.TestCase):
 
@@ -173,34 +172,3 @@ class TestLogger(unittest.TestCase):
         self.assertEquals(
             LogMessage.objects.all()[0].remote_host,
             self.meta_data['REMOTE_HOST'])
-
-
-
-class TestLocalHttpHandler(unittest.TestCase):
-
-    def setUp(self):
-        LogMessage.objects.all().delete()
-        self.log = logging.getLogger("testlogger")
-        self.log.setLevel(logging.INFO)
-
-        httphandler = LocalHttpHandler(RUN_ID)
-        httphandler.setLevel(logging.INFO)
-        self.log.addHandler(httphandler)
-
-    def tearDown(self):
-        LogMessage.objects.all().delete()
-
-    def testMessageCount(self):
-        self.log.error("asdf")
-        self.assertEquals(LogMessage.objects.all().count(), 1)
-
-    def testMessageData(self):
-        msg_string = "asdf"
-        self.log.error(msg_string)
-        msg = LogMessage.objects.all()[0]
-
-        self.assertEquals(msg.run_id, RUN_ID)
-        self.assertEquals(msg.levelname.lower(), "error")
-        self.assertEquals(msg.module, "tests")
-        self.assertEquals(msg.filename, "tests.py")
-        self.assertEquals(msg.msg, msg_string)

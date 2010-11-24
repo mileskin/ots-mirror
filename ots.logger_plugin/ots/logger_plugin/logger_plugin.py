@@ -48,10 +48,6 @@ class LoggerPlugin(PublisherPluginBase):
         
         self._httphandler = LocalHttpHandler(testrun_uuid)
         
-#        self._httphandler = logging.handlers.RotatingFileHandler('/home/villen/otso/otso.tests/test.log',
-#                                                maxBytes=5242880,
-#                                                backupCount=5,
-#                                                encoding="utf-8")
         self._httphandler.setLevel(logging.DEBUG)
         root_logger.addHandler(self._httphandler)
         

@@ -73,6 +73,9 @@ class Publishers(PublisherPluginBase):
         root_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
         plugin_dir = os.path.join(root_dir, "plugins")
         self._publishers = []
+        LOG.debug(root_dir)
+        LOG.debug(plugin_dir)
+        LOG.debug(plugins_iter(plugin_dir, "ots.publisher_plugin"))
         for publisher_klass in plugins_iter(plugin_dir, "ots.publisher_plugin"):
             LOG.debug("Publisher found: '%s'"%(publisher_klass))
             with plugin_exception_policy(self.SWALLOW_EXCEPTIONS):
