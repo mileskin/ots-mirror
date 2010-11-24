@@ -343,6 +343,33 @@ class Test_xmlrpc_interface(unittest.TestCase):
 
         self.assertTrue(len(testrun_list) == 0)
 
+    def test_with_devicename_and_deviceid_devicespec(self):
+        options = {'device': [{'devicename': 'test1', 'deviceid': '1'}], \
+                   'timeout': '1'}
+        testrun_list, process_queues = \
+            _create_testruns(options, 'request', 'program', 'noemail@nodomain.nodot', \
+                'foobar-tests', 'https://image_url', 'http://roostrap_url')
+
+        self.assertTrue(len(testrun_list) == 1)
+
+    def test_with_devicename_devicespec(self):
+        options = {'device': [{'devicename': 'test1'}], \
+                   'timeout': '1'}
+        testrun_list, process_queues = \
+            _create_testruns(options, 'request', 'program', 'noemail@nodomain.nodot', \
+                'foobar-tests', 'https://image_url', 'http://roostrap_url')
+        
+        self.assertTrue(len(testrun_list) == 1)
+
+    def test_with_deviceid_devicespec(self):
+        options = {'device': [{'deviceid': '1'}], \
+                   'timeout': '1'}
+        testrun_list, process_queues = \
+            _create_testruns(options, 'request', 'program', 'noemail@nodomain.nodot', \
+                'foobar-tests', 'https://image_url', 'http://roostrap_url')
+       
+        self.assertTrue(len(testrun_list) == 1)
+
     def test_validate_devicespecs_true(self):
         devicespecs = ['devicegroup', 'devicename', 'deviceid']
         self.assertTrue(_validate_devicespecs(devicespecs))

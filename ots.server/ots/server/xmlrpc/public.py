@@ -248,16 +248,15 @@ def _create_testruns(options, request, program, notify_list,
                 continue
 
             # Fetch devicespecs
+            updated_specs = dict()
             if devicespec.get('devicegroup'):
-                current_options['device'] = \
-                                {'devicegroup': devicespec['devicegroup']}
+                updated_specs['devicegroup'] = devicespec['devicegroup']
             if devicespec.get('devicename'):
-                current_options['device']['devicename'] = \
-                                devicespec['devicename']
+                updated_specs['devicename'] = devicespec['devicename']
             if devicespec.get('deviceid'):
-                current_options['device']['deviceid'] = \
-                                devicespec['deviceid']
+                updated_specs['deviceid'] = devicespec['deviceid']
 
+            current_options['device'] = updated_specs
             testrun_list.append((pq, request, program, current_options, \
                                  notify_list, test_packages, image_url, \
                                  rootstrap_url))
