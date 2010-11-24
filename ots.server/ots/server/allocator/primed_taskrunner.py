@@ -21,6 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 import os
+import logging
 from socket import gethostname
 import configobj
 
@@ -29,6 +30,8 @@ from ots.common.routing.api import get_routing_key
 from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.api import taskrunner_factory
 from ots.server.allocator.conductor_commands import get_commands
+
+LOG = logging.getLogger(__name__)
 
 def _storage_address():
     """
@@ -110,5 +113,6 @@ def primed_taskrunner(testrun_uuid, timeout, priority, device_properties,
                         host_packages, emmc, testrun_uuid, _storage_address(),
                         testfilter, flasher)
     for cmd in cmds:
+        LOG.debug("Add cmd '%s' to taskrunner"%(cmd))
         taskrunner.add_task(cmd)
     return taskrunner
