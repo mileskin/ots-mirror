@@ -22,5 +22,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK ***** 
 
+from ots.common.routing.routing import DEVICE_GROUP, DEVICE_NAME, DEVICE_ID
+from ots.common.routing.routing import VALID_PROPERTIES
 from ots.common.routing.routing import get_routing_key
 from ots.common.routing.routing import get_queues
