@@ -293,7 +293,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         except IndexError:
             pass
 
-    def test_create_testrun_one_devicespec_devicegroup(self):
+    def test_one_devicespec_devicegroup(self):
         options = {'device': [{'devicegroup': 'foobar_1'}], \
                    'timeout': '1'}
         testrun_list, process_queues = \
@@ -303,7 +303,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.assertTrue(len(testrun_list) == 1)
         self.assertTrue(len(process_queues) == 1)
 
-    def test_create_testrun_one_devicespec_devicegroup_two_devicegroups(self):
+    def test_one_devicespec_devicegroup_two_devicegroups(self):
         options = {'device': [{'devicegroup': 'foobar_1'}, \
                    {'devicegroup': 'foobar_2'}], 'timeout': '1'}
         testrun_list, process_queues = \
@@ -313,7 +313,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.assertTrue(len(testrun_list) == 2)
         self.assertTrue(len(process_queues) == 2)
 
-    def test_create_testrun_multiple_devicespecs(self):
+    def test_multiple_devicespecs(self):
         options = {'device': [{'devicegroup': 'foobar_1', 'devicename': 'mydevice', \
                    'deviceid': '1'}], 'timeout': '1'}
         testrun_list, process_queues = \
@@ -323,7 +323,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.assertTrue(len(testrun_list) == 1)
         self.assertTrue(len(process_queues) == 1)
 
-    def test_create_testrun_multiple_devicespecs_two_devicegroups(self):
+    def test_multiple_devicespecs_two_devicegroups(self):
         options = {'device': [{'devicegroup': 'foobar_1', 'devicename': 'device1', \
                    'deviceid': '1'}, {'devicegroup': 'foobar_2', 'devicename': 'device2', \
                    'deviceid': '2'}], 'timeout': '1'}
@@ -334,7 +334,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.assertTrue(len(testrun_list) == 2)
         self.assertTrue(len(process_queues) == 2)
 
-    def test_create_testrun_with_bogus_devicespec(self):
+    def test_with_bogus_devicespec(self):
         options = {'device': [{'bogusspec': 'foobazor'}], \
                    'timeout': '1'}
         testrun_list, process_queues = \
@@ -357,7 +357,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         devicespecs = ['foobarspec']
         self.assertFalse(_validate_devicespecs(devicespecs))
 
-    def test_prepare_testrun(self):
+    def test_prepare(self):
         options = {'hosttest': 'this is a hosttest',
                    'engine': 'this is the engine',
                    'device': 'a:1 b:2 c:3',
@@ -368,7 +368,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
         self.assertEquals(options, new_options)
         self.assertFalse(options is new_options)
 
-    def test_check_testruns_result_values(self):
+    def test_check_result_values(self):
         return_error = ['ERROR', 'FAIL', 'PASS']
         self.assertEqual('ERROR', _check_testruns_result_values(return_error))
 
@@ -426,7 +426,7 @@ class Test_xmlrpc_interface(unittest.TestCase):
                                     ["foo@bar.com"], ["p1", "p2"], 
                                      "image", "rootstrap"))
         
-    def test_run_test_no_host(self):
+    def test_run_no_test_host(self):
         #Override host with stub
         public._get_testrun_host = _get_dummy_host_None
 
