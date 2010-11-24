@@ -47,14 +47,22 @@ def get_resultbackends(testrun):
 # DB related functions
 #
 
-def init_new_testrun(swproduct, testplan_id=None, testplan_name="",
-                    gate=None, label=None):
+
+
+def create_testrun_id(swproduct, request, options):
     """
     Creates a new testrun into DB and returns an unique testrun ID. Default
     implementation only generates an unique testrun id.
     
     @param swproduct: Name of the sw product this testrun belongs to
     @type swproduct: C{string}
+
+    @param request: Build request ID
+    @type request: C{string}
+
+    @param options: Testrun options
+    @type options: C{dict}
+
 
     @return: Testrun id
     @rtype: C{int}

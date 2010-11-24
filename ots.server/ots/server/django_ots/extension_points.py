@@ -48,22 +48,23 @@ def get_resultbackends(testrun):
 # DB related functions
 #
 
-def init_new_testrun(swproduct, testplan_id=None, testplan_name="",
-                    gate=None, label=None):
+def create_testrun_id(swproduct, request, options):
     """
     Creates a new testrun into DB and returns an unique testrun ID.
     
     @param swproduct: Name of the sw product this testrun belongs to
     @type swproduct: C{string}
 
+    @param request: Build request ID
+    @type request: C{string}
+
+    @param swproduct: Testrun options
+    @type swproduct: C{dict}
+
     @return: Testrun id
     @rtype: C{int}
     """
-    return interface.init_new_testrun(swproduct,
-                                      testplan_id,
-                                      testplan_name,
-                                      gate,
-                                      label)
+    return interface.init_new_testrun(swproduct)
 
 
 def update_testrun_in_db(testrun, testrun_id):

@@ -26,8 +26,7 @@ Functions for interfacing with the DB
 
 from ots.server.testrun_db.models import Testrun, Link
 
-def init_new_testrun(swproduct, testplan_id=None, testplan_name="",
-                    gate=None, label=None):
+def init_new_testrun(swproduct):
     """
     Creates a new testrun into DB and returns testrun ID. 
 
