@@ -36,7 +36,8 @@ class TestTimeout(unittest.TestCase):
             time.sleep(3)
         queue_timeout = 1
         global_timeout = 1
-        timeout = Timeout(global_timeout, queue_timeout)
+        preparation_timeout = 1
+        timeout = Timeout(global_timeout, queue_timeout, preparation_timeout)
         timeout.start_queue_timeout()
         self.assertRaises(OtsQueueTimeoutError, run)
 
@@ -46,7 +47,8 @@ class TestTimeout(unittest.TestCase):
             self.done = True
         queue_timeout = 1
         global_timeout = 1
-        timeout = Timeout(global_timeout, queue_timeout)
+        preparation_timeout = 1
+        timeout = Timeout(global_timeout, queue_timeout, preparation_timeout)
         timeout.start_queue_timeout()
         run()
         self.assertTrue(self.done)
@@ -56,7 +58,8 @@ class TestTimeout(unittest.TestCase):
             time.sleep(3)
         queue_timeout = 1
         global_timeout = 1
-        timeout = Timeout(global_timeout, queue_timeout)
+        preparation_timeout = 1
+        timeout = Timeout(global_timeout, queue_timeout, preparation_timeout)
         timeout.start_queue_timeout()
         timeout.task_started()
         self.assertRaises(OtsGlobalTimeoutError, run)
@@ -69,7 +72,8 @@ class TestTimeout(unittest.TestCase):
 
         queue_timeout = 1
         global_timeout = 1
-        timeout = Timeout(global_timeout, queue_timeout)
+        preparation_timeout = 1
+        timeout = Timeout(global_timeout, queue_timeout, preparation_timeout)
         timeout.start_queue_timeout()
         timeout.stop()
         run()

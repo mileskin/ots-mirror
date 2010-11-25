@@ -66,7 +66,9 @@ def taskrunner_factory(routing_key,
                             routing_key = routing_key,
                             testrun_id = testrun_id,
                             timeout = timeout,
-                            queue_timeout = config.as_int("timeout_task_start"))
+                            queue_timeout = config.as_int("timeout_task_start"),
+                            preparation_timeout = \
+                                config.as_int("timeout_for_preparation"))
     return taskrunner
 
 
