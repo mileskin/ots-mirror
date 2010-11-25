@@ -125,7 +125,7 @@ def create_message(request, servicename=None, run_id=None):
     else:
         return HttpResponse('Request method is not POST')
 
-def basic_message_viewer(request, servicename=None, run_id=None):
+def basic_testrun_viewer(request, run_id=None):
     """ Shows all messages in list view for given servicename and run id
 
         @type request: L{HttpRequest}
@@ -144,16 +144,12 @@ def basic_message_viewer(request, servicename=None, run_id=None):
         'run_id'    : str(run_id),
         'MEDIA_URL' : settings.MEDIA_URL,
         }
-    # Fetching row
-    # Servicename is ignored for backward compatibility. (Related to ots)
-    #    context_dict['messages'] = LogMessage.objects.filter(
-    #        service=servicename, run_id=run_id).exclude(levelname="DEBUG")\
-    #.order_by("date")
 
-    context_dict['messages'] = LogMessage.objects.filter(run_id=run_id)\
-        .exclude(levelname="DEBUG").order_by("date")
+    messages = LogMessage.objects.filter(run_id=run_id).order_by("date")
+    context_dict['starttime'] = messages[0].date
+    context_dict['messages'] = messages
 
-    template = loader.get_template('logger/basic_message_view.html')
+    template = loader.get_template('logger/basic_testrun_view.html')
     return HttpResponse(template.render(Context(context_dict)))
 
 def advanced_message_viewer(request):
@@ -247,7 +243,7 @@ def view_message_details(request, log_id=None):
         @return: Returns HttpResponse containing the view.
     """
     # Fetching row
-    message = LogMessage.objects.filter(id=log_id)
+    message = LogMessage.objects.filter(run_id=log_id)
     if message.count():
         message = message[0]
 
@@ -256,4 +252,34 @@ def view_message_details(request, log_id=None):
         'message'   : message,
         'MEDIA_URL' : settings.MEDIA_URL,
         }
+    return HttpResponse(template.render(Context(context_dict)))
+
+def main_page(request):
+    """
+        Index page for viewing summary from all test runs.
+        @type request: L{HttpRequest}
+        @param request: HttpRequest of the view
+
+    """
+    context_dict = {
+    'MEDIA_URL' : settings.MEDIA_URL,
+    }
+    # Fetching row
+    # Servicename is ignored for backward compatibility. (Related to ots)
+    #    context_dict['messages'] = LogMessage.objects.filter(
+    #        service=servicename, run_id=run_id).exclude(levelname="DEBUG")\
+    #.order_by("date")
+
+    run_ids = LogMessage.objects.values('run_id').distinct()
+    messages = []
+    
+    for run in run_ids:
+        message = LogMessage.objects.filter(run_id = run['run_id']).order_by('-date')[0]
+        print message
+        messages.append(message)
+    
+    messages = sorted(messages, key=lambda message: message.date, reverse=True)
+        
+    context_dict['messages']  = messages
+    template = loader.get_template('logger/index.html')
     return HttpResponse(template.render(Context(context_dict)))
