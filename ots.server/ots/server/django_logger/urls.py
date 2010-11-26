@@ -28,4 +28,5 @@ urlpatterns = patterns('',
     (r'^view/$', advanced_message_viewer),
     (r'^view/details/(?P<log_id>\d+)/$', view_message_details),
     (r'^view/(?P<servicename>\w+)/(?P<run_id>\d+)/$', basic_message_viewer),
+    (r'^view/filtter/$', filtter_message_viewer),
 )
