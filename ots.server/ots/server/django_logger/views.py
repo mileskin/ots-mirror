@@ -257,3 +257,25 @@ def view_message_details(request, log_id=None):
         'MEDIA_URL' : settings.MEDIA_URL,
         }
     return HttpResponse(template.render(Context(context_dict)))
+
+def view_workers(request):
+    """ Shows workers view
+
+        @type request: L{HttpRequest}
+        @param request: HttpRequest of the view
+
+        @rtype: L{HttpResponse}
+        @return: Returns HttpResponse containing the view.
+    """
+    
+    post_data = request.method == 'POST' and deepcopy(request.POST) or {}
+    
+    # get host name, IP address
+    post_data['host'] = \
+        [item for item in LogMessage.objects.values_list(
+        'remote_host', 'remote_ip').distinct().order_by('remote_host')]
+    
+    print "post_data = " + str(post_data)
+
+    template = loader.get_template('logger/workers_view.html')
+    return HttpResponse(template.render(Context(post_data)))
