@@ -26,6 +26,6 @@ from ots.server.django_logger.views import *
 urlpatterns = patterns('',
     (r'^(?P<servicename>\w+)/(?P<run_id>\w+)/$', create_message),
     (r'^view/$', main_page),
-    (r'^view/details/(?P<log_id>\w+)/$', view_message_details),
     (r'^view/testrun/(?P<run_id>\w+)/$', basic_testrun_viewer),
+    (r'^view/details/(?P<log_id>\w+)/$', view_message_details),
 )

@@ -243,7 +243,7 @@ def view_message_details(request, log_id=None):
         @return: Returns HttpResponse containing the view.
     """
     # Fetching row
-    message = LogMessage.objects.filter(run_id=log_id)
+    message = LogMessage.objects.filter(id=log_id)
     if message.count():
         message = message[0]
 
@@ -275,7 +275,6 @@ def main_page(request):
     
     for run in run_ids:
         message = LogMessage.objects.filter(run_id = run['run_id']).order_by('-date')[0]
-        print message
         messages.append(message)
     
     messages = sorted(messages, key=lambda message: message.date, reverse=True)
