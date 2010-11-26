@@ -91,11 +91,14 @@ class ConductorCommands(object):
         """
         ret_val = []
         for param_name, opt in COMMAND_DICT.items():
-            ret_val.append(opt)
             if param_name == "testpackages":
+                ret_val.append(opt)
                 ret_val.append(testpackages)
             else:
-                ret_val.append(getattr(self, param_name))
+                param = getattr(self, param_name)
+                if param is not None:
+                    ret_val.append(opt)
+                    ret_val.append(param)
         return ret_val
 
     def single(self, hw_packages, host_packages):
@@ -113,7 +116,8 @@ class ConductorCommands(object):
         @rparam: Conductor commands
         """
         testpackages =  ",".join(hw_packages)
-        command = self._command(testpackages)
+        command =  ["conductor"] 
+        command.extend(self._command(testpackages))
         if host_packages:
             command.append(';')
             testpackages =  ",".join(host_packages)
@@ -139,9 +143,12 @@ class ConductorCommands(object):
         if not (hw_packages + host_packages):
             raise ValueError("No hardware or host packages defined")
         for testpackages in hw_packages:
-            commands.append(self._command(testpackages))
+            cmd = ["conductor"]
+            cmd.extend(self._command(testpackages))
+            commands.append(cmd)
         for testpackages in host_packages:
-            cmd = self._command(testpackages)
+            cmd = ["conductor"]
+            cmd.extend(self._command(testpackages))
             cmd.append('-o')
             commands.append(cmd)
         return commands
@@ -193,9 +200,11 @@ def get_commands(is_package_distributed,
     @rtype: A C{list} of C{str} 
     @rtype: Conductor commands
     """
+   
     commands = ConductorCommands(image_url, emmc, testrun_uuid,
                                  storage_address, testfilter, flasher)
     if is_package_distributed:
         return commands.multiple(hw_packages, host_packages)
     else:
         return commands.single(hw_packages, host_packages)
+  

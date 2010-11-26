@@ -31,7 +31,9 @@ Requires an SMTP server
 import logging
 import datetime
 import smtplib
+import configobj
 
+from ots.server.server_config_filename import server_config_filename
 from ots.common.framework.api import PublisherPluginBase
 #from ots.results.api import TestrunResult
 from ots.email_plugin.mail_message import MailMessage 
@@ -39,24 +41,6 @@ from ots.email_plugin.mail_message import MailMessage
 LOG = logging.getLogger(__name__)
 
 ON = "on"
-
-############################
-# Configuration 
-############################
-
-#FIXME
-
-def get_from_address():
-    return "foo@bar.com"
-
-def get_message_body():
-    return None
-
-def get_message_subject():
-    return None
-
-def get_smtp_server():
-    return "localhost"
 
 ##############################
 # EmailPlugin
@@ -122,6 +106,19 @@ class EmailPlugin(PublisherPluginBase):
         self._tested_packages = []
         self._notify_list = notify_list
 
+        config_file = server_config_filename()
+
+        config = configobj.ConfigObj(config_file).get("ots.email_plugin")
+
+        self._from_address = config["from_address"]
+        self._message_body = config["message_body"]
+        self._message_subject = config["message_subject"]
+        self._smtp_server = config["smtp_server"]
+
+        if config.as_bool("disabled"): # If email plugin is disabled overwrite
+            self._email = "off"          # option
+        
+
     ##########################################
     # DEFAULTED PROPERTIES
     ##########################################
@@ -183,9 +180,9 @@ class EmailPlugin(PublisherPluginBase):
         @rparam : Mail message
         """
         if self._mail_message is None:
-            self._mail_message = MailMessage(get_from_address(),
-                                        get_message_body(),
-                                        get_message_subject())
+            self._mail_message = MailMessage(self._from_address,
+                                             self._message_body,
+                                             self._message_subject)
         message = self._mail_message.message(self.request_id, 
                                              self.testrun_uuid, 
                                              self.sw_product,
@@ -244,13 +241,17 @@ class EmailPlugin(PublisherPluginBase):
         """
         Sends the email
         """
+        if not self.is_email_on():
+            LOG.info("email plugin disabled")
+            return
+        
         if self._notify_list is not None:
             failed_addresses = None
-            server_url = get_smtp_server()
+            server_url = self._smtp_server
             print "Using smtp server: '%s'"%(server_url)
             mail_server = smtplib.SMTP(server_url)
             try:
-                failed_addresses = mail_server.sendmail(get_from_address(), 
+                failed_addresses = mail_server.sendmail(self._from_address,
                                                         self._notify_list, 
                                                         self.mail_message)
             

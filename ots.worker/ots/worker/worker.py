@@ -55,8 +55,12 @@ class Worker(object):
     Worker class 
     """
 
-    def __init__(self, vhost, host, port, username, password, queue, 
-                       routing_key, services_exchange):
+    def __init__(self, vhost, 
+                       host, 
+                       port, 
+                       username, 
+                       password,
+                       properties):
         """
         Initialise the class, read config, set up logging
         """
@@ -65,9 +69,7 @@ class Worker(object):
         self._port = port
         self._username = username
         self._password = password
-        self._queue = queue 
-        self._routing_key = routing_key 
-        self._services_exchange = services_exchange
+        self._properties = properties
         self._timeout = None
         self.amqp_log_handler = None
        
@@ -89,16 +91,12 @@ class Worker(object):
                                       self._username,
                                       self._password)
         self._task_broker = TaskBroker(self._connection, 
-                                       self._queue, 
-                                       self._routing_key,
-                                       self._services_exchange)
+                                       self._properties)
         if self.amqp_log_handler is not None:
-            self._task_broker.amqp_log_handler = self.amqp_log_handler 
-        logger.debug("Starting the server. " + \
-                         "{vhost:'%s', queue:'%s', routing_key:'%s'}" % 
-                     (self._vhost,
-                      self._queue,
-                      self._routing_key))
+            self._task_broker.amqp_log_handler = \
+                self.amqp_log_handler 
+        logger.debug("Starting the server. with properties:'%s'." 
+                                    %self._properties)
         self._task_broker.run()
 
 
@@ -162,22 +160,17 @@ def worker_factory(config_filename):
     port = config.getint('Worker','port')
     username = config.get('Worker','username')
     password = config.get('Worker','password')
-    queue = config.get('Worker','queue')
-    routing_key = config.get('Worker','routing_key')
-    services_exchange = config.get('Worker','services_exchange')
     
-    if queue == "fix_me" or routing_key == "fix_me":
-        _edit_config(config_filename)
+    properties = dict(config.items("Device"))
+    
 
-        print
-        print "Now restart ots_worker"
-        print
-        sys.exit()
-
-    return Worker(vhost = vhost, host = host, port = port, username = username,
-                  password = password, queue = queue, 
-                  routing_key = routing_key, 
-                  services_exchange = services_exchange)
+    return Worker(vhost = vhost, 
+                  host = host, 
+                  port = port, 
+                  username = username,
+                  password = password, 
+                  properties = properties) 
+                  
        
 def main():
     """

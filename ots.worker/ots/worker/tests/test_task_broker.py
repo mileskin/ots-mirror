@@ -20,7 +20,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import logging
 import unittest 
 import subprocess
 import time
@@ -30,9 +29,11 @@ from amqplib.client_0_8.exceptions import AMQPChannelException
 
 from ots.common.amqp.api import pack_message
 from ots.common.dto.api import CommandMessage
+from ots.common.routing.routing import get_queues, DEVICE_GROUP, DEVICE_NAME
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
+
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
@@ -41,6 +42,19 @@ from ots.worker.command import CommandFailed
 ##########################################
 # Utility Functions
 ##########################################
+
+
+def _get_properties():
+    """
+    Default rooting properties 
+    
+    rtype: C{dict} 
+    rparam: The Properties Dictionary
+    """
+    properties = dict()
+    properties[DEVICE_GROUP] = "test"
+    properties[DEVICE_NAME] = "testname"
+    return properties
 
 def _queue_size(queue):
     """
@@ -82,26 +96,29 @@ def _task_broker_factory(dispatch_func = None):
                             username = "guest",
                             password = "guest")
     connection.connect()
-    task_broker = TaskBroker(connection, "test", "test", "test")
+    task_broker = TaskBroker(connection, _get_properties())
     if dispatch_func:
         task_broker._dispatch = dispatch_func
     task_broker._init_connection()
     return task_broker
-
 
 ###########################################
 # TestTaskBroker
 ###########################################
 
 class TestTaskBroker(unittest.TestCase):
-        
+
     def setUp(self):
-        _queue_delete("test")
-        self.assertTrue(_queue_size("test") is None)
+        queues = get_queues(_get_properties())
+        for queue in queues:
+            _queue_delete(queue)
+            self.assertTrue(_queue_size(queue) is None)
         
     def tearDown(self):
-        _queue_delete("test")
-        
+        queues = get_queues(_get_properties())
+        for queue in queues:
+            _queue_delete(queue)
+
     def test_consume(self):
         """
         Check that the consume sets the prefetch correctly 
@@ -119,16 +136,13 @@ class TestTaskBroker(unittest.TestCase):
 
         #Publish a Couple of Messages
         channel = task_broker.channel
-        #foo_msg = amqp.Message(dumps(self.create_message('foo', 1, '', 1)))
-        
+                
         foo_cmd_msg = CommandMessage(['foo'],'', 1, timeout = 1)
         foo_msg = pack_message(foo_cmd_msg) 
         channel.basic_publish(foo_msg,
                               mandatory = True,
                               exchange = "test",
                               routing_key = "test")
-
-        #bar_msg = amqp.Message(dumps(self.create_message('bar', 1, '', 1)))
 
         bar_cmd_msg = CommandMessage(['bar'],'', 1, timeout = 1)
         bar_msg = pack_message(bar_cmd_msg) 
@@ -138,19 +152,88 @@ class TestTaskBroker(unittest.TestCase):
                               routing_key = "test")
        
         self.assertEquals(2, _queue_size("test"))
-        task_broker._consume()
+        task_broker._start_consume()
         self.expected_size = 1
         channel.wait()
         self.expected_size = 0
         channel.wait()
-       
+        time.sleep(5)
+
+    def test_consume_from_2_queues(self):
+        """
+        Check that worker consumes messages from 2 queues properly
+        """
+        self.counter = 0
+
+        def show_queues():
+            queues = get_queues(_get_properties())
+            total_messages = 0
+            for queue in queues:
+                print "queue %s: %s messages" % (queue, _queue_size(queue))
+                total_messages += _queue_size(queue)
+            print "total messages: %s" % total_messages
+
+        
+        def check_queue_size(*args,**kwargs):
+            """
+            Closure to attach to _dispatch 
+            counts how many messages processed
+            """
+            self.counter += 1
+
+        #SetUp the TaskBroker but override _dispatch
+        task_broker = _task_broker_factory(dispatch_func = check_queue_size)
+
+        #Publish a Couple of Messages to both queues
+        channel = task_broker.channel
+
+        properties = {DEVICE_GROUP : "test",
+                      DEVICE_NAME : "testname"}
+        queues = get_queues(properties)
+        self.assertEquals(len(queues), 2)
+        for queue in queues:
+            foo_cmd_msg = CommandMessage(['foo'],'', 1, timeout = 1)
+            foo_msg = pack_message(foo_cmd_msg) 
+            channel.basic_publish(foo_msg,
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            #
+            bar_cmd_msg = CommandMessage(['bar'],'', 1, timeout = 1)
+            bar_msg = pack_message(bar_cmd_msg) 
+            channel.basic_publish(bar_msg,
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            #
+            baz_cmd_msg = CommandMessage(['bar'],'', 1, timeout = 1)
+            baz_msg = pack_message(baz_cmd_msg) 
+            channel.basic_publish(baz_msg,
+                                  mandatory = True,
+                                  exchange = queue,
+                                  routing_key = queue)
+            
+        #Set to Consume
+        task_broker._start_consume()
+
+        while self.counter < 6: # Process all messages
+            channel.wait()
+        
+        for queue in queues: # Make sure all queues are empty
+            self.assertEquals(_queue_size(queue), 0)
+        
+    def test_init_connection(self):
+        #use test durable code here
+        pass
+
     def _test_loop(self):
         class ConnectionStub:
             exits = False
             def clean_up(self):
                 self.exits = True
         connection_stub = ConnectionStub()
-        task_broker = TaskBroker(connection_stub, None, None, None)
+        properties = {DEVICE_GROUP : "test"}
+        task_broker = TaskBroker(connection_stub, properties)
         
         #Case where no stop file and keep_looping_true
         class ChannelStub:
@@ -182,7 +265,7 @@ class TestTaskBroker(unittest.TestCase):
     #############################################
 
     def test_on_message(self):
-        logging.basicConfig()
+
         #send a sleep command
         #send an echo command
         #watch the response queue for state changes
@@ -203,7 +286,7 @@ class TestTaskBroker(unittest.TestCase):
                                   routing_key = "test")
 
         #Set to Consume
-        task_broker._consume()
+        task_broker._start_consume()
         channel.wait()
         time.sleep(1)
         channel.wait()
@@ -211,35 +294,13 @@ class TestTaskBroker(unittest.TestCase):
 	# We should have our command + state change messages in the queue
         self.assertEquals(_queue_size("test"), 3)
 
-    def test_on_message_timeout(self):
-        logging.basicConfig()
-        #send a sleep command
-        cmd_msg = CommandMessage(['sleep', '2'], 'test', 1, timeout = 1)
-        msg = pack_message(cmd_msg)
-
-        task_broker = _task_broker_factory()
-        channel = task_broker.channel
-        # Send timeouting command
-
-        channel.basic_publish(msg,
-                              mandatory = True,
-                              exchange = "test",
-                              routing_key = "test")
-
-        #Set to Consume
-        task_broker._consume()
-        channel.wait()
-        time.sleep(3)
-	# We should have state change messages + timeout msg
-        self.assertEquals(2, _queue_size("test"))
-
     def test_on_message_not_version_compatible(self):
         """
         Check that incompatible versions dont
         pull messages from the queue
         """
         #self.assertTrue(_queue_size("test_v") is None)
-        logging.basicConfig()
+
         cmd_msg = CommandMessage(['echo', 'foo'], 'test', 1, timeout = 1)
         msg = pack_message(cmd_msg)
         task_broker = _task_broker_factory()
@@ -249,7 +310,7 @@ class TestTaskBroker(unittest.TestCase):
                               exchange = "test",
                               routing_key = "test")
         self.assertEquals(1, _queue_size("test"))
-        task_broker._consume()
+        task_broker._start_consume()
         channel.wait()
         self.assertEquals(1, _queue_size("test"))
 
@@ -284,14 +345,6 @@ class TestTaskBroker(unittest.TestCase):
         self.assertFalse(task_broker._dispatch(cmd_quit))
         cmd_ls = CommandMessage(["ls -la"], "test", 1, timeout = 1) 
         self.assertFalse(task_broker._dispatch(cmd_ls))
-
-    def test_dispatch_timeout(self):
-        task_broker = _task_broker_factory()
-        channel = task_broker.channel
-        # Try to keep under timeouts
-        cmd_sleep = CommandMessage(["sleep", "2"], "test", 1, timeout = 1)
-        self.assertRaises(SoftTimeoutException, 
-                          task_broker._dispatch, cmd_sleep)
 
     def test_dispatch_failing_command(self):
         task_broker = _task_broker_factory()

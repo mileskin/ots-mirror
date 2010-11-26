@@ -21,12 +21,17 @@
 # ***** END LICENCE BLOCK *****
 
 import os
+import logging
 from socket import gethostname
 import configobj
+
+from ots.common.routing.api import get_routing_key
 
 from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.api import taskrunner_factory
 from ots.server.allocator.conductor_commands import get_commands
+
+LOG = logging.getLogger(__name__)
 
 def _storage_address():
     """
@@ -37,7 +42,6 @@ def _storage_address():
     conf = server_config_filename()
     config = configobj.ConfigObj(conf).get('ots.server.allocator')
     storage_host = config['storage_host']
-    print storage_host
     if not storage_host:
         storage_host = gethostname()
     storage_port = "1982" # TODO: DEPRECATED REMOVE AFTER CONDUCTOR IS CHANGED
@@ -49,7 +53,7 @@ def _storage_address():
 # PUBLIC METHOD
 #####################
 
-def primed_taskrunner(testrun_uuid, timeout, priority, device,
+def primed_taskrunner(testrun_uuid, timeout, priority, device_properties,
                       image, hw_packages, host_packages,
                       emmc, testfilter, flasher, publishers): 
     """
@@ -61,8 +65,12 @@ def primed_taskrunner(testrun_uuid, timeout, priority, device,
     @type timeout: C{int}
     @param timeout: The timeout in minutes
 
-    @type: C{dict}
-    @param: A dictionary of device properties this testrun requires
+    @type priority: C{int}
+    @param priority: The priority of this testrun
+
+    @type device_properties : C{dict}
+    @param device_properties : A dictionary of device properties 
+                                              this testrun requires
        
     @type image: C{str}
     @param image: The URL of the image
@@ -99,10 +107,12 @@ def primed_taskrunner(testrun_uuid, timeout, priority, device,
     if priority == 1:
         is_package_distributed = True
 
-    taskrunner = taskrunner_factory(device, timeout, testrun_uuid)
+    routing_key = get_routing_key(device_properties)
+    taskrunner = taskrunner_factory(routing_key, timeout, testrun_uuid)
     cmds = get_commands(is_package_distributed, image, hw_packages,
                         host_packages, emmc, testrun_uuid, _storage_address(),
                         testfilter, flasher)
     for cmd in cmds:
+        LOG.debug("Add cmd '%s' to taskrunner"%(cmd))
         taskrunner.add_task(cmd)
     return taskrunner

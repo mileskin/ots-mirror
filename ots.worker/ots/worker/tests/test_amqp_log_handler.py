@@ -71,6 +71,9 @@ class TestAMQPLogHandler(unittest.TestCase):
 
     def tearDown(self):
         _queue_delete(QUEUE_NAME)
+        log = logging.getLogger()
+        for handler in log.handlers:
+            log.removeHandler(handler)
 
     def test_log_handler(self):
         """
@@ -90,7 +93,7 @@ class TestAMQPLogHandler(unittest.TestCase):
                     QUEUE_NAME)
 
         #Initialise the Logger
-        logging.basicConfig(filename = None,
+        logging.basicConfig(filename = "/dev/null",
                     level=logging.DEBUG)
         logger = logging.getLogger()
         logging.handlers.AMQPLogHandler = AMQPLogHandler

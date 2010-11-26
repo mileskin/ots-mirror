@@ -52,7 +52,7 @@ class TestTaskRunner(unittest.TestCase):
     def setUp(self):
         self.taskrunner = TaskRunner("guest", "guest", "localhost",
                                      "/", "ots", 5672, "test_taskrunner", 
-                                     1, 60, 1)
+                                     1, 60, 1, 1)
         self.connection = amqp.Connection(host = "localhost", 
                                           userid = "guest",
                                           password = "guest",
@@ -219,7 +219,7 @@ class TestQueueDoesnotExist(unittest.TestCase):
     def setUp(self):
         self.taskrunner = TaskRunner("guest", "guest", "localhost",
                                      "/", "ots", 5672, "NONEXISTING_QUEUE",
-                                     1, 60, 1)
+                                     1, 60, 1, 1)
         self.connection = amqp.Connection(host = "localhost", 
                                           userid = "guest",
                                           password = "guest",

@@ -31,7 +31,9 @@ setup(
     namespace_packages = ['ots', 'ots.worker'],
     packages = find_packages(),
     zip_safe = False,
-    entry_points={"console_scripts": 
-                  ["ots_worker = ots.worker.worker:main"]},
-    data_files=[('/etc', ['ots.ini'])]
+    entry_points={"console_scripts":
+                  ["conductor = ots.worker.conductor.conductor:main", 
+                  "ots_worker = ots.worker.worker:main"]},
+    data_files=[('/etc', ['ots.ini', 'ots/worker/conductor/conductor.conf']), 
+                ('/etc/conductor', [])]
     )
