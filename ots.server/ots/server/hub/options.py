@@ -174,8 +174,9 @@ class Options(object):
         @rtype: C{int}
         @return: Test execution timeout in minutes
         """
+        if self._timeout is None:
+            self._timeout = 0 
         return self._timeout
-
 
     ############################
     # HELPERS
