@@ -71,7 +71,7 @@ DIV.red
 {
   border-bottom: 7px solid #ED0089;
 	height: 66px;
-	background-image: url(logo.png); 
+	background-image: url(/media/logo.png); 
 	background-repeat: no-repeat;
 
 }
