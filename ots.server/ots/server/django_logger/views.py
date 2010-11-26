@@ -268,14 +268,21 @@ def view_workers(request):
         @return: Returns HttpResponse containing the view.
     """
     
-    post_data = request.method == 'POST' and deepcopy(request.POST) or {}
+    message = []
     
-    # get host name, IP address
-    post_data['host'] = \
-        [item for item in LogMessage.objects.values_list(
-        'remote_host', 'remote_ip').distinct().order_by('remote_host')]
+    for remote_host, remote_ip in LogMessage.objects.values_list(
+        'remote_host', 'remote_ip').distinct().order_by('remote_host'):
+        dict = {}
+        dict['remote_host'] = remote_host
+        dict['remote_ip'] = remote_ip
+        dict['date'] = LogMessage.objects.filter(remote_host=remote_host).order_by('date')[:1][0].date
+        message.append(dict)
     
-    print "post_data = " + str(post_data)
-
+    #print "message = " + str(message)
+    
     template = loader.get_template('logger/workers_view.html')
-    return HttpResponse(template.render(Context(post_data)))
+    context_dict = {
+        'message'   : message,
+        'MEDIA_URL' : settings.MEDIA_URL,
+        }
+    return HttpResponse(template.render(Context(context_dict)))

@@ -27,29 +27,23 @@
 {% block content %}
 {% load logger_template_tags %}
 
-host = {{ host }}
-{% if host %}
-    <ul class="messagelist">
-    {% for i,j in host %}
-        <li>{{ i }} {{ j }}</li>
-    {% endfor %}</ul>
-{% endif %}
-
 <table cellspacing="15" id="test-set-table" style="width:100%">
 	<thead>
 		<tr>
-			<th style="width:15%">Hostname</th>
-			<th style="width:20%">IP address</th>
+			<th style="width:5%">Hostname</th>
+			<th style="width:5%">IP address</th>
+			<th style="width:5%">Last activity</th>
 		</tr>
 	</thead>
 	<tbody>
-	    {% for hostname,ip_address in host %}
+	    {% for m in message %}
     	<tr class="{% cycle '' 'even' %}">
-			<td>{{ hostname }}</td>
-			<td>{{ ip_address }}</td>
-		</tr><!--
+			<td>{{ m.remote_host }}</td>
+			<td>{{ m.remote_ip }}</td>
+			<td>{{ m.date }}</td>
+		</tr>
 		{% empty %}
-        <li>Sorry, no matches!</li> -->
+        <li>Sorry, no matches!</li>
 		{% endfor %}
     </tbody>
 </table>
