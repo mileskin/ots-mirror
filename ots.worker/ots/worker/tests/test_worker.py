@@ -37,9 +37,10 @@ class TestWorker(unittest.TestCase):
         self.assertEquals(5672, worker._port)
         self.assertEquals("guest", worker._username)
         self.assertEquals("guest", worker._password)
-        self.assertEquals("foo", worker._queue)
-        self.assertEquals("foo", worker._routing_key)
-        self.assertEquals("foo", worker._services_exchange)
+        expected = {'devicename': 'bar', 
+                    'devicegroup': 'foo', 
+                    'deviceid': 'baz'}
+        self.assertEquals(expected, worker._properties)
 
 if __name__ == "__main__":
     unittest.main()

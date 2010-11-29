@@ -41,7 +41,7 @@ from ots.server.distributor.api import TaskRunner
 # HACKISH TESTING CAPABILITIES
 ################################
 
-DEBUG = True
+DEBUG = False
 
 if DEBUG:
     from ots.server.hub.tests.component.mock_taskrunner import \

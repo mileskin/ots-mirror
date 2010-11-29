@@ -26,7 +26,8 @@
 
 #FIXME test dependent on where it is run from 
 cd ots.server/ots/server/distributor/tests/component/
-python test_ots_core.py
+python test_device_distribution.py      
+python test_properties_distribution.py
 cd - 
 
 #

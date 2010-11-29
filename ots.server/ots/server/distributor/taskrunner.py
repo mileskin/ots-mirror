@@ -109,7 +109,8 @@ class TaskRunner(object):
 
     def __init__(self, username, password, host, vhost, 
                  services_exchange, port, 
-                 routing_key, testrun_id, timeout, queue_timeout,
+                 routing_key, testrun_id, 
+                 timeout, queue_timeout, preparation_timeout,
                  min_worker_version = None):
         """
         @type username: C{str}
@@ -141,6 +142,9 @@ class TaskRunner(object):
 
         @type queue_timeout: C{int}
         @param queue_timeout: Time in seconds Tasks can wait on the queue 
+
+        @type preparation_timeout: C{int}
+        @param timeout: preparation timeout # FIXME What is this        
         """
         #AMQP configuration
         self._username = username
@@ -164,8 +168,11 @@ class TaskRunner(object):
         #timeouts
         self._timeout = timeout
         self._queue_timeout = queue_timeout
+        self._preparation_timeout = preparation_timeout
 
-        self.timeout_handler = Timeout(timeout, queue_timeout)
+        self.timeout_handler = Timeout(timeout, 
+                                       queue_timeout, 
+                                       preparation_timeout)
 
         # Tells if we are running only a single task
         # Used for backward compatibility

@@ -42,7 +42,8 @@ class TestConductorCommands(unittest.TestCase):
         c = ConductorCommands("image_url", "emmc", "testrun_uuid",
                             "storage_address", "testfilter", "flasher")
         expected = [
-            ['-t', 'foo,bar', '-e', 'emmc', '-f', 'testfilter', 
+            ['conductor',
+             '-t', 'foo,bar', '-e', 'emmc', '-f', 'testfilter', 
              '-u', 'image_url', '--flasherurl', 'flasher', 
              '-c', 'storage_address', '-i', 'testrun_uuid', 
              ';', 
@@ -58,13 +59,16 @@ class TestConductorCommands(unittest.TestCase):
 
         commands =  c.multiple(["foo", "bar"], ["baz"])
         expected = [
-         ['-t', 'foo', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
+         ['conductor', 
+          '-t', 'foo', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
           '--flasherurl', 'flasher', '-c', 'storage_address', 
           '-i', 'testrun_uuid'], 
-         ['-t', 'bar', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
+         ['conductor',
+          '-t', 'bar', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
           '--flasherurl', 'flasher', '-c', 'storage_address', 
           '-i', 'testrun_uuid'], 
-         ['-t', 'baz', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
+         ['conductor',
+          '-t', 'baz', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
           '--flasherurl', 'flasher', '-c', 'storage_address', 
           '-i', 'testrun_uuid', '-o']]
         self.assertEquals(expected, commands) 

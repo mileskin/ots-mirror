@@ -62,7 +62,7 @@ class TestOptionsFactory(unittest.TestCase):
                                   "email-attachments" : "on",
                                   "device" : "foo:bar"})()
         expected = {'foo' : 'bar'}
-        self.assertEquals(expected, options.device)
+        self.assertEquals(expected, options.device_properties)
         
 
 

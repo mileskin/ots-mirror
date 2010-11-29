@@ -43,3 +43,14 @@ def result_judge(levelname, levelnumber):
     else:
         strOut = levelname
     return strOut
+
+@register.filter
+def calculate_delta(starttime, currenttime):
+    strout = (currenttime - starttime)
+    return strout
+
+@register.filter
+def format_datetime(currenttime):
+    strout = currenttime.strftime("%Y-%m-%d %H:%M:%S")
+    return strout
+

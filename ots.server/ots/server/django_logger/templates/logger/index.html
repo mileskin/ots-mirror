@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -21,28 +21,27 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 -->
-
 {% extends "logger/logger_base.html" %}
-{% block pagetitle %}Log for testrun {{ run_id }}{% endblock pagetitle %}
+{% block pagetitle %}Test runs{% endblock pagetitle %}
 {% block content %}
 {% load logger_template_tags %}
-<table cellspacing="15" id="test-set-table" style="width:100%">
+<table id="testrun_list">
 	<thead>
 		<tr>
-			<th style="width:15%">Time</th>
-			<th style="width:20%">Host</th>
-			<th style="width:17%">Module</th>
-			<th style="width:8%">Level</th>
-			<th style="width:40%">Message</th>
+			<th style="width:5%">Run id</th>
+			<th style="width:15%">Created</th>
+			<th style="width:15%">Module</th>
+			<th style="width:10%">Level</th>
+			<th style="width:55%">Message</th>
 		</tr>
 	</thead>
 	<tbody>
 	    {% for message in messages %}
-    	<tr class="{% cycle '' 'even' %}">
-			<td>{{ message.date }}</td>
-			<td>{{ message.remote_host }}</td>
+    	<tr class="{% cycle 'odd' 'even' %}">
+			<td><a href="{% url ots.server.django_logger.views.basic_testrun_viewer run_id=message.run_id %}">{{ message.run_id }}</a></td>
+			<td>{{ message.date|format_datetime }}</td>
 			<td>{{ message.module }}</td>
-			<td>{% autoescape off %}{{ message.levelname|result_judge:message.levelno }}{% endautoescape %}</td>
+			<td>{% autoescape off %}<span class="{{ message.levelname }}">{{ message.levelname }}</span>{% endautoescape %}</td>
 			<td>{{ message.msg }}{% if message.exc_text %} <pre>{{message.exc_text}}</pre>{% endif %}</td>
 		</tr>
 		{% endfor %}
