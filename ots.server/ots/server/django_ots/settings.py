@@ -109,5 +109,5 @@ INSTALLED_APPS = (
 
 XMLRPC_METHODS = (
     # Methods available in xmlrpc interface (<method path>, <xml-rpc name>,)
-#    ('ots.server.xmlrpc.server.request_sync', 'request_sync'),
+    ('ots.server.xmlrpc.server.request_sync', 'request_sync'),
     )
