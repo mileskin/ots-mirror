@@ -47,6 +47,9 @@
 				<option value="{{ service }}"{% ifequal service selected_service %} selected="true"{% endifequal %}>{{ service|capfirst }}</option>
 				{% endfor %}
 			</select>
+			&nbsp;&nbsp;Run id:&nbsp;
+			<input type="text" name="selected_run" value="{{ selected_run }}" onKeyPress="return submit_with_enter(this, event)" />
+			
 			&nbsp;&nbsp;Host:&nbsp;
 			<select name="selected_host">
 				{% for host in hosts %}
@@ -92,118 +95,22 @@
 <table id="testrun_info" >
 	<thead>
 		<tr>
-			<th>Deltatime</th>
-			<th>Time</th>
 			
-			<th style="width:5%">Host</th>
-			<th style="width:15%">Created</th>
-			<th style="width:20%">Module</th>
-			<th style="width:15%">Level</th>
-			<th style="width:45%">Message</th>
+			<th style="width:15%">Time</th>
+			<th style="width:10%">Host</th>
+			<th style="width:10%">Module</th>
+			<th style="width:10%">Date</th>
+			<th style="width:5%">Level</th>
+			<th style="width:55%">Message</th>
 		</tr>
 	</thead>
 	<tbody>
-		{% if message %}
-    	<tr>
-		    <td>Run id:</td>
-			<td>{{ message.run_id }}</td>
-		</tr>
-		<tr>
-		    <td>service:</td>
-			<td>{{ message.service }}</td>
-		</tr>
-		<tr>
-		    <td>date:</td>
-			<td>{{ message.date }}</td>
-		</tr>
-		<tr>
-		    <td>remote_ip:</td>
-			<td>{{ message.remote_ip }}</td>
-		</tr>
-		<tr>
-		    <td>remote_host:</td>
-			<td>{{ message.remote_host }}</td>
-		</tr>
-		<tr>
-		    <td>levelno:</td>
-			<td>{{ message.levelno }}</td>
-		</tr>
-		<tr>
-		    <td>levelname:</td>
-			<td>{{ message.levelname }}</td>
-		</tr>
-		<tr>
-		    <td>name:</td>
-			<td>{{ message.name }}</td>
-		</tr>
-		<tr>
-		    <td>module:</td>
-			<td>{{ message.module }}</td>
-		</tr>
-		<tr>
-		    <td>filename:</td>
-			<td>{{ message.filename }}</td>
-		</tr>
-		<tr>
-		    <td>pathname:</td>
-			<td>{{ message.pathname }}</td>
-		</tr>
-		<tr>
-		    <td>funcName:</td>
-			<td>{{ message.funcName }}</td>
-		</tr>
-		<tr>
-		    <td>lineno:</td>
-			<td>{{ message.lineno }}</td>
-		</tr>
-		<tr>
-		    <td>msg:</td>
-			<td>{{ message.msg }}</td>
-		</tr>
-		<tr>
-		    <td>exc_info:</td>
-			<td>{{ message.exc_info }}</td>
-		</tr>
-		<tr>
-		    <td>exc_text:</td>
-			<td>{{ message.exc_text }}</td>
-		</tr>
-		<tr>
-		    <td>args:</td>
-			<td>{{ message.args }}</td>
-		</tr>
-		<tr>
-		    <td>threadName:</td>
-			<td>{{ message.threadName }}</td>
-		</tr>
-		<tr>
-		    <td>thread:</td>
-			<td>{{ message.thread }}</td>
-		</tr>
-		<tr>
-		    <td>created:</td>
-			<td>{{ message.created }}</td>
-		</tr>
-		<tr>
-		    <td>process:</td>
-			<td>{{ message.process }}</td>
-		</tr>
-		<tr>
-		    <td>relativeCreated:</td>
-			<td>{{ message.relativeCreated }}</td>
-		</tr>
-		<tr>
-		    <td>msecs:</td>
-			<td>{{ message.msecs }}</td>
-		</tr>
-		{% endif %}
     
 	    {% for message in messages %}
     	<tr class="{% cycle '' 'even' %}">
-    		<td>{{ message.msecs }}</td>
-    		<td>{{ message.date }}</td>
+    		<td><a href="{% url ots.server.django_logger.views.view_message_details log_id=message.id %}">{{ message.date }}</a></td>
 			<td>{{ message.remote_host }}</td>
-			<td><a href="{% url ots.server.django_logger.views.view_message_details log_id=message.id %}">{{ message.date }}</a></td>
+			<td>{{ message.date }}</td>
 			<td>{{ message.module }}</td>
 			<td>{% autoescape off %}{{ message.levelname|result_judge:message.levelno }}{% endautoescape %}</td>
 			<td>{{ message.msg }}{% if message.exc_text %} <pre>{{message.exc_text}}</pre>{% endif %}</td>

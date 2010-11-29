@@ -55,7 +55,7 @@ from django.template import loader, Context
 
 from ots.server.django_logger.models import LogMessage
 
-ROW_AMOUNT_IN_PAGE = 5
+ROW_AMOUNT_IN_PAGE = 50
 
 def create_message(request, servicename=None, run_id=None):
     """ Creates log message to database.
@@ -167,6 +167,7 @@ def advanced_message_viewer(request):
     post_data['services'] = ['All'] + \
         [str(item) for item in LogMessage.objects.values_list(
         'service', flat=True).distinct().order_by('service')]
+    
 
     if request.method == 'POST':
         if post_data['selected_service'] != post_data['original_service']:
@@ -339,7 +340,7 @@ def main_page(request):
 
 def filtter_message_viewer(request):
     """
-        Page for viewing filltered messages from all test runs.
+        Page for viewing filtered messages from all test runs.
         @type request: L{HttpRequest}
         @param request: HttpRequest of the view
 
@@ -352,11 +353,13 @@ def filtter_message_viewer(request):
         
     if request.method == 'POST':
         if post_data['selected_service'] != post_data['original_service']:
+            post_data['selecter_run'] = ''
             post_data['selected_host'] = 'All'
             post_data['selected_module'] = 'All'
             post_data['selected_level']  = 'All'
             post_data['selected_message'] = ''
-        post_data['first_index'] = int(post_data['first_index'])            
+        post_data['first_index'] = int(post_data['first_index'])
+                    
         # Paging
         if 'previous_page' in post_data:
             post_data['first_index'] -= ROW_AMOUNT_IN_PAGE
@@ -367,6 +370,7 @@ def filtter_message_viewer(request):
     else:
         post_data['selected_service'] = (len(post_data['services']) > 1) \
             and post_data['services'][1] or 'All'
+        post_data['selected_run']     = ''
         post_data['selected_host']    = 'All'
         post_data['selected_module']  = 'All'
         post_data['selected_level']   = 'All'
@@ -409,6 +413,8 @@ def filtter_message_viewer(request):
             messages = messages.filter(msg__regex=post_data['selected_message'])
         else:
             messages = messages.filter(msg__icontains=post_data['selected_message'])
+    if post_data['selected_run'] != '':
+        messages = messages.filter(run_id=post_data['selected_run'])
     if post_data['selected_host'] != 'All':
         messages = messages.filter(remote_host=post_data['selected_host'])
     if post_data['selected_module'] != 'All':
