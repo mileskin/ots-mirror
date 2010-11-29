@@ -29,4 +29,5 @@ urlpatterns = patterns('',
     (r'^view/details/(?P<log_id>\d+)/$', view_message_details),
     (r'^view/(?P<servicename>\w+)/(?P<run_id>\d+)/$', basic_message_viewer),
     (r'^view/workers/$', view_workers),
+    (r'^view/workers/(?P<remote_host>\S+)/$', view_worker_details),
 )

@@ -275,14 +275,37 @@ def view_workers(request):
         dict = {}
         dict['remote_host'] = remote_host
         dict['remote_ip'] = remote_ip
-        dict['date'] = LogMessage.objects.filter(remote_host=remote_host).order_by('date')[:1][0].date
+        date = LogMessage.objects.filter(
+                    remote_host=remote_host).order_by('date')[:1][0].date 
+        dict['date'] = str(date).split('.')[:1][0]
         message.append(dict)
-    
-    #print "message = " + str(message)
     
     template = loader.get_template('logger/workers_view.html')
     context_dict = {
         'message'   : message,
+        'MEDIA_URL' : settings.MEDIA_URL,
+        }
+    return HttpResponse(template.render(Context(context_dict)))
+
+def view_worker_details(request, remote_host=None):
+    """ Shows message details view
+
+        @type request: L{HttpRequest}
+        @param request: HttpRequest of the view
+
+        @type remote_host: C{string}
+        @param remote_host: Worker's host name
+
+        @rtype: L{HttpResponse}
+        @return: Returns HttpResponse containing the view.
+    """
+    # Fetching row
+    messages = LogMessage.objects.filter(
+            remote_host=remote_host).order_by('date', 'id')
+
+    template = loader.get_template('logger/advanced_message_view.html')
+    context_dict = {
+        'messages'   : messages,
         'MEDIA_URL' : settings.MEDIA_URL,
         }
     return HttpResponse(template.render(Context(context_dict)))
