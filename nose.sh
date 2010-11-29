@@ -40,6 +40,7 @@ nosetests ots.common/ots/common/amqp/tests/test_* -e testrun_queue_name
 nosetests ots.server/ots/server/distributor/tests/test_* -e testrun -e test_remote 
 
 nosetests ots.server/ots/server/hub/tests/test_* -e testrun
+nosetests ots.server/ots/server/xmlrpc/tests/test_* 
 
 #############
 #ots.worker
@@ -55,3 +56,4 @@ nosetests ots.email_plugin/ots/email_plugin/tests/test_*
 #ots.results
 ##############
 nosetests ots.results/ots/results/tests/test_*
+

@@ -29,13 +29,9 @@ import configobj
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from SocketServer import ForkingMixIn
-
-from ots.server.hub.api import Hub 
-from ots.server.hub.api import get_application_id
-
-from ots.server.distributor.api import TaskRunner
-
 from ots.server.server_config_filename import server_config_filename
+from ots.server.hub.api import Hub 
+from ots.server.distributor.api import TaskRunner
 
 ################################
 # HACKISH TESTING CAPABILITIES
@@ -56,17 +52,12 @@ class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
 
 def _config():
     """
-    rtype: C{Tuple) of C{str} and C{str}
+    rtype: C{Tuple) of C{str} and C{int}
     rparam: hostname, port
     """
-    server_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-    app_id = get_application_id() 
-    conf = server_config_filename()
-    config = configobj.ConfigObj(conf).get('ots.server.xmlrpc')
-    
-    return config.get('host'), \
-           int(config.get('port'))
-
+    config_file = server_config_filename()
+    config = configobj.ConfigObj(config_file).get("ots.server.xmlrpc")
+    return config.get('host'), config.as_int('port')
 
 
 #############################
