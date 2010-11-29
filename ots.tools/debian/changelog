@@ -1,0 +1,24 @@
+ots-tools (0.1.2-1) unstable; urgency=low
+
+  * Added support for device properties (BMC#8024)
+  * Added support for custom distribution models (BMC#9035)
+  * Moved queue management scripts to ots.tools
+  * Changed conductor command from "/usr/bin/kickstart" to "conductor"
+  * Pylint fixes
+
+ -- Teemu Vainio <teemu.vainio@ixonos.com>  Mon, 08 Nov 2010 10:33:18 +0200
+
+ots-tools (0.1.1-1) unstable; urgency=low
+
+  * Improved simple xmlprc server output
+  * Added django based ots server setup files
+
+ -- Teemu Vainio <teemu.vainio@ixonos.com>  Mon, 11 Oct 2010 16:26:12 +0300
+
+
+ots-tools (0.0.1-1) unstable; urgency=low
+
+  * source package automatically created by stdeb 0.3
+
+ -- Teemu Vainio <ext-teemu.a.vainio@nokia.com>  Mon, 27 Sep 2010 10:39:11 +0300
+

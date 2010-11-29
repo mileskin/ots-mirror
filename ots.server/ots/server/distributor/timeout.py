@@ -51,18 +51,21 @@ class Timeout(object):
     """
 
 
-    def __init__(self, global_timeout, queue_timeout):
+    def __init__(self, global_timeout, queue_timeout, preparation_timeout):
         """
  
-        @type global_timeout C{int} 
+        @type global_timeout :C{int} 
         @param global_timeout: The timeout for a task
 
-        @type queue_timeout C{int} 
+        @type queue_timeout :C{int} 
         @param queue_timeout: The queue timeout for the start of the first task
 
+        @type preparation_timeout : C{int}
+        @param preparation_timeout : preparation_timeout 
         """
         self.queue_timeout = queue_timeout
         self.global_timeout = global_timeout
+        self.preparation_timeout = preparation_timeout
 
     def __del__(self):
         self.stop()
@@ -131,4 +134,5 @@ class Timeout(object):
         global timeout is only a final safety mechanism if for example network
         connection to worker is permanently lost.
         """
-        return self.queue_timeout + self.global_timeout
+        return self.queue_timeout + self.global_timeout \
+               + self.preparation_timeout

@@ -20,23 +20,37 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import os
+"""
+Empty the queue of messages 
+"""
+import sys  
 
-import unittest
+from amqplib import client_0_8 as amqp
 
-from ots.common.framework.config_filename import config_filename
+def empty_queue(host, queue_name):
+    """Empty a queue in AMQP server"""
+    port = 5672
+    userid = "guest"
+    password = "guest"
+    virtual_host = "/"
+    connection = amqp.Connection(host = ("%s:%s" %(host, port)),
+                                 userid = userid,
+                                 password = password,
+                                 virtual_host = virtual_host,
+                                 insist = False)
+    channel = connection.channel()
+    channel.queue_purge(queue = queue_name, nowait=True)
+    #print dir(channel)
+def main():
+    """Main function"""
+    if len(sys.argv) != 3:
+        print "Usage python empty_queue host queue_name"
+        sys.exit()
+    host = sys.argv[1]
+    queue_name = sys.argv[2]
+    print host, queue_name
+    empty_queue(host, queue_name)
 
-class TestConfigFilename(unittest.TestCase):
-
-    def test_config_filename_1(self):
-        self.assertEquals(['ots', 'ots.common', 'ots', 'common', 'config.ini'],
-                          config_filename().split("/")[-5:])
-
-    def test_config_filename_2(self):
-        dirname = os.path.split(os.path.split(
-                os.path.dirname(os.path.abspath(__file__)))[0])[0]
-        self.assertEquals(['ots', 'ots.common', 'ots', 'common', 'config.ini'],
-                        config_filename("config", dirname).split("/")[-5:])
 
 if __name__ == "__main__":
-    unittest.main()
+    main()

@@ -122,7 +122,7 @@ class Options(object):
         return self._plan
 
     @property
-    def device(self):
+    def device_properties(self):
         """
         @rtype: C{dict}
         @return: A dictionary of device properties this testrun requires

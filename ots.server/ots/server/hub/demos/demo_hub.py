@@ -62,7 +62,7 @@ def demo():
     taskrunner.add_task(["sleep", "1"])
     taskrunner.add_task(["echo", "hello world"])
 
-    hub = Hub("pdt", 1111,  **options_dict)
+    hub = Hub("example_sw_product", 1111,  **options_dict)
     hub._taskrunner = taskrunner
     hub.run()
 

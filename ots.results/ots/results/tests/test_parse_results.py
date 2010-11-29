@@ -37,7 +37,7 @@ class TestParseResults(unittest.TestCase):
 
     def test_parse_results_insig_dont_matter(self):
         dirname = os.path.dirname(os.path.abspath(__file__))
-        results_file = os.path.join(dirname, "data", "dummy_results_file.xml")
+        results_file = os.path.join(dirname, "data", "dummy_insig_file.xml")
         results_xml = open(results_file, "r").read()
         package_results =  parse_results(results_xml, False)
         self.assertTrue(package_results)

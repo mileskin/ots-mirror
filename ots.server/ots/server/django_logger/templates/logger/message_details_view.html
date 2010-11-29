@@ -25,8 +25,8 @@
 {% extends "logger/logger_base.html" %}
 {% block content %}
 {% load logger_template_tags %}
-<!-- FIXME: Replace even coloring with proper class -->
-<table cellspacing="15" id="test-set-table" style="width:100%">
+{% block pagetitle %}Message details{% endblock pagetitle %}
+<table id="testrun_info">
 	<thead>
 		<tr>
 			<th style="width:10%">Title</th>
