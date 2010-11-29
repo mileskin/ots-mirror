@@ -31,6 +31,16 @@
 <table id="test-set-table">
 	<tr>
 		<td >
+			{% if show_prev %}
+				<input type="submit" name="previous_page" class="button" value="previous" onclick="document.logger_config.pageaction.value='previous_page'"/>
+			{% endif %}
+			{% if show_next %}
+				<input type="submit" name="next_page" class="button" value="next" onclick="document.logger_config.pageaction.value='next_page'"/>
+			{% endif %}			
+		</td>
+	</tr>
+	<tr>
+		<td>
 			Service:&nbsp;
 			<select name="selected_service">
 				{% for service in services %}
@@ -69,7 +79,8 @@
 			RegExp:&nbsp;
 			<input type="checkbox" name="use_regexp" value="{{ use_regexp }}" {% if use_regexp %} checked="checked"{% endif %}/>
 			<input type="hidden" name="original_service" value="{{ selected_service }}">
-			<input type="hidden" name="first_index" value="{{ first_index }}">
+			<input type="hidden" name="first_index" id ="first_index" value="{{ first_index }}">
+			<input type="hidden" name="pageaction" id="pageaction" value="">
 			
 			<input type="submit" name="filter" class="button" value="filter">
 		</td>

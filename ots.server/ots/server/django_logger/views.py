@@ -55,7 +55,7 @@ from django.template import loader, Context
 
 from ots.server.django_logger.models import LogMessage
 
-ROW_AMOUNT_IN_PAGE = 500
+ROW_AMOUNT_IN_PAGE = 5
 
 def create_message(request, servicename=None, run_id=None):
     """ Creates log message to database.
@@ -349,7 +349,7 @@ def filtter_message_viewer(request):
     post_data['services'] = ['All'] + \
         [str(item) for item in LogMessage.objects.values_list(
         'service', flat=True).distinct().order_by('service')]
-    
+        
     if request.method == 'POST':
         if post_data['selected_service'] != post_data['original_service']:
             post_data['selected_host'] = 'All'
@@ -358,9 +358,9 @@ def filtter_message_viewer(request):
             post_data['selected_message'] = ''
         post_data['first_index'] = int(post_data['first_index'])            
         # Paging
-        if 'previous_page.x' in post_data:
+        if 'previous_page' in post_data:
             post_data['first_index'] -= ROW_AMOUNT_IN_PAGE
-        elif 'next_page.x' in post_data:
+        elif 'next_page' in post_data:
             post_data['first_index'] += ROW_AMOUNT_IN_PAGE
         else:
             post_data['first_index'] = 0
@@ -416,8 +416,16 @@ def filtter_message_viewer(request):
     if post_data['selected_level'] != 'All':
         messages = messages.filter(levelname=post_data['selected_level'])
       
+    
     post_data['messages'] = messages
     post_data['MEDIA_URL'] = settings.MEDIA_URL
+    
+    # Pages
+    last_index = post_data['first_index'] + ROW_AMOUNT_IN_PAGE - 1
+    post_data['show_prev'] = post_data['first_index'] and 1 or 0
+    post_data['show_next'] = (last_index < messages.count()-1) and 1 or 0
+    post_data['messages']  = messages[post_data['first_index']:last_index]
+
     
     template = loader.get_template('logger/filtter_message_view.html')
     return HttpResponse(template.render(Context(post_data)))
