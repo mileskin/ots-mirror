@@ -66,6 +66,7 @@ class LocalHttpHandler(logging.Handler):
         try:
             create_message(request, servicename = "ots",
                            run_id=self.testrun_id)
-        except Exception, error:
+
+        except Excpetion, e:
             print("error in LocalHttpHandler, testrun %s" % self.testrun_id)
-            print error
+            print e

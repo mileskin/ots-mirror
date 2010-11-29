@@ -254,6 +254,57 @@ def view_message_details(request, log_id=None):
         }
     return HttpResponse(template.render(Context(context_dict)))
 
+def view_workers(request):
+    """ Shows workers view
+
+        @type request: L{HttpRequest}
+        @param request: HttpRequest of the view
+
+        @rtype: L{HttpResponse}
+        @return: Returns HttpResponse containing the view.
+    """
+    
+    message = []
+    
+    for remote_host, remote_ip in LogMessage.objects.values_list(
+        'remote_host', 'remote_ip').distinct().order_by('remote_host'):
+        dict = {}
+        dict['remote_host'] = remote_host
+        dict['remote_ip'] = remote_ip
+        date = LogMessage.objects.filter(
+                    remote_host=remote_host).order_by('date')[:1][0].date 
+        dict['date'] = str(date).split('.')[:1][0]
+        message.append(dict)
+    
+    template = loader.get_template('logger/workers_view.html')
+    context_dict = {
+        'message'   : message,
+        'MEDIA_URL' : settings.MEDIA_URL,
+        }
+    return HttpResponse(template.render(Context(context_dict)))
+
+def view_worker_details(request, remote_host=None):
+    """ Shows message details view
+
+        @type request: L{HttpRequest}
+        @param request: HttpRequest of the view
+
+        @type remote_host: C{string}
+        @param remote_host: Worker's host name
+
+        @rtype: L{HttpResponse}
+        @return: Returns HttpResponse containing the view.
+    """
+    # Fetching row
+    messages = LogMessage.objects.filter(
+            remote_host=remote_host).order_by('date', 'id')
+
+    template = loader.get_template('logger/advanced_message_view.html')
+    context_dict = {
+        'messages'   : messages,
+        'MEDIA_URL' : settings.MEDIA_URL,
+        }
+
 def main_page(request):
     """
         Index page for viewing summary from all test runs.
@@ -282,3 +333,88 @@ def main_page(request):
     context_dict['messages']  = messages
     template = loader.get_template('logger/index.html')
     return HttpResponse(template.render(Context(context_dict)))
+
+def filtter_message_viewer(request):
+    """
+        Page for viewing filltered messages from all test runs.
+        @type request: L{HttpRequest}
+        @param request: HttpRequest of the view
+
+    """
+    post_data = request.method == 'POST' and deepcopy(request.POST) or {}
+    
+    post_data['services'] = ['All'] + \
+        [str(item) for item in LogMessage.objects.values_list(
+        'service', flat=True).distinct().order_by('service')]
+    
+    if request.method == 'POST':
+        if post_data['selected_service'] != post_data['original_service']:
+            post_data['selected_host'] = 'All'
+            post_data['selected_module'] = 'All'
+            post_data['selected_level']  = 'All'
+            post_data['selected_message'] = ''
+        post_data['first_index'] = int(post_data['first_index'])            
+        # Paging
+        if 'previous_page.x' in post_data:
+            post_data['first_index'] -= ROW_AMOUNT_IN_PAGE
+        elif 'next_page.x' in post_data:
+            post_data['first_index'] += ROW_AMOUNT_IN_PAGE
+        else:
+            post_data['first_index'] = 0
+    else:
+        post_data['selected_service'] = (len(post_data['services']) > 1) \
+            and post_data['services'][1] or 'All'
+        post_data['selected_host']    = 'All'
+        post_data['selected_module']  = 'All'
+        post_data['selected_level']   = 'All'
+        post_data['selected_order']   = 'newest_first'
+        post_data['first_index']      = 0
+        post_data['selected_message'] = ''
+    
+    if 'use_regexp' in post_data:
+        post_data['use_regexp'] = True
+    else:
+        post_data['use_regexp'] = False
+    
+    post_data['modules'] = ['All'] + \
+        [str(item) for item in LogMessage.objects.filter(
+        service=post_data['selected_service']).values_list(
+        'module', flat=True).distinct().order_by('module')]
+
+    post_data['levels'] = ['All'] + \
+        [str(item) for item in LogMessage.objects.filter(
+        service=post_data['selected_service']).values_list(
+        'levelname', flat=True).distinct().order_by('levelname')]
+      
+    post_data['hosts'] = ['All'] + \
+        [str(item) for item in LogMessage.objects.distinct(
+        ).values_list('remote_host', flat=True).order_by('remote_host')]
+
+    # Fetching messages
+    if post_data['selected_service'] != 'All':
+        messages = LogMessage.objects.filter(
+            service=post_data['selected_service']).order_by('date', 'id')
+    else:
+        messages = LogMessage.objects.all().order_by('date', 'id')
+    
+    if post_data['selected_order'] != 'creation_order':
+        messages = messages.reverse()
+
+    # Filtering rows
+    if post_data['selected_message'] != '':
+        if post_data['use_regexp']:
+            messages = messages.filter(msg__regex=post_data['selected_message'])
+        else:
+            messages = messages.filter(msg__icontains=post_data['selected_message'])
+    if post_data['selected_host'] != 'All':
+        messages = messages.filter(remote_host=post_data['selected_host'])
+    if post_data['selected_module'] != 'All':
+        messages = messages.filter(module=post_data['selected_module'])
+    if post_data['selected_level'] != 'All':
+        messages = messages.filter(levelname=post_data['selected_level'])
+      
+    post_data['messages'] = messages
+    post_data['MEDIA_URL'] = settings.MEDIA_URL
+    
+    template = loader.get_template('logger/filtter_message_view.html')
+    return HttpResponse(template.render(Context(post_data)))

@@ -1,3 +1,4 @@
+<!--
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -19,16 +20,31 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+-->
 
-from django.conf.urls.defaults import *
-from ots.server.django_logger.views import *
+{% extends "logger/logger_base.html" %}
+{% block pagetitle %}OTS Workers{% endblock pagetitle %}
+{% block content %}
+{% load logger_template_tags %}
 
-urlpatterns = patterns('',
-    (r'^view/filtter/$', filtter_message_viewer),
-    (r'^view/workers/$', view_workers),
-    (r'^view/$', main_page),
-    (r'^view/testrun/(?P<run_id>\w+)/$', basic_testrun_viewer),
-    (r'^view/details/(?P<log_id>\w+)/$', view_message_details),
-    (r'^view/workers/(?P<remote_host>\S+)/$', view_worker_details),
-    (r'^(?P<servicename>\w+)/(?P<run_id>\w+)/$', create_message),
-)
+<table cellspacing="15" id="test-set-table" style="width:100%">
+	<thead>
+		<tr>
+			<th align="left">Hostname</th>
+			<th align="left">IP address</th>
+			<th align="left">Last activity</th>
+		</tr>
+	</thead>
+	<tbody>
+	    {% for mes in message %}
+    	<tr class="{% cycle '' 'even' %}">
+			<td><a href="{% url ots.server.django_logger.views.view_worker_details remote_host=mes.remote_host %}">{{ mes.remote_host }}</a></td>
+			<td>{{ mes.remote_ip }}</td>
+			<td>{{ mes.date }}</td>
+		</tr>
+		{% empty %}
+        <li>Sorry, no matches!</li>
+		{% endfor %}
+    </tbody>
+</table>
+{% endblock content %}

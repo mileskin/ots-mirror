@@ -1,0 +1,212 @@
+<!--
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+-->
+{% extends "logger/logger_base.html" %}
+{% block title %}{{ section.title }}{% endblock %}
+{% block content %}
+{% load logger_template_tags %}
+<a href="javascript:toggle('filter');">filter</a>
+<div id="filter" style="display:none;">
+<form name="logger_config" action="{{ page_url }}" method="post">
+<div class="content">
+<table id="test-set-table">
+	<tr>
+		<td >
+			{% if show_prev %}
+			<input type="image" name="previous_page" src="{{ MEDIA_URL }}/images/arrow_left.jpg" alt="Previous page" onclick="logger_config.submit();" />
+			{% endif %}
+			{% if show_next %}
+			<input type="image" name="next_page" src="{{ MEDIA_URL }}/images/arrow_right.jpg" alt="Next page" onclick="logger_config.submit();" />
+			{% endif %}
+		</td>
+		<td >
+			Service:&nbsp;
+			<select name="selected_service">
+				{% for service in services %}
+				<option value="{{ service }}"{% ifequal service selected_service %} selected="true"{% endifequal %}>{{ service|capfirst }}</option>
+				{% endfor %}
+			</select>
+			&nbsp;&nbsp;Host:&nbsp;
+			<select name="selected_host">
+				{% for host in hosts %}
+				<option value="{{ host }}"{% ifequal host selected_host %} selected="true"{% endifequal %}>{{ host }}</option>
+				{% endfor %}
+			</select>
+
+			&nbsp;&nbsp;Module:&nbsp;
+			<select name="selected_module">
+				{% for module in modules %}
+				<option value="{{ module }}"{% ifequal module selected_module %} selected="true"{% endifequal %}>{{ module }}</option>
+				{% endfor %}
+			</select>
+
+			&nbsp;&nbsp;Debug level:&nbsp;
+			<select name="selected_level">
+				{% for level in levels %}
+				<option value="{{ level }}"{% ifequal level selected_level %} selected="true"{% endifequal %}>{{ level }}</option>
+				{% endfor %}
+			</select>
+
+			&nbsp;&nbsp;Sort order:&nbsp;
+			<select name="selected_order">
+				<option value="creation_order"{% ifequal "creation_order" selected_order %} selected="true"{% endifequal %}>Creation order</option>
+				<option value="newest_first"{% ifequal "newest_first" selected_order %} selected="true"{% endifequal %}>Newest first</option>
+			</select>
+
+			&nbsp;&nbsp;Message:&nbsp;
+			<input type="text" name="selected_message" value="{{ selected_message }}" onKeyPress="return submit_with_enter(this, event)" />
+			RegExp:&nbsp;
+			<input type="checkbox" name="use_regexp" value="{{ use_regexp }}" {% if use_regexp %} checked="checked"{% endif %}/>
+			<input type="hidden" name="original_service" value="{{ selected_service }}">
+			<input type="hidden" name="first_index" value="{{ first_index }}">
+			
+			<input type="submit" name="filter" class="button" value="filter">
+		</td>
+	</tr>
+</table>
+</div>
+</form>
+</div>
+<table cellspacing="15" id="test-set-table" style="width:100%">
+	<thead>
+		<tr>
+			<th>Deltatime</th>
+			<th>Time</th>
+			
+			<th style="width:5%">Host</th>
+			<th style="width:15%">Created</th>
+			<th style="width:20%">Module</th>
+			<th style="width:15%">Level</th>
+			<th style="width:45%">Message</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% if message %}
+    	<tr>
+		    <td>Run id:</td>
+			<td>{{ message.run_id }}</td>
+		</tr>
+		<tr>
+		    <td>service:</td>
+			<td>{{ message.service }}</td>
+		</tr>
+		<tr>
+		    <td>date:</td>
+			<td>{{ message.date }}</td>
+		</tr>
+		<tr>
+		    <td>remote_ip:</td>
+			<td>{{ message.remote_ip }}</td>
+		</tr>
+		<tr>
+		    <td>remote_host:</td>
+			<td>{{ message.remote_host }}</td>
+		</tr>
+		<tr>
+		    <td>levelno:</td>
+			<td>{{ message.levelno }}</td>
+		</tr>
+		<tr>
+		    <td>levelname:</td>
+			<td>{{ message.levelname }}</td>
+		</tr>
+		<tr>
+		    <td>name:</td>
+			<td>{{ message.name }}</td>
+		</tr>
+		<tr>
+		    <td>module:</td>
+			<td>{{ message.module }}</td>
+		</tr>
+		<tr>
+		    <td>filename:</td>
+			<td>{{ message.filename }}</td>
+		</tr>
+		<tr>
+		    <td>pathname:</td>
+			<td>{{ message.pathname }}</td>
+		</tr>
+		<tr>
+		    <td>funcName:</td>
+			<td>{{ message.funcName }}</td>
+		</tr>
+		<tr>
+		    <td>lineno:</td>
+			<td>{{ message.lineno }}</td>
+		</tr>
+		<tr>
+		    <td>msg:</td>
+			<td>{{ message.msg }}</td>
+		</tr>
+		<tr>
+		    <td>exc_info:</td>
+			<td>{{ message.exc_info }}</td>
+		</tr>
+		<tr>
+		    <td>exc_text:</td>
+			<td>{{ message.exc_text }}</td>
+		</tr>
+		<tr>
+		    <td>args:</td>
+			<td>{{ message.args }}</td>
+		</tr>
+		<tr>
+		    <td>threadName:</td>
+			<td>{{ message.threadName }}</td>
+		</tr>
+		<tr>
+		    <td>thread:</td>
+			<td>{{ message.thread }}</td>
+		</tr>
+		<tr>
+		    <td>created:</td>
+			<td>{{ message.created }}</td>
+		</tr>
+		<tr>
+		    <td>process:</td>
+			<td>{{ message.process }}</td>
+		</tr>
+		<tr>
+		    <td>relativeCreated:</td>
+			<td>{{ message.relativeCreated }}</td>
+		</tr>
+		<tr>
+		    <td>msecs:</td>
+			<td>{{ message.msecs }}</td>
+		</tr>
+		{% endif %}
+    
+	    {% for message in messages %}
+    	<tr class="{% cycle '' 'even' %}">
+    		<td>{{ message.msecs }}</td>
+    		<td>{{ message.date }}</td>
+			<td>{{ message.remote_host }}</td>
+			<td><a href="{% url ots.server.django_logger.views.view_message_details log_id=message.id %}">{{ message.date }}</a></td>
+			<td>{{ message.module }}</td>
+			<td>{% autoescape off %}{{ message.levelname|result_judge:message.levelno }}{% endautoescape %}</td>
+			<td>{{ message.msg }}{% if message.exc_text %} <pre>{{message.exc_text}}</pre>{% endif %}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock content %}
