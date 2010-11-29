@@ -295,14 +295,21 @@ def view_worker_details(request, remote_host=None):
         @rtype: L{HttpResponse}
         @return: Returns HttpResponse containing the view.
     """
-    # Fetching row
-    messages = LogMessage.objects.filter(
-            remote_host=remote_host).order_by('date', 'id')
+    run_ids = LogMessage.objects.filter(remote_host=remote_host)
+    run_ids = run_ids.values_list('run_id').distinct()
+
+    messages = []
+    
+    for run in run_ids:
+        message = LogMessage.objects.filter(run_id = run[0]).order_by('-date')[0]
+        messages.append(message)
+    
+    messages = sorted(messages, key=lambda message: message.date, reverse=True)
 
     template = loader.get_template('logger/advanced_message_view.html')
     context_dict = {
         'messages'   : messages,
-        'MEDIA_URL' : settings.MEDIA_URL,
+        'remote_host': remote_host,
         }
     return HttpResponse(template.render(Context(context_dict)))
 
@@ -316,11 +323,6 @@ def main_page(request):
     context_dict = {
     'MEDIA_URL' : settings.MEDIA_URL,
     }
-    # Fetching row
-    # Servicename is ignored for backward compatibility. (Related to ots)
-    #    context_dict['messages'] = LogMessage.objects.filter(
-    #        service=servicename, run_id=run_id).exclude(levelname="DEBUG")\
-    #.order_by("date")
 
     run_ids = LogMessage.objects.values('run_id').distinct()
     messages = []

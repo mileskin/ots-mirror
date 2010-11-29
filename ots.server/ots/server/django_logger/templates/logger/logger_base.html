@@ -34,7 +34,7 @@
     <link rel="stylesheet" 
 	  type="text/css" 
 	  media="all" 
-	  href="styles/custom.css" />
+	  href="/styles/custom.css" />
     <title>{% block title %}OTS{% endblock title %}</title>
 	<script language="javascript"> 
 	function toggle(elementName) {
@@ -55,6 +55,7 @@
 		<div id="menu">
 		  <table id="menu_list">	
 		  <td><a href="{% url ots.server.django_logger.views.main_page %}">Main</a></td>
+		  <td><a href="{% url ots.server.django_logger.views.view_workers %}">Workers</a></td>
 		  <td><a href="{% url ots.server.django_logger.views.filtter_message_viewer %}">Advanced</a></td>
 		  </table>
 		</div>
