@@ -304,6 +304,7 @@ def view_worker_details(request, remote_host=None):
         'messages'   : messages,
         'MEDIA_URL' : settings.MEDIA_URL,
         }
+    return HttpResponse(template.render(Context(context_dict)))
 
 def main_page(request):
     """
