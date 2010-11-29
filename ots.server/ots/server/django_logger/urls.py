@@ -24,6 +24,7 @@ from django.conf.urls.defaults import *
 from ots.server.django_logger.views import *
 
 urlpatterns = patterns('',
+    (r'^view/filtter/$', filtter_message_viewer),
     (r'^(?P<servicename>\w+)/(?P<run_id>\w+)/$', create_message),
     (r'^view/$', main_page),
     (r'^view/testrun/(?P<run_id>\w+)/$', basic_testrun_viewer),
