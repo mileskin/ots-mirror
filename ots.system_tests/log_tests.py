@@ -45,23 +45,60 @@ def get_latest_testrun_id():
     td = row1.findAll("td")[0].string
     return td
 
-def scrape_log(testrun_id):
+def find_message(testrun_id, string):
     """
-    Check the web page of the Tero log for the given testrun_id
-    and return the Result
+    Tries to find a message in the log for the given testrun
+    Returns True if message was found
     """
-    ret_val = None
-    file =  urllib2.urlopen("/%s/"%(CITA_SERVER, testrun_id))
-    soup = BeautifulSoup(file.read())
-    table =  soup.findAll("table")[0]
+    ret_val = False
+    file =  urllib2.urlopen("%s"% GLOBAL_LOG)
+    soup = BeautifulSoup(file.read(), 
+                         convertEntities=BeautifulSoup.ALL_ENTITIES)
+
+    table =  soup.findAll("table")[1]
     rows = table.findAll("tr")
     for tr in rows:
-        if "Result"in tr.findAll("th")[0]:
-            td = tr.findAll("td")[0]    
-            for str_result in ["ERROR", "PASS", "FAIL", "NOT IN DB."]:
-                ret_val = td.find(text = str_result)
-                if ret_val is not None:
-                    break
+        td = tr.findAll("td")
+        if td:
+            # todo find instead of exact match
+            if td[0].string == testrun_id and td[4].string == string:
+                ret_val = True
+                #print td[4].string
+                break
+
     return ret_val
+
+def has_errors(testrun_id):
+    """
+    Checks if testrun has any error messages
+    """
+    ret_val = False
+    file =  urllib2.urlopen("%s"% GLOBAL_LOG)
+    soup = BeautifulSoup(file.read(), 
+                         convertEntities=BeautifulSoup.ALL_ENTITIES)
+
+    table =  soup.findAll("table")[1]
+    rows = table.findAll("tr")
+    for tr in rows:
+        error = ""
+        td = tr.findAll("td")
+        if td:
+
+            if td[0].string == testrun_id:
+                # Error has some styling:
+                try:
+                    error  =  td[3].findAll("div")[0].findAll("b")[0].string
+                except IndexError:
+                    pass
+                if error == "ERROR":
+                    ret_val = True
+                    print error
+                    #break
+    return ret_val
+
+
 if __name__ == "__main__":
-    print get_latest_testrun_id()
+    testrun_id = get_latest_testrun_id()
+    string = "Result set to ERROR"
+    find_message(testrun_id, string)
+    print has_errors(testrun_id)
