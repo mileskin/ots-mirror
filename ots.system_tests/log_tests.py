@@ -61,7 +61,7 @@ class Options(object):
 
     pass
 
-class TestErrorMessages(unittest.TestCase):
+class TestErrorConditions(unittest.TestCase):
 
     def test_non_existing_devicegroup(self):
         options = Options()
@@ -85,6 +85,24 @@ class TestErrorMessages(unittest.TestCase):
         string = 'error_info set to "Queue \'this_should_not_exist\' does not exist"'
         self.assertTrue(has_message(testrun_id, string))
         string = """ncoming request: program: default, request: 0, notify_list: ['tvainio@localhost'], options: {'engine': ['default'], 'device': {'devicegroup': 'this_should_not_exist'}, 'image': 'http://dontcareabouttheimage', 'distribution_model': 'default', 'timeout': 1}"""
+        self.assertTrue(has_message(testrun_id, string))
+
+    def test_non_existing_sw_product(self):
+        options = Options()
+        options.sw_product = "this_should_not_exist"
+        options.timeout = 1
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        self.assertTrue(has_errors(testrun_id))
+        string = """Unknown sw_product this_should_not_exist"""
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = """Incoming request: program: this_should_not_exist, request: 0, notify_list: ['tvainio@localhost'], options: {'engine': ['default'], 'image': 'http://dontcareabouttheimage', 'distribution_model': 'default', 'timeout': 1}"""
         self.assertTrue(has_message(testrun_id, string))
 
 
@@ -121,6 +139,10 @@ def has_message(testrun_id, string):
                 if td[4].string and td[4].string.count(string):
                     ret_val = True
                     break
+                elif td[4].string == None: # Check also <pre> messages </pre>
+                    if td[4].findAll("pre")[0].string.count(string):
+                        ret_val = True
+                        break
 
     return ret_val
 
