@@ -26,14 +26,65 @@ OTS log based system tests.
 These tests expect that you have full ots system set up. They trigger testruns
 and check http logs for expected results
 
+Make sure there is no other activities going on in the system while running 
+the tests!
+
 """
 
+import unittest
 import urllib2
 from BeautifulSoup import BeautifulSoup
+from ots.tools.trigger.ots_trigger import ots_trigger
 SERVER = "localhost"
-URL = "http://%s/logger/view/ots/%s/"
 GLOBAL_LOG = "http://%s/logger/view/" % (SERVER)
+EMAIL = "tvainio@localhost"
 
+class Options(object):
+    pass
+
+class TestErrorMessages(unittest.TestCase):
+
+    def test_non_existing_devicegroup(self):
+        options = Options()
+        options.id = 0
+        options.engine = None
+        options.image = "http://dontcareabouttheimage"
+        options.engine = "default"
+        options.testpackages = []
+        options.hosttest = []
+        options.distribution = "default"
+        options.filter = ""
+        options.input_plugin = ""
+        options.device = "devicegroup:this_should_not_exist"
+        options.sw_product = "default"
+        options.email = EMAIL
+        options.timeout = 1
+        options.server = "%s/xmlrpc" % SERVER # TODO: To cmd line parameters
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "FAIL")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = """Queue 'this_should_not_exist' does not exist"""
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = 'error_info set to "Queue \'this_should_not_exist\' does not exist"'
+        self.assertTrue(has_message(testrun_id, string))
+        string = """ncoming request: program: default, request: 0, notify_list: ['tvainio@localhost'], options: {'engine': ['default'], 'device': {'devicegroup': 'this_should_not_exist'}, 'image': 'http://dontcareabouttheimage', 'distribution_model': 'default', 'timeout': 1}"""
+        self.assertTrue(has_message(testrun_id, string))
+
+
+
+##################################
+# Helper functions for log parsing
+#
 def get_latest_testrun_id():
     """
     Scrape the latest testrun id from the global log
@@ -45,7 +96,7 @@ def get_latest_testrun_id():
     td = row1.findAll("td")[0].string
     return td
 
-def find_message(testrun_id, string):
+def has_message(testrun_id, string):
     """
     Tries to find a message in the log for the given testrun
     Returns True if message was found
@@ -60,11 +111,10 @@ def find_message(testrun_id, string):
     for tr in rows:
         td = tr.findAll("td")
         if td:
-            # todo find instead of exact match
-            if td[0].string == testrun_id and td[4].string == string:
-                ret_val = True
-                #print td[4].string
-                break
+            if td[0].string == testrun_id:
+                if td[4].string and td[4].string.count(string):
+                    ret_val = True
+                    break
 
     return ret_val
 
@@ -85,20 +135,16 @@ def has_errors(testrun_id):
         if td:
 
             if td[0].string == testrun_id:
-                # Error has some styling:
+                # "ERROR" has some styling around it:
                 try:
                     error  =  td[3].findAll("div")[0].findAll("b")[0].string
                 except IndexError:
                     pass
                 if error == "ERROR":
                     ret_val = True
-                    print error
-                    #break
+                    break
     return ret_val
 
 
 if __name__ == "__main__":
-    testrun_id = get_latest_testrun_id()
-    string = "Result set to ERROR"
-    find_message(testrun_id, string)
-    print has_errors(testrun_id)
+    unittest.main()
