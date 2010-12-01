@@ -37,29 +37,36 @@ from BeautifulSoup import BeautifulSoup
 from ots.tools.trigger.ots_trigger import ots_trigger
 SERVER = "localhost"
 GLOBAL_LOG = "http://%s/logger/view/" % (SERVER)
-EMAIL = "tvainio@localhost"
+
 
 class Options(object):
+    """A mock for ots_trigger options"""
+
+    def __init__(self):
+        # Default call options
+        self.id = 0
+        self.engine = ""
+        self.image = "http://dontcareabouttheimage"
+        self.engine = "default"
+        self.testpackages = []
+        self.hosttest = []
+        self.distribution = "default"
+        self.filter = ""
+        self.input_plugin = ""
+        self.device = ""
+        self.sw_product = "default"
+        self.email = "tvainio@localhost"
+        self.timeout = 30
+        self.server = "%s/xmlrpc" % SERVER # TODO: To cmd line parameters
+
     pass
 
 class TestErrorMessages(unittest.TestCase):
 
     def test_non_existing_devicegroup(self):
         options = Options()
-        options.id = 0
-        options.engine = None
-        options.image = "http://dontcareabouttheimage"
-        options.engine = "default"
-        options.testpackages = []
-        options.hosttest = []
-        options.distribution = "default"
-        options.filter = ""
-        options.input_plugin = ""
         options.device = "devicegroup:this_should_not_exist"
-        options.sw_product = "default"
-        options.email = EMAIL
         options.timeout = 1
-        options.server = "%s/xmlrpc" % SERVER # TODO: To cmd line parameters
         result = ots_trigger(options)
 
         # Check the return value
@@ -79,7 +86,6 @@ class TestErrorMessages(unittest.TestCase):
         self.assertTrue(has_message(testrun_id, string))
         string = """ncoming request: program: default, request: 0, notify_list: ['tvainio@localhost'], options: {'engine': ['default'], 'device': {'devicegroup': 'this_should_not_exist'}, 'image': 'http://dontcareabouttheimage', 'distribution_model': 'default', 'timeout': 1}"""
         self.assertTrue(has_message(testrun_id, string))
-
 
 
 ##################################
