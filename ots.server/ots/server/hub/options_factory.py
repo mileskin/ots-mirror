@@ -104,7 +104,8 @@ class OptionsFactory(object):
         rparam : The core function names 
         """
         
-        return Options.__init__.im_func.func_code.co_varnames
+        names = Options.__init__.im_func.func_code.co_varnames
+        return names
 
     @property 
     def extended_options_dict(self):
@@ -140,8 +141,9 @@ class OptionsFactory(object):
         core_options_dict = dict((key, self._options_dict[key]) 
                                  for key in  self.core_options_names 
                                  if key in self._options_dict)
-
-
+        #Patch image alias 
+        if self._options_dict.has_key("image_url"):
+            core_options_dict["image"] = self._options_dict["image_url"]
         return core_options_dict
 
     #####################################

@@ -39,7 +39,8 @@ COMMAND_DICT = {"image_url" : "-u",
                 "storage_address" : "-c",
                 "testfilter" : "-f",
                 "flasher" : "--flasherurl",
-                "testpackages" : "-t"}
+                "testpackages" : "-t",
+                "timeout" : "-m"}
 
 #######################################
 # Conductor Commands
@@ -52,7 +53,7 @@ class ConductorCommands(object):
     """
 
     def __init__(self, image_url, emmc, testrun_uuid,
-                       storage_address, testfilter, flasher):
+                       storage_address, testfilter, flasher, timeout):
         """
         @type image_url: C{str}
         @param image_url: The URL of the image
@@ -71,6 +72,8 @@ class ConductorCommands(object):
 
         @type flasher: C{str}
         @param flasher: The URL of the flasher
+
+        @type timeout: FIXME
         """
         self.image_url = image_url 
         self.emmc = emmc
@@ -78,7 +81,23 @@ class ConductorCommands(object):
         self.storage_address = storage_address
         self.testfilter = testfilter 
         self.flasher = flasher
+        self.timeout = timeout
 
+    def _get_param(self, param_name, testpackages):
+        """
+        FIXME
+        """
+        ret_val = None
+        if param_name == "testpackages":
+            if testpackages != '':
+                ret_val= testpackages
+        else:
+            param = getattr(self, param_name)
+            if param != '' and param != '""':
+                ret_val = param
+        return ret_val
+                
+    
     def _command(self, testpackages):
         """
         Create a Conductor CL
@@ -91,14 +110,10 @@ class ConductorCommands(object):
         """
         ret_val = []
         for param_name, opt in COMMAND_DICT.items():
-            if param_name == "testpackages":
+            param = self._get_param(param_name, testpackages)
+            if param is not None:
                 ret_val.append(opt)
-                ret_val.append(testpackages)
-            else:
-                param = getattr(self, param_name)
-                if param is not None:
-                    ret_val.append(opt)
-                    ret_val.append(param)
+                ret_val.append(param)
         return ret_val
 
     def single(self, hw_packages, host_packages):
@@ -165,7 +180,8 @@ def get_commands(is_package_distributed,
                  testrun_uuid, 
                  storage_address, 
                  testfilter,
-                 flasher):
+                 flasher,
+                 timeout):
     """
     Returns a list of conductor commands
     
@@ -197,12 +213,15 @@ def get_commands(is_package_distributed,
     @type flasher: C{str}
     @param flasher: The URL of the flasher
 
+    @type timeout : FIXME
+
     @rtype: A C{list} of C{str} 
     @rtype: Conductor commands
     """
    
     commands = ConductorCommands(image_url, emmc, testrun_uuid,
-                                 storage_address, testfilter, flasher)
+                                 storage_address, testfilter, 
+                                 flasher, timeout)
     if is_package_distributed:
         return commands.multiple(hw_packages, host_packages)
     else:
