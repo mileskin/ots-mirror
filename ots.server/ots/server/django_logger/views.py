@@ -267,16 +267,25 @@ def view_workers(request):
     
     message = []
     
+    
     for remote_host, remote_ip in LogMessage.objects.values_list(
-        'remote_host', 'remote_ip').distinct().order_by('remote_host'):
+         'remote_host', 'remote_ip').distinct().order_by('remote_host'):
         dict = {}
         dict['remote_host'] = remote_host
         dict['remote_ip'] = remote_ip
-        date = LogMessage.objects.filter(
-                    remote_host=remote_host).order_by('date')[:1][0].date 
+        msgs = LogMessage.objects.filter(remote_host=remote_host).order_by('-date')
+        date = msgs[:1][0].date
+        
+        msg = msgs[:1][0].msg
+        if len(msg) > 45:
+            msg = msg[0:42] + '...'
+        dict['msg'] = msg
         dict['date'] = str(date).split('.')[:1][0]
         message.append(dict)
-    
+
+    # Sort hosts to have latest as first
+    message.sort(key=lambda dict: dict['date'],reverse=True)
+   
     template = loader.get_template('logger/workers_view.html')
     context_dict = {
         'message'   : message,
@@ -431,7 +440,7 @@ def filtter_message_viewer(request):
     post_data['show_prev'] = post_data['first_index'] and 1 or 0
     post_data['show_next'] = (last_index < messages.count()-1) and 1 or 0
     post_data['messages']  = messages[post_data['first_index']:last_index]
-
+    
     
     template = loader.get_template('logger/filtter_message_view.html')
     return HttpResponse(template.render(Context(post_data)))

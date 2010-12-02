@@ -124,6 +124,26 @@ color:#ffffff;
   background-color: #cff;
 }
 
+#worker_box
+{
+    width: 400px;
+    height: 100%
+    margin: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border:1px solid #98bf21; 
+}
+#worker_box h2
+{
+    padding: 10px 15px 5px 15px;
+}
+#worker_box p
+{
+    margin: 0px;
+    padding: 5px 15px 10px 15px;
+}
+
 SPAN.INFO
 {
   color:green;

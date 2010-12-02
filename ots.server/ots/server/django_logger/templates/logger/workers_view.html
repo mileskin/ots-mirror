@@ -27,24 +27,30 @@
 {% block content %}
 {% load logger_template_tags %}
 
-<table id="testrun_info" >
-	<thead>
-		<tr>
-			<th align="left">Hostname</th>
-			<th align="left">IP address</th>
-			<th align="left">Last activity</th>
-		</tr>
-	</thead>
-	<tbody>
-	    {% for mes in message %}
-    	<tr class="{% cycle '' 'even' %}">
-			<td><a href="{% url ots.server.django_logger.views.view_worker_details remote_host=mes.remote_host %}">{{ mes.remote_host }}</a></td>
-			<td>{{ mes.remote_ip }}</td>
-			<td>{{ mes.date }}</td>
-		</tr>
-		{% empty %}
-        <li>Sorry, no matches!</li>
-		{% endfor %}
-    </tbody>
+
+<table align="center">
+	<tr style="height:100%;">
+	{% for msg in message %}
+	<td width="50%"> 
+		<div id="worker_box">
+		<h2><a href="{% url ots.server.django_logger.views.view_worker_details remote_host=msg.remote_host %}">{{ msg.remote_host }}</a></h2>
+		<p>{{ msg.remote_ip }}</p>
+		<p>{{ msg.date }}</p>
+		<p>{{ msg.msg }}</p>
+		</div>
+	</td>
+	{% if forloop.counter|divisibleby:"2" %}
+	</tr>
+	<tr>
+	{% endif %}
+	{% empty %}
+	<td width="100%">
+		<div id="worker_box">
+		<h2>Sorry, no matches!</h2>
+		<p>Could't find any log messages from database.</p>
+		</div>
+	</td>
+	{% endfor %}
+	</tr>
 </table>
 {% endblock content %}
