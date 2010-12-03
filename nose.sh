@@ -23,7 +23,7 @@
 # ***** END LICENCE BLOCK *****
 
 #
-# Run the unittests with nose
+# Run the unit tests with nose
 #
 # usage: nose.sh <nose_parameter>
 #
