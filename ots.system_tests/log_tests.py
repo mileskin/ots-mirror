@@ -61,7 +61,62 @@ class Options(object):
 
     pass
 
+class TestSuccessfulTestruns(unittest.TestCase):
+
+    # Warning! Not tested yet...
+    def test_testrun_with_testrunner_lite_tests(self):
+        options = Options()
+        options.device = "devicegroup:system_tests"
+        options.image = "http://%s/static/ots_system_test_image.tar.gz"
+        options.engine = "default"
+        options.testpackages = ["testrunner-lite-tests"]
+        options.sw_product = "ots-system-tests"
+        options.timeout = 30
+
+        print "****************************"
+        print "Triggering a testrun with testrunner-lite-tests\n"
+        print "System requirements:"
+        print "Image with testrunner-lite-tests available in %s" % options.image
+        print "SW Product %s defined" % options.sw_product
+        print "A fully functioanl worker with following device properties: %s"\
+            % options.device
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "PASS")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertFalse(has_errors(testrun_id))
+
+        string = "Result set to PASS"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check that correct worker was used
+
+        # Check messages from testrunner-lite are there
+
+        #
+
+    def test_testrun_split_into_multiple_tasks(self):
+        # Trigger a testrun containing 2 packages with perpackage distribution
+        # Check that it is split into two tasks and both are processed correctly
+        pass
+
+
 class TestErrorConditions(unittest.TestCase):
+
+    def test_bad_image_url(self):
+        # Trigger a testrun with non existing image url. Check correct result
+        # and error message
+        pass
+
+    def test_timeout(self):
+        # Trigger long testrun with short timeout value. Make sure result is
+        # fail and correct error message is generated
+        pass
 
     def test_non_existing_devicegroup(self):
         options = Options()
