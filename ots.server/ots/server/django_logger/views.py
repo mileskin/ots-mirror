@@ -277,8 +277,8 @@ def view_workers(request):
         date = msgs[:1][0].date
         
         msg = msgs[:1][0].msg
-        if len(msg) > 45:
-            msg = msg[0:42] + '...'
+        if len(msg) > 40:
+            msg = msg[0:37] + '...'
         dict['msg'] = msg
         dict['date'] = str(date).split('.')[:1][0]
         message.append(dict)
