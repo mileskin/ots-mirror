@@ -241,6 +241,7 @@ class TaskBroker(object):
                                     exception)
         finally:
             self._publish_task_state_change(task_id, response_queue)
+            self._set_log_handler(None)
             self._start_consume()
 
     def _on_message(self, message):
@@ -341,8 +342,9 @@ class TaskBroker(object):
     def _set_log_handler(self, queue):
         """
         Set the AMQP Log Handler to use the queue
+        or None to stop it logging
 
-        @type queue : C{str}
+        @type queue : C{str} or None
         @param queue : The name of the queue 
         """
         if self._amqp_log_handler is not None:
