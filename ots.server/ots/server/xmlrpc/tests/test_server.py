@@ -27,7 +27,7 @@ from ots.server.xmlrpc.server import _config
 class TestServer(unittest.TestCase):
 
     def test_config(self):
-        self.assertEquals(('"your_hostname_here"', '8080'),
+        self.assertEquals(('localhost', 8080),
                           _config())
 
 if __name__ == "__main__":

@@ -138,7 +138,7 @@ class TaskRunner(object):
         @param testrun_id: The testrun id
 
         @type timeout: C{int}
-        @param timeout: Timout in seconds for Task execution
+        @param timeout: Time out in seconds for Task execution
 
         @type queue_timeout: C{int}
         @param queue_timeout: Time in seconds Tasks can wait on the queue 
@@ -169,7 +169,6 @@ class TaskRunner(object):
         self._timeout = timeout
         self._queue_timeout = queue_timeout
         self._preparation_timeout = preparation_timeout
-
         self.timeout_handler = Timeout(timeout, 
                                        queue_timeout, 
                                        preparation_timeout)

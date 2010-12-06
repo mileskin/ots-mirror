@@ -25,16 +25,12 @@ A simple forking xmlrpc server for serving the ots public interface
 """
 
 import os
-import ConfigParser
+import configobj
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from SocketServer import ForkingMixIn
-
-from ots.common.framework.api import config_filename
-
+from ots.server.server_config_filename import server_config_filename
 from ots.server.hub.api import Hub 
-from ots.server.hub.api import get_application_id
-
 from ots.server.distributor.api import TaskRunner
 
 ################################
@@ -56,16 +52,12 @@ class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
 
 def _config():
     """
-    rtype: C{Tuple) of C{str} and C{str}
+    rtype: C{Tuple) of C{str} and C{int}
     rparam: hostname, port
     """
-    server_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-    app_id = get_application_id() 
-    conf = config_filename(app_id, server_path)
-    config = ConfigParser.ConfigParser()
-    config.read(conf)       
-    return config.get('ots.server.xmlrpc', 'host'), \
-           int(config.get('ots.server.xmlrpc', 'port'))
+    config_file = server_config_filename()
+    config = configobj.ConfigObj(config_file).get("ots.server.xmlrpc")
+    return config.get('host'), config.as_int('port')
 
 
 

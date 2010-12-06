@@ -22,36 +22,45 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#Run the unittests with nose 
+#
+# Run the unit tests with nose
+#
+# usage: nose.sh <nose_parameter>
+#
 
+if [ $# -gt 0 ]; then
+    echo "`basename $0` started with parameters: $@"
+fi
 
 #############
 #ots.common
 #############
 
-nosetests ots.common/ots/common/framework/tests/test_*
-nosetests ots.common/ots/common/dto/tests/test_* 
-nosetests ots.common/ots/common/amqp/tests/test_* -e testrun_queue_name
+nosetests ots.common/ots/common/framework/tests/test_* $@
+nosetests ots.common/ots/common/dto/tests/test_* $@
+nosetests ots.common/ots/common/amqp/tests/test_* -e testrun_queue_name $@
 
 #############
 #ots.server
 #############
 
-nosetests ots.server/ots/server/distributor/tests/test_* -e testrun -e test_remote 
+nosetests ots.server/ots/server/distributor/tests/test_* -e testrun -e test_remote $@
 
-nosetests ots.server/ots/server/hub/tests/test_* -e testrun
+nosetests ots.server/ots/server/hub/tests/test_* -e testrun $@
+nosetests ots.server/ots/server/xmlrpc/tests/test_* $@
 
 #############
 #ots.worker
 #############
-nosetests ots.worker/ots/worker/tests/test_*
+nosetests ots.worker/ots/worker/tests/test_* $@
 
 ###################
 #ots.email_plugin
 ###################
-nosetests ots.email_plugin/ots/email_plugin/tests/test_*
+nosetests ots.email_plugin/ots/email_plugin/tests/test_* $@
 
 ##############
 #ots.results
 ##############
-nosetests ots.results/ots/results/tests/test_*
+nosetests ots.results/ots/results/tests/test_* $@
+
