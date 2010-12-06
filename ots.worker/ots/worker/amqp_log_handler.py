@@ -48,6 +48,10 @@ class AMQPLogHandler(logging.Handler):
         if self.channel is not None \
                 and self.queue is not None \
                 and self.exchange is not None:
+            #FIXME: This rudely ignores the exc_info
+            #as Python can't pickle the traceback
+            record.exc_info = None
+            #
             message = pack_message(record)
             self.channel.basic_publish(message,
                                        mandatory = True,

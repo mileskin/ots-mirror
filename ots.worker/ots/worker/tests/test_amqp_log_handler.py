@@ -111,6 +111,10 @@ class TestAMQPLogHandler(unittest.TestCase):
         logger.info("info")
         logger.warning("warning")
         logger.error("error")
+        try:
+            raise ValueError
+        except ValueError:
+            logger.exception("exception")
 
         #Consume
         records = []
@@ -118,12 +122,12 @@ class TestAMQPLogHandler(unittest.TestCase):
             channel.basic_ack(delivery_tag = message.delivery_tag)
             records.append(unpack_message(message))
         channel.basic_consume(QUEUE_NAME, callback = cb)
-        for i in range(4):
+        for i in range(5):
             channel.wait()
         
         #Validate
         messages = [rec.msg for rec in records]
-        self.assertEquals(['debug', 'info', 'warning', 'error'],
+        self.assertEquals(['debug', 'info', 'warning', 'error', 'exception'],
                           messages)
        
        
