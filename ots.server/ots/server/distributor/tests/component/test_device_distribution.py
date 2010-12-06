@@ -56,6 +56,7 @@ from ots.server.server_config_filename import server_config_filename
 from ots.tools.queue_management.delete_queue import delete_queue
 from ots.server.distributor.tests.component.worker_processes import WorkerProcesses
 
+#Debug to allow running of Worker in separate terminal
 DEBUG = False
 
 ROUTING_KEY = "foo"
@@ -137,18 +138,18 @@ class TestDeviceDistribution(unittest.TestCase):
         #make sure there is no messages left in the worker queue 
         #from previous runs:
         try:
-            delete_queue("localhost", self.queue)
+            if not DEBUG:
+                delete_queue("localhost", self.queue)
         except:
             pass
         #
-        self.worker_processes = WorkerProcesses()
-        self.testrun_id = None
-
-     
-     
+        if not DEBUG:
+            self.worker_processes = WorkerProcesses()
+            self.testrun_id = None
           
     def tearDown(self):
-        self.worker_processes.terminate()
+        if not DEBUG:
+            self.worker_processes.terminate()
         self._remove_zip_file(TEST_DEFINITION_ZIP)
         self._remove_files_created_by_remote_commands()
         if self.queue:
@@ -227,9 +228,10 @@ class TestDeviceDistribution(unittest.TestCase):
                             time_after_run)
             self.assertTrue(self.results_file_received)
             self.assertTrue(self.test_definition_file_received)
-
+   
     def test_two_tasks_one_worker(self):
-        self.worker_processes.start()
+        if not DEBUG:
+            self.worker_processes.start()
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              routing_key = ROUTING_KEY, 
@@ -256,8 +258,10 @@ class TestDeviceDistribution(unittest.TestCase):
         command_2 = ["ots_mock", '"%s"'%(zipfile_2_name), 
                      "%s" % self.testrun_id]
         taskrunner.add_task(command_2)
+        #
+        command_quit = ["quit"]
+        taskrunner.add_task(command_quit)
 
-        
         time_before_run = time.time()
         time.sleep(1)
         taskrunner.run()
@@ -272,9 +276,13 @@ class TestDeviceDistribution(unittest.TestCase):
             self.assertTrue(time_before_run < foo_time)
             self.assertTrue(foo_time <= bar_time)
             self.assertTrue(bar_time <= time_after_run)
+            #
+            self.assertFalse(all(self.worker_processes.exitcodes))
+
 
     def test_two_tasks_two_worker(self):
-        self.worker_processes.start(2)
+        if not DEBUG:
+            self.worker_processes.start(2)
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              routing_key = ROUTING_KEY, 
@@ -301,7 +309,7 @@ class TestDeviceDistribution(unittest.TestCase):
         command_2 = ["ots_mock", '"%s"'%(zipfile_2_name), 
                      "%s" % self.testrun_id]
         taskrunner.add_task(command_2)
-
+       
         time_before_run = time.time()
         time.sleep(1)
         taskrunner.run()

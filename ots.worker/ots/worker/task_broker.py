@@ -150,10 +150,10 @@ class TaskBroker(object):
         """
         basic_consume = self.channel.basic_consume
         for queue in self._queues:
+            LOGGER.info("start consume on queue: %s" % queue)
             self._consumer_tags[queue] = basic_consume(queue = queue,
                                               callback = self._on_message)
-            LOGGER.info("start consume on queue: %s" % queue)
-
+            
     def _stop_consume(self):
         """
         Cancel consuming from queues. This is needed for proper load balancing.
@@ -170,6 +170,7 @@ class TaskBroker(object):
         Queue and Services Exchange are both durable
         """
         for queue in self._queues:
+            LOGGER.info("Initialising queue: %s" % queue)
             self.channel.queue_declare(queue = queue, 
                                        durable = True,
                                        exclusive = False, 
@@ -203,11 +204,11 @@ class TaskBroker(object):
                 else:
                     self._keep_looping = False
             except Exception:
-                #FIXME Check logs to see what exceptions are raised here
                 LOGGER.exception("_loop() failed")
+                #FIXME Check logs to see what exceptions are raised here
                 self._try_reconnect()
         self._clean_up()
-
+    
     def _handle_message(self, message):
         """
         The Message Handler. 
@@ -267,6 +268,7 @@ class TaskBroker(object):
         """
 
         if cmd_msg.is_quit:
+            LOGGER.debug("Received QUIT command")
             self._keep_looping = False
         elif not cmd_msg.is_ignore:
             LOGGER.debug("Running command: '%s'"%(cmd_msg.command))
@@ -348,21 +350,21 @@ class TaskBroker(object):
             self._amqp_log_handler.exchange = queue
         
     def _try_reconnect(self):
-        """
-        A poorly implemented reconnect to AMQP
-        """
-        #FIXME: Move out into own connection module.
-        #Implement with a exponential backoff with max retries.
-        LOGGER.exception("Error. Waiting 5s then retrying")
-        sleep(5)
-        try:
-            LOGGER.info("Trying to reconnect...")
-            self._connection.connect()
-            self._init_connection()
-            self._start_consume()
-        except Exception:
-            #If rabbit is still down, we expect this to fail
-            LOGGER.exception("Reconnecting failed...")
+       """
+       A poorly implemented reconnect to AMQP
+       """
+       #FIXME: Move out into own connection module.
+       #Implement with a exponential backoff with max retries.
+       LOGGER.exception("Error. Waiting 5s then retrying")
+       sleep(5)
+       try:
+           LOGGER.info("Trying to reconnect...")
+           self._connection.connect()
+           self._init_connection()
+           self._start_consume()
+       except Exception:
+           #If rabbit is still down, we expect this to fail
+           LOGGER.exception("Reconnecting failed...")
 
     def _clean_up(self):
         """

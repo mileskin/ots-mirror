@@ -23,8 +23,10 @@
 import os
 import time
 import multiprocessing
+from multiprocessing import Pool
 
 import ots.worker
+from ots.worker.worker import create_amqp_log_handler
 from ots.worker.api import worker_factory
 
 def start_worker(config_filename):
@@ -40,6 +42,9 @@ def start_worker(config_filename):
     os.environ["PATH"] = new_path
     #create and start it
     worker = worker_factory(config_filename)
+    amqp_log_handler = create_amqp_log_handler() 
+    worker.amqp_log_handler = amqp_log_handler 
+    
     worker.start()
     print "Starting Worker..."
 
@@ -76,8 +81,7 @@ class WorkerProcesses(object):
                                          args=(worker_config_filename,))
             worker_process.start()
             pids.append(worker_process.pid)
-            self._processes.append(worker_process)
-#            print "Starting Worker..."
+            self._processes.append(worker_process)           
         time.sleep(1)
         return pids
  
@@ -86,11 +90,13 @@ class WorkerProcesses(object):
         Terminate all the Workers
         """
         for proc in self._processes:
-#            print "Killing Worker..."
             proc.terminate()
         time.sleep(2)
         self._processes = []
 
+    @property    
+    def exitcodes(self):
+        return [proc.exitcode for proc in self._processes]
 
     @staticmethod
     def _worker_config_filename():
