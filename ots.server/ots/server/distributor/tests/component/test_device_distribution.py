@@ -43,7 +43,7 @@ import time
 import unittest 
 import zipfile
 
-from ots.common.dto.api import DTO_SIGNAL
+from ots.common.dto.api import DTO_SIGNAL, Results
 from ots.common.amqp.api import testrun_queue_name 
 
 import ots.worker
@@ -170,9 +170,8 @@ class TestDeviceDistribution(unittest.TestCase):
         self.test_definition_file_received = False
         self.results_file_received = False
 
-
-        #Initialise the Taskrunner
-        self.worker_processes.start()
+        if not DEBUG:
+            self.worker_processes.start()
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              routing_key = ROUTING_KEY, 
@@ -190,19 +189,23 @@ class TestDeviceDistribution(unittest.TestCase):
         #Add a Task
         command = ["ots_mock", '"%s"'%(zipfile_name), "%s" % self.testrun_id] 
         taskrunner.add_task(command)
+        #
+        command_quit = ["quit"]
+        taskrunner.add_task(command_quit)
 
         #Callback to handler results
         def cb_handler(signal, dto, **kwargs):
             self.cb_called = True
-            filename = dto.results_xml.name 
-            if filename == "test_definition.xml":
-                self.test_definition_file_received = True
-                self.assertEquals(EXPECTED.replace(' ','').replace('\n',''), 
+            if isinstance(dto, Results):
+                filename = dto.results_xml.name 
+                if filename == "test_definition.xml":
+                    self.test_definition_file_received = True
+                    self.assertEquals(EXPECTED.replace(' ','').replace('\n',''), 
                         dto.results_xml.read().replace(' ','').replace('\n',''))
-            elif filename == "dummy_results_file.xml":
-                self.results_file_received = True
-                expected = self._dummy_results_xml(filename)
-                self.assertEquals(expected, dto.results_xml.read())
+                elif filename == "dummy_results_file.xml":
+                    self.results_file_received = True
+                    expected = self._dummy_results_xml(filename)
+                    self.assertEquals(expected, dto.results_xml.read())
             
         DTO_SIGNAL.connect(cb_handler) 
         
@@ -228,6 +231,8 @@ class TestDeviceDistribution(unittest.TestCase):
                             time_after_run)
             self.assertTrue(self.results_file_received)
             self.assertTrue(self.test_definition_file_received)
+            #
+            self.assertFalse(all(self.worker_processes.exitcodes))
    
     def test_two_tasks_one_worker(self):
         if not DEBUG:
@@ -280,7 +285,7 @@ class TestDeviceDistribution(unittest.TestCase):
             self.assertFalse(all(self.worker_processes.exitcodes))
 
 
-    def test_two_tasks_two_worker(self):
+    def test_two_tasks_two_workers(self):
         if not DEBUG:
             self.worker_processes.start(2)
         self.testrun_id = 111      
@@ -309,7 +314,10 @@ class TestDeviceDistribution(unittest.TestCase):
         command_2 = ["ots_mock", '"%s"'%(zipfile_2_name), 
                      "%s" % self.testrun_id]
         taskrunner.add_task(command_2)
-       
+        #
+        command_quit = ["quit"]
+        taskrunner.add_task(command_quit)
+
         time_before_run = time.time()
         time.sleep(1)
         taskrunner.run()
@@ -326,6 +334,7 @@ class TestDeviceDistribution(unittest.TestCase):
                             foo_time <= 
                             bar_time <= 
                             time_after_run)
+            self.assertFalse(all(self.worker_processes.exitcodes))
 
     #################################
     # HELPERS
