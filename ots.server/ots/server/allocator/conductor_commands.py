@@ -96,8 +96,7 @@ class ConductorCommands(object):
             if param != '' and param != '""':
                 ret_val = param
         return ret_val
-                
-    
+                    
     def _command(self, testpackages):
         """
         Create a Conductor CL
