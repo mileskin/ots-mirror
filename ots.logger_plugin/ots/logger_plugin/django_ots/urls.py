@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,7 +20,14 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from django.conf.urls.defaults import *
+"""
+Django main url file
+"""
+
+# Ignoring naming pattern
+# pylint: disable=C0103
+
+from django.conf.urls.defaults import patterns, include
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin

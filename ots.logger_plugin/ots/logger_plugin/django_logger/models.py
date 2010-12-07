@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,13 +20,22 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Django models file
+"""
+
+# Ignoring class has no __init__ method
+# pylint: disable=W0232
+# Ignoring too few public methods
+# pylint: disable=R0903
+
 from django.db import models
 
 class LogMessage(models.Model):
     """ Model for message logs
     """
     service = models.CharField(max_length=20, db_index=True)
-    run_id = models.CharField(db_index=True,max_length=32)
+    run_id = models.CharField(db_index=True, max_length=32)
 
     date = models.DateTimeField()
     remote_ip = models.CharField(max_length=40)
@@ -55,7 +64,13 @@ class LogMessage(models.Model):
     msecs = models.FloatField()
 
     class Meta:
+        """
+        Meta class for model
+        """
         db_table = 'log_messages'
 
     def __unicode__(self):
+        """
+        Unicode function for table
+        """
         return self.msg

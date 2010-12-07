@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -51,7 +51,7 @@ class LocalHttpHandler(logging.Handler):
         Stores the message in db by calling create_message() directly
 
         @type record: L{logging.LogRecord}
-        @param arg1: LogRecord object from pythons logging module
+        @param record: LogRecord object from pythons logging module
 
         """
         meta_data = {
@@ -67,6 +67,6 @@ class LocalHttpHandler(logging.Handler):
             create_message(request, servicename = "ots",
                            run_id=self.testrun_id)
 
-        except Exception, e:
+        except Exception, error:
             print("error in LocalHttpHandler, testrun %s" % self.testrun_id)
-            print e
+            print error

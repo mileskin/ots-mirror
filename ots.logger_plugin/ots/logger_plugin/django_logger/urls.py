@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,8 +20,21 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from django.conf.urls.defaults import *
-from ots.logger_plugin.django_logger.views import *
+"""
+File for django urls
+"""
+
+# Ignoring naming pattern
+# pylint: disable=C0103
+
+from django.conf.urls.defaults import patterns
+from ots.logger_plugin.django_logger.views import view_workers
+from ots.logger_plugin.django_logger.views import view_worker_details
+from ots.logger_plugin.django_logger.views import basic_testrun_viewer
+from ots.logger_plugin.django_logger.views import filtter_message_viewer
+from ots.logger_plugin.django_logger.views import main_page
+from ots.logger_plugin.django_logger.views import view_message_details
+from ots.logger_plugin.django_logger.views import create_message
 
 urlpatterns = patterns('',
     (r'^view/workers/$', view_workers),

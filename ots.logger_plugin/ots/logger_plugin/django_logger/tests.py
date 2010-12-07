@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,10 +20,23 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Django unit tests
+"""
+
+# Ignoring no objects member error
+# pylint: disable=E1101
+# Ignoring invalid method naming
+# pylint: disable=C0103
+# Ignoring docstring
+# pylint: disable=C0111
+
 import unittest
 import logging
 import uuid
 from django.http import HttpRequest
+
+from ots.logger_plugin.localhandler import LocalHttpHandler
 
 from ots.logger_plugin.django_logger.models import LogMessage
 from ots.logger_plugin.django_logger.views import create_message
@@ -32,8 +45,14 @@ SERVICENAME = 'logmessage'
 RUN_ID      = uuid.uuid1().hex
 
 class TestLogger(unittest.TestCase):
+    """
+    Unit tests for logger
+    """
 
     def setUp(self):
+        """
+        Unit test setup
+        """
         LogMessage.objects.all().delete()
         self.post_data = {
             'levelno'           : '10',             # integer NOT NULL
@@ -67,6 +86,9 @@ class TestLogger(unittest.TestCase):
         create_message(request, SERVICENAME, RUN_ID)
 
     def tearDown(self):
+        """
+        Unit test tear down
+        """
         # Deleting all messages
         LogMessage.objects.all().delete()
 
@@ -81,7 +103,7 @@ class TestLogger(unittest.TestCase):
         self.assertEquals(LogMessage.objects.all()[0].service, SERVICENAME)
 
     def testRunId(self):
-        self.assertEquals(LogMessage.objects.all()[0].run_id, int(RUN_ID))
+        self.assertEquals(LogMessage.objects.all()[0].run_id, str(RUN_ID))
 
     def testLevelNumber(self):
         self.assertEquals(
@@ -172,3 +194,41 @@ class TestLogger(unittest.TestCase):
         self.assertEquals(
             LogMessage.objects.all()[0].remote_host,
             self.meta_data['REMOTE_HOST'])
+
+class TestLocalHttpHandler(unittest.TestCase):
+    """
+    Unit tests for logger handler
+    """
+    
+    def setUp(self):
+        """
+        Unit test setup
+        """
+        LogMessage.objects.all().delete()
+        self.log = logging.getLogger("testlogger")
+        self.log.setLevel(logging.INFO)
+
+        httphandler = LocalHttpHandler(RUN_ID)
+        httphandler.setLevel(logging.INFO)
+        self.log.addHandler(httphandler)
+
+    def tearDown(self):
+        """
+        Unit test tear down
+        """
+        LogMessage.objects.all().delete()
+
+    def testMessageCount(self):
+        self.log.error("asdf")
+        self.assertEquals(LogMessage.objects.all().count(), 1)
+
+    def testMessageData(self):
+        msg_string = "asdf"
+        self.log.error(msg_string)
+        msg = LogMessage.objects.all()[0]
+
+        self.assertEquals(msg.run_id, RUN_ID)
+        self.assertEquals(msg.levelname.lower(), "error")
+        self.assertEquals(msg.module, "tests")
+        self.assertEquals(msg.filename, "tests.py")
+        self.assertEquals(msg.msg, msg_string)

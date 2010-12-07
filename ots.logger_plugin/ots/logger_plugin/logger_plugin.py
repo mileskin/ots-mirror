@@ -1,3 +1,29 @@
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+
+# Ignoring warnings because this is plugin
+# pylint: disable=W0613
+# pylint: disable=R0903
+
 """
 The LoggerPlugin is a Publisher 
 
@@ -22,7 +48,7 @@ class LoggerPlugin(PublisherPluginBase):
         @param request_id: An identifier for the request from the client
 
         @type testrun_uuid: C{str}
-        @param: The unique identifier for the testrun
+        @param testrun_uuid: The unique identifier for the testrun
 
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
@@ -39,7 +65,7 @@ class LoggerPlugin(PublisherPluginBase):
     #############################################
     # Logger initialization
     #############################################
-    def _initialize_logger(self,testrun_uuid):
+    def _initialize_logger(self, testrun_uuid):
         """
         initializes the logger
         """

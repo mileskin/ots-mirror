@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -21,29 +21,29 @@
 # ***** END LICENCE BLOCK *****
 
 # Ignoring: Class 'LogMessage' has no 'objects' member
-# pylint: disable-msg=E1101
+# pylint: disable=E1101
 # Ignoring: Unused argument 'request'
-# pylint: disable-msg=W0613
-""" Logger creates and views log messages
+# pylint: disable=W0613
 
-    Example of creating log message:
+"""
+Logger creates and views log messages
 
-    import logging
-    import logging.handlers
-    logger = logging.getLogger('mylogger_name')
-    http_handler = logging.handlers.HTTPHandler(
-        host_address,
-        '/logging/%s/%s/' % (servicename, run_id),
-        method='POST',
-        )
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(http_handler)
+Example of creating log message:
 
-    logger.debug('debug message')
-    logger.info('info message')
-    logger.warn('warning message')
-    logger.error('error message')
-    logger.critical('critical message')
+import logging
+import logging.handlers
+logger = logging.getLogger('mylogger_name')
+http_handler = logging.handlers.HTTPHandler(host_address,
+                                            '/logging/%s/%s/' % (servicename, run_id),
+                                            method='POST',)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(http_handler)
+
+logger.debug('debug message')
+logger.info('info message')
+logger.warn('warning message')
+logger.error('error message')
+logger.critical('critical message')
 """
 import datetime
 import socket
@@ -130,9 +130,6 @@ def basic_testrun_viewer(request, run_id=None):
 
         @type request: L{HttpRequest}
         @param request: HttpRequest of the view
-
-        @type servicename: C{string}
-        @param servicename: Service name (e.g. ots)
 
         @type run_id: C{int}
         @param run_id: Run id
@@ -270,21 +267,21 @@ def view_workers(request):
     
     for remote_host, remote_ip in LogMessage.objects.values_list(
          'remote_host', 'remote_ip').distinct().order_by('remote_host'):
-        dict = {}
-        dict['remote_host'] = remote_host
-        dict['remote_ip'] = remote_ip
+        data = dict()
+        data['remote_host'] = remote_host
+        data['remote_ip'] = remote_ip
         msgs = LogMessage.objects.filter(remote_host=remote_host).order_by('-date')
         date = msgs[:1][0].date
         
         msg = msgs[:1][0].msg
         if len(msg) > 40:
             msg = msg[0:37] + '...'
-        dict['msg'] = msg
-        dict['date'] = str(date).split('.')[:1][0]
-        message.append(dict)
+        data['msg'] = msg
+        data['date'] = str(date).split('.')[:1][0]
+        message.append(data)
 
     # Sort hosts to have latest as first
-    message.sort(key=lambda dict: dict['date'],reverse=True)
+    message.sort(key=lambda data: data['date'], reverse=True)
    
     template = loader.get_template('logger/workers_view.html')
     context_dict = {
