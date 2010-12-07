@@ -85,7 +85,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-ROOT_URLCONF = 'ots.server.django_ots.urls'
+ROOT_URLCONF = 'ots.logger_plugin.django_ots.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -104,7 +104,7 @@ INSTALLED_APPS = (
     'django_xmlrpc',
 
     # OTS components:
-    'ots.server.django_logger',
+    'ots.logger_plugin.django_logger',
 )
 
 XMLRPC_METHODS = (

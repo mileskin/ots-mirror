@@ -33,7 +33,7 @@
 	{% for msg in message %}
 	<td width="50%"> 
 		<div id="worker_box">
-		<h2><a href="{% url ots.server.django_logger.views.view_worker_details remote_host=msg.remote_host %}">{{ msg.remote_host }}</a></h2>
+		<h2><a href="{% url ots.logger_plugin.django_logger.views.view_worker_details remote_host=msg.remote_host %}">{{ msg.remote_host }}</a></h2>
 		<p>{{ msg.remote_ip }}</p>
 		<p>{{ msg.date }}</p>
 		<p>{{ msg.msg }}</p>

@@ -22,7 +22,7 @@
 # ***** END LICENCE BLOCK *****
 -->
 {% extends "logger/logger_base.html" %}
-{% block pagetitle %}Worker '{{ remote_host }}' testruns{% endblock pagetitle %}
+{% block pagetitle %}Test runs{% endblock pagetitle %}
 {% block content %}
 {% load logger_template_tags %}
 <table id="testrun_list">
@@ -38,7 +38,7 @@
 	<tbody>
 	    {% for message in messages %}
     	<tr class="{% cycle 'odd' 'even' %}">
-			<td><a href="{% url ots.server.django_logger.views.basic_testrun_viewer run_id=message.run_id %}">{{ message.run_id }}</a></td>
+			<td><a href="{% url ots.logger_plugin.django_logger.views.basic_testrun_viewer run_id=message.run_id %}">{{ message.run_id }}</a></td>
 			<td>{{ message.date|format_datetime }}</td>
 			<td>{{ message.module }}</td>
 			<td>{% autoescape off %}<span class="{{ message.levelname }}">{{ message.levelname }}</span>{% endautoescape %}</td>

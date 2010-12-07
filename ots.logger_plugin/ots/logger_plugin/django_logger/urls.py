@@ -21,7 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 from django.conf.urls.defaults import *
-from ots.server.django_logger.views import *
+from ots.logger_plugin.django_logger.views import *
 
 urlpatterns = patterns('',
     (r'^view/workers/$', view_workers),

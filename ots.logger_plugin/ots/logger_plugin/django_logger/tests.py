@@ -25,8 +25,8 @@ import logging
 import uuid
 from django.http import HttpRequest
 
-from ots.server.django_logger.models import LogMessage
-from ots.server.django_logger.views import create_message
+from ots.logger_plugin.django_logger.models import LogMessage
+from ots.logger_plugin.django_logger.views import create_message
 
 SERVICENAME = 'logmessage'
 RUN_ID      = uuid.uuid1().hex
