@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
@@ -44,6 +44,11 @@ class OptionsFactory(object):
     Preprocesses the options dictionary 
     Sorts the Options into Core and Extended Options
     """
+
+    aliases = {"image" : "image_url",
+               "emmc" : "emmc_flash_parameter",
+               "flasher" : "flasherurl",
+               "packages" : "test_packages"}
 
     def __init__(self, sw_product, options_dict):
         """
@@ -73,7 +78,6 @@ class OptionsFactory(object):
         """
         return dict([(k.replace("-","_"), v) for k,v in options_dict.items()])
                     
-
     @staticmethod
     def _default_options_dict(sw_product):
         """
@@ -104,7 +108,8 @@ class OptionsFactory(object):
         rparam : The core function names 
         """
         
-        return Options.__init__.im_func.func_code.co_varnames
+        names = Options.__init__.im_func.func_code.co_varnames
+        return names
 
     @property 
     def extended_options_dict(self):
@@ -131,6 +136,7 @@ class OptionsFactory(object):
         """
         Adapts the options dictionary to the interface 
         Overrides the defaults depending on configuration
+        and changes the names of the supported interface.
         
         rtype : C{dict}
         rparam : The treated Options dictionary
@@ -140,8 +146,10 @@ class OptionsFactory(object):
         core_options_dict = dict((key, self._options_dict[key]) 
                                  for key in  self.core_options_names 
                                  if key in self._options_dict)
-
-
+        #Patch aliases 
+        for new_name, old_name in self.aliases.items():
+            if self._options_dict.has_key(old_name):
+                core_options_dict[new_name] = self._options_dict[old_name]
         return core_options_dict
 
     #####################################
