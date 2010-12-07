@@ -29,24 +29,34 @@ and check http logs for expected results
 Make sure there is no other activities going on in the system while running 
 the tests!
 
+Please check that system_tests.conf is up to date!
+
 """
 
+import configobj
 import unittest
 import urllib2
+from configobj import ConfigObj
 from BeautifulSoup import BeautifulSoup
 from ots.tools.trigger.ots_trigger import ots_trigger
-SERVER = "localhost"
-GLOBAL_LOG = "http://%s/logger/view/" % (SERVER)
 
+CONFIGFILE = "system_tests.conf"
+
+
+
+        
+CONFIG = ConfigObj(CONFIGFILE).get("log_tests")
 
 class Options(object):
     """A mock for ots_trigger options"""
 
     def __init__(self):
+
+
         # Default call options
         self.id = 0
         self.engine = ""
-        self.image = "http://dontcareabouttheimage"
+        self.image = CONFIG["image_url"]
         self.engine = "default"
         self.testpackages = []
         self.hosttest = []
@@ -55,9 +65,9 @@ class Options(object):
         self.input_plugin = ""
         self.device = ""
         self.sw_product = "default"
-        self.email = "tvainio@localhost"
+        self.email = CONFIG["email"]
         self.timeout = 30
-        self.server = "%s/xmlrpc" % SERVER # TODO: To cmd line parameters
+        self.server = CONFIG["server"]
 
     pass
 
@@ -66,7 +76,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
     # Warning! Not tested yet...
     def test_testrun_with_testrunner_lite_tests(self):
         options = Options()
-        options.image = "http://%s/static/ots_system_test_image.tar.gz" % SERVER
         options.engine = "default"
         options.testpackages = "testrunner-lite-tests"
         options.sw_product = "ots-system-tests"
@@ -144,7 +153,7 @@ class TestErrorConditions(unittest.TestCase):
 
         string = 'error_info set to "Queue \'this_should_not_exist\' does not exist"'
         self.assertTrue(has_message(testrun_id, string))
-        string = """ncoming request: program: default, request: 0, notify_list: ['tvainio@localhost'], options: {'engine': ['default'], 'device': {'devicegroup': 'this_should_not_exist'}, 'image': 'http://dontcareabouttheimage', 'distribution_model': 'default', 'timeout': 1}"""
+        string = """ncoming request: program: default, request: 0, notify_list: ['%s'], options: {'engine': ['default'], 'device': {'devicegroup': 'this_should_not_exist'}, 'image': '%s', 'distribution_model': 'default', 'timeout': 1}""" % (CONFIG["email"], CONFIG["image_url"])
         self.assertTrue(has_message(testrun_id, string))
 
     def test_non_existing_sw_product(self):
@@ -168,7 +177,7 @@ class TestErrorConditions(unittest.TestCase):
         string = """Unknown sw_product this_should_not_exist"""
         self.assertTrue(has_message(testrun_id, string))
 
-        string = """Incoming request: program: this_should_not_exist, request: 0, notify_list: ['tvainio@localhost'], options: {'engine': ['default'], 'image': 'http://dontcareabouttheimage', 'distribution_model': 'default', 'timeout': 1}"""
+        string = """Incoming request: program: this_should_not_exist, request: 0, notify_list: ['%s'], options: {'engine': ['default'], 'image': '%s', 'distribution_model': 'default', 'timeout': 1}""" % (CONFIG["email"], CONFIG["image_url"])
         self.assertTrue(has_message(testrun_id, string))
 
 class TestDeviceProperties(unittest.TestCase):
@@ -309,7 +318,7 @@ def get_latest_testrun_id():
     """
     Scrape the latest testrun id from the global log
     """
-    file =  urllib2.urlopen("%s"% GLOBAL_LOG)
+    file =  urllib2.urlopen(CONFIG["global_log"])
     soup = BeautifulSoup(file.read())
     table =  soup.findAll("table")[1]
     row1 = table.findAll("tr")[1]
@@ -320,7 +329,7 @@ def get_second_latest_testrun_id():
     Scrape the second latest testrun id from the global log
     """
     latest = get_latest_testrun_id()
-    file =  urllib2.urlopen("%s"% GLOBAL_LOG)
+    file =  urllib2.urlopen(CONFIG["global_log"])
     soup = BeautifulSoup(file.read())
     table =  soup.findAll("table")[1]
     rows = table.findAll("tr")
@@ -337,7 +346,7 @@ def has_message(testrun_id, string):
     Returns True if message was found
     """
     ret_val = False
-    file =  urllib2.urlopen("%s"% GLOBAL_LOG)
+    file =  urllib2.urlopen(CONFIG["global_log"])
     soup = BeautifulSoup(file.read(), 
                          convertEntities=BeautifulSoup.ALL_ENTITIES)
 
@@ -362,7 +371,7 @@ def has_errors(testrun_id):
     Checks if testrun has any error messages
     """
     ret_val = False
-    file =  urllib2.urlopen("%s"% GLOBAL_LOG)
+    file =  urllib2.urlopen(CONFIG["global_log"])
     soup = BeautifulSoup(file.read(), 
                          convertEntities=BeautifulSoup.ALL_ENTITIES)
 
