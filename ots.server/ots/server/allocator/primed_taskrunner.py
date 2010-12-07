@@ -111,7 +111,7 @@ def primed_taskrunner(testrun_uuid, timeout, priority, device_properties,
     taskrunner = taskrunner_factory(routing_key, timeout, testrun_uuid)
     cmds = get_commands(is_package_distributed, image, hw_packages,
                         host_packages, emmc, testrun_uuid, _storage_address(),
-                        testfilter, flasher)
+                        testfilter, flasher, timeout)
     for cmd in cmds:
         LOG.debug("Add cmd '%s' to taskrunner"%(cmd))
         taskrunner.add_task(cmd)
