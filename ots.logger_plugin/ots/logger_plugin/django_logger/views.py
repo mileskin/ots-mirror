@@ -344,7 +344,7 @@ def main_page(request):
     template = loader.get_template('logger/index.html')
     return HttpResponse(template.render(Context(context_dict)))
 
-def filtter_message_viewer(request):
+def filter_message_viewer(request):
     """
         Page for viewing filtered messages from all test runs.
         @type request: L{HttpRequest}
@@ -439,5 +439,5 @@ def filtter_message_viewer(request):
     post_data['messages']  = messages[post_data['first_index']:last_index]
     
     
-    template = loader.get_template('logger/filtter_message_view.html')
+    template = loader.get_template('logger/filter_message_view.html')
     return HttpResponse(template.render(Context(post_data)))

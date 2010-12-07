@@ -31,7 +31,7 @@ from django.conf.urls.defaults import patterns
 from ots.logger_plugin.django_logger.views import view_workers
 from ots.logger_plugin.django_logger.views import view_worker_details
 from ots.logger_plugin.django_logger.views import basic_testrun_viewer
-from ots.logger_plugin.django_logger.views import filtter_message_viewer
+from ots.logger_plugin.django_logger.views import filter_message_viewer
 from ots.logger_plugin.django_logger.views import main_page
 from ots.logger_plugin.django_logger.views import view_message_details
 from ots.logger_plugin.django_logger.views import create_message
@@ -39,7 +39,7 @@ from ots.logger_plugin.django_logger.views import create_message
 urlpatterns = patterns('',
     (r'^view/workers/$', view_workers),
     (r'^view/workers/(?P<remote_host>\S+)/$', view_worker_details),
-    (r'^view/filtter/$', filtter_message_viewer),
+    (r'^view/filter/$', filter_message_viewer),
     (r'^view/$', main_page),
     (r'^view/testrun/(?P<run_id>\w+)/$', basic_testrun_viewer),
     (r'^view/details/(?P<log_id>\w+)/$', view_message_details),
