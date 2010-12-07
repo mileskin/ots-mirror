@@ -27,13 +27,17 @@ INSTALLATION
     sudo mkdir /opt/ots/
     sudo chown www-data:www-data /opt/ots/
 
-  5. Create database
+  5. Install plugin
+  
+    sudo python setup.py install
+  
+  6. Create database
 
     cd ots/logger_plugin/django_ots/
     sudo python manage.py syncdb
     sudo chown www-data:www-data /opt/ots/*
 
-  6. Configure apache default configuration
+  7. Configure apache default configuration
 
     sudo nano /etc/apache2/sites-enabled/000-default
 
@@ -51,12 +55,12 @@ INSTALLATION
               </Directory>
       </VirtualHost>
 
-  7. Copy www files to /var/www/
+  8. Copy www files to /var/www/
 
     sudo cp -r ots/logger_plugin/django_logger/templates/* /var/www/
-
-  8. Restart apache
+  
+  9. Restart apache
 
     sudo service apache2 restart
 
-  9. Browse http://localhost/logger/view/ 
+  10. Browse http://localhost/logger/view/ 
