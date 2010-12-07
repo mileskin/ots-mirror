@@ -66,10 +66,9 @@ class TestSuccessfulTestruns(unittest.TestCase):
     # Warning! Not tested yet...
     def test_testrun_with_testrunner_lite_tests(self):
         options = Options()
-        options.device = "devicegroup:system_tests"
-        options.image = "http://%s/static/ots_system_test_image.tar.gz"
+        options.image = "http://%s/static/ots_system_test_image.tar.gz" % SERVER
         options.engine = "default"
-        options.testpackages = ["testrunner-lite-tests"]
+        options.testpackages = "testrunner-lite-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 30
 
@@ -78,8 +77,8 @@ class TestSuccessfulTestruns(unittest.TestCase):
         print "System requirements:"
         print "Image with testrunner-lite-tests available in %s" % options.image
         print "SW Product %s defined" % options.sw_product
-        print "A fully functioanl worker with following device properties: %s"\
-            % options.device
+        print "A fully functional worker configured to %s."\
+            % options.sw_product
 
         result = ots_trigger(options)
 
