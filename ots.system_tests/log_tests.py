@@ -73,7 +73,6 @@ class Options(object):
 
 class TestSuccessfulTestruns(unittest.TestCase):
 
-    # Warning! Not tested yet...
     def test_testrun_with_testrunner_lite_tests(self):
         options = Options()
         options.engine = "default"
@@ -102,11 +101,13 @@ class TestSuccessfulTestruns(unittest.TestCase):
         string = "Result set to PASS"
         self.assertTrue(has_message(testrun_id, string))
 
-        # Check that correct worker was used
+        # Check message from conductor
+        string = "Starting conductor at"
+        self.assertTrue(has_message(testrun_id, string))
 
-        # Check messages from testrunner-lite are there
-
-        #
+        # Check a message from testrunner-lite
+        string = """Finished running tests."""
+        self.assertTrue(has_message(testrun_id, string))
 
     def test_testrun_split_into_multiple_tasks(self):
         # Trigger a testrun containing 2 packages with perpackage distribution
