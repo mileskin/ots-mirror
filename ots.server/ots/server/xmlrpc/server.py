@@ -33,6 +33,8 @@ from ots.server.server_config_filename import server_config_filename
 from ots.server.hub.api import Hub 
 from ots.server.distributor.api import TaskRunner
 
+LOG = False
+
 ################################
 # HACKISH TESTING CAPABILITIES
 ################################
@@ -98,6 +100,19 @@ def main():
     print "Starting OTS xmlrpc server..."
     print 
     print "Host: %s, Port: %s" % _config()
+    print 
+
+    if LOG:
+        import logging
+        root_logger = logging.getLogger('')
+        root_logger.setLevel(logging.DEBUG)
+        log_handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        log_handler.setFormatter(formatter)
+        log_handler.setLevel(logging.DEBUG)
+        root_logger.addHandler(log_handler)
+    
     server.serve_forever()
 
 if __name__ == "__main__":
