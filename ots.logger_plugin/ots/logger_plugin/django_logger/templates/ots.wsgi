@@ -1,11 +1,9 @@
-#!/bin/bash
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -22,11 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# Creates developer eggs for all the eggs with 'ots' namespace
+import os
+import sys
 
-for egg_root in ots.*
-do
-    cd "$egg_root"
-    python setup.py develop   
-    cd - 
-done
+os.environ['DJANGO_SETTINGS_MODULE'] = 'ots.logger_plugin.django_ots.settings'
+
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()
