@@ -62,7 +62,6 @@ def _config():
     return config.get('host'), config.as_int('port')
 
 
-
 #############################
 # REQUEST_SYNC
 #############################

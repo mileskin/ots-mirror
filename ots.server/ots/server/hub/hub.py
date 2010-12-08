@@ -163,7 +163,7 @@ class Hub(object):
             LOG.debug(traceback.format_exc())
             self.publishers.set_exception(sys.exc_info()[1])
 
-        self.publishers.publish() 
+        self.publishers.publish()
         if testrun_result:
             ret_val = True
         return ret_val
