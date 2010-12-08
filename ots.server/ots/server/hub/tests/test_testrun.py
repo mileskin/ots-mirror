@@ -45,7 +45,7 @@ class TestTestrun(unittest.TestCase):
                                       "tests", "data", 
                                       "dummy_results_file.xml")
         results_xml = open(results_fqname, "r")
-        results = Results("fail", results_xml.read())
+        results = Results("tatam_xml_testrunner_fail", results_xml.read())
         tr = Testrun()
         tr._dto_handler.expected_packages = pkgs
         tr._dto_handler.tested_packages = pkgs
@@ -62,7 +62,7 @@ class TestTestrun(unittest.TestCase):
                                       "tests", "data", 
                                       "dummy_pass_file.xml")
         results_xml = open(results_fqname, "r")
-        results = Results("pass", results_xml.read())
+        results = Results("tatam_xml_testrunner_pass", results_xml.read())
 
         tr = Testrun()
         tr._dto_handler.expected_packages = pkgs
