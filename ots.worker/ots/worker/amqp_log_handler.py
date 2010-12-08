@@ -26,6 +26,8 @@ Handler to put LogRecords on an AMQP Queue
 
 import logging
 
+from amqplib.client_0_8 import AMQPChannelException
+
 from ots.common.amqp.api import pack_message
 
 class AMQPLogHandler(logging.Handler):
@@ -53,7 +55,10 @@ class AMQPLogHandler(logging.Handler):
             record.exc_info = None
             #
             message = pack_message(record)
-            self.channel.basic_publish(message,
-                                       mandatory = True,
-                                       exchange = self.exchange,
-                                       routing_key = self.queue)
+            try:
+                self.channel.basic_publish(message,
+                                           mandatory = True,
+                                           exchange = self.exchange,
+                                           routing_key = self.queue)
+            except AMQPChannelException:
+                print "Can't log to %s"%(self.queue)
