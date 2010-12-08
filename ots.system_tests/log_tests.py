@@ -76,14 +76,14 @@ class TestSuccessfulTestruns(unittest.TestCase):
     def test_testrun_with_testrunner_lite_tests(self):
         options = Options()
         options.engine = "default"
-        options.testpackages = "testrunner-lite-tests"
+        options.testpackages = "testrunner-lite-regression-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 30
 
         print "****************************"
-        print "Triggering a testrun with testrunner-lite-tests\n"
+        print "Triggering a testrun with testrunner-lite-regression-tests\n"
         print "System requirements:"
-        print "Image with testrunner-lite-tests available in %s" % options.image
+        print "Image with testrunner-lite-regression-tests available in %s" % options.image
         print "SW Product %s defined" % options.sw_product
         print "A fully functional worker configured to %s."\
             % options.sw_product
