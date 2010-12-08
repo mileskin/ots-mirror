@@ -30,6 +30,7 @@ export WORKER=$ROOT/ots.worker/ots/worker
 export SERVER=$ROOT/ots.server/ots/server
 export COMMON=$ROOT/ots.common/ots/common 
 export RESULTS=$ROOT/ots.results/ots/results
+export TOOLS=$ROOT/ots.tools/ots/tools
 export OTS=$ROOT
 
 PATH=$ROOT/ots.worker/ots/worker/tests/:$PATH
