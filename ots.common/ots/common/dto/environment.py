@@ -56,7 +56,7 @@ class Environment(object):
     @property 
     def is_hw(self):
         """Is this a hardware environment?"""
-        match = self.HARDWARE in self.environment
+        match = self.HARDWARE in self.environment.lower()
         return match 
 
     def __eq__(self, other):
