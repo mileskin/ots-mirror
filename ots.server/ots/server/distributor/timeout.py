@@ -36,7 +36,7 @@ import signal
 #pylint: disable-msg=F0401
 
 
-from ots.server.distributor.exceptions import OtsGlobalTimeoutError
+from ots.server.distributor.exceptions import OtsExecutionTimeoutError
 from ots.server.distributor.exceptions import OtsQueueTimeoutError
 
 LOGGER = logging.getLogger(__name__)
@@ -45,27 +45,27 @@ class Timeout(object):
     """
     Implements ots distributor server side timeouts by using signals.
     
-    Raises OtsGlobalTimeoutError if timed out during task execution
+    Raises OtsExecutionTimeoutError if timed out during execution
     Raises OtsQueueTimeoutError if timed out before any tasks started
 
     """
 
 
-    def __init__(self, global_timeout, queue_timeout, preparation_timeout):
+    def __init__(self, execution_timeout, queue_timeout, controller_timeout):
         """
  
-        @type global_timeout :C{int} 
-        @param global_timeout: The timeout for a task
+        @type execution_timeout :C{int} 
+        @param execution_timeout: The timeout for remote command execution
 
         @type queue_timeout :C{int} 
         @param queue_timeout: The queue timeout for the start of the first task
 
-        @type preparation_timeout : C{int}
-        @param preparation_timeout : preparation_timeout 
+        @type controller_timeout : C{int}
+        @param controller_timeout : controller_timeout 
         """
+        self.execution_timeout = execution_timeout
         self.queue_timeout = queue_timeout
-        self.global_timeout = global_timeout
-        self.preparation_timeout = preparation_timeout
+        self.controller_timeout = controller_timeout
 
     def __del__(self):
         self.stop()
@@ -78,7 +78,7 @@ class Timeout(object):
         """
         def queue_timeout_handler(signum, frame):
             """
-            A callback that raises OtsGlobalTimeoutError
+            A callback that raises OtsQueueTimeoutError
             """
 
             # Disabling "unused argument" warning. Arguments are defined
@@ -96,9 +96,9 @@ class Timeout(object):
 
     def task_started(self, single_task = False):
         """sets timeout. Previous timeout will be overwritten."""
-        def global_timeout_handler(signum, frame):
+        def execution_timeout_handler(signum, frame):
             """
-            A callback that raises OtsGlobalTimeoutError
+            A callback that raises OtsExecutionTimeoutError
             """
             # Disabling "unused argument" warning. Arguments are defined
             # by the signal module
@@ -106,16 +106,16 @@ class Timeout(object):
             #pylint: disable-msg=W0613
 
 
-            LOGGER.error("Global timeout (server side)")
-            raise OtsGlobalTimeoutError
+            LOGGER.error("Execution timeout (server side)")
+            raise OtsExecutionTimeoutError
 
         if not single_task:
             timeout = self._calculate_new_timeout()
         else:
-            timeout = self.global_timeout
-        LOGGER.info("Setting server side global timeout to %s minutes" \
+            timeout = self.execution_timeout
+        LOGGER.info("Setting server side execution timeout to %s minutes" \
                           % (timeout/60))
-        signal.signal(signal.SIGALRM, global_timeout_handler)
+        signal.signal(signal.SIGALRM, execution_timeout_handler)
         signal.alarm(timeout)
 
     @staticmethod
@@ -125,14 +125,14 @@ class Timeout(object):
 
     def _calculate_new_timeout(self):
         """
-        calculates the new global timeout.
+        calculates the new execution timeout.
 
         Because multiple tasks may need to be executed on the same worker, we
         need to give some extra time for the next task to be picked up.
 
         In most cases timeouts are handled on worker side. This server side
-        global timeout is only a final safety mechanism if for example network
+        timeout is only a final safety mechanism if for example network
         connection to worker is permanently lost.
         """
-        return self.queue_timeout + self.global_timeout \
-               + self.preparation_timeout
+        return self.queue_timeout + self.execution_timeout \
+               + self.controller_timeout

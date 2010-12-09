@@ -28,7 +28,7 @@ class OtsQueueDoesNotExistError(Exception):
     """Exception raised when queue does not exist in rabbitmq server"""
     pass
 
-class OtsGlobalTimeoutError(Exception):
+class OtsExecutionTimeoutError(Exception):
     """Exception raised if a task is not finished in time"""
     pass
 

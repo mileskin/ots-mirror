@@ -110,7 +110,7 @@ class TaskRunner(object):
     def __init__(self, username, password, host, vhost, 
                  services_exchange, port, 
                  routing_key, testrun_id, 
-                 timeout, queue_timeout, preparation_timeout,
+                 execution_timeout, queue_timeout, controller_timeout,
                  min_worker_version = None):
         """
         @type username: C{str}
@@ -137,14 +137,14 @@ class TaskRunner(object):
         @type testrun_id: C{int}
         @param testrun_id: The testrun id
 
-        @type timeout: C{int}
-        @param timeout: Time out in seconds for Task execution
+        @type execution_timeout: C{int}
+        @param execution_timeout: Time out in seconds for Task execution
 
         @type queue_timeout: C{int}
         @param queue_timeout: Time in seconds Tasks can wait on the queue 
 
-        @type preparation_timeout: C{int}
-        @param timeout: preparation timeout # FIXME What is this        
+        @type controller_timeout: C{int}
+        @param controller_timeout: The timeout for HW controllers         
         """
         #AMQP configuration
         self._username = username
@@ -166,12 +166,12 @@ class TaskRunner(object):
         self._min_worker_version = min_worker_version
 
         #timeouts
-        self._timeout = timeout
+        self._execution_timeout = execution_timeout
         self._queue_timeout = queue_timeout
-        self._preparation_timeout = preparation_timeout
-        self.timeout_handler = Timeout(timeout, 
+        self._controller_timeout = controller_timeout
+        self.timeout_handler = Timeout(execution_timeout, 
                                        queue_timeout, 
-                                       preparation_timeout)
+                                       controller_timeout)
 
         # Tells if we are running only a single task
         # Used for backward compatibility
@@ -270,7 +270,7 @@ class TaskRunner(object):
             cmd_msg = CommandMessage(task.command, 
                                      self._testrun_queue,
                                      task.task_id,
-                                     timeout = self._timeout,
+                                     timeout = self._execution_timeout,
                                      min_worker_version = 
                                        self._min_worker_version)
             message = pack_message(cmd_msg)
@@ -323,7 +323,7 @@ class TaskRunner(object):
         """ 
         if self._is_run:
             raise TaskRunnerException("This TaskRunner has already been run")
-        self._tasks.append(Task(command, self._timeout))
+        self._tasks.append(Task(command, self._execution_timeout))
         
     def run(self):
         """

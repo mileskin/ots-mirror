@@ -26,7 +26,7 @@ import unittest
 
 from ots.common.dto.ots_exception import OTSException
 
-from ots.server.distributor.api import OtsGlobalTimeoutError
+from ots.server.distributor.api import OtsExecutionTimeoutError
 
 from ots.common.framework.api import PublisherPluginBase
 
@@ -91,7 +91,7 @@ class TestHubComponent(unittest.TestCase):
         publisher = PublisherStub(*[None]*4)
         hub.publishers._publishers.append(publisher)
         hub.run()
-        self.assertTrue(isinstance(publisher.exception, OtsGlobalTimeoutError))
+        self.assertTrue(isinstance(publisher.exception, OtsExecutionTimeoutError))
 
     def test_run_model_taskrunner_error(self):
         mock_taskrunner = MockTaskRunnerError()

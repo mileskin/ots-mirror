@@ -24,7 +24,7 @@ import unittest
 import time
 
 from ots.server.distributor.timeout import Timeout
-from ots.server.distributor.exceptions import OtsGlobalTimeoutError
+from ots.server.distributor.exceptions import OtsExecutionTimeoutError
 from ots.server.distributor.exceptions import OtsQueueTimeoutError
 
 
@@ -35,9 +35,11 @@ class TestTimeout(unittest.TestCase):
         def run(): # A dummy timeouting function
             time.sleep(3)
         queue_timeout = 1
-        global_timeout = 1
-        preparation_timeout = 1
-        timeout = Timeout(global_timeout, queue_timeout, preparation_timeout)
+        execution_timeout = 1
+        controller_timeout = 1
+        timeout = Timeout(execution_timeout, 
+                          queue_timeout, 
+                          controller_timeout)
         timeout.start_queue_timeout()
         self.assertRaises(OtsQueueTimeoutError, run)
 
@@ -46,9 +48,11 @@ class TestTimeout(unittest.TestCase):
         def run(): # A dummy not timeouting function
             self.done = True
         queue_timeout = 1
-        global_timeout = 1
-        preparation_timeout = 1
-        timeout = Timeout(global_timeout, queue_timeout, preparation_timeout)
+        execution_timeout = 1
+        controller_timeout = 1
+        timeout = Timeout(execution_timeout, 
+                          queue_timeout, 
+                          controller_timeout)
         timeout.start_queue_timeout()
         run()
         self.assertTrue(self.done)
@@ -57,12 +61,14 @@ class TestTimeout(unittest.TestCase):
         def run(): # A dummy timeouting function
             time.sleep(3)
         queue_timeout = 1
-        global_timeout = 1
-        preparation_timeout = 1
-        timeout = Timeout(global_timeout, queue_timeout, preparation_timeout)
+        controller_timeout = 1
+        execution_timeout = 1
+        timeout = Timeout(execution_timeout, 
+                          queue_timeout, 
+                          controller_timeout)
         timeout.start_queue_timeout()
         timeout.task_started()
-        self.assertRaises(OtsGlobalTimeoutError, run)
+        self.assertRaises(OtsExecutionTimeoutError, run)
 
     def test_stop(self):
         self.done = False
@@ -71,9 +77,11 @@ class TestTimeout(unittest.TestCase):
             self.done = True
 
         queue_timeout = 1
-        global_timeout = 1
-        preparation_timeout = 1
-        timeout = Timeout(global_timeout, queue_timeout, preparation_timeout)
+        controller_timeout = 1
+        execution_timeout = 1
+        timeout = Timeout(execution_timeout, 
+                          queue_timeout, 
+                          controller_timeout)
         timeout.start_queue_timeout()
         timeout.stop()
         run()

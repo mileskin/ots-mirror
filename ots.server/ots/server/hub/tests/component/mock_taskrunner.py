@@ -27,7 +27,7 @@ from ots.common.dto.api import Results, Packages
 from ots.common.dto.api import OTSException
 from ots.common.dto.api import DTO_SIGNAL
 
-from ots.server.distributor.api import OtsGlobalTimeoutError
+from ots.server.distributor.api import OtsExecutionTimeoutError
 
 import ots.results
 
@@ -121,7 +121,7 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 class MockTaskRunnerTimeout(object):
 
     def run(self):
-        raise OtsGlobalTimeoutError("Mock")
+        raise OtsExecutionTimeoutError("Mock")
 
 ####################################
 # Error Scenarios Mocks

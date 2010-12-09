@@ -32,7 +32,7 @@ from ots.server.distributor.taskrunner import TaskRunner
 import ots.server
 
 def taskrunner_factory(routing_key,
-                       timeout,
+                       execution_timeout,
                        testrun_id,
                        config_file=None):
     """
@@ -41,8 +41,8 @@ def taskrunner_factory(routing_key,
     @type routing_key : C{string }  
     @param routing_key : The routing_key for the Task
 
-    @rtype timeout: C{int}  
-    @return timeout: The timeout
+    @rtype execution_timeout: C{int}  
+    @return execution_timeout: The timeout for the remote commands
 
     @type testrun_id: C{int}  
     @param testrun_id: The Testrun id 
@@ -57,6 +57,8 @@ def taskrunner_factory(routing_key,
         config_file = server_config_filename()
 
     config = configobj.ConfigObj(config_file).get("ots.server.distributor")
+    #FIXME: The role of timeouts has changed over time 
+    #the legacy naming is supported in the config 
     taskrunner = TaskRunner(username = config["username"],
                             password = config["password"],
                             host = config["host"],
@@ -65,9 +67,9 @@ def taskrunner_factory(routing_key,
                             port = config.as_int("port"), 
                             routing_key = routing_key,
                             testrun_id = testrun_id,
-                            timeout = timeout,
+                            execution_timeout = execution_timeout,
                             queue_timeout = config.as_int("timeout_task_start"),
-                            preparation_timeout = \
+                            controller_timeout = \
                                 config.as_int("timeout_for_preparation"))
     return taskrunner
 

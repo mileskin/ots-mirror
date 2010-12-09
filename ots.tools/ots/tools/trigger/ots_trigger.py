@@ -109,7 +109,7 @@ def parse_commandline_arguments():
 
 
     parser.add_option("-m", "--timeout", dest="timeout", action="store",
-                      type="int", help="Global timeout (minutes)",
+                      type="int", help="Execution timeout (minutes)",
                       metavar="TIMEOUT", default=0)
 
 

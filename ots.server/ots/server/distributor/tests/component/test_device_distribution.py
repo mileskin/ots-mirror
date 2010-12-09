@@ -175,7 +175,7 @@ class TestDeviceDistribution(unittest.TestCase):
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              routing_key = ROUTING_KEY, 
-                             timeout = 10,
+                             execution_timeout = 10,
                              testrun_id = self.testrun_id,
                              config_file = server_config_filename())
 
@@ -240,7 +240,7 @@ class TestDeviceDistribution(unittest.TestCase):
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              routing_key = ROUTING_KEY, 
-                             timeout = 10,
+                             execution_timeout = 10,
                              testrun_id = self.testrun_id,
                              config_file = server_config_filename())
         #
@@ -291,7 +291,7 @@ class TestDeviceDistribution(unittest.TestCase):
         self.testrun_id = 111      
         taskrunner = taskrunner_factory(
                              routing_key = ROUTING_KEY, 
-                             timeout = 10,
+                             execution_timeout = 10,
                              testrun_id = self.testrun_id,
                              config_file = server_config_filename())
         #

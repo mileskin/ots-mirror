@@ -104,7 +104,7 @@ class TestPropertiesDistribution(unittest.TestCase):
         self.assertFalse(os.path.isfile("/tmp/%s" % routing_key))
         taskrunner1 = taskrunner_factory(
                              routing_key = routing_key, 
-                             timeout = 2,
+                             execution_timeout = 2,
                              testrun_id = self.testrun_id,
                              config_file = self._distributor_config_filename())
        

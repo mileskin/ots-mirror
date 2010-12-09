@@ -38,7 +38,7 @@ from ots.server.distributor.task import Task
 from ots.server.distributor.taskrunner import TaskRunner
 from ots.server.distributor.taskrunner import _init_queue, TaskRunnerException
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
-    OtsGlobalTimeoutError, OtsQueueTimeoutError, OtsConnectionError
+    OtsExecutionTimeoutError, OtsQueueTimeoutError, OtsConnectionError
 
 
 class AMQPMessageStub:
@@ -200,7 +200,7 @@ class TestTimeoutScenarios(unittest.TestCase):
 
         taskrunner._tasks = [task_1] 
         self._publish_message(task_1.task_id, taskrunner._testrun_queue)
-        self.assertRaises(OtsGlobalTimeoutError,
+        self.assertRaises(OtsExecutionTimeoutError,
                           taskrunner.run)
 
     def _publish_message(self, task_id, response_queue):

@@ -53,7 +53,8 @@ def _storage_address():
 # PUBLIC METHOD
 #####################
 
-def primed_taskrunner(testrun_uuid, timeout, priority, device_properties,
+def primed_taskrunner(testrun_uuid, execution_timeout, priority, 
+                      device_properties,
                       image, hw_packages, host_packages,
                       emmc, testfilter, flasher, publishers): 
     """
@@ -62,8 +63,8 @@ def primed_taskrunner(testrun_uuid, timeout, priority, device_properties,
     @type testrun_uuid: C{str}
     @param testrun_uuid: The unique identifier for the testrun
 
-    @type timeout: C{int}
-    @param timeout: The timeout in minutes
+    @type execution_timeout: C{int}
+    @param execution_timeout: The execution timeout in minutes
 
     @type priority: C{int}
     @param priority: The priority of this testrun
@@ -108,7 +109,8 @@ def primed_taskrunner(testrun_uuid, timeout, priority, device_properties,
         is_package_distributed = True
 
     routing_key = get_routing_key(device_properties)
-    taskrunner = taskrunner_factory(routing_key, timeout, testrun_uuid)
+    taskrunner = taskrunner_factory(routing_key, execution_timeout, 
+                                    testrun_uuid)
     cmds = get_commands(is_package_distributed, image, hw_packages,
                         host_packages, emmc, testrun_uuid, _storage_address(),
                         testfilter, flasher, timeout)
