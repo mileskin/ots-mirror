@@ -228,7 +228,6 @@ class TaskBroker(object):
         cmd_msg = unpack_message(message)
         task_id = cmd_msg.task_id
         response_queue = cmd_msg.response_queue
-       
         self._set_log_handler(response_queue)
         self._publish_task_state_change(task_id, response_queue)
         #
@@ -309,10 +308,13 @@ class TaskBroker(object):
 
         """
         message = pack_message(exception)
-        self.channel.basic_publish(message,
-                                   mandatory = True,
-                                   exchange = response_queue,
-                                   routing_key = response_queue)
+        try:
+            self.channel.basic_publish(message,
+                                       mandatory = True,
+                                       exchange = response_queue,
+                                       routing_key = response_queue)
+        except AMQPChannelException:
+            LOGGER.error("Can't publish exception")
 
     #######################################
     # HELPERS
