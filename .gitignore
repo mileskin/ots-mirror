@@ -7,4 +7,7 @@ dist/
 RELEASE-VERSION
 test_definition_1.xml
 test_definition_2.xml
+.project
+.pydevproject
+.settings
 \#*

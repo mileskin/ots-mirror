@@ -81,7 +81,7 @@ class ConductorCommands(object):
         self.storage_address = storage_address
         self.testfilter = testfilter 
         self.flasher = flasher
-        self.timeout = timeout
+        self.timeout = str(timeout)
 
     def _get_param(self, param_name, testpackages):
         """

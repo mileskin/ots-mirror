@@ -240,8 +240,8 @@ class TaskBroker(object):
             self._publish_exception(response_queue,
                                     exception)
         finally:
-            self._publish_task_state_change(task_id, response_queue)
             self._set_log_handler(None)
+            self._publish_task_state_change(task_id, response_queue)
             self._start_consume()
 
     def _on_message(self, message):

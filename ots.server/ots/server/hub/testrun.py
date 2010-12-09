@@ -66,6 +66,15 @@ class Testrun(object):
         self.is_hw_enabled = is_hw_enabled
         self.is_host_enabled = is_host_enabled
         self.insignificant_tests_matter = insignificant_tests_matter
+
+
+    def _results_xmls_iter(self):
+        #FIXME
+        XML_PATTERN = "tatam_xml_testrunner" 
+        for result in self.results:
+            result_xml = result.results_xml
+            if result_xml.name.find(XML_PATTERN) != -1: 
+                yield result_xml
         
     ###########################
     # DELEGATES
@@ -114,7 +123,7 @@ class Testrun(object):
                          self.is_hw_enabled,
                          self.is_host_enabled)
             self.results = self._dto_handler.results
-            result_xmls = [result.results_xml for result in self.results]
+            result_xmls = list(self._results_xmls_iter())
             ret_val = go_nogo_gauge(result_xmls,
                                     self.insignificant_tests_matter)
         return ret_val

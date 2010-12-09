@@ -1,11 +1,10 @@
-#!/bin/sh
-
+#!/usr/bin/env python
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -22,15 +21,24 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#Sets Environment Variables for navigation convenience
+# Ignoring warnings because this is django default file
+# pylint: disable=W0403
 
-ROOT=$(cd $(dirname "$0"); pwd) 
+"""
+General django manage file
+"""
 
-export WORKER=$ROOT/ots.worker/ots/worker
-export SERVER=$ROOT/ots.server/ots/server
-export COMMON=$ROOT/ots.common/ots/common 
-export RESULTS=$ROOT/ots.results/ots/results
-export TOOLS=$ROOT/ots.tools/ots/tools
-export OTS=$ROOT
+from django.core.management import execute_manager
+try:
+    import settings # Assumed to be in the same directory.
+except ImportError:
+    import sys
+    sys.stderr.write("Error: Can't find the file 'settings.py'" + \
+    "in the directory containing %r. It appears you've customized things.\n" + \
+    "You'll have to run django-admin.py, passing it your settings module.\n" + \
+    "(If the file settings.py does indeed exist," + \
+    "it's causing an ImportError somehow.)\n" % __file__)
+    sys.exit(1)
 
-PATH=$ROOT/ots.worker/ots/worker/tests/:$PATH
+if __name__ == "__main__":
+    execute_manager(settings)

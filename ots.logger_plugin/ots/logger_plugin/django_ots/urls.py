@@ -1,11 +1,9 @@
-#!/bin/sh
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -22,15 +20,24 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#Sets Environment Variables for navigation convenience
+"""
+Django main url file
+"""
 
-ROOT=$(cd $(dirname "$0"); pwd) 
+# Ignoring naming pattern
+# pylint: disable=C0103
 
-export WORKER=$ROOT/ots.worker/ots/worker
-export SERVER=$ROOT/ots.server/ots/server
-export COMMON=$ROOT/ots.common/ots/common 
-export RESULTS=$ROOT/ots.results/ots/results
-export TOOLS=$ROOT/ots.tools/ots/tools
-export OTS=$ROOT
+from django.conf.urls.defaults import patterns, include
 
-PATH=$ROOT/ots.worker/ots/worker/tests/:$PATH
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
+
+urlpatterns = patterns('',
+
+    # Example:
+    (r'^logger/', include('ots.logger_plugin.django_logger.urls')),
+
+    (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
+
+)
