@@ -60,8 +60,7 @@ class Worker(object):
                        port, 
                        username, 
                        password,
-                       properties,
-                       swallow_exceptions):
+                       properties):
         """
         Initialise the class, read config, set up logging
         """
@@ -71,7 +70,6 @@ class Worker(object):
         self._username = username
         self._password = password
         self._properties = properties
-        self._swallow_exceptions = swallow_exceptions
         self._timeout = None
         self.amqp_log_handler = None
        
@@ -93,8 +91,7 @@ class Worker(object):
                                       self._username,
                                       self._password)
         self._task_broker = TaskBroker(self._connection, 
-                                       self._properties,
-                                       self._swallow_exceptions)
+                                       self._properties)
         if self.amqp_log_handler is not None:
             self._task_broker.amqp_log_handler = \
                 self.amqp_log_handler 
@@ -163,14 +160,7 @@ def worker_factory(config_filename):
     port = config.getint('Worker','port')
     username = config.get('Worker','username')
     password = config.get('Worker','password')
-    if config.has_section('Exceptions'):
-        swallow_exceptions = config.get('Exceptions','swallow')
-    else:
-        #To maintain consistency with legacy systems
-        #keep the behaviour the same for now
-        swallow_exceptions = True
-
-
+    
     properties = dict(config.items("Device"))
     
 
@@ -179,8 +169,7 @@ def worker_factory(config_filename):
                   port = port, 
                   username = username,
                   password = password, 
-                  properties = properties,
-                  swallow_exceptions = swallow_exceptions) 
+                  properties = properties) 
                   
        
 def main():
