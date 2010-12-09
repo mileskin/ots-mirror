@@ -93,7 +93,8 @@ class TaskBroker(object):
     Pulls messages containing Tasks from AMQP 
     Dispatch the Tasks as a process
     """   
-    def __init__(self, connection, device_properties):
+    def __init__(self, connection, device_properties,
+                       swallow_exceptions = False):
         """
         device_properties have magic keys that
         are dependent on the rules set out 
@@ -109,6 +110,7 @@ class TaskBroker(object):
         self._queues = get_queues(device_properties)
         self._keep_looping = True
         self._consumer_tags = dict()
+        self.swallow_exceptions = swallow_exceptions
 
         self._task_state = cycle(TASK_CONDITION_RESPONSES)
         self._amqp_log_handler = None
@@ -161,8 +163,11 @@ class TaskBroker(object):
         ongoing is acked.
         """
         for queue in self._queues:
-            self.channel.basic_cancel(self._consumer_tags[queue])
-            LOGGER.info("stop consume on queue: %s" % queue)
+            try:
+                self.channel.basic_cancel(self._consumer_tags[queue])
+                LOGGER.info("stop consume on queue: %s" % queue)
+            except KeyError:
+                LOGGER.info("Tried to stop consume on '%s' but it is not there")
 
     def _init_connection(self):
         """
@@ -205,8 +210,13 @@ class TaskBroker(object):
                     self._keep_looping = False
             except Exception:
                 LOGGER.exception("_loop() failed")
-                #FIXME Check logs to see what exceptions are raised here
-                self._try_reconnect()
+                if self.swallow_exceptions == True:
+                    #FIXME: Rather than a wholesale swallow
+                    #logs analysis is needed  to see what 
+                    #exceptions are raised here
+                    self._try_reconnect()
+                else:
+                    raise
         self._clean_up()
     
     def _handle_message(self, message):
@@ -375,7 +385,10 @@ class TaskBroker(object):
         try:
             self._stop_consume()
         except:
-            pass
+            if self.swallow_exceptions == True:
+                pass
+            else:
+                raise
         if self._connection:
             self._connection.clean_up()
 
