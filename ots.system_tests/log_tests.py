@@ -58,8 +58,8 @@ class Options(object):
         self.engine = ""
         self.image = CONFIG["image_url"]
         self.engine = "default"
-        self.testpackages = []
-        self.hosttest = []
+        self.testpackages = ""
+        self.hosttest = ""
         self.distribution = "default"
         self.filter = ""
         self.input_plugin = ""
@@ -73,17 +73,17 @@ class Options(object):
 
 class TestSuccessfulTestruns(unittest.TestCase):
 
-    def test_testrun_with_testrunner_lite_tests(self):
+    def test_testrun_with_test_definition_tests(self):
         options = Options()
         options.engine = "default"
-        options.testpackages = "testrunner-lite-regression-tests"
+        options.testpackages = "test-definition-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 30
 
         print "****************************"
-        print "Triggering a testrun with testrunner-lite-regression-tests\n"
+        print "Triggering a testrun with test-definition-tests\n"
         print "System requirements:"
-        print "Image with testrunner-lite-regression-tests available in %s" % options.image
+        print "Image with test-definition-tests available in %s" % options.image
         print "SW Product %s defined" % options.sw_product
         print "A fully functional worker configured to %s."\
             % options.sw_product
@@ -109,6 +109,51 @@ class TestSuccessfulTestruns(unittest.TestCase):
         string = """Finished running tests."""
         self.assertTrue(has_message(testrun_id, string))
 
+    def test_host_based_testrun_with_test_definition_tests(self):
+        options = Options()
+        options.engine = "default"
+        options.hosttest = "test-definition-tests"
+        options.testpackages = "test-definition-tests"
+        options.sw_product = "ots-system-tests"
+        options.timeout = 60
+
+        print "****************************"
+        print "Triggering a testrun with test-definition-tests on host and hardware\n"
+        print "System requirements:"
+        print "Image with test-definition-tests available in %s" % options.image
+        print "SW Product %s defined" % options.sw_product
+        print "A fully functional worker capable of running test-definition-tests configured to sw_product %s." % options.sw_product
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "PASS")
+
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertFalse(has_errors(testrun_id))
+
+        string = "Result set to PASS"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check message from conductor
+        string = "Starting conductor at"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check that both environments get executed
+        string = "Environment: Host_Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "Environment: Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check a message from testrunner-lite
+        string = """Finished running tests."""
+        self.assertTrue(has_message(testrun_id, string))
+        
+
+
     def test_testrun_split_into_multiple_tasks(self):
         # Trigger a testrun containing 2 packages with perpackage distribution
         # Check that it is split into two tasks and both are processed correctly
@@ -120,12 +165,80 @@ class TestErrorConditions(unittest.TestCase):
     def test_bad_image_url(self):
         # Trigger a testrun with non existing image url. Check correct result
         # and error message
-        pass
+        options = Options()
+        options.image = options.image+"asdfasdfthiswontexistasdfasdf"
+        options.engine = "default"
+        options.testpackages = "testrunner-lite-regression-tests"
+        options.sw_product = "ots-system-tests"
+        options.timeout = 30
+
+        print "****************************"
+        print "Triggering a testrun with bad image url\n"
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "FAIL")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = 'error_info set to "Could not download file'
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check message from conductor
+        string = "Starting conductor at"
+        self.assertTrue(has_message(testrun_id, string))
+
 
     def test_timeout(self):
         # Trigger long testrun with short timeout value. Make sure result is
         # fail and correct error message is generated
-        pass
+
+        options = Options()
+        options.engine = "default"
+        options.testpackages = "testrunner-lite-regression-tests"
+        options.sw_product = "ots-system-tests"
+        options.timeout = 1
+
+        print "****************************"
+        print "Triggering a testrun with testrunner-lite-regression-tests, 1 minute timeout\n"
+        print "System requirements:"
+        print "Image with testrunner-lite-regression-tests available in %s" % options.image
+        print "SW Product %s defined" % options.sw_product
+        print "A fully functional worker configured to %s."\
+            % options.sw_product
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "FAIL")
+
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+
+
+        # Check error message
+
+        string = 'error_info set to "Timeout while executing test package testrunner-lite-regression-tests"'
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check message from conductor        
+        string = 'Test execution error: Timeout while executing test package testrunner-lite-regression-tests'
+        self.assertTrue(has_message(testrun_id, string))
+
+
 
     def test_non_existing_devicegroup(self):
         options = Options()
