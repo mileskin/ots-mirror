@@ -25,6 +25,7 @@ A simple forking xmlrpc server for serving the ots public interface
 """
 
 import os
+import sys
 import configobj
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
@@ -32,8 +33,6 @@ from SocketServer import ForkingMixIn
 from ots.server.server_config_filename import server_config_filename
 from ots.server.hub.api import Hub 
 from ots.server.distributor.api import TaskRunner
-
-LOG = False
 
 ################################
 # HACKISH TESTING CAPABILITIES
@@ -90,7 +89,7 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
         hub._taskrunner = MockTaskRunnerResultsPass()
     return hub.run()
     
-def main():
+def main(is_logging = False):
     """
     Top level script for XMLRPC interface
     """
@@ -101,7 +100,7 @@ def main():
     print "Host: %s, Port: %s" % _config()
     print 
 
-    if LOG:
+    if is_logging:
         import logging
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
@@ -115,4 +114,7 @@ def main():
     server.serve_forever()
 
 if __name__ == "__main__":
-    main()
+    is_logging = False
+    if len(sys.argv) > 1 and sys.argv[1] == "log":
+        is_logging = True
+    main(is_logging)
