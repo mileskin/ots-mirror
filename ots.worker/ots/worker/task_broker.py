@@ -233,15 +233,17 @@ class TaskBroker(object):
         #
         try:
             self._dispatch(cmd_msg)
+            self._publish_task_state_change(task_id, response_queue)
         except CommandFailed:
             exception = sys.exc_info()[1]
             exception.task_id = task_id 
-            self._publish_exception(response_queue,
+            self._publish_exception(task_id,
+                                    response_queue,
                                     exception)
         finally:
             self._set_log_handler(None)
-            self._publish_task_state_change(task_id, response_queue)
-            self._start_consume()
+            if self._keep_looping:
+                self._start_consume()
 
     def _on_message(self, message):
         """
@@ -294,11 +296,11 @@ class TaskBroker(object):
                                    mandatory = True,
                                    exchange = response_queue,
                                    routing_key = response_queue)
-
-
-    def _publish_exception(self, response_queue, exception):
+        
+    def _publish_exception(self, task_id, response_queue, exception):
         """
         Put an Exception on the response queue 
+        and move the Task onto the next state
 
         @type response_queue: C{str}
         @param response_queue: The name of the response queue 
@@ -307,6 +309,8 @@ class TaskBroker(object):
         @param exception: An OTSException 
 
         """
+        state = self._task_state.next()
+        LOGGER.debug("Task in state: '%s'"%(state))
         message = pack_message(exception)
         try:
             self.channel.basic_publish(message,

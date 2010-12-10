@@ -376,7 +376,7 @@ class TestTaskBroker(unittest.TestCase):
 
         exc = SoftTimeoutException(666,  "task 1 timed out") 
         self.assertEquals(0, _queue_size(response_queue))
-        task_broker._publish_exception(response_queue, exc)
+        task_broker._publish_exception(111, response_queue, exc)
         self.assertEquals(1, _queue_size(response_queue))
 
     ##################################
