@@ -28,6 +28,7 @@
 cd ots.server/ots/server/distributor/tests/component/
 python test_device_distribution.py      
 python test_properties_distribution.py
+python test_state_behaviour.py
 cd - 
 
 #
