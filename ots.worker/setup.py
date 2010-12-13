@@ -20,7 +20,16 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import os.path; j = os.path.join
+import sys
+
 from setuptools import setup, find_packages
+
+if sys.prefix.startswith("/usr") or sys.prefix == "/":
+    data_prefix="/" #install data and config files relative to root
+else:
+    data_prefix=sys.prefix #we are inside virtualenv, so install files relative to it
+    
 
 setup(
     name = "ots.worker",
@@ -35,6 +44,6 @@ setup(
                    "conductor = ots.worker.conductor.conductor:main",
                    # For backward compatibility:
                    "kickstart = ots.worker.conductor.conductor:main"]},
-    data_files=[('/etc', ['ots.ini', 'ots/worker/conductor/conductor.conf']),
-                ('/etc/conductor', [])]
+    data_files=[(j(data_prefix,'etc'), ['ots.ini', 'ots/worker/conductor/conductor.conf']),
+                (j(data_prefix,'etc/conductor'), [])]
     )
