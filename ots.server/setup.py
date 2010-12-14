@@ -32,7 +32,6 @@ if sys.prefix.startswith("/usr") or sys.prefix == "/":
 else:
     DATA_PREFIX = sys.prefix
 
-
 setup(
       name="ots.server",
       author="meego-dev@meego.com",

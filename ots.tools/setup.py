@@ -23,19 +23,19 @@
 from setuptools import setup, find_packages
 
 setup(
-      name = "ots.tools",
+      name="ots.tools",
       description="Various helper tools for OTS",
-      author = "teemu.vainio@ixonos.com",
-      version = "0.1.2",
-      include_package_data = True,
-      namespace_packages = ['ots'],
-      packages = find_packages(),
-      zip_safe = False,
+      author="teemu.vainio@ixonos.com",
+      version="0.1.2",
+      include_package_data=True,
+      namespace_packages=['ots'],
+      packages=find_packages(),
+      zip_safe=False,
 
       entry_points={
         "console_scripts":
             ["ots_trigger = ots.tools.trigger.ots_trigger:main",
              "ots_empty_queue = ots.tools.queue_management.empty_queue:main",
              "ots_delete_queue = ots.tools.queue_management.delete_queue:main",
-             ],},
+             ], },
       )
