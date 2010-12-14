@@ -33,17 +33,17 @@ else:
     DATA_PREFIX = sys.prefix
 
 setup(
-      name="ots.server",
-      author="meego-dev@meego.com",
-      version="0.8r" + get_git_version(),
-      include_package_data=True,
-      namespace_packages=["ots", "ots.server"],
-      packages=find_packages(),
-      install_requires=['ots.results'],
-      entry_points={"console_scripts":
-                    ["ots_server = ots.server.xmlrpc.server:main", ]
-                    },
-      zip_safe=False,
-      data_files=[(os.path.join(DATA_PREFIX, 'etc'),
-                   ['ots/server/ots_server.ini'])]
-      )
+    name="ots.server",
+    author="meego-dev@meego.com",
+    version="0.8r" + get_git_version(),
+    include_package_data=True,
+    namespace_packages=["ots", "ots.server"],
+    packages=find_packages(),
+    install_requires=['ots.results'],
+    entry_points={"console_scripts":
+                  ["ots_server = ots.server.xmlrpc.server:main", ]
+                  },
+    zip_safe=False,
+    data_files=[(os.path.join(DATA_PREFIX, 'etc'),
+                 ['ots/server/ots_server.ini'])]
+    )
