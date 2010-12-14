@@ -24,12 +24,12 @@ from setuptools import setup, find_packages
 from get_git_version import get_git_version
 
 setup(
-      name = "ots.email_plugin",
-      namespace_packages = ["ots", "ots.email_plugin"],
-      version =  "0.8r" + get_git_version(),
-      include_package_data = True,
-      packages = find_packages(),
-      entry_points={"EmailPlugin":
-            ["ots.email_plugin.email_plugin "\
-             "= ots.email_plugin.email_plugin"]},
-     )
+    name="ots.email_plugin",
+    namespace_packages=["ots", "ots.email_plugin"],
+    version="0.8r" + get_git_version(),
+    include_package_data=True,
+    packages=find_packages(),
+    entry_points={"EmailPlugin":
+          ["ots.email_plugin.email_plugin "\
+           "= ots.email_plugin.email_plugin"]},
+    )

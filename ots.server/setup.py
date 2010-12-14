@@ -20,20 +20,30 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import sys
+import os.path
+
 from setuptools import setup, find_packages
 from get_git_version import get_git_version
 
+# In case of virtualenv install configuration files under virtual environment
+if sys.prefix.startswith("/usr") or sys.prefix == "/":
+    DATA_PREFIX = "/"
+else:
+    DATA_PREFIX = sys.prefix
+
 setup(
-      name = "ots.server",
-      author = "meego-dev@meego.com",
-      version =  "0.8r" + get_git_version(),
-      include_package_data = True,
-      namespace_packages = ["ots", "ots.server"],
-      packages = find_packages(),
-      install_requires = ['ots.results'],
-      entry_points={"console_scripts":
-                    ["ots_server = ots.server.xmlrpc.server:main",]
-                    },
-      zip_safe = False,
-      data_files=[('/etc', ['ots/server/ots_server.ini'])]
-      )
+    name="ots.server",
+    author="meego-dev@meego.com",
+    version="0.8r" + get_git_version(),
+    include_package_data=True,
+    namespace_packages=["ots", "ots.server"],
+    packages=find_packages(),
+    install_requires=['ots.results'],
+    entry_points={"console_scripts":
+                  ["ots_server = ots.server.xmlrpc.server:main", ]
+                  },
+    zip_safe=False,
+    data_files=[(os.path.join(DATA_PREFIX, 'etc'),
+                 ['ots/server/ots_server.ini'])]
+    )

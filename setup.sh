@@ -23,8 +23,9 @@
 # ***** END LICENCE BLOCK *****
 
 # Creates developer eggs for all the eggs with 'ots' namespace
-
-for egg_root in ots.*
+PACKAGES="ots.common ots.results ots.server ots.worker ots.tools 
+                  ots.email_plugin ots.logger_plugin"
+for egg_root in $PACKAGES
 do
     cd "$egg_root"
     python setup.py develop   
