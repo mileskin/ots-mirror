@@ -96,17 +96,19 @@
 	<thead>
 		<tr>
 			
+			<th style="width:5%">Run id</th>
 			<th style="width:15%">Date</th>
 			<th style="width:10%">Host</th>
 			<th style="width:10%">Module</th>
 			<th style="width:5%">Level</th>
-			<th style="width:65%">Message</th>
+			<th style="width:60%">Message</th>
 		</tr>
 	</thead>
 	<tbody>
     
 	    {% for message in messages %}
     	<tr class="{% cycle '' 'even' %}">
+    		<td><a href="{% url ots.logger_plugin.django_logger.views.view_message_details log_id=message.id %}">{{ message.run_id }}</a></td>
     		<td><a href="{% url ots.logger_plugin.django_logger.views.view_message_details log_id=message.id %}">{{ message.date|format_datetime }}</a></td>
 			<td>{{ message.remote_host }}</td>
 			<td>{{ message.module }}</td>
