@@ -126,14 +126,13 @@ class XmlHandler(ResultFileHandler):
         values = self._xml_element_get_items(root)
 
         self._pre_process_test_results(values)
-
-        for suite in root.getchildren():
+        for suite in root.findall("suite"):
             values = self._xml_element_get_items(suite)
             self._pre_process_suite(values)
-            for testset in suite.getchildren():
+            for testset in suite.findall("set"):
                 values = self._xml_element_get_items(testset)
                 self._pre_process_set(values)
-                for case in testset.getchildren():
+                for case in testset.findall("case"):
                     case_values = self._xml_element_get_items(case)
 
                     for child in case.getchildren(): # process element values
@@ -141,13 +140,12 @@ class XmlHandler(ResultFileHandler):
                             case_values[child.tag] = child.text
                         
                     self._pre_process_case(case_values)
-                    for child in case.getchildren(): # process steps
-                        if child.tag == "step":
-                            step_values = self._xml_element_get_items(child)
-                            for element in child.getchildren():
-                                step_values[element.tag] = element.text
-                            self._pre_process_step(step_values)
-                            self._post_process_step()
+                    for child in case.findall("step"): # process steps
+                        step_values = self._xml_element_get_items(child)
+                        for element in child.getchildren():
+                            step_values[element.tag] = element.text
+                        self._pre_process_step(step_values)
+                        self._post_process_step()
                         
                     self._post_process_case()
                 self._post_process_set()

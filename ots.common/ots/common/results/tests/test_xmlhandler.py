@@ -22,6 +22,7 @@
 
 
 import unittest
+import os
 from ots.common.results.xmlhandler import XmlHandler 
 from ots.common.results.result_backend import ResultBackend 
 from ots.common.resultobject import ResultObject
@@ -90,6 +91,25 @@ class testXmlHandler(unittest.TestCase):
                               'post_process_test_results', 'post_process_xml']
 
         self.assertEquals(backend1.sequence, expected_sequence)        
+
+
+
+    def testWIthResultXmlContainingAllData(self):
+        backend1 = BackendStub("stub 1")
+        
+        self.plugin.register_backend(backend1)
+        dirname = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+        result_file = os.path.join(dirname,"tests" , "result_xml_with_all_data.xml")
+        result_xml = open(result_file, 'r').read()
+        result = ResultObject("tests.xml",
+                              result_xml,
+                              "dummy-tests",
+                              "testsystem",
+                              "hardware")
+        self.plugin.add_result_object(result)
+        errors = self.plugin.save_results(self.testrun)
+        expected_errors = []
+        self.assertEquals(errors, expected_errors)
 
 
 
@@ -231,20 +251,29 @@ class BackendStub(ResultBackend):
     
     def pre_process_suite(self, values):
         """This is called when starting to process a suite"""
+        if not "name" in values:
+            raise Exception("bad suite data")
         self.sequence.append("pre_process_test_suite")
 
     def pre_process_set(self, values):
         """This is called when starting to process a set"""
+        if not "name" in values:
+            raise Exception("bad set data")
         self.sequence.append("pre_process_test_set")
 
     def pre_process_case(self, values):
         """This is called when starting to process a case"""
+
+        if not "name" in values:
+            raise Exception("bad case data")
         if "comment" in values.keys():
             self.case_comment = values["comment"]
         self.sequence.append("pre_process_test_case")
 
     def pre_process_step(self, values):
         """This is called when starting to process a step"""
+        if not "result" in values:
+            raise Exception("bad step data")
         self.sequence.append("pre_process_test_step")
 
 
