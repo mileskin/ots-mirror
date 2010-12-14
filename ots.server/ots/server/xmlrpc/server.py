@@ -83,11 +83,19 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
     @type options_dict: C{dict}
     @param options_dict: A dictionary of options
     """
-    options_dict["notify_list"] = notify_list
-    hub = Hub(sw_product, request_id, **options_dict)
-    if DEBUG:
-        hub._taskrunner = MockTaskRunnerResultsPass()
-    return hub.run()
+    
+    try:
+        options_dict["notify_list"] = notify_list
+        hub = Hub(sw_product, request_id, **options_dict)
+        if DEBUG:
+            hub._taskrunner = MockTaskRunnerResultsPass()
+        if hub.run():
+            return "PASS"
+        else:
+            return "FAIL"
+    except:
+        return "ERROR"
+
     
 def main(is_logging = False):
     """
