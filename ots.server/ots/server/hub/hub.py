@@ -166,4 +166,5 @@ class Hub(object):
         self.publishers.publish()
         if testrun_result:
             ret_val = True
+        LOG.info("Testrun finished with result: %s" % (ret_val))
         return ret_val
