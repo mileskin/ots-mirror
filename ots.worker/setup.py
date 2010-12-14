@@ -34,7 +34,7 @@ else:
 setup(
     name = "ots.worker",
     author = "teemu.vainio@ixonos.com",
-    version = "0.1.3",
+    version = "0.1.4",
     include_package_data = True,
     namespace_packages = ['ots'],
     packages = find_packages(),

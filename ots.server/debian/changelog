@@ -1,3 +1,9 @@
+ots-server (0.1.4-1) unstable; urgency=low
+
+  * XmlParser now only parses correct suite, set and case elements. Fixes compatibility problem with testrunner-lite 1.4.1 (BMC#11277)
+
+ -- Teemu Vainio <teemu.vainio@ixonos.com>  Tue, 14 Dec 2010 12:57:15 +0200
+
 ots-server (0.1.3-1) unstable; urgency=low
 
   * multiple device properties
