@@ -22,22 +22,21 @@
 
 import unittest
 
-from ots.server.hub.options import Options
+from ots.server.hub.options import Options, string_2_dict, string_2_list
+
 
 class TestOptions(unittest.TestCase):
 
     def test_string_2_list(self):
-        options = Options(**{"image" :"www.nokia.com"})
         expected = ['mary', 'had', 'a', 'little', 'lamb']
         self.assertEquals(expected,
-                           options._string_2_list("mary had a little lamb"))
+                          string_2_list("mary had a little lamb"))
 
     def test_string_2_dict(self):
-        options = Options(**{"image" :"www.nokia.com"})
         expected = {'veg': 'oranges', 'fruit': 'apples', 'meat': 'beef'}
         self.assertEquals(expected,
-                           options._string_2_dict("fruit:apples"\
-                                           " veg:oranges meat:beef"))
+                          string_2_dict("fruit:apples"\
+                                            " veg:oranges meat:beef"))
     def test_image(self):
         options = Options(**{"image" :"www.nokia.com"})
         self.assertEquals("www.nokia.com", options.image)
@@ -61,16 +60,6 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
                           options.host_packages)
-
-    def test_device_properties(self):
-        kwargs = {"image" : "www.nokia.com"}
-        options = Options(**kwargs)
-        kwargs = {"image" : "www.nokia.com",
-                  "device" : "fruit:apples veg:oranges meat:beef"}
-        options = Options(**kwargs)
-        self.assertEquals({'veg': 'oranges',
-                           'fruit': 'apples',
-                           'meat': 'beef'}, options.device_properties)
 
     def test_emmc(self):
         kwargs = {"image" : "www.nokia.com",

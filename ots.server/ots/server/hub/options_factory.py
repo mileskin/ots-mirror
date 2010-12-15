@@ -22,8 +22,9 @@
 
 import os
 import configobj
+from copy import deepcopy
 from ots.server.server_config_filename import server_config_filename
-from ots.server.hub.options import Options 
+from ots.server.hub.options import Options, string_2_dict
 
 """
 Safely create the Options API from a dictionary 
@@ -59,7 +60,25 @@ class OptionsFactory(object):
         @param options_dict: The dictionary of options
         """
         self._sw_product = sw_product
-        self._options_dict = options_dict
+
+        #Get the default options for the sw product from conf file
+        defaults = self._default_options_dict(self._sw_product)
+
+       # Ugly hack to make default device property handling work
+        if "device" in options_dict:
+            options_dict["device"] = string_2_dict(options_dict["device"])
+        if "device" in defaults and "device" in options_dict:
+            defaults["device"].update(options_dict["device"])
+            del options_dict["device"]
+            
+        sanitised_options = self._sanitise_options(defaults)
+
+
+
+        sanitised_options.update(self._sanitise_options(options_dict))
+        self._options_dict = sanitised_options
+
+
     
     #####################################
     # HELPER 
@@ -120,11 +139,7 @@ class OptionsFactory(object):
         rtype : C{dict}
         rparam : Additional Options passed to OTS  
         """
-        #Get the default options for the sw product from conf file
-        defaults = self._default_options_dict(self._sw_product)
-        sanitised_options = self._sanitise_options(defaults)
-        sanitised_options.update(self._sanitise_options(self._options_dict))
-        extended_options_dict = sanitised_options
+        extended_options_dict = deepcopy(self._options_dict)
 
         for key in self.core_options_names:
             if extended_options_dict.has_key(key):
@@ -163,4 +178,7 @@ class OptionsFactory(object):
         """
         if not self.core_options_dict.has_key("image"):
             raise OptionsFactoryException("Missing `image` parameter")
+        if not self.core_options_dict.has_key("timeout"):
+            raise OptionsFactoryException("Missing `timeout` parameter")
+
         return Options(**self.core_options_dict)
