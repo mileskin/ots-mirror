@@ -25,11 +25,11 @@ Component Test for OTS-Core
 
 Runs an Integration Test on Components:
 
-- ots.server.distributor
-- ots.worker
-- ots.common
+ - ots.server.distributor
+ - ots.worker
+ - ots.common
 
-and the ots_mock
+ and the ots_mock
 
 Prerequisites:
 
@@ -46,7 +46,6 @@ import zipfile
 from ots.common.dto.api import DTO_SIGNAL, Results
 from ots.common.amqp.api import testrun_queue_name 
 
-import ots.worker
 import ots.worker.tests
 
 import ots.server.distributor
@@ -118,12 +117,11 @@ EXPECTED = """
 # FILEPATHS
 ##################################
 
-
 TEST_DEFINITION_XML = "test_definition.xml"
 TEST_DEFINITION_ZIP = "test_definition.zip"
 
-MODULE_DIRNAME = os.path.dirname(os.path.abspath(__file__))
-TESTS_MODULE_DIRNAME = os.path.split(MODULE_DIRNAME)[0]
+EXECUTION_DIRNAME = os.curdir
+TESTS_MODULE_DIRNAME = os.path.split(os.path.abspath(__file__))[0]
 
 #################################
 # TEST DEVICE DISTRIBUTION
@@ -150,8 +148,10 @@ class TestDeviceDistribution(unittest.TestCase):
     def tearDown(self):
         if not DEBUG:
             self.worker_processes.terminate()
+
         self._remove_zip_file(TEST_DEFINITION_ZIP)
         self._remove_files_created_by_remote_commands()
+
         if self.queue:
             delete_queue("localhost", self.queue)
         if self.testrun_id:
@@ -182,12 +182,12 @@ class TestDeviceDistribution(unittest.TestCase):
         #Create a zip file with a test definition
         zipfile_name = os.path.join(TESTS_MODULE_DIRNAME,
                                     "data", 
-                                    "test_definition_1.xml")        
+                                    "test_definition_1.xml")
         steps = ["mkdir foo", "mkdir bar", "mkdir baz"]
         self._create_zip_test_definition_file(zipfile_name, steps)
 
         #Add a Task
-        command = ["ots_mock", '"%s"'%(zipfile_name), "%s" % self.testrun_id] 
+        command = ["ots_mock", '"%s"'%(zipfile_name), "%s" % self.testrun_id]
         taskrunner.add_task(command)
         #
         command_quit = ["quit"]
@@ -195,19 +195,25 @@ class TestDeviceDistribution(unittest.TestCase):
 
         #Callback to handler results
         def cb_handler(signal, dto, **kwargs):
+            print "Inside cb_handler"
             self.cb_called = True
             if isinstance(dto, Results):
+                print "isinstance = true"
                 filename = dto.results_xml.name 
                 if filename == "test_definition.xml":
+                    print "filename = test_definition.xml"
                     self.test_definition_file_received = True
-                    self.assertEquals(EXPECTED.replace(' ','').replace('\n',''), 
+                    self.assertEquals(EXPECTED.replace(' ','').replace('\n',''),
                         dto.results_xml.read().replace(' ','').replace('\n',''))
                 elif filename == "dummy_results_file.xml":
+                    print "filename = dummy_results_file.xml"
                     self.results_file_received = True
                     expected = self._dummy_results_xml(filename)
                     self.assertEquals(expected, dto.results_xml.read())
             
-        DTO_SIGNAL.connect(cb_handler) 
+        DTO_SIGNAL.connect(cb_handler)
+        
+        print "#### Starting to RUN ####"
         
         #Run...
         time_before_run = time.time()
@@ -218,11 +224,12 @@ class TestDeviceDistribution(unittest.TestCase):
 
         #Check the results
         if not DEBUG:
-            foo = os.path.join(MODULE_DIRNAME, "foo") 
+            foo = os.path.join(EXECUTION_DIRNAME, "foo")
+            print "foo = %s" % foo
             foo_time = os.path.getctime(foo)
-            bar = os.path.join(MODULE_DIRNAME, "bar")
+            bar = os.path.join(EXECUTION_DIRNAME, "bar")
             bar_time = os.path.getctime(bar)
-            baz = os.path.join(MODULE_DIRNAME, "baz")
+            baz = os.path.join(EXECUTION_DIRNAME, "baz")
             baz_time = os.path.getctime(baz)
             self.assertTrue(time_before_run <
                             foo_time <= 
@@ -274,9 +281,9 @@ class TestDeviceDistribution(unittest.TestCase):
         time_after_run = time.time()
 
         if not DEBUG:
-            foo = os.path.join(MODULE_DIRNAME, "foo") 
+            foo = os.path.join(EXECUTION_DIRNAME, "foo") 
             foo_time = os.path.getctime(foo)
-            bar = os.path.join(MODULE_DIRNAME, "bar")
+            bar = os.path.join(EXECUTION_DIRNAME, "bar")
             bar_time = os.path.getctime(bar)
             self.assertTrue(time_before_run < foo_time)
             self.assertTrue(foo_time <= bar_time)
@@ -301,7 +308,7 @@ class TestDeviceDistribution(unittest.TestCase):
         steps = ["mkdir foo", "sleep 2"]
         self._create_zip_test_definition_file(zipfile_1_name,
                                                       steps)
-        command_1 = ["ots_mock", '"%s"'%(zipfile_1_name), 
+        command_1 = ["ots_mock", '"%s"'%(zipfile_1_name),
                      "%s" % self.testrun_id] 
         taskrunner.add_task(command_1)
         #
@@ -311,7 +318,7 @@ class TestDeviceDistribution(unittest.TestCase):
         steps = ["mkdir bar", "sleep 2"]               
         self._create_zip_test_definition_file(zipfile_2_name,
                                                       steps)
-        command_2 = ["ots_mock", '"%s"'%(zipfile_2_name), 
+        command_2 = ["ots_mock", '"%s"'%(zipfile_2_name),
                      "%s" % self.testrun_id]
         taskrunner.add_task(command_2)
         #
@@ -325,11 +332,12 @@ class TestDeviceDistribution(unittest.TestCase):
         time_after_run = time.time()
 
         if not DEBUG:
-            foo = os.path.join(MODULE_DIRNAME, "foo") 
+            foo = os.path.join(EXECUTION_DIRNAME, "foo")
             foo_time = os.path.getctime(foo)
-            bar = os.path.join(MODULE_DIRNAME, "bar")
+            bar = os.path.join(EXECUTION_DIRNAME, "bar")
             bar_time = os.path.getctime(bar)
-            self.assertTrue(abs(foo_time - bar_time) < 0.1 ) 
+            self.assertTrue(abs(foo_time - bar_time) < 0.1 )
+            
             self.assertTrue(time_before_run <
                             foo_time <= 
                             bar_time <= 
@@ -341,8 +349,8 @@ class TestDeviceDistribution(unittest.TestCase):
     #################################
 
     def _create_zip_test_definition_file(self, zip_filename, steps):
-        zip_filename = os.path.join(TESTS_MODULE_DIRNAME, 
-                                 "data", zip_filename) 
+        zip_filename = os.path.join(TESTS_MODULE_DIRNAME,
+                                 "data", zip_filename)
         file = zipfile.ZipFile(zip_filename, "w")
         cases = ""
         for step in steps:
@@ -359,13 +367,13 @@ class TestDeviceDistribution(unittest.TestCase):
             os.unlink(zip_file_name)
 
     def _remove_files_created_by_remote_commands(self):
-        foo = os.path.join(MODULE_DIRNAME, "foo") 
+        foo = os.path.join(EXECUTION_DIRNAME, "foo") 
         if os.path.exists(foo):
             os.rmdir(foo)
-        bar = os.path.join(MODULE_DIRNAME, "bar")
+        bar = os.path.join(EXECUTION_DIRNAME, "bar")
         if os.path.exists(bar):
             os.rmdir(bar)
-        baz = os.path.join(MODULE_DIRNAME, "baz")
+        baz = os.path.join(EXECUTION_DIRNAME, "baz")
         if os.path.exists(baz):
             os.rmdir(baz)
         
@@ -387,10 +395,10 @@ class TestDeviceDistribution(unittest.TestCase):
     def _dummy_test_definition_xml_fqname(filename):
         distributor_dirname = os.path.dirname(
                               os.path.abspath(ots.server.distributor.__file__))
-        return os.path.join(distributor_dirname, "tests", 
+        return os.path.join(distributor_dirname, "tests",
                             "data", filename)
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     import logging
     root_logger = logging.getLogger('')
     root_logger.setLevel(logging.DEBUG)
