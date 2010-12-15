@@ -28,13 +28,20 @@ from ots.server.hub.options_factory import OptionsFactory
 class TestOptionsFactory(unittest.TestCase):
     
     def test_default_options_dict(self):
-        options_factory = OptionsFactory("example_sw_product", None)
+        options_factory = OptionsFactory("example_sw_product", {})
         expected = {'devicegroup' : 'examplegroup'}
         d = options_factory._default_options_dict("example_sw_product")
         self.assertEquals(expected, d["device"])
 
+    def test_core_options_dict(self):
+        options_factory = OptionsFactory("example_sw_product", {})
+        expected = {'devicegroup' : 'examplegroup'}
+        d = options_factory.core_options_dict
+        self.assertEquals(expected, d["device"])
+
+
     def test_core_options_names(self):
-        names = OptionsFactory("example_sw_product", None).core_options_names
+        names = OptionsFactory("example_sw_product", {}).core_options_names
         expected = ('self', 'image', 'packages', 'plan', 'hosttest', 
                     'device', 'emmc', 'distribution_model', 'flasher', 
                     'testfilter', 'timeout', 'input_plugin')
