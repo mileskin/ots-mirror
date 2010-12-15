@@ -57,7 +57,7 @@ class Options(object):
     """
 
     def __init__(self, image, packages = None, plan = None,hosttest = None,
-                 device = None, emmc = None, distribution_model = None,
+                 device = {}, emmc = None, distribution_model = None,
                  flasher = None, testfilter = None, timeout = None,
                  input_plugin = None):
         """
@@ -74,7 +74,7 @@ class Options(object):
         if hosttest is None:
             hosttest = []
         self._hosttest = hosttest
-        self._device = device
+        self._device = device#string_2_dict(device)
         self._emmc = emmc
         self._distribution_model = distribution_model
         self._flasher = flasher
@@ -102,7 +102,7 @@ class Options(object):
         @return: Packages for hardware testing
         """
         #TODO check definition
-        return self._string_2_list(self._packages)
+        return string_2_list(self._packages)
 
     @property
     def host_packages(self):
@@ -111,7 +111,7 @@ class Options(object):
         @return: Packages for host testing
         """
         #TODO check definition
-        return self._string_2_list(self._hosttest)
+        return string_2_list(self._hosttest)
 
     @property
     def testplan_id(self):
@@ -127,10 +127,8 @@ class Options(object):
         @rtype: C{dict}
         @return: A dictionary of device properties this testrun requires
         """
-        if self._device is not None:
-            return self._string_2_dict(self._device)
-        else:
-            return {}
+        return self._device
+
 
     @property
     def emmc(self):
@@ -183,39 +181,6 @@ class Options(object):
     ############################
 
     @staticmethod
-    def _string_2_list(string):
-        """
-        Converts a spaced string to an array
-
-        @param string: The string for conversion
-        @type product: C{str}
-
-        @rtype: C{list} consisting of C{str}
-        @return: The converted string
-        """
-        if string:
-            spaces = re.compile(r'\s+')
-            return spaces.split(string.strip())
-        else:
-            return []
-
-    @staticmethod
-    def _string_2_dict(string):
-        """
-        Converts a spaced string of form 'foo:1 bar:2 baz:3'
-        to a dictionary
-
-        @param string: The string for conversion
-        @type product: C{str}
-
-        @rtype: C{dict} consisting of C{str}
-        @return: The converted string
-        """
-        spaces = re.compile(r'\s+')
-        return dict([ pair.split(':', 1) for pair \
-                           in spaces.split(string) if ':' in pair ])
-
-    @staticmethod
     def _is_valid_suffix(package):
         """
         @type package: C{str}
@@ -239,3 +204,34 @@ class Options(object):
             pretty_packages =  ', '.join(invalid_packages)
             error_msg = "Invalid testpackage(s): %s" % pretty_packages
             raise ValueError(error_msg)
+
+def string_2_list(string):
+    """
+    Converts a spaced string to an array
+    
+    @param string: The string for conversion
+    @type product: C{str}
+    
+    @rtype: C{list} consisting of C{str}
+    @return: The converted string
+    """
+    if string:
+        spaces = re.compile(r'\s+')
+        return spaces.split(string.strip())
+    else:
+        return []
+
+def string_2_dict(string):
+    """
+    Converts a spaced string of form 'foo:1 bar:2 baz:3'
+    to a dictionary
+    
+    @param string: The string for conversion
+    @type product: C{str}
+    
+    @rtype: C{dict} consisting of C{str}
+    @return: The converted string
+    """
+    spaces = re.compile(r'\s+')
+    return dict([ pair.split(':', 1) for pair \
+                      in spaces.split(string) if ':' in pair ])
