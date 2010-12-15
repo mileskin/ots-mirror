@@ -46,6 +46,7 @@ import logging.config
 import uuid
 import configobj
 import traceback
+from copy import deepcopy
 
 from ots.server.allocator.api import primed_taskrunner
 
@@ -74,19 +75,50 @@ class Hub(object):
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
         """
+        self.testrun_uuid = uuid.uuid1().hex 
+        # TODO: TEMPORARY LOG FILE. FIX LOGGING!
+        LOG_FILENAME = "/var/log/ots/ots_server_debug"
+        logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+
+        error = None
         self.sw_product = sw_product.lower()
         self.request_id = request_id
-        LOG.debug("Initialising options with: '%s'"%(kwargs))
+        image = ""
+        
+            #LOG.debug("Initialising options with: '%s'"%(kwargs))
         options_factory = OptionsFactory(sw_product, kwargs)
-        self.options = options_factory()
-        self.testrun_uuid = uuid.uuid1().hex 
+        try:
+            self.options = options_factory()
+            image = self.options.image
+        except Exception, exp:
+            # Store exception and raise it only after publishers are loaded
+            error = exp
+
+        LOG.debug("Initializing publishers")
         self.publishers = Publishers(request_id, 
                                      self.testrun_uuid, 
-                                     sw_product, 
-                                     self.options.image,
+                                     sw_product,
+                                     image,
                                      **options_factory.extended_options_dict)
+            
         self._taskrunner = None
 
+        # Log incoming options to help testrun debugging
+        
+        incoming_options = deepcopy(kwargs)
+        del incoming_options["notify_list"]
+        string = ("Incoming request: program: %s, request: %s, " \
+                      "notify_list: %s, options: %s")\
+                      % (sw_product,
+                         request_id,
+                         kwargs["notify_list"],
+                         incoming_options)
+        LOG.info(string)
+        # This is needed to get initialization errors published
+        if error:
+            LOG.error(str(error), exc_info=True)
+            raise error
+        
     #########################
     # HELPERS
     #########################
@@ -151,20 +183,29 @@ class Hub(object):
             #FIXME: Cheap hack to make testable
             testrun.run_test = self.taskrunner.run
             testrun_result = testrun.run()
-            LOG.debug("Testrun finished with result: %s"%(testrun_result))
-            self.publishers.set_testrun_result(testrun_result)
+            if testrun_result:
+                testrun_result_string = "PASS"
+            else:                
+                testrun_result_string = "FAIL"
+            # TODO: ERROR should be also published to publishers!!!
+            LOG.debug("Testrun finished with result: %s" \
+                          %(testrun_result_string))
+            self.publishers.set_testrun_result(testrun_result_string)
             self.publishers.set_expected_packages(testrun.expected_packages)
             self.publishers.set_tested_packages(testrun.tested_packages)
             self.publishers.set_results(testrun.results)
             self.publishers.set_monitors(testrun.monitors)
 
         except Exception, err:
-            LOG.debug("Testrun Exception: %s"%(err))
-            LOG.debug(traceback.format_exc())
+            LOG.error(str(err), exc_info=True)
             self.publishers.set_exception(sys.exc_info()[1])
 
         self.publishers.publish()
         if testrun_result:
             ret_val = True
-        LOG.info("Testrun finished with result: %s" % (ret_val))
+            testrun_result_string = "PASS"
+        else:                
+            testrun_result_string = "FAIL"
+
+        LOG.info("Testrun finished with result: %s" % (testrun_result_string))
         return ret_val

@@ -27,12 +27,16 @@ A simple forking xmlrpc server for serving the ots public interface
 import os
 import sys
 import configobj
+import logging
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from SocketServer import ForkingMixIn
 from ots.server.server_config_filename import server_config_filename
 from ots.server.hub.api import Hub 
 from ots.server.distributor.api import TaskRunner
+
+
+LOG = logging.getLogger(__name__)
 
 ################################
 # HACKISH TESTING CAPABILITIES
@@ -85,6 +89,11 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
     """
     
     try:
+        LOG.info(("Incoming request: program: %s,"\
+                  " request: %s, notify_list: %s, "\
+                  "options: %s") %\
+                  (sw_product, request_id, notify_list, options_dict))
+
         options_dict["notify_list"] = notify_list
         hub = Hub(sw_product, request_id, **options_dict)
         if DEBUG:

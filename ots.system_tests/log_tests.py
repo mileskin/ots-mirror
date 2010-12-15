@@ -55,16 +55,14 @@ class Options(object):
 
         # Default call options
         self.id = 0
-        self.engine = ""
         self.image = CONFIG["image_url"]
-        self.engine = "default"
         self.testpackages = ""
         self.hosttest = ""
         self.distribution = "default"
         self.filter = ""
         self.input_plugin = ""
         self.device = ""
-        self.sw_product = "default"
+        self.sw_product = "ots-system-tests"
         self.email = CONFIG["email"]
         self.timeout = 30
         self.server = CONFIG["server"]
@@ -259,15 +257,21 @@ class TestErrorConditions(unittest.TestCase):
         print "testrun_id: %s" %testrun_id
         self.assertTrue(has_errors(testrun_id))
 
-        string = "Result set to ERROR"
+        string = "Testrun finished with result: FAIL"
         self.assertTrue(has_message(testrun_id, string))
 
-        string = """Queue 'this_should_not_exist' does not exist"""
+        string = """No queue for this_should_not_exist"""
         self.assertTrue(has_message(testrun_id, string))
 
-        string = 'error_info set to "Queue \'this_should_not_exist\' does not exist"'
+        string = """Incoming request: program: ots-system-tests, request: 0, notify_list: ['%s'], options: {"""  % (CONFIG["email"])
         self.assertTrue(has_message(testrun_id, string))
-        string = """ncoming request: program: default, request: 0, notify_list: ['%s'], options: {'engine': ['default'], 'device': {'devicegroup': 'this_should_not_exist'}, 'image': '%s', 'distribution_model': 'default', 'timeout': 1}""" % (CONFIG["email"], CONFIG["image_url"])
+        string = """'image': '%s'""" % CONFIG["image_url"]
+        self.assertTrue(has_message(testrun_id, string))
+        string = """'distribution_model': 'default'"""
+        self.assertTrue(has_message(testrun_id, string))
+        string = """'timeout': 1"""
+        self.assertTrue(has_message(testrun_id, string))
+        string = """'device': 'devicegroup:this_should_not_exist'"""
         self.assertTrue(has_message(testrun_id, string))
 
     def test_non_existing_sw_product(self):
@@ -291,7 +295,15 @@ class TestErrorConditions(unittest.TestCase):
         string = """Unknown sw_product this_should_not_exist"""
         self.assertTrue(has_message(testrun_id, string))
 
-        string = """Incoming request: program: this_should_not_exist, request: 0, notify_list: ['%s'], options: {'engine': ['default'], 'image': '%s', 'distribution_model': 'default', 'timeout': 1}""" % (CONFIG["email"], CONFIG["image_url"])
+        string = """Incoming request: program: this_should_not_exist, request: 0, notify_list: ['%s'], options: {"""  % (CONFIG["email"])
+        self.assertTrue(has_message(testrun_id, string))
+
+
+        string = """'image': '%s'""" % CONFIG["image_url"]
+        self.assertTrue(has_message(testrun_id, string))
+        string = """'distribution_model': 'default'"""
+        self.assertTrue(has_message(testrun_id, string))
+        string = """'timeout': 1"""
         self.assertTrue(has_message(testrun_id, string))
 
 class TestDeviceProperties(unittest.TestCase):
@@ -436,8 +448,10 @@ def get_latest_testrun_id():
     soup = BeautifulSoup(file.read())
     table =  soup.findAll("table")[1]
     row1 = table.findAll("tr")[1]
-    td = row1.findAll("td")[0].string
-    return td
+    td = row1.findAll("td")[0]
+    a = td.findAll("a")[0].string
+    return a
+
 def get_second_latest_testrun_id():
     """
     Scrape the second latest testrun id from the global log
@@ -449,9 +463,10 @@ def get_second_latest_testrun_id():
     rows = table.findAll("tr")
     for row in rows:
         if row.findAll("td"):
-            td = row.findAll("td")[0].string
-            if td != latest:
-                return td
+            td = row.findAll("td")[0]
+            a = td.findAll("a")[0].string
+            if a != latest:
+                return a
     return None
 
 def has_message(testrun_id, string):
@@ -460,7 +475,7 @@ def has_message(testrun_id, string):
     Returns True if message was found
     """
     ret_val = False
-    file =  urllib2.urlopen(CONFIG["global_log"])
+    file =  urllib2.urlopen(CONFIG["global_log"]+"testrun/%s" % testrun_id)
     soup = BeautifulSoup(file.read(), 
                          convertEntities=BeautifulSoup.ALL_ENTITIES)
 
@@ -469,14 +484,13 @@ def has_message(testrun_id, string):
     for tr in rows:
         td = tr.findAll("td")
         if td:
-            if td[0].string == testrun_id:
-                if td[4].string and td[4].string.count(string):
+            if td[5].string and td[5].string.count(string):
+                ret_val = True
+                break
+            elif td[5].string == None: # Check also <pre> messages </pre>
+                if td[5].findAll("pre")[0].string.count(string):
                     ret_val = True
                     break
-                elif td[4].string == None: # Check also <pre> messages </pre>
-                    if td[4].findAll("pre")[0].string.count(string):
-                        ret_val = True
-                        break
 
     return ret_val
 
@@ -485,26 +499,23 @@ def has_errors(testrun_id):
     Checks if testrun has any error messages
     """
     ret_val = False
-    file =  urllib2.urlopen(CONFIG["global_log"])
+    file =  urllib2.urlopen(CONFIG["global_log"]+"testrun/%s" % testrun_id)
     soup = BeautifulSoup(file.read(), 
                          convertEntities=BeautifulSoup.ALL_ENTITIES)
 
     table =  soup.findAll("table")[1]
     rows = table.findAll("tr")
     for tr in rows:
-        error = ""
         td = tr.findAll("td")
         if td:
-
-            if td[0].string == testrun_id:
-                # "ERROR" has some styling around it:
-                try:
-                    error  =  td[3].findAll("div")[0].findAll("b")[0].string
-                except IndexError:
-                    pass
+            try:
+                error = td[4].findAll("span")[0].string
                 if error == "ERROR":
                     ret_val = True
                     break
+            except IndexError:
+                pass
+
     return ret_val
 
 
