@@ -195,25 +195,19 @@ class TestDeviceDistribution(unittest.TestCase):
 
         #Callback to handler results
         def cb_handler(signal, dto, **kwargs):
-            print "Inside cb_handler"
             self.cb_called = True
             if isinstance(dto, Results):
-                print "isinstance = true"
                 filename = dto.results_xml.name 
                 if filename == "test_definition.xml":
-                    print "filename = test_definition.xml"
                     self.test_definition_file_received = True
                     self.assertEquals(EXPECTED.replace(' ','').replace('\n',''),
                         dto.results_xml.read().replace(' ','').replace('\n',''))
                 elif filename == "dummy_results_file.xml":
-                    print "filename = dummy_results_file.xml"
                     self.results_file_received = True
                     expected = self._dummy_results_xml(filename)
                     self.assertEquals(expected, dto.results_xml.read())
             
         DTO_SIGNAL.connect(cb_handler)
-        
-        print "#### Starting to RUN ####"
         
         #Run...
         time_before_run = time.time()
@@ -225,7 +219,6 @@ class TestDeviceDistribution(unittest.TestCase):
         #Check the results
         if not DEBUG:
             foo = os.path.join(EXECUTION_DIRNAME, "foo")
-            print "foo = %s" % foo
             foo_time = os.path.getctime(foo)
             bar = os.path.join(EXECUTION_DIRNAME, "bar")
             bar_time = os.path.getctime(bar)
