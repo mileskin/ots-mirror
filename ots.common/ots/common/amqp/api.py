@@ -21,4 +21,4 @@
 # ***** END LICENCE BLOCK *****
 
 from ots.common.amqp.codec import pack_message, unpack_message
-from ots.common.amqp.testrun_queue_name import testrun_queue_name
+from ots.common.amqp.run_queue_name import run_queue_name

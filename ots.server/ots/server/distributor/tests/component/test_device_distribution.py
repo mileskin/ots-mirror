@@ -44,7 +44,7 @@ import unittest
 import zipfile
 
 from ots.common.dto.api import DTO_SIGNAL, Results
-from ots.common.amqp.api import testrun_queue_name 
+from ots.common.amqp.api import run_queue_name
 
 import ots.worker.tests
 
@@ -155,7 +155,7 @@ class TestDeviceDistribution(unittest.TestCase):
         if self.queue:
             delete_queue("localhost", self.queue)
         if self.testrun_id:
-            delete_queue("localhost", testrun_queue_name(self.testrun_id))
+            delete_queue("localhost", run_queue_name(self.testrun_id))
 
     ###################
     # Tests

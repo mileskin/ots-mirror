@@ -20,15 +20,20 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+The name of the AMQP Queue for the Testrun
+"""
 
-import unittest
+def run_queue_name(testrun_id):
+    """
+    Generate queue name to handle the responses 
+    on the basis of at testrun_id 
 
-from ots.common.amqp.testrun_queue_name import testrun_queue_name
+    @type testrun_id: C{int}
+    @param testrun_id: The testrun_id
 
-class TestTestRunQueueName(unittest.TestCase):
-
-    def test_queue_name(self):
-        self.assertEquals("r1", testrun_queue_name(1))
-
-if __name__ == "__main__":
-    unittest.main()
+    @rtype message: C{string}
+    @return message: The queue name
+    """
+#    return "%s_%s" % (OTS_TESTRUN, testrun_id)
+    return "r%s" % testrun_id
