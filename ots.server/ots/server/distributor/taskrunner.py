@@ -43,7 +43,7 @@ from ots.common.dto.api import TaskCondition
 from ots.common.dto.api import CommandMessage, StateChangeMessage
 from ots.common.dto.api import DTO_SIGNAL
 from ots.common.amqp.api import pack_message, unpack_message
-from ots.common.amqp.api import run_queue_name
+from ots.common.amqp.api import testrun_queue_name
 
 from ots.server.distributor.task import Task
 from ots.server.distributor.queue_exists import queue_exists
@@ -230,7 +230,7 @@ class TaskRunner(object):
         # called from the __init__
         #pylint: disable-msg=W0201
 
-        self._testrun_queue = run_queue_name(self._testrun_id)
+        self._testrun_queue = testrun_queue_name(self._testrun_id)
         self._connection = amqp.Connection(host = self._host, 
                                            userid = self._username,
                                            password = self._password,

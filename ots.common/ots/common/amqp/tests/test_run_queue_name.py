@@ -23,12 +23,12 @@
 
 import unittest
 
-from ots.common.amqp.run_queue_name import run_queue_name
+from ots.common.amqp.testrun_queue_name import testrun_queue_name
 
 class TestTestRunQueueName(unittest.TestCase):
 
     def test_queue_name(self):
-        self.assertEquals("r1", run_queue_name(1))
+        self.assertEquals("r1", testrun_queue_name(1))
 
 if __name__ == "__main__":
     unittest.main()

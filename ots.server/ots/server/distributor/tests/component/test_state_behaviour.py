@@ -46,7 +46,7 @@ from amqplib import client_0_8 as amqp
 
 from ots.common.dto.api import CommandMessage
 from ots.common.dto.api import DTO_SIGNAL
-from ots.common.amqp.api import run_queue_name 
+from ots.common.amqp.api import testrun_queue_name 
 from ots.common.amqp.api import pack_message
 
 import ots.worker
@@ -85,7 +85,7 @@ class TestStateBehaviour(unittest.TestCase):
         if self.queue:
             delete_queue("localhost", self.queue)
         if self.testrun_id:
-            delete_queue("localhost", run_queue_name(self.testrun_id))
+            delete_queue("localhost", testrun_queue_name(self.testrun_id))
 
     def test_failing_task(self):
         if not DEBUG:

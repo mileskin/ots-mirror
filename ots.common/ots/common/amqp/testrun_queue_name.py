@@ -24,7 +24,7 @@
 The name of the AMQP Queue for the Testrun
 """
 
-def run_queue_name(testrun_id):
+def testrun_queue_name(testrun_id):
     """
     Generate queue name to handle the responses 
     on the basis of at testrun_id 

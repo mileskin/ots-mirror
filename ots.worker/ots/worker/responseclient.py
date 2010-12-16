@@ -30,7 +30,7 @@ import warnings
 from amqplib import client_0_8 as amqp
 
 from ots.common.amqp.api import pack_message, unpack_message
-from ots.common.amqp.api import run_queue_name
+from ots.common.amqp.api import testrun_queue_name
 from ots.common.dto.api import Environment, Results, Packages
 from ots.common.dto.ots_exception import OTSException
 
@@ -54,7 +54,7 @@ class ResponseClient(object):
         if response_queue:
             self.response_queue = response_queue
         else:
-            self.response_queue = run_queue_name(testrun_id)
+            self.response_queue = testrun_queue_name(testrun_id)
         
     def __del__(self):
         """Close amqp connection if they are still open"""

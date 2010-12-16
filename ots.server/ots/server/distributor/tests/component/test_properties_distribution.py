@@ -54,7 +54,7 @@ import unittest
 import zipfile
 
 from ots.common.dto.api import DTO_SIGNAL
-from ots.common.amqp.api import run_queue_name 
+from ots.common.amqp.api import testrun_queue_name 
 
 from ots.tools.queue_management.delete_queue import delete_queue
 
@@ -129,7 +129,7 @@ class TestPropertiesDistribution(unittest.TestCase):
         self.worker_processes.terminate()
         self.cleanup()
         if self.testrun_id:
-            delete_queue("localhost", run_queue_name(self.testrun_id))
+            delete_queue("localhost", testrun_queue_name(self.testrun_id))
 
     def test_worker_consumes_from_all_queues(self):
         # Starts 1 worker with group1, device1, hwid1
