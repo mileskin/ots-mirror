@@ -33,6 +33,7 @@ from amqplib import client_0_8 as amqp
 
 from ots.common.dto.api import StateChangeMessage, TaskCondition
 from ots.common.dto.api import DTO_SIGNAL
+from ots.common.amqp.codec import pack_message
 
 from ots.server.distributor.task import Task
 from ots.server.distributor.taskrunner import TaskRunner
@@ -161,12 +162,11 @@ class TestTimeoutScenarios(unittest.TestCase):
         self.channel.queue_delete(queue = "r1", nowait=True)
 
 
-    #FIXME Broken Test
-    def _test_queue_timeout(self):
+    def test_queue_timeout(self):
 
         taskrunner = TaskRunner("guest", "guest", "localhost",
                                 "/", "ots", 5672, "test_taskrunner", 
-                                1, 1, 1)
+                                1, 1, 1, 1)
 
         _init_queue(self.channel, 
                     "test_taskrunner", 
@@ -178,14 +178,13 @@ class TestTimeoutScenarios(unittest.TestCase):
         self.assertRaises(OtsQueueTimeoutError, taskrunner.run)
 
 
-    #FIXME Broken Test
-    def _test_server_side_global_timeout(self):
+    def test_server_side_global_timeout(self):
 
         # taskrunner with long enough queue timeout to get message processed
         # and very short global timeout to get hit after task started
         taskrunner = TaskRunner("guest", "guest", "localhost",
                                 "/", "ots", 5672, "test_taskrunner", 
-                                1, 1, 1)
+                                1, 1, 1, 1)
 
         _init_queue(self.channel, 
                     "test_taskrunner", 
