@@ -35,5 +35,4 @@ def testrun_queue_name(testrun_id):
     @rtype message: C{string}
     @return message: The queue name
     """
-#    return "%s_%s" % (OTS_TESTRUN, testrun_id)
     return "r%s" % testrun_id
