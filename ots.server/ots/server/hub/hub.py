@@ -106,12 +106,15 @@ class Hub(object):
         # Log incoming options to help testrun debugging
         
         incoming_options = deepcopy(kwargs)
-        del incoming_options["notify_list"]
+        notify_list = ""
+        if "notify_list" in incoming_options.keys():
+            notify_list = incoming_options["notify_list"]
+            del incoming_options["notify_list"]
         string = ("Incoming request: program: %s, request: %s, " \
                       "notify_list: %s, options: %s")\
                       % (sw_product,
                          request_id,
-                         kwargs["notify_list"],
+                         notify_list,
                          incoming_options)
         LOG.info(string)
         # This is needed to get initialization errors published
