@@ -24,12 +24,14 @@
 
 #Run the component tests 
 
-#FIXME test dependent on where it is run from 
-cd ots.server/ots/server/distributor/tests/component/
-python test_device_distribution.py      
-python test_properties_distribution.py
-python test_state_behaviour.py
-cd - 
+#
+# Distributor
+#
+python ots.server/ots/server/distributor/tests/component/test_device_distribution.py
+python ots.server/ots/server/distributor/tests/component/test_properties_distribution.py
+python ots.server/ots/server/distributor/tests/component/test_state_behaviour.py
 
+#
+# Hub
 #
 python ots.server/ots/server/hub/tests/component/test_hub_component.py
