@@ -60,23 +60,22 @@ class OptionsFactory(object):
         @param options_dict: The dictionary of options
         """
         self._sw_product = sw_product
+        self._options_dict = self._apply_defaults(options_dict)
 
+    def _apply_defaults(self, options_dict):
         #Get the default options for the sw product from conf file
         defaults = self._default_options_dict(self._sw_product)
-
+        options = deepcopy(options_dict)
        # Ugly hack to make default device property handling work
-        if "device" in options_dict:
-            options_dict["device"] = string_2_dict(options_dict["device"])
-        if "device" in defaults and "device" in options_dict:
-            defaults["device"].update(options_dict["device"])
-            del options_dict["device"]
+        if "device" in options:
+            options["device"] = string_2_dict(options["device"])
+        if "device" in defaults and "device" in options:
+            defaults["device"].update(options["device"])
+            del options["device"]
             
         sanitised_options = self._sanitise_options(defaults)
-
-
-
-        sanitised_options.update(self._sanitise_options(options_dict))
-        self._options_dict = sanitised_options
+        sanitised_options.update(self._sanitise_options(options))
+        return sanitised_options
 
 
     
@@ -103,16 +102,17 @@ class OptionsFactory(object):
         @type sw_product : C{str}
         @param sw_product : The name of the software product
 
-        @rtype default_options_dict : C{dict} or None
+        @rtype default_options_dict : C{dict}
         @param default_options_dict : The dictionary of options
 
         Get the default options for the SW product
         """
         conf = server_config_filename()
         config = configobj.ConfigObj(conf).get('swproducts').get(sw_product)
-        if not config:
-            raise OptionsFactoryException("Unknown SW Product")
-        return config
+        # Moved to __call__ to make publishing exception possible
+#        if not config:
+#            raise OptionsFactoryException("Unknown SW Product")
+        return config or dict()
 
     #######################################
     # PROPERTIES
@@ -176,6 +176,11 @@ class OptionsFactory(object):
         rtype : C{ots.server.hub.options.Options
         rparam : The Options
         """
+        # A hack to check if sw product was valid
+        if not self._default_options_dict(self._sw_product):
+            raise OptionsFactoryException("Unknown sw_product %s" \
+                                              % self._sw_product)
+
         if not self.core_options_dict.has_key("image"):
             raise OptionsFactoryException("Missing `image` parameter")
         if not self.core_options_dict.has_key("timeout"):

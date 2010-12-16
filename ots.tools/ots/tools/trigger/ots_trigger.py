@@ -40,8 +40,6 @@ def ots_trigger(options):
     sw_product = options.sw_product
     email_list = options.email.split(',')
 
-    if options.engine:
-        ots_options['engine'] = options.engine
     if options.image:
         ots_options['image'] = options.image
     if options.testpackages:
@@ -121,10 +119,6 @@ def parse_commandline_arguments():
     parser.add_option("-f", "--filter", dest="filter", action="store",
                       type="string", help="Test filter string",
                       metavar="FILTER", default="")
-
-    parser.add_option("-g", "--engine", dest="engine", action="store",
-                      type="string", help="Test engines as a CSV",
-                      metavar="ENGINES", default="")
 
     parser.add_option("-n", "--input_plugin", dest="input_plugin",
                       action="store",
