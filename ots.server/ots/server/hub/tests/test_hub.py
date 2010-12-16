@@ -32,6 +32,8 @@ from ots.server.distributor.api import TaskRunner
 from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerResultsPass
 from ots.server.hub.tests.component.mock_taskrunner \
+                         import MockTaskRunnerResultsFail
+from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerError
 
 
@@ -73,20 +75,26 @@ class TestHub(unittest.TestCase):
         
     def test_run_pass(self):
         mock_taskrunner = MockTaskRunnerResultsPass()
-        mock_taskrunner.run
         hub = Hub("example_sw_product", 111, **options_dict)
         hub._taskrunner = mock_taskrunner
-        
         hub.publishers = PublishersStub(None, None, None, None)
         hub.run()
         self.assertTrue(hub.publishers.testrun_result)
+
+    def test_run_fail(self):
+        mock_taskrunner = MockTaskRunnerResultsFail()
+        mock_taskrunner.run 
+        hub = Hub("example_sw_product", 111, **options_dict)
+        hub._taskrunner = mock_taskrunner
+        hub.publishers = PublishersStub(None, None, None, None)
+        hub.run()
+        self.assertFalse(hub.publishers.testrun_result)
 
     def test_run_error(self):
         mock_taskrunner = MockTaskRunnerError()
         mock_taskrunner.run
         hub = Hub("example_sw_product", 111, **options_dict)
         hub._taskrunner = mock_taskrunner
-        
         hub.publishers = PublishersStub(None, None, None, None)
         hub.run()
         self.assertTrue(isinstance(hub.publishers.exception, OTSException))
