@@ -66,7 +66,7 @@ class OptionsFactory(object):
         #Get the default options for the sw product from conf file
         defaults = self._default_options_dict(self._sw_product)
         options = deepcopy(options_dict)
-       # Ugly hack to make default device property handling work
+        # Ugly hack to make default device property handling work
         if "device" in options:
             options["device"] = string_2_dict(options["device"])
         if "device" in defaults and "device" in options:
