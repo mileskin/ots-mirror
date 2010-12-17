@@ -43,19 +43,24 @@ import sys
 import os
 import logging
 import logging.config
-import uuid
 import configobj
 import traceback
 
+from unittest import TestCase
+from unittest import TestResult
+
 from ots.server.allocator.api import primed_taskrunner
 
+from ots.server.hub.sandbox import Sandbox
 from ots.server.hub.testrun import Testrun
-from ots.server.hub.options_factory import OptionsFactory
 from ots.server.hub.application_id import get_application_id
 from ots.server.hub.publishers import Publishers
 
 LOG = logging.getLogger(__name__)
 
+
+DEBUG = False
+ 
 class Hub(object):
 
     """
@@ -74,36 +79,18 @@ class Hub(object):
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
         """
-        self.sw_product = sw_product.lower()
-        self.request_id = request_id
-        LOG.debug("Initialising options with: '%s'"%(kwargs))
-        options_factory = OptionsFactory(sw_product, kwargs)
-        self.options = options_factory()
-        self.testrun_uuid = uuid.uuid1().hex 
-        self.publishers = Publishers(request_id, 
-                                     self.testrun_uuid, 
-                                     sw_product, 
-                                     self.options.image,
-                                     **options_factory.extended_options_dict)
+        self._sandbox = Sandbox(sw_product, request_id, **kwargs)
+        self._publishers = Publishers(self._sandbox.request_id, 
+                                      self._sandbox.testrun_uuid, 
+                                      self._sandbox.sw_product, 
+                                      self._sandbox.options.image,
+                                      **self._sandbox._extended_options_dict)
         self._taskrunner = None
+        self._init_logging()
 
-    #########################
-    # HELPERS
-    #########################
-
-    @staticmethod
-    def _init_logging():
-        """
-        Initialise the logging from the configuration file
-        """
-        #FIXME
-        dirname = os.path.dirname(os.path.abspath(__file__))
-        conf = os.path.join(dirname, "logging.conf")
-        logging.config.fileConfig(conf)
-
-    ###############################
-    # TASKRUNNER
-    ##############################
+    #############################################
+    # Properties
+    #############################################
 
     @property 
     def taskrunner(self):
@@ -115,19 +102,83 @@ class Hub(object):
         rparam : A Taskrunner loaded with Tasks
         """
         if self._taskrunner is None:
-            self._taskrunner = primed_taskrunner(self.testrun_uuid, 
-                                                 self.options.timeout,
-                                                 self.options.priority,
-                                                 self.options.device_properties,
-                                                 self.options.image,
-                                                 self.options.hw_packages,
-                                                 self.options.host_packages,
-                                                 self.options.emmc,
-                                                 self.options.testfilter,
-                                                 self.options.flasher,
-                                                 self.publishers)
-
+            self._taskrunner = primed_taskrunner(
+                                    self._sandbox.testrun_uuid, 
+                                    self._sandbox.options.timeout,
+                                    self._sandbox.options.priority,
+                                    self._sandbox.options.device_properties,
+                                    self._sandbox.options.image,
+                                    self._sandbox.options.hw_packages,
+                                    self._sandbox.options.host_packages,
+                                    self._sandbox.options.emmc,
+                                    self._sandbox.options.testfilter,
+                                    self._sandbox.options.flasher,
+                                    self._publishers)
         return self._taskrunner
+
+    #########################
+    # HELPERS
+    #########################
+
+    @staticmethod
+    def _init_logging():
+        """
+        Initialise the logging from the configuration file
+        """
+        dirname = os.path.dirname(os.path.abspath(__file__))
+        conf = os.path.join(dirname, "logging.conf")
+        if os.path.isfile(conf):
+            logging.config.fileConfig(conf)
+
+    def _publish(self, testrun_result):
+        """
+        Publish the testrun
+
+        @type : C{unittest.TestResult}
+        @param : A TestResult 
+        """
+        try:
+            self._publishers.set_testrun_result(testrun_result)
+            self._publishers.publish()
+        except Exception, err:
+            LOG.debug("Error setting testrun_result '%s'"%(err))
+            if DEBUG:
+                raise
+
+    def _testrun(self):
+        """
+        Start a Testrun and populate the Publishers
+
+        @rtype : C{unittest.TestResult}
+        @rparam : A TestResult 
+        """    
+        testrun_result = TestResult()
+        try:
+            publishers = self._publishers
+            testrun = Testrun(self._sandbox.is_hw_enabled,
+                              self._sandbox.is_host_enabled)
+            taskrunner = self.taskrunner
+
+            #FIXME: Cheap hack to make testable
+            testrun.run_test = taskrunner.run
+
+            testrun_result.addSuccess(TestCase)if testrun.run() else \
+                  testrun_result.addFailure(TestCase, (None, None, None))
+            
+            publishers.set_expected_packages(testrun.expected_packages)
+            publishers.set_tested_packages(testrun.tested_packages)
+            publishers.set_results(testrun.results)
+            publishers.set_monitors(testrun.monitors)
+           
+        except Exception, err:
+            LOG.debug("Testrun Exception: %s"%(err))
+            LOG.debug(traceback.format_exc())
+            type, value, tb = sys.exc_info()
+            publishers.set_exception(value)
+            testrun_result.addError(TestCase, (type, value, tb))
+            if DEBUG:
+                raise
+        return testrun_result
 
     ################################
     # RUN
@@ -137,34 +188,17 @@ class Hub(object):
         """
         Start a Testrun and publish the data
 
-        @rtype : C{bool}
-        @rparam : True if the Testrun passes otherwise False
+        @rtype : C{unittest.TestResult}
+        @rparam : A TestResult 
         """    
-        testrun_result = None
-        ret_val = False
-        LOG.debug("Initialising Testrun")
-        try:
-            is_hw_enabled = bool(len(self.options.hw_packages))
-            is_host_enabled = bool(len(self.options.host_packages))
-            testrun = Testrun(is_hw_enabled = is_hw_enabled, 
-                              is_host_enabled = is_host_enabled)
-            #FIXME: Cheap hack to make testable
-            testrun.run_test = self.taskrunner.run
-            testrun_result = testrun.run()
-            LOG.debug("Testrun finished with result: %s"%(testrun_result))
-            self.publishers.set_testrun_result(testrun_result)
-            self.publishers.set_expected_packages(testrun.expected_packages)
-            self.publishers.set_tested_packages(testrun.tested_packages)
-            self.publishers.set_results(testrun.results)
-            self.publishers.set_monitors(testrun.monitors)
-
-        except Exception, err:
-            LOG.debug("Testrun Exception: %s"%(err))
-            LOG.debug(traceback.format_exc())
-            self.publishers.set_exception(sys.exc_info()[1])
-
-        self.publishers.publish()
-        if testrun_result:
-            ret_val = True
-        LOG.info("Testrun finished with result: %s" % (ret_val))
-        return ret_val
+        if self._sandbox.exc_info() is not None:
+            LOG.debug("Publishers not initialised")
+            self._publishers.set_exception(self._sandbox.exc_info()[1])
+            testrun_result = TestResult()
+            testrun_result.addError(TestCase, testrun_factory.exc_info)
+            if DEBUG:
+                raise self._sandbox.exc_info[0] 
+        else:
+            testrun_result = self._testrun()
+        self._publish(testrun_result)
+        return testrun_result

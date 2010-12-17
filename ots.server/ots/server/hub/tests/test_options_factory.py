@@ -52,9 +52,9 @@ class TestOptionsFactory(unittest.TestCase):
                     'bar': 'bar',
                     'email_attachments': 'off',
                     'baz': 'baz',
-                    'email': 'on'}
+                    'email': 'on'
+                    }
         self.assertEquals(ext_opts, expected)
-
 
     def test_factory(self):
         options = OptionsFactory("example_sw_product",
@@ -64,7 +64,5 @@ class TestOptionsFactory(unittest.TestCase):
         expected = {'foo' : 'bar'}
         self.assertEquals(expected, options.device_properties)
         
-
-
 if __name__ == "__main__":
     unittest.main()

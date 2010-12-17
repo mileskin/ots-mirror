@@ -40,7 +40,7 @@ from ots.server.hub.tests.component.mock_taskrunner import \
                                              MockTaskRunnerResultsPass
 
 import ots.results.api
-from ots.results.api import TestrunResult
+
 from ots.results.api import PackageException
 
 """
@@ -65,14 +65,14 @@ class TestHubComponent(unittest.TestCase):
         hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner
         ret_val = hub.run()
-        self.assertEquals(TestrunResult.PASS, ret_val)
+        self.assertTrue(ret_val.wasSuccessful())
 
     def test_run_results_missing(self):
         mock_taskrunner = MockTaskRunnerResultsMissing()
         hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner
         publisher = PublisherStub(*[None]*4)
-        hub.publishers._publishers.append(publisher)
+        hub._publishers._publishers.append(publisher)
         hub.run()
         self.assertTrue(isinstance(publisher.exception, PackageException))
         
@@ -81,7 +81,7 @@ class TestHubComponent(unittest.TestCase):
         hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner 
         ret_val = hub.run()
-        self.assertEquals(TestrunResult.FAIL, ret_val)
+        self.assertFalse(ret_val.wasSuccessful())
 
     def test_run_global_timeout(self):
         #Not really a test more an illustration of behaviour
@@ -89,16 +89,17 @@ class TestHubComponent(unittest.TestCase):
         hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner
         publisher = PublisherStub(*[None]*4)
-        hub.publishers._publishers.append(publisher)
+        hub._publishers._publishers.append(publisher)
         hub.run()
-        self.assertTrue(isinstance(publisher.exception, OtsExecutionTimeoutError))
+        self.assertTrue(isinstance(publisher.exception, 
+                                   OtsExecutionTimeoutError))
 
     def test_run_model_taskrunner_error(self):
         mock_taskrunner = MockTaskRunnerError()
         hub = Hub("example_sw_product", 111, image="image")
         hub._taskrunner = mock_taskrunner
         publisher = PublisherStub(*[None]*4)
-        hub.publishers._publishers.append(publisher)
+        hub._publishers._publishers.append(publisher)
         hub.run()
         self.assertTrue(isinstance(publisher.exception, OTSException))
 

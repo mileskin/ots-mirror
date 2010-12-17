@@ -66,6 +66,14 @@ class PublishersStub(PublisherPluginBase):
     def set_exception(self, exception):
         self.exception = exception
 
+class FaultyPublishersStub(PublisherPluginBase):
+
+    def set_testrun_result(self, testrun_result):
+        self.testrun_result = testrun_result
+    
+    def set_monitors(self, monitors):
+        1/0
+
 class TestHub(unittest.TestCase):
 
     def test_taskrunner(self):
@@ -77,28 +85,41 @@ class TestHub(unittest.TestCase):
         mock_taskrunner = MockTaskRunnerResultsPass()
         hub = Hub("example_sw_product", 111, **options_dict)
         hub._taskrunner = mock_taskrunner
-        hub.publishers = PublishersStub(None, None, None, None)
+        hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertTrue(hub.publishers.testrun_result)
+        self.assertTrue(hub._publishers.testrun_result.wasSuccessful())
 
     def test_run_fail(self):
         mock_taskrunner = MockTaskRunnerResultsFail()
         mock_taskrunner.run 
         hub = Hub("example_sw_product", 111, **options_dict)
         hub._taskrunner = mock_taskrunner
-        hub.publishers = PublishersStub(None, None, None, None)
+        hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertFalse(hub.publishers.testrun_result)
+        self.assertFalse(hub._publishers.testrun_result.wasSuccessful())
 
     def test_run_error(self):
         mock_taskrunner = MockTaskRunnerError()
         mock_taskrunner.run
         hub = Hub("example_sw_product", 111, **options_dict)
         hub._taskrunner = mock_taskrunner
-        hub.publishers = PublishersStub(None, None, None, None)
+        hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertTrue(isinstance(hub.publishers.exception, OTSException))
+        self.assertTrue(isinstance(hub._publishers.exception, OTSException))
+        testrun_result = hub._publishers.testrun_result
+        self.assertFalse(testrun_result.wasSuccessful())
+        self.assertEquals(1, len(testrun_result.errors))
 
+    def test_run_server_faulty_error(self):
+        mock_taskrunner = MockTaskRunnerError()
+        mock_taskrunner.run
+        hub = Hub("example_sw_product", 111, **options_dict)
+        hub._taskrunner = mock_taskrunner
+        hub._publishers = FaultyPublishersStub(None, None, None, None)
+        hub.run()
+        testrun_result = hub._publishers.testrun_result
+        self.assertFalse(testrun_result.wasSuccessful())
+        self.assertEquals(1, len(testrun_result.errors))
 
 if __name__ == "__main__":
     unittest.main()
