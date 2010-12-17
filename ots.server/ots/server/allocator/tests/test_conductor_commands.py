@@ -26,31 +26,31 @@ from ots.server.allocator.conductor_commands import ConductorCommands
 class TestConductorCommands(unittest.TestCase):
 
     def test_command(self):
-        c = ConductorCommands("image_url", "emmc", 111, "storage_address",
-                              "testfilter", "flasher", "timeout")
+        c = ConductorCommands("image_url", "emmc", '111', "storage_address",
+                              "testfilter", "flasher", '100')
         command = c._command("testpackages")
         expected = ['--flasherurl', 'flasher',
                     '-t', 'testpackages',
                     '-u', 'image_url',
-                    '-m', 'timeout',
+                    '-m', '6000',
                     '-e', 'emmc',
                     '-f', 'testfilter',
                     '-c', 'storage_address',
-                    '-i', 111]
+                    '-i', '111']
         self.assertEquals(expected, command)
 
     def test_single(self):
         c = ConductorCommands("image_url", "emmc", "testrun_uuid",
                             "storage_address", "testfilter", "flasher",
-                            "timeout")
+                            "100")
         expected =[
             ['conductor',
              '--flasherurl', 'flasher', '-t', 'foo,bar', '-u', 'image_url',
-             '-m', 'timeout', '-e', 'emmc', '-f', 'testfilter',
+             '-m', '6000', '-e', 'emmc', '-f', 'testfilter',
              '-c', 'storage_address', '-i', 'testrun_uuid',
              ';',
              '--flasherurl', 'flasher', '-t', 'baz', '-u', 'image_url',
-             '-m', 'timeout', '-e', 'emmc', '-f', 'testfilter',
+             '-m', '6000', '-e', 'emmc', '-f', 'testfilter',
              '-c', 'storage_address', '-i', 'testrun_uuid', '-o']]
         command = c.single(["foo", "bar"], ["baz"])
         self.assertEquals(expected, command)
@@ -58,20 +58,20 @@ class TestConductorCommands(unittest.TestCase):
     def test_multiple(self):
         c = ConductorCommands("image_url", "emmc", "testrun_uuid",
                             "storage_address", "testfilter", "flasher",
-                            "timeout")
+                            '100')
 
         commands = c.multiple(["foo", "bar"], ["baz"])
         expected = [
                     ['conductor', '--flasherurl', 'flasher', '-t', 'foo',
-                     '-u', 'image_url', '-m', 'timeout', '-e', 'emmc',
+                     '-u', 'image_url', '-m', '6000', '-e', 'emmc',
                      '-f', 'testfilter', '-c', 'storage_address',
                      '-i', 'testrun_uuid'],
                     ['conductor', '--flasherurl', 'flasher', '-t', 'bar',
-                     '-u', 'image_url', '-m', 'timeout', '-e', 'emmc',
+                     '-u', 'image_url', '-m', '6000', '-e', 'emmc',
                      '-f', 'testfilter', '-c', 'storage_address',
                      '-i', 'testrun_uuid'],
                     ['conductor', '--flasherurl', 'flasher', '-t', 'baz',
-                     '-u', 'image_url', '-m', 'timeout', '-e', 'emmc',
+                     '-u', 'image_url', '-m', '6000', '-e', 'emmc',
                      '-f', 'testfilter', '-c', 'storage_address',
                      '-i', 'testrun_uuid', '-o']]
         self.assertEquals(expected, commands) 
@@ -79,7 +79,7 @@ class TestConductorCommands(unittest.TestCase):
     def test_multiple_no_pkgs(self):
         c = ConductorCommands("image_url", "emmc", "testrun_uuid",
                             "storage_address", "testfilter", "flasher",
-                            "timeout")
+                            "100")
         self.assertRaises(ValueError, c.multiple, [], [])
         
 if __name__ == "__main__":
