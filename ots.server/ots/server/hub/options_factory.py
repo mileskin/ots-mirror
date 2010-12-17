@@ -22,6 +22,8 @@
 
 import os
 import configobj
+import logging
+
 from ots.server.server_config_filename import server_config_filename
 from ots.server.hub.options import Options 
 
@@ -32,6 +34,9 @@ setting configurable defaults
 
 class OptionsFactoryException(Exception):
     pass
+
+
+LOG = logging.getLogger(__name__)
 
 ###############################
 # OPTIONS FACTORY 
@@ -99,6 +104,17 @@ class OptionsFactory(object):
     # PROPERTIES
     #######################################
 
+    @property
+    def config_file_options(self):
+        """
+        rtype : C{dict}
+        rparam : The Options from the config file
+        """
+        #Get the default options for the sw product from conf file
+        defaults = self._default_options_dict(self._sw_product)
+        sanitised_options = self._sanitise_options(defaults)
+        return sanitised_options
+
     @property 
     def core_options_names(self):
         """
@@ -120,12 +136,13 @@ class OptionsFactory(object):
         rtype : C{dict}
         rparam : Additional Options passed to OTS  
         """
-        #Get the default options for the sw product from conf file
-        defaults = self._default_options_dict(self._sw_product)
-        sanitised_options = self._sanitise_options(defaults)
-        sanitised_options.update(self._sanitise_options(self._options_dict))
-        extended_options_dict = sanitised_options
-
+        try:
+            extended_options_dict = self.config_file_options
+        except OptionsFactoryException:
+            LOG.error("No matching sw product in config")
+            LOG.error("Continuing to construct options anyway")
+            extended_options_dict = {}
+        extended_options_dict.update(self._sanitise_options(self._options_dict))
         for key in self.core_options_names:
             if extended_options_dict.has_key(key):
                 extended_options_dict.pop(key)
@@ -142,10 +159,14 @@ class OptionsFactory(object):
         rparam : The treated Options dictionary
         """
 
+        extended_options_dict = self.config_file_options
+
         #Throw out the extended options
         core_options_dict = dict((key, self._options_dict[key]) 
                                  for key in  self.core_options_names 
                                  if key in self._options_dict)
+
+        extended_options_dict.update(self.config_file_options)
         #Patch aliases 
         for new_name, old_name in self.aliases.items():
             if self._options_dict.has_key(old_name):

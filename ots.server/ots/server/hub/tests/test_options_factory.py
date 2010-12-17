@@ -22,8 +22,8 @@
 
 import unittest
 
-from ots.server.hub.options_factory import OptionsFactory 
-
+from ots.server.hub.options_factory import OptionsFactory
+from ots.server.hub.options_factory import OptionsFactoryException
 
 class TestOptionsFactory(unittest.TestCase):
     
@@ -32,6 +32,9 @@ class TestOptionsFactory(unittest.TestCase):
         expected = {'devicegroup' : 'examplegroup'}
         d = options_factory._default_options_dict("example_sw_product")
         self.assertEquals(expected, d["device"])
+
+    def test_default_options_dict_overridden(self):
+        pass
 
     def test_core_options_names(self):
         names = OptionsFactory("example_sw_product", None).core_options_names
@@ -56,6 +59,33 @@ class TestOptionsFactory(unittest.TestCase):
                     }
         self.assertEquals(ext_opts, expected)
 
+    def test_extended_options_dict_overridden(self):
+        d = {'image' : 'image', 'packages' : 'packages', 
+             'plan' : 'plan', 'hosttest' : 'hosttest', 
+             'device' : 'device', 'emmc' : 'emmc', 
+             'distribution_model' : 'distribution_model', 
+             'flasher' : 'flasher', 'testfilter' : 'testfilter',
+             'email_attachments' : 'off', 'email' : 'on'}
+        print "TODO Check whether the rpc or config parameters take precedence"
+        ext_opts = OptionsFactory("example_sw_product", d).extended_options_dict
+        expected = {'email_attachments': 'off',
+                    'email': 'on'}
+        self.assertEquals(ext_opts, expected)
+
+    def test_extended_options_dict_no_sw_product(self):
+        d = {'image' : 'image', 'packages' : 'packages', 
+             'plan' : 'plan', 'hosttest' : 'hosttest', 
+             'device' : 'device', 'emmc' : 'emmc', 
+             'distribution_model' : 'distribution_model', 
+             'flasher' : 'flasher', 'testfilter' : 'testfilter',
+             'foo' : 'foo', 'bar' : 'bar', 'baz' : 'baz'}
+        ext_opts = OptionsFactory("no_sw_product", d).extended_options_dict
+        expected = {'foo': 'foo',
+                    'bar': 'bar',
+                    'baz': 'baz',
+                    }
+        self.assertEquals(ext_opts, expected)
+
     def test_factory(self):
         options = OptionsFactory("example_sw_product",
                                  {"image" : "www.nokia.com",
@@ -63,6 +93,13 @@ class TestOptionsFactory(unittest.TestCase):
                                   "device" : "foo:bar"})()
         expected = {'foo' : 'bar'}
         self.assertEquals(expected, options.device_properties)
-        
+
+    def test_factory_raises_no_sw_product(self):
+        options_factory = OptionsFactory("no_sw_product",
+                                 {"image" : "www.nokia.com",
+                                  "email-attachments" : "on",
+                                  "device" : "foo:bar"})
+        self.assertRaises(OptionsFactoryException, options_factory)
+
 if __name__ == "__main__":
     unittest.main()
