@@ -96,7 +96,7 @@ class TestSuccessfulTestruns(unittest.TestCase):
         print "testrun_id: %s" %testrun_id
         self.assertFalse(has_errors(testrun_id))
 
-        string = "Result set to PASS"
+        string = "Testrun finished with result: PASS"
         self.assertTrue(has_message(testrun_id, string))
 
         # Check message from conductor
@@ -132,7 +132,7 @@ class TestSuccessfulTestruns(unittest.TestCase):
         print "testrun_id: %s" %testrun_id
         self.assertFalse(has_errors(testrun_id))
 
-        string = "Result set to PASS"
+        string = "Testrun finished with result: PASS"
         self.assertTrue(has_message(testrun_id, string))
 
         # Check message from conductor
