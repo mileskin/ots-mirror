@@ -127,10 +127,13 @@ class Options(object):
         @rtype: C{dict}
         @return: A dictionary of device properties this testrun requires
         """
+        ret_val = {}
         if self._device is not None:
-            return self._string_2_dict(self._device)
-        else:
-            return {}
+            if isinstance(self._device, dict):
+                ret_val = self._device
+            else:
+                ret_val = self._string_2_dict(self._device)
+        return ret_val 
 
     @property
     def emmc(self):
