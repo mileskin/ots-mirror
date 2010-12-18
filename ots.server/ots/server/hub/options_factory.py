@@ -97,23 +97,12 @@ class OptionsFactory(object):
         conf = server_config_filename()
         config = configobj.ConfigObj(conf).get('swproducts').get(sw_product)
         if not config:
-            raise OptionsFactoryException("Unknown SW Product")
+            raise ValueError("Unknown SW Product")
         return config
 
     #######################################
     # PROPERTIES
     #######################################
-
-    @property
-    def config_file_options(self):
-        """
-        rtype : C{dict}
-        rparam : The Options from the config file
-        """
-        #Get the default options for the sw product from conf file
-        defaults = self._default_options_dict(self._sw_product)
-        sanitised_options = self._sanitise_options(defaults)
-        return sanitised_options
 
     @property 
     def core_options_names(self):
@@ -123,50 +112,65 @@ class OptionsFactory(object):
         rtype : C{tuple} of C{str}
         rparam : The core function names 
         """
-        
         names = Options.__init__.im_func.func_code.co_varnames
         return names
 
+    @property
+    def config_file_options_dict(self):
+        """
+        The options coming from the config file relating to 
+        the sw product
+
+        rtype : C{dict}
+        rparam : The Options from the config file
+        """
+        #Get the default options for the sw product from conf file
+        defaults = self._default_options_dict(self._sw_product)
+        return self._sanitise_options(defaults)
+       
     @property 
     def extended_options_dict(self):
         """
-        key, value pairs that aren't recognised are assumed 
-        to be part of the extended options
+        Extended options are key, value pairs that 
+        are not recognised as the core Option attributes
 
         rtype : C{dict}
         rparam : Additional Options passed to OTS  
         """
-        try:
-            extended_options_dict = self.config_file_options
-        except OptionsFactoryException:
-            LOG.error("No matching sw product in config")
-            LOG.error("Continuing to construct options anyway")
-            extended_options_dict = {}
-        extended_options_dict.update(self._sanitise_options(self._options_dict))
+        sanitised_options_dict = self._sanitise_options(self._options_dict)
+        config_file_options_dict = self.config_file_options_dict
+
+        #Throw out the core options
         for key in self.core_options_names:
-            if extended_options_dict.has_key(key):
-                extended_options_dict.pop(key)
-        return extended_options_dict
+            if sanitised_options_dict.has_key(key):
+                sanitised_options_dict.pop(key)
+            if config_file_options_dict.has_key(key):
+                config_file_options_dict.pop(key)    
+        
+        sanitised_options_dict.update(config_file_options_dict)
+        return sanitised_options_dict
         
     @property 
     def core_options_dict(self):
         """
-        Adapts the options dictionary to the interface 
+        Take only the recognised core options 
         Overrides the defaults depending on configuration
-        and changes the names of the supported interface.
         
         rtype : C{dict}
         rparam : The treated Options dictionary
         """
-
-        extended_options_dict = self.config_file_options
-
-        #Throw out the extended options
-        core_options_dict = dict((key, self._options_dict[key]) 
-                                 for key in  self.core_options_names 
-                                 if key in self._options_dict)
-
-        extended_options_dict.update(self.config_file_options)
+        #Take only the core options
+        core_options_dict = {}
+        core_config_file_options_dict = {}
+        for key in  self.core_options_names:
+            if key in self._options_dict:
+                core_options_dict[key] = self._options_dict[key]
+            if key in self.config_file_options_dict:
+                core_config_file_options_dict[key] = \
+                     self.config_file_options_dict[key]
+        
+        core_options_dict.update(core_config_file_options_dict)
+  
         #Patch aliases 
         for new_name, old_name in self.aliases.items():
             if self._options_dict.has_key(old_name):
