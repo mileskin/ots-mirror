@@ -32,39 +32,69 @@ The role of the Hub is the high level management of a single Testrun.
 Specifically:
 
  - Receive test request from third-party client
+ - Get the Options
  - Allocate Tasks 
  - Dispatch Testrun
  - Receives results
  - Publish results
 
+Construction of the Options is quite involved 
+To allow the best possible chance of Publishing any 
+ValueErrors in the input parameters. 
+
+The execution of the code for the generation of Parameters 
+essential for the intialisation of the Publishers is controlled
+by the `sandbox` if exceptions are raised they are cached and 
+a default value is returned
 """
 
 import sys
 import os
 import logging
 import logging.config
-import configobj
 import traceback
+import uuid
+from traceback import format_exception
 
 from unittest import TestCase
 from unittest import TestResult
 
+import ots.server
+
 from ots.server.allocator.api import primed_taskrunner
 
-from ots.server.hub.sandbox import Sandbox
+import ots.server.hub.sandbox as sandbox_module
+from ots.server.hub.sandbox import sandbox
 from ots.server.hub.testrun import Testrun
-from ots.server.hub.application_id import get_application_id
 from ots.server.hub.publishers import Publishers
+from ots.server.hub.options_factory import OptionsFactory
 
 LOG = logging.getLogger(__name__)
 
 
 DEBUG = False
- 
-class Hub(object):
 
+#####################################
+# 'ESSENTIAL' PARAMETERS DEFAULTS
+#####################################
+
+
+#Fallback parameters required for Publishing
+
+EXAMPLE_SW_PRODUCT = "example_sw_product"
+DEFAULT_REQUEST_ID = "default_request_id"
+NO_IMAGE = "no_image"
+DEFAULT_EXTENDED_OPTIONS_DICT = {} 
+
+
+######################################
+# HUB
+######################################
+
+
+class Hub(object):
     """
-    The Hub is the Keystone of the OTS system
+    The Hub is the Keystone of the OTS system.
     """
 
     def __init__(self, sw_product, request_id, **kwargs):
@@ -79,18 +109,95 @@ class Hub(object):
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
         """
-        self._sandbox = Sandbox(sw_product, request_id, **kwargs)
-        self._publishers = Publishers(self._sandbox.request_id, 
-                                      self._sandbox.testrun_uuid, 
-                                      self._sandbox.sw_product, 
-                                      self._sandbox.options.image,
-                                      **self._sandbox._extended_options_dict)
+        LOG.info("OTS Server. version '%s'"%(ots.server.__VERSION__))
+        try:
+            LOG.info("sw_product: '%s"%(sw_product))
+            LOG.info("request_id: '%s"%(request_id))
+        except ValueError:
+            pass
+        LOG.info("kwargs: '%s'"%(kwargs))
+        #
+        reload(sandbox_module)
+        self._sw_product = sw_product
+        self._request_id = request_id
+
+        self._options_factory = OptionsFactory(self.sw_product, kwargs)
         self._taskrunner = None
         self._init_logging()
+        self._publishers = Publishers(self.request_id, 
+                                          self.testrun_uuid, 
+                                          self.sw_product, 
+                                          self.image,
+                                          **self.extended_options_dict)
+        sandbox_is_on = False
+        LOG.debug("Publishers initilialised, sandbox switched off")
+
+    #############################################
+    # Sandboxed Properties
+    #############################################
+
+    @property
+    @sandbox(EXAMPLE_SW_PRODUCT)
+    def sw_product(self):
+        """
+        @type sw_product: C{str}
+        @param sw_product: Name of the sw product this testrun belongs to
+        """
+        return str(self._sw_product).lower()
+       
+    @property
+    @sandbox(DEFAULT_REQUEST_ID)
+    def request_id(self):
+        """
+        @type request_id: C{str}
+        @param request_id: An identifier for the request from the client
+        """
+        return str(self._request_id)
+
+    @property
+    @sandbox(DEFAULT_EXTENDED_OPTIONS_DICT)
+    def extended_options_dict(self):
+        return self._options_factory.extended_options_dict
+
+    @property
+    @sandbox(NO_IMAGE)
+    def image(self):
+        return self._options_factory().image
+
 
     #############################################
     # Properties
     #############################################
+
+    @property
+    def is_hw_enabled(self):
+        """
+        @type is_hw_enabled: C{bool}
+        @param is_hw_enabled: Is hw testing enabled?
+        """        
+        hw_packages = self.options.hw_packages
+        return bool(len(hw_packages))
+     
+    @property 
+    def is_host_enabled(self):
+        """
+        @type is_host_enabled: C{bool}
+        @param is_host_enabled: Is host testing enabled
+        """
+        host_packages = self.options.host_packages
+        return  bool(len(host_packages))
+      
+    @property
+    def testrun_uuid(self):
+        """
+        @type testrun_uuid: C{str}
+        @param testrun_uuid: A globally unique identifier for the testrun
+        """
+        return uuid.uuid1().hex
+
+    @property
+    def options(self):
+        return self._options_factory()
 
     @property 
     def taskrunner(self):
@@ -103,16 +210,16 @@ class Hub(object):
         """
         if self._taskrunner is None:
             self._taskrunner = primed_taskrunner(
-                                    self._sandbox.testrun_uuid, 
-                                    self._sandbox.options.timeout,
-                                    self._sandbox.options.priority,
-                                    self._sandbox.options.device_properties,
-                                    self._sandbox.options.image,
-                                    self._sandbox.options.hw_packages,
-                                    self._sandbox.options.host_packages,
-                                    self._sandbox.options.emmc,
-                                    self._sandbox.options.testfilter,
-                                    self._sandbox.options.flasher,
+                                    self.testrun_uuid, 
+                                    self.options.timeout,
+                                    self.options.priority,
+                                    self.options.device_properties,
+                                    self.options.image,
+                                    self.options.hw_packages,
+                                    self.options.host_packages,
+                                    self.options.emmc,
+                                    self.options.testfilter,
+                                    self.options.flasher,
                                     self._publishers)
         return self._taskrunner
 
@@ -129,22 +236,7 @@ class Hub(object):
         conf = os.path.join(dirname, "logging.conf")
         if os.path.isfile(conf):
             logging.config.fileConfig(conf)
-
-    def _publish(self, testrun_result):
-        """
-        Publish the testrun
-
-        @type : C{unittest.TestResult}
-        @param : A TestResult 
-        """
-        try:
-            self._publishers.set_testrun_result(testrun_result)
-            self._publishers.publish()
-        except Exception, err:
-            LOG.debug("Error setting testrun_result '%s'"%(err))
-            if DEBUG:
-                raise
-
+                
     def _testrun(self):
         """
         Start a Testrun and populate the Publishers
@@ -155,13 +247,12 @@ class Hub(object):
         testrun_result = TestResult()
         try:
             publishers = self._publishers
-            testrun = Testrun(self._sandbox.is_hw_enabled,
-                              self._sandbox.is_host_enabled)
+            testrun = Testrun(self.is_hw_enabled,
+                              self.is_host_enabled)
             taskrunner = self.taskrunner
 
             #FIXME: Cheap hack to make testable
             testrun.run_test = taskrunner.run
-
             testrun_result.addSuccess(TestCase)if testrun.run() else \
                   testrun_result.addFailure(TestCase, (None, None, None))
             
@@ -190,15 +281,19 @@ class Hub(object):
 
         @rtype : C{unittest.TestResult}
         @rparam : A TestResult 
-        """    
-        if self._sandbox.exc_info() is not None:
-            LOG.debug("Publishers not initialised")
-            self._publishers.set_exception(self._sandbox.exc_info()[1])
-            testrun_result = TestResult()
-            testrun_result.addError(TestCase, testrun_factory.exc_info)
-            if DEBUG:
-                raise self._sandbox.exc_info[0] 
+        """
+        
+        if sandbox.exc_info !=  (None, None, None): 
+            LOG.error("Sandbox Error. Forced Initialisation")
+            etype, value, tb = sandbox.exc_info
+            str_tb = ''.join(format_exception(etype, value, tb, 50))
+            LOG.error(str_tb)
+            testrun_result = TestResult() 
+            testrun_result.addError(TestCase, (etype, value, tb))
+            sandbox.exc_info = (None, None, None)
         else:
             testrun_result = self._testrun()
-        self._publish(testrun_result)
+        self._publishers.set_testrun_result(testrun_result)
+        self._publishers.publish()
         return testrun_result
+

@@ -101,7 +101,6 @@ class Options(object):
         @rtype: C{list} of C{str}
         @return: Packages for hardware testing
         """
-        #TODO check definition
         return self._string_2_list(self._packages)
 
     @property
@@ -110,7 +109,6 @@ class Options(object):
         @rtype: C{list} of C{str}
         @return: Packages for host testing
         """
-        #TODO check definition
         return self._string_2_list(self._hosttest)
 
     @property
@@ -178,7 +176,7 @@ class Options(object):
         @return: Test execution timeout in minutes
         """
         if self._timeout is None:
-            self._timeout = 0 
+            self._timeout = '0' 
         return self._timeout
 
     ############################

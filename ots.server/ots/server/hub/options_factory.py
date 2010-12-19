@@ -25,18 +25,23 @@ import configobj
 import logging
 
 from ots.server.server_config_filename import server_config_filename
+
 from ots.server.hub.options import Options 
+from ots.server.hub.sandbox import sandbox
 
 """
 Safely create the Options API from a dictionary 
 setting configurable defaults
 """ 
 
-class OptionsFactoryException(Exception):
-    pass
-
-
 LOG = logging.getLogger(__name__)
+
+###################################
+# DEFAULTS 
+###################################
+
+CONFIG_FILE_OPTIONS_DICT = {}
+
 
 ###############################
 # OPTIONS FACTORY 
@@ -46,8 +51,15 @@ class OptionsFactory(object):
     """
     Factory for Options
 
-    Preprocesses the options dictionary 
-    Sorts the Options into Core and Extended Options
+    Essentially this is an Adaptation layer.
+    
+    It merges two input dictionaries:
+    
+        - The `options_dict` on the interface
+        - The config options arising from the sw_pdt selection
+
+
+    The output are "Core" and "Extended" Options.
     """
 
     aliases = {"image" : "image_url",
@@ -65,7 +77,7 @@ class OptionsFactory(object):
         """
         self._sw_product = sw_product
         self._options_dict = options_dict
-    
+       
     #####################################
     # HELPER 
     #####################################
@@ -97,7 +109,9 @@ class OptionsFactory(object):
         conf = server_config_filename()
         config = configobj.ConfigObj(conf).get('swproducts').get(sw_product)
         if not config:
-            raise ValueError("Unknown SW Product")
+            pdts = configobj.ConfigObj(conf).get('swproducts').keys()
+            msg = "'%s' not found in sw products: %s"%(sw_product, pdts)
+            raise ValueError(msg)
         return config
 
     #######################################
@@ -116,6 +130,7 @@ class OptionsFactory(object):
         return names
 
     @property
+    @sandbox(CONFIG_FILE_OPTIONS_DICT)
     def config_file_options_dict(self):
         """
         The options coming from the config file relating to 
@@ -187,5 +202,6 @@ class OptionsFactory(object):
         rparam : The Options
         """
         if not self.core_options_dict.has_key("image"):
-            raise OptionsFactoryException("Missing `image` parameter")
+            raise ValueError("Missing `image` parameter")
+        LOG.debug("Calling options with kwarg: %s"%(self.core_options_dict))
         return Options(**self.core_options_dict)

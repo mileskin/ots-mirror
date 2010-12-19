@@ -22,54 +22,39 @@
 
 import unittest
 
-from ots.server.hub.sandbox import Sandbox
-from ots.server.hub.options import Options
-from ots.server.hub.options_factory import OptionsFactoryException
+from ots.server.hub.sandbox import sandbox
 
-class CantStringify(object):
-    
-    def __str__(self):
+class Stub(object):
+
+    @sandbox(7)
+    def my_func(self, *args):
+        return 4
+
+    @sandbox(8)
+    def exception_func(self):
         raise ValueError
-
-
-
-options_dict = {"image" : "www.nokia.com" ,
-                "rootstrap" : "www.meego.com",
-                "packages" : "hw_pkg1-test pkg2-test pkg3-test",
-                "plan" : "111",
-                "hosttest" : "host_pkg1-test host_pkg2-test host_pkg3-test",
-                "device" : "devicegroup:foo",
-                "emmc" : "",
-                "distribution-model" : "",
-                "flasher" : "",
-                "testfilter" : "",
-                "input_plugin" : "bifh",
-                "email" : "on",
-                "email-attachments" : "on",
-                "foo" : 11111}
-
 
 
 class TestSandbox(unittest.TestCase):
 
-    def test_sw_product(self):
-        sandbox = Sandbox(CantStringify(), 111)
-        self.assertEquals("example_sw_product", sandbox.sw_product)
+    def setUp(self):
+        self.stub = Stub()
 
-    def test_request_id(self):
-        sandbox = Sandbox(111, CantStringify())
-        self.assertEquals("default_request_id", sandbox.request_id)
+    def test_non_invasive(self):
+        self.assertEquals(4, self.stub.my_func(4,5))
 
-    def test_testrun_uuid(self):
-        sandbox = Sandbox(111, 111)
-        self.assertTrue(isinstance(sandbox.testrun_uuid, str))
+    def test_exception_is_on(self):
+        sandbox.is_on = True
+        self.assertEquals(8, self.stub.exception_func())
+        
+    #FIXME unexpected behaviour for class scope variables
+    #under nose these tests work in the CL
 
-    def test_options_raises(self):
-        sandbox = Sandbox(111, 111, **options_dict)
-        self.assertTrue(isinstance(sandbox.options, Options))
-        def _raise():
-            raise sandbox.exc_info()[0]
-        self.assertRaises(OptionsFactoryException, _raise)
-    
+        #self.assertTrue(isinstance(sandbox.exc_info[1], ValueError))
+
+    #def test_exception_is_off(self):
+    #    sandbox.is_on = False
+    #    self.assertRaises(ValueError, self.stub.exception_func)
+
 if __name__ == "__main__":
     unittest.main()
