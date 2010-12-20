@@ -30,7 +30,7 @@ def conductor_command(options_dict, host_testing):
 
     """
     image = options_dict["image_url"]
-    options = OptionsFactory("pdt", options_dict)()
+    options = OptionsFactory("example_sw_product", options_dict)()
     #FIXME
     is_package_distributed = False
     storage_address = options_dict["storage_address"]
@@ -59,7 +59,7 @@ class TestConductorCommandsRegression(unittest.TestCase):
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
-                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '30']
+                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '1800']
 
         result = conductor_command(options,
                                    host_testing = False)[0]
@@ -72,7 +72,7 @@ class TestConductorCommandsRegression(unittest.TestCase):
                    'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
-                    '-i', '1', '-c', 'foo', '-m', '30']
+                    '-i', '1', '-c', 'foo', '-m', '1800']
         result = conductor_command(options, 
                                    host_testing = False)[0]
         self.assert_commands_equal(expected, result)
@@ -86,7 +86,7 @@ class TestConductorCommandsRegression(unittest.TestCase):
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
-                    '--flasherurl', "asdfasdf/asdf", '-m', '30']
+                    '--flasherurl', "asdfasdf/asdf", '-m', '1800']
 
         result = conductor_command(options, 
                                    host_testing = False)[0]
@@ -102,7 +102,7 @@ class TestConductorCommandsRegression(unittest.TestCase):
                     '-i', '1',
                     '-c', 'foo',
                    '--flasherurl', "asdfasdf/asdf",
-                    "-t", "my-tests", '-m', '30']
+                    "-t", "my-tests", '-m', '1800']
 
         result = conductor_command(options, 
                                    host_testing = False)[0]
