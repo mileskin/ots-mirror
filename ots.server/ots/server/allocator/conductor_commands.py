@@ -62,7 +62,7 @@ class ConductorCommands(object):
         @param emmc: Url to the additional content image (memory card image)
 
         @type testrun_uuid : C{str}
-        @param testrun_uuid: The testrun uuid
+        @param testrun_uuid: The test run uuid
         
         @type storage_address: C{str}
         @param storage_address: The storage address 
@@ -73,7 +73,8 @@ class ConductorCommands(object):
         @type flasher: C{str}
         @param flasher: The URL of the flasher
 
-        @type timeout: FIXME
+        @type timeout: C{str}
+        @param timeout: The test run timeout in minutes
         """
         self.image_url = image_url 
         self.emmc = emmc
@@ -81,16 +82,26 @@ class ConductorCommands(object):
         self.storage_address = storage_address
         self.testfilter = testfilter 
         self.flasher = flasher
-        self.timeout = str(timeout*60) # OTS server uses minutes, conductor expects seconds
+        self.timeout = str(int(timeout) * 60) # OTS server uses minutes,
+                                              # conductor expects seconds
 
     def _get_param(self, param_name, testpackages):
         """
-        FIXME
+        Get command line parameter value
+        
+        @type param_name : C{str}
+        @param param_name: Parameter name
+        
+        @type testpackages : C{str}
+        @param testpackages: The testpackages
+        
+        @rtype: C{str}
+        @rparam: A parameter value
         """
         ret_val = None
         if param_name == "testpackages":
             if testpackages != '':
-                ret_val= testpackages
+                ret_val = testpackages
         else:
             param = getattr(self, param_name)
             if param != '' and param != '""':
@@ -184,12 +195,12 @@ def get_commands(is_package_distributed,
     """
     Returns a list of conductor commands
     
-    @type image_url: C{str}
-    @param image_url: The URL of the image
-        
     @type is_package_distributed : C{bool}
     @param is_package_distributed : Is the test distributed 
                                          on a perpackage basis?
+
+    @type image_url: C{str}
+    @param image_url: The URL of the image
 
     @type hw_packages : C{list} of C{str}
     @param hw_packages: The hardware packages
@@ -212,8 +223,9 @@ def get_commands(is_package_distributed,
     @type flasher: C{str}
     @param flasher: The URL of the flasher
 
-    @type timeout : FIXME
-
+    @type timeout: C{str}
+    @param timeout: The test run timeout
+    
     @rtype: A C{list} of C{str} 
     @rtype: Conductor commands
     """
