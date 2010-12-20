@@ -147,9 +147,6 @@ class TestStateBehaviour(unittest.TestCase):
                               exchange = ROUTING_KEY,
                               routing_key = ROUTING_KEY)
 
-        channel.basic_publish(message, 
-                              exchange = ROUTING_KEY,
-                              routing_key = ROUTING_KEY)
 
                  
 if __name__ == "__main__": 
