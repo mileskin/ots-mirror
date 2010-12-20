@@ -315,8 +315,6 @@ class TestDeviceDistribution(unittest.TestCase):
                      "%s" % self.testrun_id]
         taskrunner.add_task(command_2)
         #
-        command_quit = ["quit"]
-        taskrunner.add_task(command_quit)
 
         time_before_run = time.time()
         time.sleep(1)
@@ -329,13 +327,10 @@ class TestDeviceDistribution(unittest.TestCase):
             foo_time = os.path.getctime(foo)
             bar = os.path.join(EXECUTION_DIRNAME, "bar")
             bar_time = os.path.getctime(bar)
+
             self.assertTrue(abs(foo_time - bar_time) < 0.1 )
-            
-            self.assertTrue(time_before_run <
-                            foo_time <= 
-                            bar_time <= 
-                            time_after_run)
-            self.assertFalse(all(self.worker_processes.exitcodes))
+            self.assertTrue(time_before_run < foo_time <= time_after_run)
+            self.assertTrue(time_before_run < bar_time <= time_after_run)
 
     #################################
     # HELPERS
@@ -392,13 +387,14 @@ class TestDeviceDistribution(unittest.TestCase):
                             "data", filename)
 
 if __name__ == "__main__":
-    import logging
-    root_logger = logging.getLogger('')
-    root_logger.setLevel(logging.DEBUG)
-    log_handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    log_handler.setFormatter(formatter)
-    log_handler.setLevel(logging.DEBUG)
-    root_logger.addHandler(log_handler)
+    if DEBUG:
+        import logging
+        root_logger = logging.getLogger('')
+        root_logger.setLevel(logging.DEBUG)
+        log_handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        log_handler.setFormatter(formatter)
+        log_handler.setLevel(logging.DEBUG)
+        root_logger.addHandler(log_handler)
     unittest.main()
