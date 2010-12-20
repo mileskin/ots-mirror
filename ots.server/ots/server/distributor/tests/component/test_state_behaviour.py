@@ -46,7 +46,7 @@ from amqplib import client_0_8 as amqp
 
 from ots.common.dto.api import CommandMessage
 from ots.common.dto.api import DTO_SIGNAL
-from ots.common.amqp.api import testrun_queue_name 
+from ots.common.amqp.api import testrun_queue_name
 from ots.common.amqp.api import pack_message
 
 import ots.worker
@@ -90,14 +90,14 @@ class TestStateBehaviour(unittest.TestCase):
     def test_failing_task(self):
         if not DEBUG:
             self.worker_processes.start()
-        self.testrun_id = 111      
+        self.testrun_id = 111
         taskrunner = taskrunner_factory(
-                             routing_key = ROUTING_KEY, 
+                             routing_key = ROUTING_KEY,
                              execution_timeout = 10,
                              testrun_id = self.testrun_id,
-                             config_file = server_config_filename())
-        
-        command = ["command_error_mock", "localhost", str(self.testrun_id)] 
+                             config_file = _distributor_config_filename())
+
+        command = ["command_error_mock", "localhost", str(self.testrun_id)]
         taskrunner.add_task(command)
         
         self.is_exception_raised = False
@@ -106,30 +106,62 @@ class TestStateBehaviour(unittest.TestCase):
             if isinstance(dto, Exception):
                 print "cb_handler  Exception"
                 self.is_exception_raised = True
-                #Replicate case for Taskrunner is in a process 
-                #the proc stops when Exception is raised by closing tr
-                taskrunner._close()
 
-        DTO_SIGNAL.connect(cb_handler)       
-
-        #
-        try:
-            taskrunner.timeout_handler.stop()
-            taskrunner.run()
-        except AttributeError:
-            pass
+        DTO_SIGNAL.connect(cb_handler)
+        
+        taskrunner.run()
         
         self.assertTrue(self.is_exception_raised)
-
-        #Worker reconnect hiatus
-        time.sleep(5)
-        #
         self.send_quit()
-        
-        #Worker shut down hiatus
-        time.sleep(2)
+        time.sleep(1)
+
+        self.assertFalse(all(self.worker_processes.exitcodes))
+
+    def test_worker_alive_after_failing_task(self):
         if not DEBUG:
-            self.assertFalse(all(self.worker_processes.exitcodes))
+            self.worker_processes.start()
+        self.testrun_id = 111
+        taskrunner1 = taskrunner_factory(
+                             routing_key = ROUTING_KEY,
+                             execution_timeout = 10,
+                             testrun_id = self.testrun_id,
+                             config_file = _distributor_config_filename())
+
+        command = ["command_error_mock", "localhost", str(self.testrun_id)]
+        taskrunner1.add_task(command)
+        
+        self.is_exception_raised = False
+
+        def cb_handler(signal, dto, **kwargs):
+            if isinstance(dto, Exception):
+                print "cb_handler  Exception"
+                self.is_exception_raised = True
+
+        DTO_SIGNAL.connect(cb_handler)
+        
+        taskrunner1.run()
+        
+        self.assertTrue(self.is_exception_raised)
+        
+        self.is_exception_raised = False
+
+        # Trigger another task to make sure worker is still alive
+        taskrunner2 = taskrunner_factory(
+                             routing_key = ROUTING_KEY,
+                             execution_timeout = 10,
+                             testrun_id = self.testrun_id,
+                             config_file = _distributor_config_filename())
+
+        command = ["echo", "foo"]
+        taskrunner2.add_task(command)
+        taskrunner2.run()
+        self.assertFalse(self.is_exception_raised)
+
+        self.send_quit()
+        time.sleep(1)
+
+        self.assertFalse(all(self.worker_processes.exitcodes))
+
 
     def send_quit(self):
         cmd_msg = CommandMessage(["quit"],
@@ -146,6 +178,16 @@ class TestStateBehaviour(unittest.TestCase):
         channel.basic_publish(message, 
                               exchange = ROUTING_KEY,
                               routing_key = ROUTING_KEY)
+
+        
+def _distributor_config_filename():
+    distributor_dirname = os.path.dirname(
+        os.path.abspath(__file__))
+    distributor_config_filename = os.path.join(distributor_dirname,
+                                               "test_config.ini")
+    if not os.path.exists(distributor_config_filename):
+        raise Exception("%s not found"%(distributor_config_filename))
+    return distributor_config_filename
 
 
                  

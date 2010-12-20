@@ -110,12 +110,14 @@ class TestTaskBroker(unittest.TestCase):
 
     def setUp(self):
         queues = get_queues(_get_properties())
+        queues.append("test_response_queue")
         for queue in queues:
             _queue_delete(queue)
             self.assertTrue(_queue_size(queue) is None)
         
     def tearDown(self):
         queues = get_queues(_get_properties())
+        queues.append("test_response_queue")
         for queue in queues:
             _queue_delete(queue)
 
@@ -269,15 +271,15 @@ class TestTaskBroker(unittest.TestCase):
         #send a sleep command
         #send an echo command
         #watch the response queue for state changes
-        #check the foo queue to see that echo remains on the queue
-               
-        cmd_msg1 = CommandMessage(['sleep', '1'], 'test', 1, timeout = 2)
+        response_queue = 'test_response_queue'
+        cmd_msg1 = CommandMessage(['sleep','1'], response_queue, 1, timeout = 2)
         msg1 = pack_message(cmd_msg1)
-        cmd_msg2 = CommandMessage(['echo', 'foo'], 'test', 1, timeout = 1)
+        cmd_msg2 = CommandMessage(['echo', 'foo'], response_queue, 1, timeout = 1)
         msg2 = pack_message(cmd_msg2)
 
         task_broker = _task_broker_factory()
         channel = task_broker.channel
+        _init_queue(channel, response_queue, response_queue, response_queue)
         # Send some commands
         for message in [msg1, msg2]:
             channel.basic_publish(message,
@@ -291,8 +293,44 @@ class TestTaskBroker(unittest.TestCase):
         time.sleep(1)
         channel.wait()
         time.sleep(1)
-	# We should have our command + state change messages in the queue
-        self.assertEquals(_queue_size("test"), 3)
+	# We should have 0 tasks in the queue and STARTED and FINISHED for both
+        # tasks in response queue
+
+        self.assertEquals(_queue_size("test"), 0)
+        self.assertEquals(_queue_size(response_queue), 4)
+
+    def test_on_message_failing_commands(self):
+
+        #send a failing command multiple times
+        #watch the response queue for state changes
+        response_queue = 'test_response_queue'
+        cmd_msg1 = CommandMessage(['asdfasdfsadfs', '1'], response_queue, 1, timeout = 2)
+        msg1 = pack_message(cmd_msg1)
+        cmd_msg2 = CommandMessage(['asdfasdfsadfs', 'foo'], response_queue, 1, timeout = 1)
+        msg2 = pack_message(cmd_msg2)
+
+        task_broker = _task_broker_factory()
+        channel = task_broker.channel
+        _init_queue(channel, response_queue, response_queue, response_queue)
+        # Send some commands
+        for message in [msg1, msg2]:
+            channel.basic_publish(message,
+                                  mandatory = True,
+                                  exchange = "test",
+                                  routing_key = "test")
+
+        #Set to Consume
+        task_broker._start_consume()
+        channel.wait()
+        time.sleep(1)
+        channel.wait()
+        time.sleep(1)
+
+
+	# We should have 0 tasks in the queue and STARTED, Exception and
+        # FINISHED for both tasks in response queue
+        self.assertEquals(_queue_size("test"), 0)
+        self.assertEquals(_queue_size(response_queue), 6)
 
     def test_on_message_not_version_compatible(self):
         """
@@ -400,6 +438,34 @@ class TestTaskBroker(unittest.TestCase):
                                  min_worker_version = 0.7)
         packed_msg = pack_message(cmd_msg)
         self.assertTrue(task_broker._is_version_compatible(packed_msg))
+
+
+
+
+def _init_queue(channel, queue, exchange, routing_key):
+    """
+    Initialise a non-durable queue and a direct exchange
+    with a routing_key of the name of the queue
+
+    @type channel: C{amqplib.client_0_8.channel.Channel}  
+    @param channel: The AMQP channel
+
+    @rtype queue: C{string}  
+    @return queue: The queue name
+    """
+    channel.queue_declare(queue = queue, 
+                          durable = False, 
+                          exclusive = False,
+                          auto_delete=True)
+    channel.exchange_declare(exchange = exchange,
+                             type = 'direct',
+                             durable = False,
+                             auto_delete = True)
+    channel.queue_bind(queue = queue,
+                       exchange = exchange,
+                       routing_key = routing_key)
+
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -143,7 +143,6 @@ class TaskBroker(object):
     ##############################################
     # AMQP Configuration
     ##############################################
-
     def _start_consume(self):
         """
         Start consuming messages from the queue
@@ -188,9 +187,6 @@ class TaskBroker(object):
     # LOOPING / HANDLING / DISPATCHING
     ###############################################
 
-    def _cancel(self):
-        self.channel.basic_cancel(self._consumer_tag)
-
     def _loop(self):
         """
         The main loop
@@ -233,7 +229,6 @@ class TaskBroker(object):
         #
         try:
             self._dispatch(cmd_msg)
-            self._publish_task_state_change(task_id, response_queue)
         except CommandFailed:
             exception = sys.exc_info()[1]
             exception.task_id = task_id 
@@ -242,6 +237,7 @@ class TaskBroker(object):
                                     exception)
         finally:
             self._set_log_handler(None)
+            self._publish_task_state_change(task_id, response_queue)
             if self._keep_looping:
                 self._start_consume()
 
@@ -309,8 +305,6 @@ class TaskBroker(object):
         @param exception: An OTSException 
 
         """
-        state = self._task_state.next()
-        LOGGER.debug("Task in state: '%s'"%(state))
         message = pack_message(exception)
         try:
             self.channel.basic_publish(message,
