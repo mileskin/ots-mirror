@@ -45,7 +45,7 @@ from ots.worker.amqp_log_handler import AMQPLogHandler
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
@@ -81,7 +81,7 @@ class Worker(object):
         """
         Starts the ots worker server running
         """
-        logger.debug('Initialising the server')
+        LOGGER.info('Initialising the server')
         # If stop flag is there, remove it
         if os.path.exists(STOP_SIGNAL_FILE):
             os.system("rm -fr "+STOP_SIGNAL_FILE)
@@ -95,8 +95,11 @@ class Worker(object):
         if self.amqp_log_handler is not None:
             self._task_broker.amqp_log_handler = \
                 self.amqp_log_handler 
-        logger.debug("Starting the server. with properties:'%s'." 
-                                    %self._properties)
+        LOGGER.info("Starting the worker. " + \
+                        "server: %s:%s, device_properties: %s" % 
+                    (self._host,
+                     self._port,
+                     self._properties))
         self._task_broker.run()
 
 
@@ -134,19 +137,12 @@ def _init_logging(config_filename = None):
     output_handler.setLevel(logging.DEBUG)
     root_logger.addHandler(output_handler)
 
-
 def create_amqp_log_handler():
     root_logger = logging.getLogger('')
     handler = AMQPLogHandler()
     handler.setLevel(logging.DEBUG)
     root_logger.addHandler(handler)
     return handler
-
-def _edit_config(config_filename):
-    """
-    Fire up nano to allow the editing of the config 
-    """
-    subprocess.call("nano %s"%(config_filename), shell=True)
 
 def worker_factory(config_filename):
     """
