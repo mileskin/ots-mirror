@@ -339,7 +339,7 @@ class TaskBroker(object):
         min_worker_version = cmd_msg.min_worker_version
 
         if min_worker_version is not None:
-            major_minor, revision = ots.worker.__VERSION__.split("r")
+            major_minor, revision = ots.worker.__VERSION__.split("r", 1)
             LOGGER.debug("Min version: %s. Worker version: %s"%
                          (min_worker_version, major_minor))
             ret_val = float(major_minor) >= float(min_worker_version)
@@ -358,21 +358,21 @@ class TaskBroker(object):
             self._amqp_log_handler.exchange = queue
         
     def _try_reconnect(self):
-       """
-       A poorly implemented reconnect to AMQP
-       """
-       #FIXME: Move out into own connection module.
-       #Implement with a exponential backoff with max retries.
-       LOGGER.exception("Error. Waiting 5s then retrying")
-       sleep(5)
-       try:
-           LOGGER.info("Trying to reconnect...")
-           self._connection.connect()
-           self._init_connection()
-           self._start_consume()
-       except Exception:
-           #If rabbit is still down, we expect this to fail
-           LOGGER.exception("Reconnecting failed...")
+        """
+        A poorly implemented reconnect to AMQP
+        """
+        #FIXME: Move out into own connection module.
+        #Implement with a exponential backoff with max retries.
+        LOGGER.exception("Error. Waiting 5s then retrying")
+        sleep(5)
+        try:
+            LOGGER.info("Trying to reconnect...")
+            self._connection.connect()
+            self._init_connection()
+            self._start_consume()
+        except Exception:
+            #If rabbit is still down, we expect this to fail
+            LOGGER.exception("Reconnecting failed...")
 
     def _clean_up(self):
         """
