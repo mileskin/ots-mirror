@@ -60,7 +60,8 @@ class sandbox(object):
             except:
                 if sandbox.is_on:
                     LOG.exception("sandbox caught error")
-                    sandbox.exc_info = sys.exc_info()
+                    if sandbox.exc_info == (None, None, None):
+                        sandbox.exc_info = sys.exc_info()
                     return self._ret_val
                 else:
                     raise
