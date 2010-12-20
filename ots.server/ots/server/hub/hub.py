@@ -69,7 +69,7 @@ from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
 from ots.server.hub.options_factory import OptionsFactory
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('')
 
 
 DEBUG = False
@@ -109,6 +109,21 @@ class Hub(object):
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
         """
+        reload(sandbox_module)
+        self._sw_product = sw_product
+        self._request_id = request_id
+        self._testrun_uuid = None
+
+        self._options_factory = OptionsFactory(self.sw_product, kwargs)
+        self._taskrunner = None
+        self._init_logging()
+        self._publishers = Publishers(self.request_id, 
+                                      self.testrun_uuid, 
+                                      self.sw_product, 
+                                      self.image,
+                                      **self.extended_options_dict)
+        sandbox_is_on = False
+        LOG.debug("Publishers initilialised... sandbox switched off...")
         LOG.info("OTS Server. version '%s'"%(ots.server.__VERSION__))
         try:
             LOG.info("sw_product: '%s"%(sw_product))
@@ -116,22 +131,7 @@ class Hub(object):
         except ValueError:
             pass
         LOG.info("kwargs: '%s'"%(kwargs))
-        #
-        reload(sandbox_module)
-        self._sw_product = sw_product
-        self._request_id = request_id
-
-        self._options_factory = OptionsFactory(self.sw_product, kwargs)
-        self._taskrunner = None
-        self._init_logging()
-        self._publishers = Publishers(self.request_id, 
-                                          self.testrun_uuid, 
-                                          self.sw_product, 
-                                          self.image,
-                                          **self.extended_options_dict)
-        sandbox_is_on = False
-        LOG.debug("Publishers initilialised, sandbox switched off")
-
+        
     #############################################
     # Sandboxed Properties
     #############################################
@@ -193,7 +193,10 @@ class Hub(object):
         @type testrun_uuid: C{str}
         @param testrun_uuid: A globally unique identifier for the testrun
         """
-        return uuid.uuid1().hex
+        if self._testrun_uuid is None:
+            LOG.info("Testrun ID: '%s'"%(self._testrun_uuid))
+            self._testrun_uuid = uuid.uuid1().hex
+        return self._testrun_uuid
 
     @property
     def options(self):
