@@ -48,6 +48,7 @@ nosetests ots.server/ots/server/distributor/tests/test_* -e testrun -e test_remo
 
 nosetests ots.server/ots/server/hub/tests/test_* -e testrun $@
 nosetests ots.server/ots/server/xmlrpc/tests/test_* $@
+nosetests ots.server/ots/server/allocator/tests/test_* $@
 
 #############
 #ots.worker
