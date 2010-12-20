@@ -46,8 +46,6 @@ def start_worker(config_filename):
     worker.amqp_log_handler = amqp_log_handler 
     
     worker.start()
-    print "Starting Worker..."
-
 
 class WorkerProcesses(object):
     """
