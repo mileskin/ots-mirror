@@ -29,7 +29,7 @@ setup(
       version =  "0.8r" + get_git_version(),
       include_package_data = True,
       packages = find_packages(),
-      entry_points={"EmailPlugin":
-            ["ots.email_plugin.email_plugin "\
+      entry_points={"ots.publisher_plugin":
+            ["publisher_klass "\
              "= ots.email_plugin.email_plugin"]},
      )

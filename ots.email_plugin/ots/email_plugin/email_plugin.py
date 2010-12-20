@@ -57,11 +57,7 @@ class EmailPlugin(PublisherPluginBase):
     """
 
     def __init__(self, request_id, testrun_uuid, sw_product, image,
-                       email = None,
-                       email_attachments = None,
-                       target_packages = None,
-                       build_url = None,
-                       notify_list = None):
+                       **kwargs):
         """
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
@@ -91,11 +87,14 @@ class EmailPlugin(PublisherPluginBase):
         self.testrun_uuid = testrun_uuid
         self.sw_product = sw_product
         self.image = image
-        self._build_url = build_url
+        self._build_url =  kwargs.get("build_url")
+        config_file = server_config_filename()
+
+        config = configobj.ConfigObj(config_file).get("ots.email_plugin")
         #
-        self._email = email
-        self._email_attachments = email_attachments
-        self._target_packages = target_packages
+        self._email = kwargs.get("email", config.get("email", "on"))
+        self._email_attachments = kwargs.get("email-attachments", 
+                                  config.get("email-attachments", "on"))
         #
         self._mail_message = None
         #
@@ -104,11 +103,7 @@ class EmailPlugin(PublisherPluginBase):
         self._results = None
         self._exception = None
         self._tested_packages = []
-        self._notify_list = notify_list
-
-        config_file = server_config_filename()
-
-        config = configobj.ConfigObj(config_file).get("ots.email_plugin")
+        self._notify_list = kwargs.get("notify_list")
 
         self._from_address = config["from_address"]
         self._message_body = config["message_body"]
