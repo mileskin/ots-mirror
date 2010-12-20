@@ -27,15 +27,25 @@ from socket import gethostname
 from ots.common.framework.api import PublisherPluginBase
 from ots.common.dto.api import OTSException
 
+
+import ots.server.hub.sandbox as sandbox
+
 from ots.server.distributor.api import TaskRunner
 
 from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerResultsPass
 from ots.server.hub.tests.component.mock_taskrunner \
+                         import MockTaskRunnerResultsFail
+from ots.server.hub.tests.component.mock_taskrunner \
                          import MockTaskRunnerError
 
 
 from ots.server.hub.hub import Hub
+
+class CantStringify(object):
+    
+    def __str__(self):
+        raise ValueError
 
 
 options_dict = {"image" : "www.nokia.com" ,
@@ -65,33 +75,121 @@ class PublishersStub(PublisherPluginBase):
     def set_exception(self, exception):
         self.exception = exception
 
-class TestHub(unittest.TestCase):
+class FaultyPublishersStub(PublisherPluginBase):
+
+    def set_testrun_result(self, testrun_result):
+        self.testrun_result = testrun_result
+    
+    def set_monitors(self, monitors):
+        1/0
+
+class TestHubRun(unittest.TestCase):
+
+    def test_pass(self):
+        mock_taskrunner = MockTaskRunnerResultsPass()
+        hub = Hub("example_sw_product", 111, **options_dict)
+        hub._taskrunner = mock_taskrunner
+        hub._publishers = PublishersStub(None, None, None, None)
+        hub.run()
+        self.assertTrue(hub._publishers.testrun_result.wasSuccessful())
+
+    def test_fail(self):
+        mock_taskrunner = MockTaskRunnerResultsFail()
+        mock_taskrunner.run 
+        hub = Hub("example_sw_product", 111, **options_dict)
+        hub._taskrunner = mock_taskrunner
+        hub._publishers = PublishersStub(None, None, None, None)
+        hub.run()
+        self.assertFalse(hub._publishers.testrun_result.wasSuccessful())
+
+    def test_error(self):
+        mock_taskrunner = MockTaskRunnerError()
+        mock_taskrunner.run
+        hub = Hub("example_sw_product", 111, **options_dict)
+        hub._taskrunner = mock_taskrunner
+        hub._publishers = PublishersStub(None, None, None, None)
+        hub.run()
+        self.assertTrue(isinstance(hub._publishers.exception, OTSException))
+        testrun_result = hub._publishers.testrun_result
+        self.assertFalse(testrun_result.wasSuccessful())
+        self.assertEquals(1, len(testrun_result.errors))
+
+    def test_server_faulty_error(self):
+        mock_taskrunner = MockTaskRunnerError()
+        mock_taskrunner.run
+        hub = Hub("example_sw_product", 111, **options_dict)
+        hub._taskrunner = mock_taskrunner
+        hub._publishers = FaultyPublishersStub(None, None, None, None)
+        hub.run()
+        testrun_result = hub._publishers.testrun_result
+        self.assertFalse(testrun_result.wasSuccessful())
+        self.assertEquals(1, len(testrun_result.errors))
+
+class TestHubProperties(unittest.TestCase):
+
+    def test_sw_product(self):
+        hub = Hub(CantStringify(), 111)
+        self.assertEquals("example_sw_product", hub.sw_product)
+
+    def test_request_id(self):
+        hub = Hub(111, CantStringify())
+        self.assertEquals("default_request_id", hub.request_id)
+
+    def test_extended_options_dict(self):
+        hub = Hub(111, 111)
+        self.assertEquals({}, hub.extended_options_dict)
+        hub = Hub("example_sw_product", 111)
+        expected = {'email_attachments': 'off', 'email': 'on'}
+        self.assertEquals(expected, hub.extended_options_dict)
+
+    def test_image(self):
+        hub = Hub(111, 111)
+        self.assertEquals("no_image", hub.image)
+        hub = Hub("example_sw_product", 111, image = "foo")
+        self.assertEquals("foo", hub.image)
+
+    def test_testrun_uuid(self):
+        hub = Hub(111, 111)
+        self.assertTrue(isinstance(hub.testrun_uuid, str))
+
+    def test_is_hw_enabled(self):
+        hub = Hub("example_sw_product", 111, image = "foo", 
+                  packages = "a-tests b-tests c-tests")
+        self.assertTrue(hub.is_hw_enabled)
+        hub = Hub("example_sw_product", 111, image = "foo")
+        self.assertFalse(hub.is_hw_enabled)
+
+    def test_is_host_enabled(self):
+        #FIXME need to know priority
+        #hub = Hub("example_sw_product", 111, image = "foo", 
+        #          hosttest = "a-tests b-tests c-tests")
+        #self.assertTrue(hub.is_host_enabled)
+        #hub = Hub("example_sw_product", 111, image = "foo")
+        #self.assertFalse(hub.is_host_enabled)
+        pass
+
+    def test_options(self):
+        hub = Hub(111, 111, image = "foo")
+        self.assertEquals('0', hub.options.timeout)
+        hub = Hub("example_sw_product", 1111, image = "foo")
+        self.assertEquals('60', hub.options.timeout)
 
     def test_taskrunner(self):
         hub = Hub("example_sw_product", 111, **options_dict)
         taskrunner = hub.taskrunner
         self.assertTrue(isinstance(taskrunner, TaskRunner))
-        
-    def test_run_pass(self):
+
+class TestHubFailSafePublishing(unittest.TestCase):
+
+    def test_bad_params(self):
         mock_taskrunner = MockTaskRunnerResultsPass()
-        mock_taskrunner.run
-        hub = Hub("example_sw_product", 111, **options_dict)
+        hub = Hub(CantStringify(), CantStringify())
         hub._taskrunner = mock_taskrunner
-        
-        hub.publishers = PublishersStub(None, None, None, None)
+        hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertTrue(hub.publishers.testrun_result)
-
-    def test_run_error(self):
-        mock_taskrunner = MockTaskRunnerError()
-        mock_taskrunner.run
-        hub = Hub("example_sw_product", 111, **options_dict)
-        hub._taskrunner = mock_taskrunner
+        self.assertFalse(hub._publishers.testrun_result.wasSuccessful())
+        self.assertTrue(isinstance(hub._publishers.exception, ValueError))
         
-        hub.publishers = PublishersStub(None, None, None, None)
-        hub.run()
-        self.assertTrue(isinstance(hub.publishers.exception, OTSException))
-
 
 if __name__ == "__main__":
     unittest.main()

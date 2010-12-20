@@ -22,8 +22,7 @@
 
 import unittest
 
-from ots.server.hub.options_factory import OptionsFactory 
-
+from ots.server.hub.options_factory import OptionsFactory
 
 class TestOptionsFactory(unittest.TestCase):
     
@@ -33,33 +32,8 @@ class TestOptionsFactory(unittest.TestCase):
         d = options_factory._default_options_dict("example_sw_product")
         self.assertEquals(expected, d["device"])
 
-    def test_core_options_dict(self):
-        options_factory = OptionsFactory("example_sw_product", {})
-        expected = {'devicegroup' : 'examplegroup'}
-        d = options_factory.core_options_dict
-        self.assertEquals(expected, d["device"])
-
-    def test_device_option_handling(self):
-        user_options = {"device": "devicename:name", "image": "foo"}
-        options_factory = OptionsFactory("example_sw_product", user_options)
-        properties = options_factory().device_properties
-        expected = {'devicegroup' : 'examplegroup', "devicename":"name"}
-        self.assertEquals(properties, expected)
-
-    def test_device_option_handling_user_defined_group(self):
-        user_options = {"device": "devicegroup:asdf", "image": "foo"}
-        options_factory = OptionsFactory("example_sw_product", user_options)
-        properties = options_factory().device_properties
-        expected = {'devicegroup' : 'asdf'}
-        self.assertEquals(properties, expected)
-
-    def test_device_option_handling_no_user_input(self):
-        user_options = {"image": "foo"}
-        options_factory = OptionsFactory("example_sw_product", user_options)
-        properties = options_factory().device_properties
-        expected = {'devicegroup' : 'examplegroup'}
-        self.assertEquals(properties, expected)
-
+    def test_default_options_dict_overridden(self):
+        pass
 
     def test_core_options_names(self):
         names = OptionsFactory("example_sw_product", {}).core_options_names
@@ -80,19 +54,46 @@ class TestOptionsFactory(unittest.TestCase):
                     'bar': 'bar',
                     'email_attachments': 'off',
                     'baz': 'baz',
+                    'email': 'on'
+                    }
+        self.assertEquals(ext_opts, expected)
+
+    def test_extended_options_dict_overridden(self):
+        d = {'image' : 'image', 'packages' : 'packages', 
+             'plan' : 'plan', 'hosttest' : 'hosttest', 
+             'device' : 'device', 'emmc' : 'emmc', 
+             'distribution_model' : 'distribution_model', 
+             'flasher' : 'flasher', 'testfilter' : 'testfilter',
+             'email_attachments' : 'off', 'email' : 'on'}
+        ext_opts = OptionsFactory("example_sw_product", d).extended_options_dict
+        expected = {'email_attachments': 'off',
                     'email': 'on'}
         self.assertEquals(ext_opts, expected)
 
-
+    def test_extended_options_dict_no_sw_product(self):
+        d = {'image' : 'image', 'packages' : 'packages', 
+             'plan' : 'plan', 'hosttest' : 'hosttest', 
+             'device' : 'device', 'emmc' : 'emmc', 
+             'distribution_model' : 'distribution_model', 
+             'flasher' : 'flasher', 'testfilter' : 'testfilter',
+             'foo' : 'foo', 'bar' : 'bar', 'baz' : 'baz'}
+        options_factory = OptionsFactory("no_sw_product", d)
+        #self.assertRaises(ValueError, options_factory.extended_options_dict)
+     
     def test_factory(self):
         options = OptionsFactory("example_sw_product",
                                  {"image" : "www.nokia.com",
                                   "email-attachments" : "on",
-                                  "device" : "devicegroup:foo"})()
-        expected = {'devicegroup': 'foo'}
+                                  "device" : "foo:bar"})()
+        expected = {'devicegroup' : 'examplegroup'}
         self.assertEquals(expected, options.device_properties)
-        
 
+    def _test_factory_raises_no_sw_product(self):
+        options_factory = OptionsFactory("no_sw_product",
+                                 {"image" : "www.nokia.com",
+                                  "email-attachments" : "on",
+                                  "device" : "foo:bar"})
+        self.assertRaises(ValueError, options_factory)
 
 if __name__ == "__main__":
     unittest.main()
