@@ -25,7 +25,7 @@ import unittest
 
 from pickle import dumps, loads
 
-from ots.common.dto.environment import Environment 
+from ots.common.dto.api import Environment, OTSException 
 
 from ots.worker.responseclient import ResponseClient
 
@@ -85,26 +85,12 @@ class TestResponseClient(unittest.TestCase):
         self.assertTrue(self.conn.close_called)
         self.assertTrue(self.channel.close_called)
 
-#     def test_set_state(self):
-#         state = "FLASHING"
-#         status_info = "flashing content image"
-#         self.client.set_state(state, status_info)
-#         msg = self.channel.msg
-#         status = loads(msg.body)
-#         self.assertEquals(status.state, state)
-#         self.assertEquals(status.status_info, status_info)
-
-
     def test_set_error(self):
         error_info = "Flashing failed"
         error_code = "666"
-        self.client.set_error(error_info, error_code)
-        msg = self.channel.msg
-        self.assertTrue(msg)
-        exc = loads(msg.body)
-        self.assertEquals(exc.strerror, error_info)
-        self.assertEquals(exc.errno, error_code)
-
+        self.assertRaises(OTSException, 
+                          self.client.set_error, error_info, error_code)
+      
 
     def test_add_executed_packages(self):
         environment = "Flashing failed"

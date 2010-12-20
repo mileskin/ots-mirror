@@ -232,7 +232,7 @@ class TestPropertiesDistribution(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    import logging
+#    import logging
 #    root_logger = logging.getLogger('')
 #    root_logger.setLevel(logging.DEBUG)
 #    log_handler = logging.StreamHandler()

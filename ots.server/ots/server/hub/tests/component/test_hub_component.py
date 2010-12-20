@@ -49,6 +49,8 @@ Component test for Hub
 Mocks OTS from the Distributor down 
 """
 
+DEBUG = False
+
 from ots.server.hub.api import Hub
 
 class PublisherStub(PublisherPluginBase):
@@ -103,13 +105,14 @@ class TestHubComponent(unittest.TestCase):
         self.assertTrue(isinstance(publisher.exception, OTSException))
 
 if __name__ == "__main__":
-    import logging
-    root_logger = logging.getLogger('')
-    root_logger.setLevel(logging.DEBUG)
-    log_handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    log_handler.setFormatter(formatter)
-    log_handler.setLevel(logging.DEBUG)
-    root_logger.addHandler(log_handler)
+    if DEBUG:
+        import logging
+        root_logger = logging.getLogger('')
+        root_logger.setLevel(logging.DEBUG)
+        log_handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        log_handler.setFormatter(formatter)
+        log_handler.setLevel(logging.DEBUG)
+        root_logger.addHandler(log_handler)
     unittest.main()

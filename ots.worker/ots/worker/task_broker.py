@@ -143,7 +143,6 @@ class TaskBroker(object):
     ##############################################
     # AMQP Configuration
     ##############################################
-
     def _start_consume(self):
         """
         Start consuming messages from the queue
@@ -187,9 +186,6 @@ class TaskBroker(object):
     ###############################################
     # LOOPING / HANDLING / DISPATCHING
     ###############################################
-
-    def _cancel(self):
-        self.channel.basic_cancel(self._consumer_tag)
 
     def _loop(self):
         """
@@ -236,12 +232,14 @@ class TaskBroker(object):
         except CommandFailed:
             exception = sys.exc_info()[1]
             exception.task_id = task_id 
-            self._publish_exception(response_queue,
+            self._publish_exception(task_id,
+                                    response_queue,
                                     exception)
         finally:
             self._set_log_handler(None)
             self._publish_task_state_change(task_id, response_queue)
-            self._start_consume()
+            if self._keep_looping:
+                self._start_consume()
 
     def _on_message(self, message):
         """
@@ -294,11 +292,11 @@ class TaskBroker(object):
                                    mandatory = True,
                                    exchange = response_queue,
                                    routing_key = response_queue)
-
-
-    def _publish_exception(self, response_queue, exception):
+        
+    def _publish_exception(self, task_id, response_queue, exception):
         """
         Put an Exception on the response queue 
+        and move the Task onto the next state
 
         @type response_queue: C{str}
         @param response_queue: The name of the response queue 
@@ -335,7 +333,7 @@ class TaskBroker(object):
         min_worker_version = cmd_msg.min_worker_version
 
         if min_worker_version is not None:
-            major_minor, revision = ots.worker.__VERSION__.split("r")
+            major_minor, revision = ots.worker.__VERSION__.split("r", 1)
             LOGGER.debug("Min version: %s. Worker version: %s"%
                          (min_worker_version, major_minor))
             ret_val = float(major_minor) >= float(min_worker_version)
@@ -354,21 +352,21 @@ class TaskBroker(object):
             self._amqp_log_handler.exchange = queue
         
     def _try_reconnect(self):
-       """
-       A poorly implemented reconnect to AMQP
-       """
-       #FIXME: Move out into own connection module.
-       #Implement with a exponential backoff with max retries.
-       LOGGER.exception("Error. Waiting 5s then retrying")
-       sleep(5)
-       try:
-           LOGGER.info("Trying to reconnect...")
-           self._connection.connect()
-           self._init_connection()
-           self._start_consume()
-       except Exception:
-           #If rabbit is still down, we expect this to fail
-           LOGGER.exception("Reconnecting failed...")
+        """
+        A poorly implemented reconnect to AMQP
+        """
+        #FIXME: Move out into own connection module.
+        #Implement with a exponential backoff with max retries.
+        LOGGER.exception("Error. Waiting 5s then retrying")
+        sleep(5)
+        try:
+            LOGGER.info("Trying to reconnect...")
+            self._connection.connect()
+            self._init_connection()
+            self._start_consume()
+        except Exception:
+            #If rabbit is still down, we expect this to fail
+            LOGGER.exception("Reconnecting failed...")
 
     def _clean_up(self):
         """

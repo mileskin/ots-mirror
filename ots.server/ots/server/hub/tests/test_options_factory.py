@@ -28,13 +28,41 @@ from ots.server.hub.options_factory import OptionsFactory
 class TestOptionsFactory(unittest.TestCase):
     
     def test_default_options_dict(self):
-        options_factory = OptionsFactory("example_sw_product", None)
+        options_factory = OptionsFactory("example_sw_product", {})
         expected = {'devicegroup' : 'examplegroup'}
         d = options_factory._default_options_dict("example_sw_product")
         self.assertEquals(expected, d["device"])
 
+    def test_core_options_dict(self):
+        options_factory = OptionsFactory("example_sw_product", {})
+        expected = {'devicegroup' : 'examplegroup'}
+        d = options_factory.core_options_dict
+        self.assertEquals(expected, d["device"])
+
+    def test_device_option_handling(self):
+        user_options = {"device": "devicename:name", "image": "foo"}
+        options_factory = OptionsFactory("example_sw_product", user_options)
+        properties = options_factory().device_properties
+        expected = {'devicegroup' : 'examplegroup', "devicename":"name"}
+        self.assertEquals(properties, expected)
+
+    def test_device_option_handling_user_defined_group(self):
+        user_options = {"device": "devicegroup:asdf", "image": "foo"}
+        options_factory = OptionsFactory("example_sw_product", user_options)
+        properties = options_factory().device_properties
+        expected = {'devicegroup' : 'asdf'}
+        self.assertEquals(properties, expected)
+
+    def test_device_option_handling_no_user_input(self):
+        user_options = {"image": "foo"}
+        options_factory = OptionsFactory("example_sw_product", user_options)
+        properties = options_factory().device_properties
+        expected = {'devicegroup' : 'examplegroup'}
+        self.assertEquals(properties, expected)
+
+
     def test_core_options_names(self):
-        names = OptionsFactory("example_sw_product", None).core_options_names
+        names = OptionsFactory("example_sw_product", {}).core_options_names
         expected = ('self', 'image', 'packages', 'plan', 'hosttest', 
                     'device', 'emmc', 'distribution_model', 'flasher', 
                     'testfilter', 'timeout', 'input_plugin')
@@ -60,8 +88,8 @@ class TestOptionsFactory(unittest.TestCase):
         options = OptionsFactory("example_sw_product",
                                  {"image" : "www.nokia.com",
                                   "email-attachments" : "on",
-                                  "device" : "foo:bar"})()
-        expected = {'foo' : 'bar'}
+                                  "device" : "devicegroup:foo"})()
+        expected = {'devicegroup': 'foo'}
         self.assertEquals(expected, options.device_properties)
         
 

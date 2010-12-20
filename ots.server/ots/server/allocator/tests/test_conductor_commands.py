@@ -26,56 +26,60 @@ from ots.server.allocator.conductor_commands import ConductorCommands
 class TestConductorCommands(unittest.TestCase):
 
     def test_command(self):
-        c = ConductorCommands("image_url", "emmc", 111,
-                            "storage_address", "testfilter", "flasher")
+        c = ConductorCommands("image_url", "emmc", '111', "storage_address",
+                              "testfilter", "flasher", '100')
         command = c._command("testpackages")
-        expected = ['-t', 'testpackages', 
-                    '-e', 'emmc', 
-                    '-f', 'testfilter', 
-                    '-u', 'image_url', 
-                    '--flasherurl', 'flasher', 
+        expected = ['--flasherurl', 'flasher',
+                    '-t', 'testpackages',
+                    '-u', 'image_url',
+                    '-m', '6000',
+                    '-e', 'emmc',
+                    '-f', 'testfilter',
                     '-c', 'storage_address',
-                    '-i', 111]
+                    '-i', '111']
         self.assertEquals(expected, command)
 
     def test_single(self):
         c = ConductorCommands("image_url", "emmc", "testrun_uuid",
-                            "storage_address", "testfilter", "flasher")
-        expected = [
+                            "storage_address", "testfilter", "flasher",
+                            "100")
+        expected =[
             ['conductor',
-             '-t', 'foo,bar', '-e', 'emmc', '-f', 'testfilter', 
-             '-u', 'image_url', '--flasherurl', 'flasher', 
-             '-c', 'storage_address', '-i', 'testrun_uuid', 
-             ';', 
-             '-t', 'baz', '-e', 'emmc', '-f', 'testfilter', 
-             '-u', 'image_url', '--flasherurl', 'flasher', 
+             '--flasherurl', 'flasher', '-t', 'foo,bar', '-u', 'image_url',
+             '-m', '6000', '-e', 'emmc', '-f', 'testfilter',
+             '-c', 'storage_address', '-i', 'testrun_uuid',
+             ';',
+             '--flasherurl', 'flasher', '-t', 'baz', '-u', 'image_url',
+             '-m', '6000', '-e', 'emmc', '-f', 'testfilter',
              '-c', 'storage_address', '-i', 'testrun_uuid', '-o']]
         command = c.single(["foo", "bar"], ["baz"])
         self.assertEquals(expected, command)
         
     def test_multiple(self):
         c = ConductorCommands("image_url", "emmc", "testrun_uuid",
-                            "storage_address", "testfilter", "flasher")
+                            "storage_address", "testfilter", "flasher",
+                            '100')
 
-        commands =  c.multiple(["foo", "bar"], ["baz"])
+        commands = c.multiple(["foo", "bar"], ["baz"])
         expected = [
-         ['conductor', 
-          '-t', 'foo', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
-          '--flasherurl', 'flasher', '-c', 'storage_address', 
-          '-i', 'testrun_uuid'], 
-         ['conductor',
-          '-t', 'bar', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
-          '--flasherurl', 'flasher', '-c', 'storage_address', 
-          '-i', 'testrun_uuid'], 
-         ['conductor',
-          '-t', 'baz', '-e', 'emmc', '-f', 'testfilter', '-u', 'image_url', 
-          '--flasherurl', 'flasher', '-c', 'storage_address', 
-          '-i', 'testrun_uuid', '-o']]
+                    ['conductor', '--flasherurl', 'flasher', '-t', 'foo',
+                     '-u', 'image_url', '-m', '6000', '-e', 'emmc',
+                     '-f', 'testfilter', '-c', 'storage_address',
+                     '-i', 'testrun_uuid'],
+                    ['conductor', '--flasherurl', 'flasher', '-t', 'bar',
+                     '-u', 'image_url', '-m', '6000', '-e', 'emmc',
+                     '-f', 'testfilter', '-c', 'storage_address',
+                     '-i', 'testrun_uuid'],
+                    ['conductor', '--flasherurl', 'flasher', '-t', 'baz',
+                     '-u', 'image_url', '-m', '6000', '-e', 'emmc',
+                     '-f', 'testfilter', '-c', 'storage_address',
+                     '-i', 'testrun_uuid', '-o']]
         self.assertEquals(expected, commands) 
 
     def test_multiple_no_pkgs(self):
         c = ConductorCommands("image_url", "emmc", "testrun_uuid",
-                            "storage_address", "testfilter", "flasher")
+                            "storage_address", "testfilter", "flasher",
+                            "100")
         self.assertRaises(ValueError, c.multiple, [], [])
         
 if __name__ == "__main__":

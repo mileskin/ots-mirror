@@ -53,7 +53,8 @@ options_dict = {"image" : "www.nokia.com" ,
                 "testfilter" : "",
                 "input_plugin" : "bifh",
                 "email" : "on",
-                "email-attachments" : "on"}
+                "email-attachments" : "on",
+                "notify_list": "asdf@asdf"}
 
 
 class PublishersStub(PublisherPluginBase):
