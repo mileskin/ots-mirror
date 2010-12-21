@@ -288,7 +288,8 @@ class Hub(object):
                 publishers.set_exception(testrun.exceptions[0])
                 
                 for error in testrun.exceptions:
-                    testrun_result.addError(TestCase, (error[0], error[1], None))
+                    testrun_result.addError(TestCase,
+                                            (error[0], error[1], None))
         except Exception, err:
             type, value, tb = sys.exc_info()
             testrun_result.addError(TestCase, (type, value, tb))
@@ -316,6 +317,19 @@ class Hub(object):
             sandbox.exc_info = (None, None, None)
         else:
             testrun_result = self._testrun()
+        # TODO: Whats the result format in publisher interface???????
         self._publishers.set_testrun_result(testrun_result)
         self._publishers.publish()
+        result_string = result_to_string(testrun_result)
+        LOG.info("Testrun finished with result: %s" % result_string)
         return testrun_result
+
+# TODO: Move to more suitable place? This same value should be reported in email
+# etc.
+def result_to_string(testrun_result):
+    if testrun_result.wasSuccessful():
+        return "PASS"
+    elif testrun_result.failures:
+        return "FAIL"
+    else:
+        return "ERROR"

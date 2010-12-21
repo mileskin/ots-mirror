@@ -32,7 +32,7 @@ import logging
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from SocketServer import ForkingMixIn
 from ots.server.server_config_filename import server_config_filename
-from ots.server.hub.api import Hub 
+from ots.server.hub.api import Hub, result_to_string
 from ots.server.distributor.api import TaskRunner
 
 
@@ -88,22 +88,17 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
     @param options_dict: A dictionary of options
     """
     
-    try:
-        LOG.info(("Incoming request: program: %s,"\
+    LOG.info(("Incoming request: program: %s,"\
                   " request: %s, notify_list: %s, "\
                   "options: %s") %\
-                  (sw_product, request_id, notify_list, options_dict))
+                 (sw_product, request_id, notify_list, options_dict))
 
-        options_dict["notify_list"] = notify_list
-        hub = Hub(sw_product, request_id, **options_dict)
-        if DEBUG:
-            hub._taskrunner = MockTaskRunnerResultsPass()
-        if hub.run():
-            return "PASS"
-        else:
-            return "FAIL"
-    except:
-        return "ERROR"
+    options_dict["notify_list"] = notify_list
+
+    hub = Hub(sw_product, request_id, **options_dict)
+    if DEBUG:
+        hub._taskrunner = MockTaskRunnerResultsPass()
+    return result_to_string(hub.run())
 
     
 def main(is_logging = False):
