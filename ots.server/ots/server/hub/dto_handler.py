@@ -107,7 +107,9 @@ class DTOHandler(object):
         data to the handler depending on <type>
         """
         if isinstance(dto, Exception):
-            raise dto
+            LOG.error("Exception from worker: %s" % Exception )
+            #raise dto
+
         elif isinstance(dto, LogRecord):
             logger = logging.getLogger(dto.name)
             logger.log(dto.levelno, dto.msg)

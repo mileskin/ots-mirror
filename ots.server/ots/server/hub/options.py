@@ -176,8 +176,8 @@ class Options(object):
         @return: Test execution timeout in minutes
         """
         if self._timeout is None:
-            self._timeout = '0' 
-        return self._timeout
+            self._timeout = 0
+        return int(self._timeout)
 
     ############################
     # HELPERS
