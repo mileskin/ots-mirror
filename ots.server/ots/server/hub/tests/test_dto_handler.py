@@ -80,9 +80,10 @@ class TestDTOHandler(unittest.TestCase):
         dto_handler = DTOHandler()
         class TestException(Exception):
             pass
-        self.assertRaises(TestException, dto_handler._callback, 
-                          signal = None, 
-                          dto = TestException())
+        
+        dto_handler._callback(signal = None, dto = TestException())
+        self.assertEquals(len(dto_handler.exceptions), 1)
+        self.assertTrue(isinstance(dto_handler.exceptions[0], TestException))
 
     def test_callback_log_record(self):
       

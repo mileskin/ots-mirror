@@ -43,6 +43,7 @@ class DTOHandler(object):
      - tested_packages
      - expected_packages#
      - monitors
+     - exceptions
 
     OTS_Exceptions are re-raised
     LogRecords are logged
@@ -54,7 +55,7 @@ class DTOHandler(object):
         self.tested_packages = None
         self.expected_packages = None
         self.monitors = []
-        
+        self.exceptions = []
         DTO_SIGNAL.connect(self._callback)
 
     ###########################################
@@ -107,9 +108,7 @@ class DTOHandler(object):
         data to the handler depending on <type>
         """
         if isinstance(dto, Exception):
-            LOG.error("Exception from worker: %s" % Exception )
-            #raise dto
-
+            self.exceptions.append(dto)
         elif isinstance(dto, LogRecord):
             logger = logging.getLogger(dto.name)
             logger.log(dto.levelno, dto.msg)
