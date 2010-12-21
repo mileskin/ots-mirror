@@ -170,9 +170,9 @@ class TestHubProperties(unittest.TestCase):
 
     def test_options(self):
         hub = Hub(111, 111, image = "foo")
-        self.assertEquals('0', hub.options.timeout)
+        self.assertEquals(0, hub.options.timeout)
         hub = Hub("example_sw_product", 1111, image = "foo")
-        self.assertEquals('60', hub.options.timeout)
+        self.assertEquals(60, hub.options.timeout)
 
     def test_taskrunner(self):
         hub = Hub("example_sw_product", 111, **options_dict)
