@@ -166,6 +166,10 @@ class MockTaskRunnerTimeout(object):
 class MockTaskRunnerError(object):
 
     def run(self):
+        pkgs = Packages("hardware_test", ["pkg1-tests"])
+        DTO_SIGNAL.send(sender = "MockTaskRunner",
+                               dto = pkgs)
+
         exc = OTSException("mock task runner", 6310)
         DTO_SIGNAL.send(sender = "MockTaskRunner", 
                                dto = exc)

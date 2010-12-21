@@ -58,7 +58,7 @@ from traceback import format_exception
 
 from unittest import TestCase
 from unittest import TestResult
-
+from copy import deepcopy
 import ots.server
 
 from ots.server.allocator.api import primed_taskrunner
@@ -69,7 +69,7 @@ from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
 from ots.server.hub.options_factory import OptionsFactory
 
-LOG = logging.getLogger('')
+LOG = logging.getLogger(__name__)
 
 
 DEBUG = False
@@ -124,14 +124,24 @@ class Hub(object):
                                       **self.extended_options_dict)
         sandbox_is_on = False
         LOG.debug("Publishers initilialised... sandbox switched off...")
-        LOG.info("OTS Server. version '%s'"%(ots.server.__VERSION__))
+        LOG.info("OTS Server. version '%s'" % (ots.server.__VERSION__))
+
+        # Log incoming options to help testrun debugging.
+        # These need to match the xmlrpc interface options!
         try:
-            LOG.info("sw_product: '%s"%(sw_product))
-            LOG.info("request_id: '%s"%(request_id))
+            incoming_options = deepcopy(kwargs)
+            notify_list = ""
+            if "notify_list" in incoming_options.keys():
+                notify_list = incoming_options["notify_list"]
+                del incoming_options["notify_list"]
+            LOG.info(("Incoming request: program: %s, request: %s, " \
+                          "notify_list: %s, options: %s")\
+                         % (sw_product,
+                            request_id,
+                            notify_list,
+                            incoming_options))
         except ValueError:
             pass
-        LOG.info("kwargs: '%s'"%(kwargs))
-        
     #############################################
     # Sandboxed Properties
     #############################################
@@ -258,12 +268,6 @@ class Hub(object):
             testrun.run_test = taskrunner.run
             testrun_result.addSuccess(TestCase)if testrun.run() else \
                   testrun_result.addFailure(TestCase, (None, None, None))
-            
-            publishers.set_expected_packages(testrun.expected_packages)
-            publishers.set_tested_packages(testrun.tested_packages)
-            publishers.set_results(testrun.results)
-            publishers.set_monitors(testrun.monitors)
-           
         except Exception, err:
             LOG.debug("Testrun Exception: %s"%(err))
             LOG.debug(traceback.format_exc())
@@ -272,6 +276,23 @@ class Hub(object):
             testrun_result.addError(TestCase, (type, value, tb))
             if DEBUG:
                 raise
+        # Quick and dirty hack to make all available information published
+        try:
+            publishers.set_expected_packages(testrun.expected_packages)
+            publishers.set_tested_packages(testrun.tested_packages)
+            publishers.set_results(testrun.results)
+            publishers.set_monitors(testrun.monitors)
+            if testrun.exceptions:
+                # TODO: we should publish all exceptions, or just start
+                #       using TestrunResult for error reporting
+                publishers.set_exception(testrun.exceptions[0])
+                
+                for error in testrun.exceptions:
+                    testrun_result.addError(TestCase, (error[0], error[1], None))
+        except Exception, err:
+            type, value, tb = sys.exc_info()
+            testrun_result.addError(TestCase, (type, value, tb))
+
         return testrun_result
 
     ################################
@@ -285,7 +306,6 @@ class Hub(object):
         @rtype : C{unittest.TestResult}
         @rparam : A TestResult 
         """
-        
         if sandbox.exc_info !=  (None, None, None): 
             LOG.error("Sandbox Error. Forced Initialisation")
             etype, value, tb = sandbox.exc_info
@@ -299,4 +319,3 @@ class Hub(object):
         self._publishers.set_testrun_result(testrun_result)
         self._publishers.publish()
         return testrun_result
-

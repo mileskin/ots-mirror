@@ -52,8 +52,8 @@ class DTOHandler(object):
 
     def __init__(self):
         self.results = []
-        self.tested_packages = None
-        self.expected_packages = None
+        self.tested_packages = {}
+        self.expected_packages = {}
         self.monitors = []
         self.exceptions = []
         DTO_SIGNAL.connect(self._callback)
@@ -72,7 +72,7 @@ class DTOHandler(object):
         environment = result.environment
         LOG.debug("Received results for %s"%(environment))
         packages = Packages(environment, [result.package])
-        if self.tested_packages is None:
+        if not self.tested_packages:
             self.tested_packages = packages
         else:
             self.tested_packages.update(packages)
@@ -86,7 +86,7 @@ class DTOHandler(object):
         Handler for Packages
         """
         LOG.debug("Received packages: %s" % (packages))
-        if self.expected_packages is None:
+        if not self.expected_packages:
             self.expected_packages = packages
         else:
             self.expected_packages.update(packages)

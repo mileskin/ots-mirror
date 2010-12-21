@@ -81,7 +81,7 @@ class FaultyPublishersStub(PublisherPluginBase):
         self.testrun_result = testrun_result
     
     def set_monitors(self, monitors):
-        1/0
+        raise Exception("Failing publisher plugin")
 
 class TestHubRun(unittest.TestCase):
 
@@ -112,7 +112,8 @@ class TestHubRun(unittest.TestCase):
         self.assertTrue(isinstance(hub._publishers.exception, OTSException))
         testrun_result = hub._publishers.testrun_result
         self.assertFalse(testrun_result.wasSuccessful())
-        self.assertEquals(1, len(testrun_result.errors))
+        # We have more than one error because no test results are available
+        self.assertEquals(2, len(testrun_result.errors))
 
     def test_server_faulty_error(self):
         mock_taskrunner = MockTaskRunnerError()
@@ -123,7 +124,8 @@ class TestHubRun(unittest.TestCase):
         hub.run()
         testrun_result = hub._publishers.testrun_result
         self.assertFalse(testrun_result.wasSuccessful())
-        self.assertEquals(1, len(testrun_result.errors))
+        # We have more than one error because no test results are available
+        self.assertEquals(2, len(testrun_result.errors))
 
 class TestHubProperties(unittest.TestCase):
 
@@ -189,7 +191,6 @@ class TestHubFailSafePublishing(unittest.TestCase):
         hub.run()
         self.assertFalse(hub._publishers.testrun_result.wasSuccessful())
         self.assertTrue(isinstance(hub._publishers.exception, ValueError))
-        
 
 if __name__ == "__main__":
     unittest.main()

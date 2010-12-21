@@ -70,7 +70,7 @@ class Testrun(object):
         self.is_hw_enabled = is_hw_enabled
         self.is_host_enabled = is_host_enabled
         self.insignificant_tests_matter = insignificant_tests_matter
-
+        self.results = []
 
     def _results_xmls_iter(self):
         #FIXME
@@ -91,6 +91,15 @@ class Testrun(object):
         @rparam : The Test Packages that should have been run
         """
         return self._dto_handler.expected_packages
+
+    @property 
+    def exceptions(self):
+        """
+        @rtype : C{list} of C{Exception}
+        @rparam : Exceptions raised during testrun
+        """
+        return self._dto_handler.exceptions
+
         
     @property
     def tested_packages(self):
