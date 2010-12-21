@@ -69,7 +69,7 @@ from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
 from ots.server.hub.options_factory import OptionsFactory
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger()
 
 
 DEBUG = False
