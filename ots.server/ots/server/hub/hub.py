@@ -269,8 +269,7 @@ class Hub(object):
             testrun_result.addSuccess(TestCase)if testrun.run() else \
                   testrun_result.addFailure(TestCase, (None, None, None))
         except Exception, err:
-            LOG.debug("Testrun Exception: %s"%(err))
-            LOG.debug(traceback.format_exc())
+            LOG.debug("Testrun Exception: %s"%(err), exc_info=True)
             type, value, tb = sys.exc_info()
             publishers.set_exception(value)
             testrun_result.addError(TestCase, (type, value, tb))
@@ -278,22 +277,24 @@ class Hub(object):
                 raise
         # Quick and dirty hack to make all available information published
         try:
+            LOG.info("Publishing results")
             publishers.set_expected_packages(testrun.expected_packages)
             publishers.set_tested_packages(testrun.tested_packages)
             publishers.set_results(testrun.results)
             publishers.set_monitors(testrun.monitors)
             if testrun.exceptions:
+                LOG.debug("Publishing errors")
                 # TODO: we should publish all exceptions, or just start
                 #       using TestrunResult for error reporting
                 publishers.set_exception(testrun.exceptions[0])
-                
+
                 for error in testrun.exceptions:
                     testrun_result.addError(TestCase,
-                                            (error[0], error[1], None))
+                                            (error, error.strerror, None))
         except Exception, err:
             type, value, tb = sys.exc_info()
             testrun_result.addError(TestCase, (type, value, tb))
-
+            LOG.debug("publishing failed", exc_info=True)
         return testrun_result
 
     ################################
@@ -332,4 +333,5 @@ def result_to_string(testrun_result):
     elif testrun_result.failures:
         return "FAIL"
     else:
+#        LOG.debug("Testrun failure %s" % testrun_result.errors)
         return "ERROR"

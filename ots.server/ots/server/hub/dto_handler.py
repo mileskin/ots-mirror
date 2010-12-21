@@ -108,6 +108,8 @@ class DTOHandler(object):
         data to the handler depending on <type>
         """
         if isinstance(dto, Exception):
+            logger = logging.getLogger(__name__)
+            logger.error(dto)
             self.exceptions.append(dto)
         elif isinstance(dto, LogRecord):
             logger = logging.getLogger(dto.name)
