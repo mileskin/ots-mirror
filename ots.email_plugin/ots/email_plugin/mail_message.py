@@ -168,6 +168,10 @@ class MailMessage(object):
         @rtype : C{str}
         @rtype : The subject
         """
+        
+        if result is None:
+            result = "Failed"
+        
         return self.subject_template % (sw_product, 
                                         request_id, 
                                         result)
@@ -224,7 +228,7 @@ class MailMessage(object):
         msg["Subject"] = self._subject(request_id, sw_product, result)
         msg["From"] = self.from_address
         msg["To"] = ", ".join(notify_list)
-        msg.attach(MIMEText(self._body(request_id, sw_product, testrun_uuid,
+        msg.attach(MIMEText(self._body(request_id, testrun_uuid, sw_product,
                                        result, exception, tested_packages, 
                                        source_uris, build_url)))
         if result_files and email_attachments:

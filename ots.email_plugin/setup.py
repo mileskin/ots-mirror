@@ -31,5 +31,5 @@ setup(
       packages = find_packages(),
       entry_points={"ots.publisher_plugin":
             ["publisher_klass "\
-             "= ots.email_plugin.email_plugin"]},
+             "= ots.email_plugin.email_plugin:EmailPlugin"]},
      )

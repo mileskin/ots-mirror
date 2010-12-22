@@ -56,8 +56,7 @@ class EmailPlugin(PublisherPluginBase):
     Sends the email to the `notify_list`
     """
 
-    def __init__(self, request_id, testrun_uuid, sw_product, image,
-                       **kwargs):
+    def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
         """
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
@@ -232,24 +231,24 @@ class EmailPlugin(PublisherPluginBase):
         """
         self._tested_packages = packages
 
-    def publish(self):
+    def publish(self,):
         """
         Sends the email
         """
-        if not self.is_email_on():
+        if not self.is_email_on:
             LOG.info("email plugin disabled")
             return
         
         if self._notify_list is not None:
             failed_addresses = None
             server_url = self._smtp_server
-            print "Using smtp server: '%s'"%(server_url)
+            LOG.info( "Using smtp server: '%s'"%(server_url) )
             mail_server = smtplib.SMTP(server_url)
             try:
                 failed_addresses = mail_server.sendmail(self._from_address,
                                                         self._notify_list, 
                                                         self.mail_message)
-            
+                LOG.info( "Email sent" )
             except smtplib.SMTPRecipientsRefused:
                 failed_addresses = self._notify_list
             finally:   
