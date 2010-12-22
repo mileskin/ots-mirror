@@ -141,8 +141,8 @@ class Publishers(PublisherPluginBase):
         
     def set_testrun_result(self, testrun_result):
         """
-        @type packages : C{ots.results.testrun_result
-        @param packages: The result of the Testrun
+        @type testrun_result : C{str}
+        @param testrun_result: The result of the Testrun
         """
         list(self._delegator_iter("set_testrun_result", testrun_result))
         

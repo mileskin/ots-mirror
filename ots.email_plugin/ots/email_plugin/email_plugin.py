@@ -86,13 +86,13 @@ class EmailPlugin(PublisherPluginBase):
         self.testrun_uuid = testrun_uuid
         self.sw_product = sw_product
         self.image = image
-        self._build_url =  kwargs.get("build_url")
+        self._build_url = kwargs.get("build_url")
         config_file = server_config_filename()
 
         config = configobj.ConfigObj(config_file).get("ots.email_plugin")
         #
         self._email = kwargs.get("email", config.get("email", "on"))
-        self._email_attachments = kwargs.get("email-attachments", 
+        self._email_attachments = kwargs.get("email_attachments", 
                                   config.get("email-attachments", "on"))
         #
         self._mail_message = None
@@ -205,7 +205,7 @@ class EmailPlugin(PublisherPluginBase):
     
     def set_testrun_result(self, testrun_result):
         """
-        @type: C{ots.common.testrun_result}
+        @type: C{str}
         @param: The testrun result
         """
         self._testrun_result = testrun_result

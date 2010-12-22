@@ -52,7 +52,7 @@ def format_result(result, exception):
     @rtype: C{str}
     @rparam: The formatted result 
     """
-    result = result_2_string(result)
+
     if exception is not None:
         return "%s (%s)" % (result, exception.strerror)
     #FIXME: verbose code
@@ -169,9 +169,6 @@ class MailMessage(object):
         @rtype : The subject
         """
         
-        if result is None:
-            result = "Failed"
-        
         return self.subject_template % (sw_product, 
                                         request_id, 
                                         result)
@@ -197,7 +194,7 @@ class MailMessage(object):
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
 
-        @type: C{ots.common.testrun_result}
+        @type: C{str}
         @param: The testrun result
         
         @type results : C{list} of C{ots.common.dto.results}
@@ -233,8 +230,8 @@ class MailMessage(object):
                                        source_uris, build_url)))
         if result_files and email_attachments:
             try:
-                attachment = attachment(result_files, testrun_uuid)
-                msg.attach(attachment)
+                attach = attachment(testrun_uuid, result_files)
+                msg.attach(attach)
             except:
                 LOG.error("Error creating email attachement:",
                       exc_info = True)
