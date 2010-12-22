@@ -101,7 +101,6 @@ class Options(object):
         @rtype: C{list} of C{str}
         @return: Packages for hardware testing
         """
-        #TODO check definition
         return string_2_list(self._packages)
 
     @property
@@ -110,7 +109,6 @@ class Options(object):
         @rtype: C{list} of C{str}
         @return: Packages for host testing
         """
-        #TODO check definition
         return string_2_list(self._hosttest)
 
     @property
@@ -127,8 +125,13 @@ class Options(object):
         @rtype: C{dict}
         @return: A dictionary of device properties this testrun requires
         """
-        return self._device
-
+        ret_val = {}
+        if self._device is not None:
+            if isinstance(self._device, dict):
+                ret_val = self._device
+            else:
+                ret_val = string_2_dict(self._device)
+        return ret_val 
 
     @property
     def emmc(self):
@@ -173,8 +176,8 @@ class Options(object):
         @return: Test execution timeout in minutes
         """
         if self._timeout is None:
-            self._timeout = 0 
-        return self._timeout
+            self._timeout = 0
+        return int(self._timeout)
 
     ############################
     # HELPERS

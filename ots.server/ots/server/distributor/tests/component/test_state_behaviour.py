@@ -133,7 +133,6 @@ class TestStateBehaviour(unittest.TestCase):
 
         def cb_handler(signal, dto, **kwargs):
             if isinstance(dto, Exception):
-                print "cb_handler  Exception"
                 self.is_exception_raised = True
 
         DTO_SIGNAL.connect(cb_handler)

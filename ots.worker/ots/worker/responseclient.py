@@ -112,7 +112,7 @@ class ResponseClient(object):
         """Calls OTSMessageIO to cerate testrun error message"""
         #FIXME hopefully setting exceptions will come to an end in 0.9
         exception = OTSException(error_code, error_info)
-        raise exception
+        self._send_message(pack_message(exception))
       
     def add_executed_packages(self, environment, packages):
         """Calls OTSMessageIO to create test package list"""

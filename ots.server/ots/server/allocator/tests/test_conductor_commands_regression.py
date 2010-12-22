@@ -59,7 +59,7 @@ class TestConductorCommandsRegression(unittest.TestCase):
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
-                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '1800']
+                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '3600']
 
         result = conductor_command(options,
                                    host_testing = False)[0]
@@ -72,7 +72,7 @@ class TestConductorCommandsRegression(unittest.TestCase):
                    'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
-                    '-i', '1', '-c', 'foo', '-m', '1800']
+                    '-i', '1', '-c', 'foo', '-m', '3600']
         result = conductor_command(options, 
                                    host_testing = False)[0]
         self.assert_commands_equal(expected, result)
@@ -86,7 +86,7 @@ class TestConductorCommandsRegression(unittest.TestCase):
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
-                    '--flasherurl', "asdfasdf/asdf", '-m', '1800']
+                    '--flasherurl', "asdfasdf/asdf", '-m', '3600']
 
         result = conductor_command(options, 
                                    host_testing = False)[0]
@@ -102,7 +102,7 @@ class TestConductorCommandsRegression(unittest.TestCase):
                     '-i', '1',
                     '-c', 'foo',
                    '--flasherurl', "asdfasdf/asdf",
-                    "-t", "my-tests", '-m', '1800']
+                    "-t", "my-tests", '-m', '3600']
 
         result = conductor_command(options, 
                                    host_testing = False)[0]

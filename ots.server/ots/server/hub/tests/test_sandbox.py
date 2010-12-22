@@ -20,7 +20,41 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.server.hub.hub import Hub, result_to_string
-from ots.server.hub.application_id import get_application_id
-from ots.server.hub.options_factory import OptionsFactory
-from ots.server.hub.options import Options
+import unittest
+
+from ots.server.hub.sandbox import sandbox
+
+class Stub(object):
+
+    @sandbox(7)
+    def my_func(self, *args):
+        return 4
+
+    @sandbox(8)
+    def exception_func(self):
+        raise ValueError
+
+
+class TestSandbox(unittest.TestCase):
+
+    def setUp(self):
+        self.stub = Stub()
+
+    def test_non_invasive(self):
+        self.assertEquals(4, self.stub.my_func(4,5))
+
+    def test_exception_is_on(self):
+        sandbox.is_on = True
+        self.assertEquals(8, self.stub.exception_func())
+        
+    #FIXME unexpected behaviour for class scope variables
+    #under nose these tests work in the CL
+
+        #self.assertTrue(isinstance(sandbox.exc_info[1], ValueError))
+
+    #def test_exception_is_off(self):
+    #    sandbox.is_on = False
+    #    self.assertRaises(ValueError, self.stub.exception_func)
+
+if __name__ == "__main__":
+    unittest.main()

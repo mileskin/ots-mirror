@@ -34,11 +34,15 @@ At present the callable run_test needs setting
 prior to the run 
 """
 
+import logging
+
 from ots.results.api import TestrunResult
 from ots.results.api import is_valid_run
 from ots.results.api import go_nogo_gauge
 
 from ots.server.hub.dto_handler import DTOHandler
+
+LOG = logging.getLogger(__name__)
 
 class Testrun(object):
     """
@@ -66,7 +70,7 @@ class Testrun(object):
         self.is_hw_enabled = is_hw_enabled
         self.is_host_enabled = is_host_enabled
         self.insignificant_tests_matter = insignificant_tests_matter
-
+        self.results = []
 
     def _results_xmls_iter(self):
         #FIXME
@@ -87,6 +91,15 @@ class Testrun(object):
         @rparam : The Test Packages that should have been run
         """
         return self._dto_handler.expected_packages
+
+    @property 
+    def exceptions(self):
+        """
+        @rtype : C{list} of C{Exception}
+        @rparam : Exceptions raised during testrun
+        """
+        return self._dto_handler.exceptions
+
         
     @property
     def tested_packages(self):
@@ -126,4 +139,8 @@ class Testrun(object):
             result_xmls = list(self._results_xmls_iter())
             ret_val = go_nogo_gauge(result_xmls,
                                     self.insignificant_tests_matter)
+        if ret_val:
+            LOG.debug("Testrun Passed")
+        else:
+            LOG.debug("Testrun Failed")
         return ret_val

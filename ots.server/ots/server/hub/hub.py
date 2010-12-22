@@ -32,35 +32,69 @@ The role of the Hub is the high level management of a single Testrun.
 Specifically:
 
  - Receive test request from third-party client
+ - Get the Options
  - Allocate Tasks 
  - Dispatch Testrun
  - Receives results
  - Publish results
 
+Construction of the Options is quite involved 
+To allow the best possible chance of Publishing any 
+ValueErrors in the input parameters. 
+
+The execution of the code for the generation of Parameters 
+essential for the intialisation of the Publishers is controlled
+by the `sandbox` if exceptions are raised they are cached and 
+a default value is returned
 """
 
 import sys
 import os
 import logging
 import logging.config
-import uuid
-import configobj
 import traceback
+import uuid
+from traceback import format_exception
+
+from unittest import TestCase
+from unittest import TestResult
 from copy import deepcopy
+import ots.server
 
 from ots.server.allocator.api import primed_taskrunner
 
+import ots.server.hub.sandbox as sandbox_module
+from ots.server.hub.sandbox import sandbox
 from ots.server.hub.testrun import Testrun
-from ots.server.hub.options_factory import OptionsFactory
-from ots.server.hub.application_id import get_application_id
 from ots.server.hub.publishers import Publishers
+from ots.server.hub.options_factory import OptionsFactory
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger()
+
+
+DEBUG = False
+
+#####################################
+# 'ESSENTIAL' PARAMETERS DEFAULTS
+#####################################
+
+
+#Fallback parameters required for Publishing
+
+EXAMPLE_SW_PRODUCT = "example_sw_product"
+DEFAULT_REQUEST_ID = "default_request_id"
+NO_IMAGE = "no_image"
+DEFAULT_EXTENDED_OPTIONS_DICT = {} 
+
+
+######################################
+# HUB
+######################################
+
 
 class Hub(object):
-
     """
-    The Hub is the Keystone of the OTS system
+    The Hub is the Keystone of the OTS system.
     """
 
     def __init__(self, sw_product, request_id, **kwargs):
@@ -75,70 +109,108 @@ class Hub(object):
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
         """
-        self.testrun_uuid = uuid.uuid1().hex 
-        # TODO: TEMPORARY LOG FILE. FIX LOGGING!
-        LOG_FILENAME = "/var/log/ots/ots_server_debug"
-        logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+        reload(sandbox_module)
+        self._sw_product = sw_product
+        self._request_id = request_id
+        self._testrun_uuid = None
 
-        error = None
-        self.sw_product = sw_product.lower()
-        self.request_id = request_id
-        image = ""
-        
-            #LOG.debug("Initialising options with: '%s'"%(kwargs))
-        options_factory = OptionsFactory(sw_product, kwargs)
-        try:
-            self.options = options_factory()
-            image = self.options.image
-        except Exception, exp:
-            # Store exception and raise it only after publishers are loaded
-            error = exp
-
-        LOG.debug("Initializing publishers")
-        self.publishers = Publishers(request_id, 
-                                     self.testrun_uuid, 
-                                     sw_product,
-                                     image,
-                                     **options_factory.extended_options_dict)
-            
+        self._options_factory = OptionsFactory(self.sw_product, kwargs)
         self._taskrunner = None
+        self._init_logging()
+        self._publishers = Publishers(self.request_id, 
+                                      self.testrun_uuid, 
+                                      self.sw_product, 
+                                      self.image,
+                                      **self.extended_options_dict)
+        sandbox_is_on = False
+        LOG.debug("Publishers initilialised... sandbox switched off...")
+        LOG.info("OTS Server. version '%s'" % (ots.server.__VERSION__))
 
-        # Log incoming options to help testrun debugging
-        
-        incoming_options = deepcopy(kwargs)
-        notify_list = ""
-        if "notify_list" in incoming_options.keys():
-            notify_list = incoming_options["notify_list"]
-            del incoming_options["notify_list"]
-        string = ("Incoming request: program: %s, request: %s, " \
-                      "notify_list: %s, options: %s")\
-                      % (sw_product,
-                         request_id,
-                         notify_list,
-                         incoming_options)
-        LOG.info(string)
-        # This is needed to get initialization errors published
-        if error:
-            LOG.error(str(error), exc_info=True)
-            raise error
-        
-    #########################
-    # HELPERS
-    #########################
+        # Log incoming options to help testrun debugging.
+        # These need to match the xmlrpc interface options!
+        try:
+            incoming_options = deepcopy(kwargs)
+            notify_list = ""
+            if "notify_list" in incoming_options.keys():
+                notify_list = incoming_options["notify_list"]
+                del incoming_options["notify_list"]
+            LOG.info(("Incoming request: program: %s, request: %s, " \
+                          "notify_list: %s, options: %s")\
+                         % (sw_product,
+                            request_id,
+                            notify_list,
+                            incoming_options))
+        except ValueError:
+            pass
+    #############################################
+    # Sandboxed Properties
+    #############################################
 
-    @staticmethod
-    def _init_logging():
+    @property
+    @sandbox(EXAMPLE_SW_PRODUCT)
+    def sw_product(self):
         """
-        Initialise the logging from the configuration file
+        @type sw_product: C{str}
+        @param sw_product: Name of the sw product this testrun belongs to
         """
-        #FIXME
-        dirname = os.path.dirname(os.path.abspath(__file__))
-        conf = os.path.join(dirname, "logging.conf")
-        logging.config.fileConfig(conf)
+        return str(self._sw_product).lower()
+       
+    @property
+    @sandbox(DEFAULT_REQUEST_ID)
+    def request_id(self):
+        """
+        @type request_id: C{str}
+        @param request_id: An identifier for the request from the client
+        """
+        return str(self._request_id)
 
-    ###############################
-    # TASKRUNNER
-    ##############################
+    @property
+    @sandbox(DEFAULT_EXTENDED_OPTIONS_DICT)
+    def extended_options_dict(self):
+        return self._options_factory.extended_options_dict
+
+    @property
+    @sandbox(NO_IMAGE)
+    def image(self):
+        return self._options_factory().image
+
+
+    #############################################
+    # Properties
+    #############################################
+
+    @property
+    def is_hw_enabled(self):
+        """
+        @type is_hw_enabled: C{bool}
+        @param is_hw_enabled: Is hw testing enabled?
+        """        
+        hw_packages = self.options.hw_packages
+        return bool(len(hw_packages))
+     
+    @property 
+    def is_host_enabled(self):
+        """
+        @type is_host_enabled: C{bool}
+        @param is_host_enabled: Is host testing enabled
+        """
+        host_packages = self.options.host_packages
+        return  bool(len(host_packages))
+      
+    @property
+    def testrun_uuid(self):
+        """
+        @type testrun_uuid: C{str}
+        @param testrun_uuid: A globally unique identifier for the testrun
+        """
+        if self._testrun_uuid is None:
+            LOG.info("Testrun ID: '%s'"%(self._testrun_uuid))
+            self._testrun_uuid = uuid.uuid1().hex
+        return self._testrun_uuid
+
+    @property
+    def options(self):
+        return self._options_factory()
 
     @property 
     def taskrunner(self):
@@ -150,19 +222,80 @@ class Hub(object):
         rparam : A Taskrunner loaded with Tasks
         """
         if self._taskrunner is None:
-            self._taskrunner = primed_taskrunner(self.testrun_uuid, 
-                                                 self.options.timeout,
-                                                 self.options.priority,
-                                                 self.options.device_properties,
-                                                 self.options.image,
-                                                 self.options.hw_packages,
-                                                 self.options.host_packages,
-                                                 self.options.emmc,
-                                                 self.options.testfilter,
-                                                 self.options.flasher,
-                                                 self.publishers)
-
+            self._taskrunner = primed_taskrunner(
+                                    self.testrun_uuid, 
+                                    self.options.timeout,
+                                    self.options.priority,
+                                    self.options.device_properties,
+                                    self.options.image,
+                                    self.options.hw_packages,
+                                    self.options.host_packages,
+                                    self.options.emmc,
+                                    self.options.testfilter,
+                                    self.options.flasher,
+                                    self._publishers)
         return self._taskrunner
+
+    #########################
+    # HELPERS
+    #########################
+
+    @staticmethod
+    def _init_logging():
+        """
+        Initialise the logging from the configuration file
+        """
+        dirname = os.path.dirname(os.path.abspath(__file__))
+        conf = os.path.join(dirname, "logging.conf")
+        if os.path.isfile(conf):
+            logging.config.fileConfig(conf)
+                
+    def _testrun(self):
+        """
+        Start a Testrun and populate the Publishers
+
+        @rtype : C{unittest.TestResult}
+        @rparam : A TestResult 
+        """    
+        testrun_result = TestResult()
+        try:
+            publishers = self._publishers
+            testrun = Testrun(self.is_hw_enabled,
+                              self.is_host_enabled)
+            taskrunner = self.taskrunner
+
+            #FIXME: Cheap hack to make testable
+            testrun.run_test = taskrunner.run
+            testrun_result.addSuccess(TestCase)if testrun.run() else \
+                  testrun_result.addFailure(TestCase, (None, None, None))
+        except Exception, err:
+            LOG.debug("Testrun Exception: %s"%(err), exc_info=True)
+            type, value, tb = sys.exc_info()
+            publishers.set_exception(value)
+            testrun_result.addError(TestCase, (type, value, tb))
+            if DEBUG:
+                raise
+        # Quick and dirty hack to make all available information published
+        try:
+            LOG.info("Publishing results")
+            publishers.set_expected_packages(testrun.expected_packages)
+            publishers.set_tested_packages(testrun.tested_packages)
+            publishers.set_results(testrun.results)
+            publishers.set_monitors(testrun.monitors)
+            if testrun.exceptions:
+                LOG.debug("Publishing errors")
+                # TODO: we should publish all exceptions, or just start
+                #       using TestrunResult for error reporting
+                publishers.set_exception(testrun.exceptions[0])
+
+                for error in testrun.exceptions:
+                    testrun_result.addError(TestCase,
+                                            (error, error.strerror, None))
+        except Exception, err:
+            type, value, tb = sys.exc_info()
+            testrun_result.addError(TestCase, (type, value, tb))
+            LOG.debug("publishing failed", exc_info=True)
+        return testrun_result
 
     ################################
     # RUN
@@ -172,43 +305,33 @@ class Hub(object):
         """
         Start a Testrun and publish the data
 
-        @rtype : C{bool}
-        @rparam : True if the Testrun passes otherwise False
-        """    
-        testrun_result = None
-        ret_val = False
-        LOG.debug("Initialising Testrun")
-        try:
-            is_hw_enabled = bool(len(self.options.hw_packages))
-            is_host_enabled = bool(len(self.options.host_packages))
-            testrun = Testrun(is_hw_enabled = is_hw_enabled, 
-                              is_host_enabled = is_host_enabled)
-            #FIXME: Cheap hack to make testable
-            testrun.run_test = self.taskrunner.run
-            testrun_result = testrun.run()
-            if testrun_result:
-                testrun_result_string = "PASS"
-            else:                
-                testrun_result_string = "FAIL"
-            # TODO: ERROR should be also published to publishers!!!
-            LOG.debug("Testrun finished with result: %s" \
-                          %(testrun_result_string))
-            self.publishers.set_testrun_result(testrun_result_string)
-            self.publishers.set_expected_packages(testrun.expected_packages)
-            self.publishers.set_tested_packages(testrun.tested_packages)
-            self.publishers.set_results(testrun.results)
-            self.publishers.set_monitors(testrun.monitors)
+        @rtype : C{unittest.TestResult}
+        @rparam : A TestResult 
+        """
+        if sandbox.exc_info !=  (None, None, None): 
+            LOG.error("Sandbox Error. Forced Initialisation")
+            etype, value, tb = sandbox.exc_info
+            str_tb = ''.join(format_exception(etype, value, tb, 50))
+            LOG.error(str_tb)
+            testrun_result = TestResult() 
+            testrun_result.addError(TestCase, (etype, value, tb))
+            sandbox.exc_info = (None, None, None)
+        else:
+            testrun_result = self._testrun()
+        # TODO: Whats the result format in publisher interface???????
+        self._publishers.set_testrun_result(testrun_result)
+        self._publishers.publish()
+        result_string = result_to_string(testrun_result)
+        LOG.info("Testrun finished with result: %s" % result_string)
+        return testrun_result
 
-        except Exception, err:
-            LOG.error(str(err), exc_info=True)
-            self.publishers.set_exception(sys.exc_info()[1])
-
-        self.publishers.publish()
-        if testrun_result:
-            ret_val = True
-            testrun_result_string = "PASS"
-        else:                
-            testrun_result_string = "FAIL"
-
-        LOG.info("Testrun finished with result: %s" % (testrun_result_string))
-        return ret_val
+# TODO: Move to more suitable place? This same value should be reported in email
+# etc.
+def result_to_string(testrun_result):
+    if testrun_result.wasSuccessful():
+        return "PASS"
+    elif testrun_result.failures:
+        return "FAIL"
+    else:
+#        LOG.debug("Testrun failure %s" % testrun_result.errors)
+        return "ERROR"

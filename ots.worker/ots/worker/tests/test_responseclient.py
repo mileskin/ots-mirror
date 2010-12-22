@@ -88,9 +88,15 @@ class TestResponseClient(unittest.TestCase):
     def test_set_error(self):
         error_info = "Flashing failed"
         error_code = "666"
-        self.assertRaises(OTSException, 
-                          self.client.set_error, error_info, error_code)
-      
+        self.client.set_error(error_info, error_code)
+        msg = self.channel.msg
+        self.assertTrue(msg)
+        content = loads(msg.body)
+        self.assertTrue(isinstance(content, OTSException))
+        self.assertEquals(content.errno, error_code)
+        self.assertEquals(content.strerror, error_info)
+
+
 
     def test_add_executed_packages(self):
         environment = "Flashing failed"

@@ -73,7 +73,7 @@ class ConductorCommands(object):
         @type flasher: C{str}
         @param flasher: The URL of the flasher
 
-        @type timeout: C{str}
+        @type timeout: C{int}
         @param timeout: The test run timeout in minutes
         """
         self.image_url = image_url 

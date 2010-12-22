@@ -40,10 +40,10 @@ class HardTimeoutException(OTSException):
     """Exception that is raised when hard timeout occurs."""
     errno = 6001
 
-class FailedAfterRetries(Exception):
+class FailedAfterRetries(OTSException):
     """Exception that is raised if command fails after retries."""
     pass
-class CommandFailed(Exception):
+class CommandFailed(OTSException):
     """Exception that is if command return value is not what is expected."""
     errno = 6002
     

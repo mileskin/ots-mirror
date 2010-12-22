@@ -22,17 +22,26 @@
 
 import os
 import configobj
-from copy import deepcopy
+import logging
+
 from ots.server.server_config_filename import server_config_filename
-from ots.server.hub.options import Options, string_2_dict
+
+from ots.server.hub.options import Options 
+from ots.server.hub.sandbox import sandbox
 
 """
 Safely create the Options API from a dictionary 
 setting configurable defaults
 """ 
 
-class OptionsFactoryException(Exception):
-    pass
+LOG = logging.getLogger(__name__)
+
+###################################
+# DEFAULTS 
+###################################
+
+CONFIG_FILE_OPTIONS_DICT = {}
+
 
 ###############################
 # OPTIONS FACTORY 
@@ -42,8 +51,15 @@ class OptionsFactory(object):
     """
     Factory for Options
 
-    Preprocesses the options dictionary 
-    Sorts the Options into Core and Extended Options
+    Essentially this is an Adaptation layer.
+    
+    It merges two input dictionaries:
+    
+        - The `options_dict` on the interface
+        - The config options arising from the sw_pdt selection
+
+
+    The output are "Core" and "Extended" Options.
     """
 
     aliases = {"image" : "image_url",
@@ -60,25 +76,8 @@ class OptionsFactory(object):
         @param options_dict: The dictionary of options
         """
         self._sw_product = sw_product
-        self._options_dict = self._apply_defaults(options_dict)
-
-    def _apply_defaults(self, options_dict):
-        #Get the default options for the sw product from conf file
-        defaults = self._default_options_dict(self._sw_product)
-        options = deepcopy(options_dict)
-        # Ugly hack to make default device property handling work
-        if "device" in options:
-            options["device"] = string_2_dict(options["device"])
-        if "device" in defaults and "device" in options:
-            defaults["device"].update(options["device"])
-            del options["device"]
-            
-        sanitised_options = self._sanitise_options(defaults)
-        sanitised_options.update(self._sanitise_options(options))
-        return sanitised_options
-
-
-    
+        self._options_dict = options_dict
+       
     #####################################
     # HELPER 
     #####################################
@@ -102,17 +101,18 @@ class OptionsFactory(object):
         @type sw_product : C{str}
         @param sw_product : The name of the software product
 
-        @rtype default_options_dict : C{dict}
+        @rtype default_options_dict : C{dict} or None
         @param default_options_dict : The dictionary of options
 
         Get the default options for the SW product
         """
         conf = server_config_filename()
         config = configobj.ConfigObj(conf).get('swproducts').get(sw_product)
-        # Moved to __call__ to make publishing exception possible
-#        if not config:
-#            raise OptionsFactoryException("Unknown SW Product")
-        return config or dict()
+        if not config:
+            pdts = configobj.ConfigObj(conf).get('swproducts').keys()
+            msg = "'%s' not found in sw products: %s"%(sw_product, pdts)
+            raise ValueError(msg)
+        return config
 
     #######################################
     # PROPERTIES
@@ -126,41 +126,66 @@ class OptionsFactory(object):
         rtype : C{tuple} of C{str}
         rparam : The core function names 
         """
-        
         names = Options.__init__.im_func.func_code.co_varnames
         return names
 
+    @property
+    @sandbox(CONFIG_FILE_OPTIONS_DICT)
+    def config_file_options_dict(self):
+        """
+        The options coming from the config file relating to 
+        the sw product
+
+        rtype : C{dict}
+        rparam : The Options from the config file
+        """
+        #Get the default options for the sw product from conf file
+        defaults = self._default_options_dict(self._sw_product)
+        return self._sanitise_options(defaults)
+       
     @property 
     def extended_options_dict(self):
         """
-        key, value pairs that aren't recognised are assumed 
-        to be part of the extended options
+        Extended options are key, value pairs that 
+        are not recognised as the core Option attributes
 
         rtype : C{dict}
         rparam : Additional Options passed to OTS  
         """
-        extended_options_dict = deepcopy(self._options_dict)
+        sanitised_options_dict = self._sanitise_options(self._options_dict)
+        config_file_options_dict = self.config_file_options_dict
 
+        #Throw out the core options
         for key in self.core_options_names:
-            if extended_options_dict.has_key(key):
-                extended_options_dict.pop(key)
-        return extended_options_dict
+            if sanitised_options_dict.has_key(key):
+                sanitised_options_dict.pop(key)
+            if config_file_options_dict.has_key(key):
+                config_file_options_dict.pop(key)    
+        
+        sanitised_options_dict.update(config_file_options_dict)
+        return sanitised_options_dict
         
     @property 
     def core_options_dict(self):
         """
-        Adapts the options dictionary to the interface 
+        Take only the recognised core options 
         Overrides the defaults depending on configuration
-        and changes the names of the supported interface.
         
         rtype : C{dict}
         rparam : The treated Options dictionary
         """
-
-        #Throw out the extended options
-        core_options_dict = dict((key, self._options_dict[key]) 
-                                 for key in  self.core_options_names 
-                                 if key in self._options_dict)
+        #Take only the core options
+        core_options_dict = {}
+        core_config_file_options_dict = {}
+        for key in  self.core_options_names:
+            if key in self._options_dict:
+                core_options_dict[key] = self._options_dict[key]
+            if key in self.config_file_options_dict:
+                core_config_file_options_dict[key] = \
+                     self.config_file_options_dict[key]
+        
+        core_options_dict.update(core_config_file_options_dict)
+  
         #Patch aliases 
         for new_name, old_name in self.aliases.items():
             if self._options_dict.has_key(old_name):
@@ -176,14 +201,7 @@ class OptionsFactory(object):
         rtype : C{ots.server.hub.options.Options
         rparam : The Options
         """
-        # A hack to check if sw product was valid
-        if not self._default_options_dict(self._sw_product):
-            raise OptionsFactoryException("Unknown sw_product %s" \
-                                              % self._sw_product)
-
         if not self.core_options_dict.has_key("image"):
-            raise OptionsFactoryException("Missing `image` parameter")
-        if not self.core_options_dict.has_key("timeout"):
-            raise OptionsFactoryException("Missing `timeout` parameter")
-
+            raise ValueError("Missing `image` parameter")
+        LOG.debug("Calling options with kwarg: %s"%(self.core_options_dict))
         return Options(**self.core_options_dict)

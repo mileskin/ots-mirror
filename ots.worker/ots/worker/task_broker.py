@@ -229,12 +229,18 @@ class TaskBroker(object):
         #
         try:
             self._dispatch(cmd_msg)
-        except CommandFailed:
+        except CommandFailed, exc:
+            error_msg = "Command %s failed" % cmd_msg.command
+            LOGGER.error(error_msg)
             exception = sys.exc_info()[1]
+            exc.task_id = task_id
             exception.task_id = task_id 
+            exception.strerror = error_msg
+            exc.strerror = error_msg
             self._publish_exception(task_id,
                                     response_queue,
-                                    exception)
+#                                    exception)
+                                    exc)
         finally:
             self._set_log_handler(None)
             self._publish_task_state_change(task_id, response_queue)
@@ -253,7 +259,7 @@ class TaskBroker(object):
         if self._is_version_compatible(message):
             self._handle_message(message)
         else:
-            LOGGER.debug("Worker not version compatible")
+            LOGGER.error("Worker not version compatible")
             #Close the connection makes message available to other Workers
             self._clean_up()
 
@@ -305,6 +311,7 @@ class TaskBroker(object):
         @param exception: An OTSException 
 
         """
+        LOGGER.debug("publishing exception")
         message = pack_message(exception)
         try:
             self.channel.basic_publish(message,
