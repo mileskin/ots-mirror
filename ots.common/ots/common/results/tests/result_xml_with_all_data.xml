@@ -1,123 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testresults environment="hardware" hwproduct="unknown" hwbuild="unknown" version="0.1">
- <suite name="get_tests" description="suite 1 attr" requirement="10,11" timeout="10" type="Integration" level="Component" manual="false" insignificant="true" hwid="myhw" domain="some domain">
-  <set name="set 1" description="set 1 attr" requirement="11,12" timeout="11" type="Integration" level="Component" manual="false" insignificant="true" hwid="myhw" feature="12121" environment="hardware">
+ <suite name="get_tests" description="suite 1 attr" requirement="10,11" timeout="10" type="Integration" level="Component" manual="false" insignificant="true" domain="some domain" hwid="myhw">
+  <set name="set 1" description="set 1 attr" requirement="11,12" timeout="11" type="Integration" level="Component" manual="false" insignificant="true" domain="some domain" feature="12121" hwid="myhw" environment="hardware">
    <description>set 1 description</description>
    <pre_steps timeout="100">
     <step command="echo foo  &gt; /tmp/gettest.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout></stdout>
      <stderr></stderr>
     </step>
     <step command="echo bar &gt; /tmp/gettest2.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout></stdout>
      <stderr></stderr>
     </step>
     <step command="echo lorem &gt; /tmp/gettest3.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout></stdout>
      <stderr></stderr>
     </step>
     <step command="echo ipsum  &gt;/tmp/gettest4.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout></stdout>
      <stderr></stderr>
     </step>
     <step command="echo dolor &gt;  /tmp/get\ test5.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout></stdout>
      <stderr></stderr>
     </step>
    </pre_steps>
-   <case name="case_1" description="case 1 attr" requirement="12,13" timeout="11" type="Integration" level="Component" manual="false" insignificant="true" hwid="myhw" result="PASS" subfeature="subfea" bugzilla_id="12121">
+   <case name="case_1" description="case 1 attr" requirement="12,13" timeout="11" type="Integration" level="Component" manual="false" insignificant="true" domain="testing" feature="21231" component="testrunner-lite" hwid="myhw" result="PASS" subfeature="subfea" bugzilla_id="12121" state="Approved">
     <step manual="false" command="stat /tmp/gettest.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout>  File: `/tmp/gettest.txt'
   Size: 4          Blocks: 8          IO Block: 4096   regular file
-Device: fb01h/64257d Inode: 3145802     Links: 1
-Access: (0644/-rw-r--r--)  Uid: (364383929/ vainite)   Gid: (364380673/Domain^Users)
-Access: 2010-12-14 11:51:33.336845958 +0200
-Modify: 2010-12-14 11:51:33.336845958 +0200
-Change: 2010-12-14 11:51:33.336845958 +0200
+Device: fb01h/64257d Inode: 3145801     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2010-12-22 14:48:49.153184072 +0200
+Modify: 2010-12-22 14:48:49.153184072 +0200
+Change: 2010-12-22 14:48:49.153184072 +0200
 </stdout>
      <stderr></stderr>
     </step>
     <step manual="false" command="stat /tmp/gettest2.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout>  File: `/tmp/gettest2.txt'
   Size: 4          Blocks: 8          IO Block: 4096   regular file
-Device: fb01h/64257d Inode: 3145804     Links: 1
-Access: (0644/-rw-r--r--)  Uid: (364383929/ vainite)   Gid: (364380673/Domain^Users)
-Access: 2010-12-14 11:51:33.336845958 +0200
-Modify: 2010-12-14 11:51:33.336845958 +0200
-Change: 2010-12-14 11:51:33.336845958 +0200
+Device: fb01h/64257d Inode: 3145802     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2010-12-22 14:48:49.153184072 +0200
+Modify: 2010-12-22 14:48:49.153184072 +0200
+Change: 2010-12-22 14:48:49.153184072 +0200
 </stdout>
      <stderr></stderr>
     </step>
     <step manual="false" command="stat /tmp/gettest3.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout>  File: `/tmp/gettest3.txt'
   Size: 6          Blocks: 8          IO Block: 4096   regular file
-Device: fb01h/64257d Inode: 3145805     Links: 1
-Access: (0644/-rw-r--r--)  Uid: (364383929/ vainite)   Gid: (364380673/Domain^Users)
-Access: 2010-12-14 11:51:33.336845958 +0200
-Modify: 2010-12-14 11:51:33.336845958 +0200
-Change: 2010-12-14 11:51:33.336845958 +0200
+Device: fb01h/64257d Inode: 3145804     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2010-12-22 14:48:49.153184072 +0200
+Modify: 2010-12-22 14:48:49.153184072 +0200
+Change: 2010-12-22 14:48:49.153184072 +0200
 </stdout>
      <stderr></stderr>
     </step>
     <step manual="false" command="stat /tmp/gettest4.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout>  File: `/tmp/gettest4.txt'
   Size: 6          Blocks: 8          IO Block: 4096   regular file
-Device: fb01h/64257d Inode: 3145806     Links: 1
-Access: (0644/-rw-r--r--)  Uid: (364383929/ vainite)   Gid: (364380673/Domain^Users)
-Access: 2010-12-14 11:51:33.340840787 +0200
-Modify: 2010-12-14 11:51:33.340840787 +0200
-Change: 2010-12-14 11:51:33.340840787 +0200
+Device: fb01h/64257d Inode: 3145805     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2010-12-22 14:48:49.153184072 +0200
+Modify: 2010-12-22 14:48:49.153184072 +0200
+Change: 2010-12-22 14:48:49.153184072 +0200
 </stdout>
      <stderr></stderr>
     </step>
     <step manual="false" command="stat /tmp/get\ test5.txt" result="PASS">
      <expected_result>0</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout>  File: `/tmp/get test5.txt'
   Size: 6          Blocks: 8          IO Block: 4096   regular file
-Device: fb01h/64257d Inode: 3145807     Links: 1
-Access: (0644/-rw-r--r--)  Uid: (364383929/ vainite)   Gid: (364380673/Domain^Users)
-Access: 2010-12-14 11:51:33.340840787 +0200
-Modify: 2010-12-14 11:51:33.340840787 +0200
-Change: 2010-12-14 11:51:33.340840787 +0200
+Device: fb01h/64257d Inode: 3145806     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2010-12-22 14:48:49.153184072 +0200
+Modify: 2010-12-22 14:48:49.153184072 +0200
+Change: 2010-12-22 14:48:49.153184072 +0200
 </stdout>
      <stderr></stderr>
     </step>
@@ -126,8 +126,8 @@ Change: 2010-12-14 11:51:33.340840787 +0200
     <step command="ls /tmp/gettest.txt" result="FAIL">
      <expected_result>1</expected_result>
      <return_code>0</return_code>
-     <start>2010-12-14 11:51:33</start>
-     <end>2010-12-14 11:51:33</end>
+     <start>2010-12-22 14:48:49</start>
+     <end>2010-12-22 14:48:49</end>
      <stdout>/tmp/gettest.txt
 </stdout>
      <stderr></stderr>
@@ -137,12 +137,12 @@ Change: 2010-12-14 11:51:33.340840787 +0200
     <file delete_after="false">
             /tmp/gettest3.txt
         </file>
+    <file delete_after="false">/tmp/gettest2.txt</file>
+    <file delete_after="true">	  	/tmp/gettest4.txt	  </file>
     <file delete_after="false">/tmp/
 	  get\ test5.txt
 	</file>
-    <file delete_after="true">	  	/tmp/gettest4.txt	  </file>
     <file delete_after="true">/tmp/gettest.txt</file>
-    <file delete_after="false">/tmp/gettest2.txt</file>
    </get>
   </set>
   <description>suite 1 description</description>
