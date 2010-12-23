@@ -21,9 +21,6 @@
 # ***** END LICENCE BLOCK *****
 
 import unittest 
-from ots.common.dto.api import OTSException, Packages, Results, Monitor
-from email.mime.multipart import MIMEMultipart
-
 from ots.email_plugin.email_plugin import EmailPlugin
 
 class TestEmailPlugin(unittest.TestCase):
@@ -47,27 +44,6 @@ class TestEmailPlugin(unittest.TestCase):
 
     def test_mail_message(self):
         email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com")
-        self.assertTrue(isinstance(email_plugin.mail_message, str))
-    
-    def test_mail_pluging(self):
-        email_plugin = EmailPlugin(111, 2222, 
-                                   "sw_product", 
-                                   "www.meego.com",
-                                   notify_list=["someone@who.com"],
-                                   build_url="build_url %s")
-        exc = OTSException()
-        exc.strerror = "foo"
-        results_1 = Results("foo", "<foo>foo</foo>", 
-                            environment = "foo")
-        results_2 = Results("bar", "<bar>bar</bar>",
-                            environment = "bar")
-        results_list = [results_1, results_2]
-        email_plugin.set_exception(exc)
-        email_plugin.set_expected_packages(Packages("env", ["foo", "bar", "baz"]))
-        email_plugin.set_tested_packages(Packages("env", ["foo", "bar", "baz"]))
-        email_plugin.set_results(results_list)
-        email_plugin.set_monitors(Monitor())
-        email_plugin.set_testrun_result("PASS")
         self.assertTrue(isinstance(email_plugin.mail_message, str))
 
 if __name__ == "__main__":

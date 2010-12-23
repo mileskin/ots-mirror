@@ -35,7 +35,7 @@ from ots.email_plugin.mail_message import format_source_uris
 from ots.email_plugin.mail_message import format_packages
 from ots.email_plugin.mail_message import MailMessage
 
-BODY = 'SW Product     : sw_product\nBuild ID: request_id\nOTS testrun ID: testrun_uuid\n\nTest packages:\n  env: foo bar baz\n\nTest result: PASS\n\nTest result details:\n\nmeego: www.meego.com\nnokia: www.nokia.com\nintel: www.intel.com\n\nBuild request:\nbuild_url request_id\n'
+BODY = 'SW Product     : sw_product\nBuild ID: request_id\nOTS testrun ID: testrun_uuid\n\nTest packages:\n  env:  baz foo bar\n\nTest result: PASS\n\nTest result details:\n\nmeego: www.meego.com\nnokia: www.nokia.com\nintel: www.intel.com\n\nBuild request:\nbuild_url request_id\n'
 
 SUBJECT = "[OTS] [sw_product] Req#request_id: PASS"
 
@@ -57,8 +57,8 @@ class TestMailMessage(unittest.TestCase):
         self.assertEquals(expected, format_source_uris(source_uris))
 
     def test_format_packages(self):
-        packages = Packages("env", ["foo", "bar", "baz"])
-        self.assertEquals("  env: foo bar baz\n",
+        packages = Packages("env", ["foo", "bar", "baz", "undefined"])
+        self.assertEquals("  env:  baz foo bar\n",
                           format_packages(packages))
         self.assertEquals("(none)\n", 
                           format_packages(None))

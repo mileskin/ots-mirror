@@ -171,7 +171,7 @@ class EmailPlugin(PublisherPluginBase):
     def mail_message(self):
         """
         @rtype : C{str}
-        @rparam : Mail message
+        @return : Mail message
         """
         if self._mail_message is None:
             self._mail_message = MailMessage(self._from_address,

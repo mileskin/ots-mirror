@@ -55,7 +55,7 @@ def format_result(result, exception):
 
     if exception is not None:
         return "%s (%s)" % (result, exception.strerror)
-    #FIXME: verbose code
+    
     return result
 
 def format_source_uris(source_uris_dict):
@@ -81,7 +81,13 @@ def format_packages(packages):
         return "(none)\n"
     packages_str = ""
     for (env, pkg_list) in packages.items():
-        pkgs = " ".join([pkg for pkg in pkg_list])
+        pkgs = ""
+        # Remove duplicate packages 
+        pkg_list = list(set(pkg_list))
+        for pkg in pkg_list:
+            # Result files are undefined packages
+            if pkg != "undefined":
+                pkgs += " " + pkg
         packages_str += "  " + env.environment + ": " + pkgs + "\n"
     return packages_str
     

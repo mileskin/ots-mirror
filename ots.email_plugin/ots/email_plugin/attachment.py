@@ -67,10 +67,10 @@ def _zip_file(testrun_uuid, results_list):
     string_io = StringIO.StringIO()
     zip_file = ZipFile(string_io, 'w')
     for results in results_list:
-        file = results.results_xml
+        xmlfile = results.results_xml
         env = results.environment
         info = _zip_info(env.environment, results.results_xml.name)
-        zip_file.writestr(info, file.read())
+        zip_file.writestr(info, xmlfile.read())
     zip_file.close()
     string_io.seek(0)
     return string_io
