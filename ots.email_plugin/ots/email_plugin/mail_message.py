@@ -20,14 +20,15 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Functions for handling email format.
+"""
+
 import logging
 
 from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-
-from ots.results.api import result_2_string
 
 from ots.email_plugin.templates import DEFAULT_MESSAGE_BODY
 from ots.email_plugin.templates import DEFAULT_MESSAGE_SUBJECT

@@ -20,6 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Handling email attachments. Results files are sent if attachment option
+is set on.
+"""
+
 import time
 
 import StringIO
@@ -43,8 +48,8 @@ def _zip_info(environment, name):
     @type name : C{str}
     @param name : The name of the file
 
-    @rtype : C{ZipInfo}
-    @param : The Zip Info 
+    @rtype: C{ZipInfo}
+    @return: The Zip Info 
     """
     filename = "%s-%s" % (environment, name)
     info = ZipInfo(filename)
@@ -58,11 +63,11 @@ def _zip_file(testrun_uuid, results_list):
     @type testrun_uuid : C{str}
     @param testrun_uuid : The Testrun uuid
 
-    @type results : C{list} of C{ots.common.dto.results}
-    @param results : The results
+    @type results_list : C{list} of C{ots.common.dto.results}
+    @param results_list : The results
 
-    @rtype : C{StringIO}
-    @param : The Zipped File
+    @rtype: C{StringIO}
+    @return: The Zipped File
     """
     string_io = StringIO.StringIO()
     zip_file = ZipFile(string_io, 'w')
@@ -80,8 +85,8 @@ def _zip_name(testrun_uuid):
     @type testrun_uuid : C{str}
     @param testrun_uuid : The Testrun uuid
     
-    @rtype : C{str}
-    @rparam : The name of the zipfile
+    @rtype: C{str}
+    @return: The name of the zipfile
     """
     return 'OTS_testrun_%s.zip' % testrun_uuid
 
@@ -96,18 +101,18 @@ def attachment(testrun_uuid, results_list):
     @type testrun_uuid : C{str}
     @param testrun_uuid : The Testrun uuid
 
-    @type results : C{list} of C{ots.common.dto.results}
-    @param results : The results
+    @type results_list : C{list} of C{ots.common.dto.results}
+    @param results_list : The results
 
-    @rtype : C{MIMEBase}
-    @param : The attachment
+    @rtype: C{MIMEBase}
+    @return: The attachment
     """ 
     zipped_content = _zip_file(testrun_uuid, results_list).read()
     ctype = 'application/zip'
     maintype, subtype = ctype.split('/', 1)
-    attachment = MIMEBase(maintype, subtype)
-    attachment.set_payload(zipped_content)
-    encoders.encode_base64(attachment)
-    attachment.add_header('Content-Disposition', 'attachment', 
+    mime_attachment = MIMEBase(maintype, subtype)
+    mime_attachment.set_payload(zipped_content)
+    encoders.encode_base64(mime_attachment)
+    mime_attachment.add_header('Content-Disposition', 'attachment', 
                           filename = _zip_name(testrun_uuid))
-    return attachment
+    return mime_attachment

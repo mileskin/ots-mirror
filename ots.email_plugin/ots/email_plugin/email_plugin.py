@@ -29,7 +29,6 @@ Requires an SMTP server
 """
 
 import logging
-import datetime
 import smtplib
 import configobj
 import socket
@@ -157,8 +156,8 @@ class EmailPlugin(PublisherPluginBase):
     @property 
     def notify_list(self):
         """
-        @rtype : C{list}
-        @return : The email notify list 
+        @rtype: C{list}
+        @return: The email notify list
         """
         if self._notify_list is not None:
             return self._notify_list 
@@ -171,8 +170,8 @@ class EmailPlugin(PublisherPluginBase):
     @property
     def mail_message(self):
         """
-        @rtype : C{str}
-        @return : Mail message
+        @rtype: C{str}
+        @return: Mail message
         """
         if self._mail_message is None:
             self._mail_message = MailMessage(self._from_address,
