@@ -23,7 +23,9 @@
 OTS 0.1 compatible Result backend interface for qa-reports tool
 """
 from ots.qareports_plugin.qareports_client import send_files
-class QAReportsBackend():
+from ots.common.results.result_backend import ResultBackend
+
+class QAReportsBackend(ResultBackend):
     """
     OTS 0.1 compatible Result backend interface for qa-reports tool
     """
@@ -39,11 +41,11 @@ class QAReportsBackend():
     
     def process_raw_file(self, result_object, testrun_object):
         """This is called when raw file is sent to results plugin"""
-        self.attachments.append(result_object)
+        self.attachments.append((result_object.filename, result_object.content))
 
     def pre_process_xml_file(self, result_object, testrun_object):
         """This is called when starting to process new xml file"""
-        self.result_xmls.append(result_object)
+        self.result_xmls.append((result_object.filename, result_object.content))
 
     def finished_processing(self):
         """
