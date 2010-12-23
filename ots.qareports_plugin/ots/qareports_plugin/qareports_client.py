@@ -50,19 +50,21 @@ def send_files(result_xmls, attachments):
     response = post_multipart(host, selector, fields, files)
     print response
 
-def _generate_form_data(result_xmls, attachments):
+def _generate_form_data(result_xmls, attachments = []):
     """
     Generates a form_data list from input files
     """
+    if not result_xmls:
+        raise ValueError("No Result xmls.")
     files =[]
     index = 0
     for result in result_xmls:
         index += 1
-        files.append(("report.%s" % index),+ result)
+        files.append(("report.%s" % index, result[0], result[1]))
     index = 0
-    for result in result_xmls:
+    for attachment in attachments:
         index += 1
-        files.append(("report.%s" % index),+ result)
+        files.append(("attachment.%s" % index, attachment[0], attachment[1]))
     return files
 #    files = [("report.1,tion-tests.xml", report1), ("attachment.1", "tests.xml", attachment1)]
 
