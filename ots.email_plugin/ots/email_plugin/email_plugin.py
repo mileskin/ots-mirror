@@ -32,6 +32,7 @@ import logging
 import datetime
 import smtplib
 import configobj
+import socket
 
 from ots.server.server_config_filename import server_config_filename
 from ots.common.framework.api import PublisherPluginBase
@@ -241,18 +242,22 @@ class EmailPlugin(PublisherPluginBase):
         
         if self._notify_list is not None:
             failed_addresses = None
+            mail_server = None
             server_url = self._smtp_server
             LOG.info( "Using smtp server: '%s'"%(server_url) )
-            mail_server = smtplib.SMTP(server_url)
             try:
+                mail_server = smtplib.SMTP(server_url)
                 failed_addresses = mail_server.sendmail(self._from_address,
                                                         self._notify_list, 
                                                         self.mail_message)
                 LOG.info( "Email sent" )
             except smtplib.SMTPRecipientsRefused:
                 failed_addresses = self._notify_list
-            finally:   
-                mail_server.close()
+            except socket.gaierror:
+                LOG.error("Invalid or unknown SMTP host")
+            finally:
+                if mail_server is not None:
+                    mail_server.close()
             if failed_addresses:
                 
                 LOG.error("Error in sending mail to following addresses:")
