@@ -22,7 +22,7 @@
 """
 OTS 0.1 compatible Result backend interface for qa-reports tool
 """
-
+from ots.qareports_plugin.qareports_client import send_files
 class QAReportsBackend():
     """
     OTS 0.1 compatible Result backend interface for qa-reports tool
@@ -46,5 +46,7 @@ class QAReportsBackend():
         self.result_xmls.append(result_object)
 
     def finished_processing(self):
-        """This is called when all files are processed"""
-        
+        """
+        Send files to qa-reports from cmd line
+        """
+        send_files(self.result_xmls, self.attachments)

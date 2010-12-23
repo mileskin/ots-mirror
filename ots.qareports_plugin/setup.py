@@ -10,6 +10,6 @@ setup(
     entry_points={"ots.publisher_plugin":
           ["publisher_klass = "\
            "ots.qareports_plugin.qareports_plugin:QAReportsPlugin"]},
-    data_files=[('/etc', ['ots_qareports_plugin.conf'])]
-
+    data_files=[('/etc',
+                 ['ots/ots_qareports_plugin/ots_qareports_plugin.conf'])]
     )

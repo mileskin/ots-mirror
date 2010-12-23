@@ -19,10 +19,17 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
-
+"""
+Client for sending files to qa-reports
+"""
+import logging
 import configobj
 import os
+from ots.qareports_plugin.post_multipart import post_multipart
+
 DEFAULT_CONFIG_FILE = "/etc/ots_qareports_plugin.conf"
+RESPONSE_OK = """{"ok":"1"}"""
+LOG = logging.getLogger(__name__)
 
 def send_files(result_xmls, attachments):
     """
@@ -38,17 +45,20 @@ def send_files(result_xmls, attachments):
 
     host = config["host"]
     selector = config["url"]
-    fields = [("auth_token", config("auth_token")),
-              ("release_version", config("release_version")),
-              ("target", config("target")),
-              ("testtype", config("testtype")),
-              ("hwproduct", config("hwproduct"))]
-
-
-    files = [("report.1","tatam_xml_testrunner_results_for_test-definition-tests.xml", report1), ("attachment.1", "tests.xml", attachment1)]
-    
+    # TODO: Some of these should be dynamic
+    fields = [("auth_token", config["auth_token"]),
+              ("release_version", config["release_version"]),
+              ("target", config["target"]),
+              ("testtype", config["testtype"]),
+              ("hwproduct", config["hwproduct"])]
+    files = _generate_form_data(result_xmls, attachments)
+    LOG.info("Uploading results to Meego QA-reports tool: %s" % host)
     response = post_multipart(host, selector, fields, files)
-    print response
+    if response == RESPONSE_OK:
+        LOG.info("Results uploaded successfully")
+    else:
+        LOG.error("Upload failed. Server returned: %s" % response)
+
 
 def _generate_form_data(result_xmls, attachments = []):
     """
@@ -66,7 +76,6 @@ def _generate_form_data(result_xmls, attachments = []):
         index += 1
         files.append(("attachment.%s" % index, attachment[0], attachment[1]))
     return files
-#    files = [("report.1,tion-tests.xml", report1), ("attachment.1", "tests.xml", attachment1)]
 
 
 def _config_filename():
