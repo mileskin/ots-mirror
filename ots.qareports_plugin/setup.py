@@ -11,5 +11,5 @@ setup(
           ["publisher_klass = "\
            "ots.qareports_plugin.qareports_plugin:QAReportsPlugin"]},
     data_files=[('/etc',
-                 ['ots/ots_qareports_plugin/ots_qareports_plugin.conf'])]
+                 ['ots/qareports_plugin/ots_qareports_plugin.conf'])]
     )
