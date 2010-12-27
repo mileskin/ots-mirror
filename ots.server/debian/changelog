@@ -1,3 +1,9 @@
+ots-server (0.1.5-1) unstable; urgency=low
+
+  * Added plugin for uploading test results to Meego QA Reports
+
+ -- Teemu Vainio <teemu.vainio@ixonos.com>  Mon, 27 Dec 2010 13:14:27 +0200
+
 ots-server (0.1.4-1) unstable; urgency=low
 
   * XmlParser now only parses correct suite, set and case elements. Fixes compatibility problem with testrunner-lite 1.4.1 (BMC#11277)
