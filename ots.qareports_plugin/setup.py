@@ -36,7 +36,7 @@ setup(
     version="0.1.5",
     include_package_data=True,
     packages=find_packages(),
-    install_requires=['ots.server'],
+    install_requires=['ots.server', 'configobj'],
     entry_points={"ots.publisher_plugin":
           ["publisher_klass = "\
            "ots.qareports_plugin.qareports_plugin:QAReportsPlugin"]},
