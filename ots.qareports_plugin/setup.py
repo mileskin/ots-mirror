@@ -20,7 +20,15 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import os.path; j = os.path.join
+import sys
 from setuptools import setup, find_packages
+
+if sys.prefix.startswith("/usr") or sys.prefix == "/":
+    data_prefix="/" #install data and config files relative to root
+else:
+    data_prefix=sys.prefix #we are inside virtualenv, so install files relative to it
+
 
 setup(
     name="ots.qareports_plugin",
@@ -32,6 +40,6 @@ setup(
     entry_points={"ots.publisher_plugin":
           ["publisher_klass = "\
            "ots.qareports_plugin.qareports_plugin:QAReportsPlugin"]},
-    data_files=[('/etc',
+    data_files=[(j(data_prefix,'etc'),
                  ['ots/qareports_plugin/ots_qareports_plugin.conf'])]
     )
