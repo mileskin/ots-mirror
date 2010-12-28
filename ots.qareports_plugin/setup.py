@@ -33,7 +33,7 @@ else:
 setup(
     name="ots.qareports_plugin",
     namespace_packages=["ots", "ots.qareports_plugin"],
-    version="0.1.5",
+    version="0.1.6",
     include_package_data=True,
     packages=find_packages(),
     install_requires=['ots.server', 'configobj'],

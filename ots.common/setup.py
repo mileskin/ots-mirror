@@ -25,7 +25,7 @@ from setuptools import setup, find_packages
 setup(
       name = "ots.common",
       author = "teemu.vainio@ixonos.com",
-      version = "0.1.5",
+      version = "0.1.6",
       include_package_data = True,
       namespace_packages = ['ots'],
       packages = find_packages(),
