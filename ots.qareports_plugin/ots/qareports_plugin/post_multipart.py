@@ -14,14 +14,14 @@ def post_multipart(host, selector, fields, files):
     Return the server's response page.
     """
     content_type, body = _encode_multipart_formdata(fields, files)
-    h = httplib.HTTP(host)
+    h = httplib.HTTPConnection(host)
     h.putrequest('POST', selector)
     h.putheader('content-type', content_type)
     h.putheader('content-length', str(len(body)))
     h.endheaders()
     h.send(body)
-    errcode, errmsg, headers = h.getreply()
-    return h.file.read()
+    return h.getresponse().read()
+
 
 def _encode_multipart_formdata(fields, files):
     """
