@@ -333,6 +333,33 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_message(testrun_id, string))
 
 
+    def test_no_image_url(self):
+        options = Options()
+        options.timeout = 1
+        options.image = ""
+        print "****************************"
+        print "Triggering a testrun with empty image url"
+
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "error_info set to \"No image url or rootstrap url defined.\""
+        self.assertTrue(has_message(testrun_id, string))
+
+
+
+
 class TestDeviceProperties(unittest.TestCase):
 
     def test_multiple_devicegroups(self):
