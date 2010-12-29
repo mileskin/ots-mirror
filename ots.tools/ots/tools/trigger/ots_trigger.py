@@ -40,9 +40,12 @@ def ots_trigger(options):
     sw_product = options.sw_product
     email_list = options.email.split(',')
 
-    for option in options.options.split(" "):
-        key, value = option.split(":")
-        ots_options[key] = value
+    try:
+        for option in options.options.split(" "):
+            key, value = option.split(":")
+            ots_options[key] = value
+    except AttributeError:
+        pass
 
     if options.engine:
         ots_options['engine'] = options.engine
