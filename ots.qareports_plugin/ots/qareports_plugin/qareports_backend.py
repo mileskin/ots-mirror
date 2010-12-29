@@ -30,10 +30,32 @@ class QAReportsBackend(ResultBackend):
     OTS 0.1 compatible Result backend interface for qa-reports tool
     """
 
-    def __init__(self):
+    def __init__(self,
+                 qa_hwproduct=None,
+                 qa_testtype=None,
+                 qa_target=None,
+                 qa_release_version = None):
+        """
+        @type qa_hwproduct: C{string}
+        @param qa_hwproduct: HW product used in the report
+
+        @type qa_testtype: C{string}
+        @param qa_testtype: Test Type used in the report
+
+        @type qa_target: C{string}
+        @param qa_target: Target used in the report
+        
+        @type qa_release_version: C{string}
+        @param qa_release_version: Release_Version used in the report
+        """
+
         self.result_xmls = []
         self.attachments = []
-    
+        self.hwproduct = qa_hwproduct
+        self.testtype = qa_testtype
+        self.target = qa_target
+        self.release_version = qa_release_version
+        self.disabled = False
         
     def name(self):
         """Returns the name of the backend"""
@@ -46,9 +68,26 @@ class QAReportsBackend(ResultBackend):
     def pre_process_xml_file(self, result_object, testrun_object):
         """This is called when starting to process new xml file"""
         self.result_xmls.append((result_object.filename, result_object.content))
+        
+        # Read input values from testrun object
+        self.hwproduct =  testrun_object.get_option("qa_hwproduct")
+        self.testtype = testrun_object.get_option("qa_testtype")
+        self.target = testrun_object.get_option("qa_target")
+        self.release_version = testrun_object.get_option("qa_release_version")
+
+        # This option is mainly for testing and debugging
+        self.disabled = \
+            testrun_object.get_option("qa_reports_disabled") or False
 
     def finished_processing(self):
         """
         Send files to qa-reports from cmd line
         """
-        send_files(self.result_xmls, self.attachments)
+        if not self.disabled:
+            send_files(self.result_xmls,
+                       self.attachments,
+                       hwproduct=self.hwproduct,
+                       testtype=self.testtype,
+                       target=self.target,
+                       release_version = self.release_version)
+            

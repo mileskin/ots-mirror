@@ -31,7 +31,12 @@ DEFAULT_CONFIG_FILE = "/etc/ots_qareports_plugin.conf"
 RESPONSE_OK = """{"ok":"1"}"""
 LOG = logging.getLogger(__name__)
 
-def send_files(result_xmls, attachments):
+def send_files(result_xmls,
+               attachments,
+               hwproduct=None,
+               testtype=None,
+               target=None,
+               release_version = None):
     """
     Sends files to reporting tool
 
@@ -40,17 +45,29 @@ def send_files(result_xmls, attachments):
 
     @type attachments: C{list} of C{tuple}s consisting of 2 C{string}s
     @param attachments: Attachment files in format ("filename", "file content")
+
+    @type hwproduct: C{string}
+    @param hwproduct: HW product used in the report. If None, read from config
+
+    @type testtype: C{string}
+    @param testtype: Test Type used in the report. If None, read from config
+
+    @type target: C{string}
+    @param target: Target used in the report. If None, read from config
+
+    @type release_version: C{string}
+    @param release_version: Release_Version used in the report. If None, read
+                            from config
     """
     config = configobj.ConfigObj(_config_filename()).get("ots.qareports_plugin")
 
     host = config["host"]
     selector = config["url"]
-    # TODO: Some of these should be dynamic
     fields = [("auth_token", config["auth_token"]),
-              ("release_version", config["release_version"]),
-              ("target", config["target"]),
-              ("testtype", config["testtype"]),
-              ("hwproduct", config["hwproduct"])]
+              ("release_version", release_version or config["release_version"]),
+              ("target", target or config["target"]),
+              ("testtype", testtype or config["testtype"]),
+              ("hwproduct", hwproduct or config["hwproduct"])]
     files = _generate_form_data(result_xmls, attachments)
     LOG.info("Uploading results to Meego QA-reports tool: %s" % host)
     response = post_multipart(host, selector, fields, files)
