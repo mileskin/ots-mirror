@@ -381,6 +381,30 @@ class TestErrorConditions(unittest.TestCase):
         string = "error_info set to \"Invalid distribution model: sendalltestrunstowastebin\""
         self.assertTrue(has_message(testrun_id, string))
 
+    def test_perpackage_distribution_no_packages(self):
+        options = Options()
+        options.distribution = "perpackage"
+        options.timeout = 1
+        print "****************************"
+        print "Triggering a testrun with perpackage distribution without any testpackages defined"
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "error_info set to \"Test packages must be defined for specified distribution model 'perpackage'\""
+        self.assertTrue(has_message(testrun_id, string))
+
+
 
 class TestDeviceProperties(unittest.TestCase):
 
