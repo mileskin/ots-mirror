@@ -306,6 +306,33 @@ class TestErrorConditions(unittest.TestCase):
         string = """'timeout': 1"""
         self.assertTrue(has_message(testrun_id, string))
 
+
+
+    def test_bad_testpackage_names(self):
+        options = Options()
+        options.testpackages = "test-definition-tests thisisnotatestpackage"
+        options.timeout = 1
+        print "****************************"
+        print "Triggering a testrun with invalid test package names '%s'"\
+            % options.testpackages
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "error_info set to \"Invalid testpackage(s): ['thisisnotatestpackage']\""
+        self.assertTrue(has_message(testrun_id, string))
+
+
 class TestDeviceProperties(unittest.TestCase):
 
     def test_multiple_devicegroups(self):
