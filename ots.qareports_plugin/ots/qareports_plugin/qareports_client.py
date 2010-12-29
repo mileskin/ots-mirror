@@ -77,13 +77,15 @@ def send_files(result_xmls,
         LOG.error("Upload failed. Server returned: %s" % response)
 
 
-def _generate_form_data(result_xmls, attachments = []):
+def _generate_form_data(result_xmls, attachments = None):
     """
     Generates a form_data list from input files
     """
     if not result_xmls:
         raise ValueError("No Result xmls.")
-    files =[]
+    if attachments == None:
+        attachments = []
+    files = []
     index = 0
     for result in result_xmls:
         index += 1
