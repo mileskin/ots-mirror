@@ -40,6 +40,10 @@ def ots_trigger(options):
     sw_product = options.sw_product
     email_list = options.email.split(',')
 
+    for option in options.options.split(" "):
+        key, value = option.split(":")
+        ots_options[key] = value
+
     if options.engine:
         ots_options['engine'] = options.engine
     if options.image:
@@ -138,6 +142,12 @@ def parse_commandline_arguments():
                       help="task distribution model(for example 'perpackage')",
                       metavar="DISTMODEL")
 
+    parser.add_option("-x", "--options",
+                      dest="options",
+                      action="store",
+                      type="string",
+                      help="Options in form 'key:value key:value'",
+                      metavar="OPTIONS")
 
     # parser returns options and args even though we only need options
     # Disabling pylint complain about unused variable
