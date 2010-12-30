@@ -42,7 +42,7 @@ class plugin_exception_policy:
 
     def __exit__(self, type, value, tb):  
         if type is not None:
-            LOG.error(traceback.format_tb(tb))
+            log.error("plugin exception:", exc_info = True)
             if self.swallow:
                 LOG.debug("Swallowing exception")
         return self.swallow 

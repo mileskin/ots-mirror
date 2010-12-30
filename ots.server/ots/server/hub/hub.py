@@ -318,10 +318,10 @@ class Hub(object):
             sandbox.exc_info = (None, None, None)
         else:
             testrun_result = self._testrun()
-        # TODO: Whats the result format in publisher interface???????
-        self._publishers.set_testrun_result(testrun_result)
-        self._publishers.publish()
         result_string = result_to_string(testrun_result)
+        # TODO: Whats the result format in publisher interface???????
+        self._publishers.set_testrun_result(result_string)
+        self._publishers.publish()
         LOG.info("Testrun finished with result: %s" % result_string)
         return testrun_result
 

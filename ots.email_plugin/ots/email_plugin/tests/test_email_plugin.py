@@ -21,13 +21,13 @@
 # ***** END LICENCE BLOCK *****
 
 import unittest 
-
 from ots.email_plugin.email_plugin import EmailPlugin
 
 class TestEmailPlugin(unittest.TestCase):
 
     def test_is_email_on(self):
-        email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com")
+        email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com", 
+                                   email = "off")
         self.assertFalse(email_plugin.is_email_on)
         email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com",
                                    email = "on")
@@ -35,7 +35,8 @@ class TestEmailPlugin(unittest.TestCase):
 
 
     def test_is_email_attachments_on(self):
-        email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com")
+        email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com",
+                                   email_attachments = "off")
         self.assertFalse(email_plugin.is_email_attachments_on)
         email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com",
                                    email_attachments = "on")

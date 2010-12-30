@@ -39,8 +39,8 @@ to access the email.
 import unittest
 import getpass
 import time
-
-import StringIO
+from random import Random
+from ots.common.dto.api import OTSException, Packages, Results, Monitor
 
 from ots.common.dto.api import Packages
 from ots.email_plugin.api import EmailPlugin
@@ -60,35 +60,45 @@ def pop_inbox():
     from gmail_imap import gmail_imap
     user = RECIPIENT
     password = getpass.getpass()
-    gmail = gmail_imap(user, password)
+    gmail = gmail_imap.gmail_imap(user, password)
     gmail.mailboxes.load()
     gmail.messages.process("INBOX")
     message = gmail.messages[-1]
-    print message.date
-    t = time.strptime(message.date, "%a, %d %b %Y %H:%M:%S +0000 (%Z)")
     gmail.logout()
-    return message.Subject, t
+    return message.Subject
     
 class TestEmailPlugin(unittest.TestCase):
 
     def test_publish(self):
-        email_plugin = EmailPlugin(111, 2222, "sw_product", "www.meego.com",
-                                   notify_list = [RECIPIENT])
-        email_plugin.set_all_publisher_uris({"foo" : "foo"})
-        email_plugin.set_testrun_result(True)
-        s_io = StringIO.StringIO()
-        s_io.write("Hello World")
-        email_plugin.set_results([s_io, s_io])
-        packages = Packages("unittest", ["foo", "bar", "baz"])
-        email_plugin.set_tested_packages(packages)
-        t_before = time.gmtime()
+        
+        rnd = Random()
+        reqnumber = rnd.randint(100, 1000)
+        
+        email_plugin = EmailPlugin(reqnumber, 2222, 
+                                   "sw_product", 
+                                   "www.meego.com",
+                                   email = "on",
+                                   email_attachments = "on",
+                                   notify_list=[RECIPIENT],
+                                   build_url="build_url %s")
+        exc = OTSException()
+        exc.strerror = "foo"
+        results_1 = Results("foo", "<foo>foo</foo>", 
+                            environment = "foo")
+        results_2 = Results("bar", "<bar>bar</bar>",
+                            environment = "bar")
+        results_list = [results_1, results_2]
+        email_plugin.set_exception(exc)
+        email_plugin.set_expected_packages(Packages("env", ["foo", "bar", "baz"]))
+        email_plugin.set_tested_packages(Packages("env", ["foo", "bar", "baz"]))
+        email_plugin.set_results(results_list)
+        email_plugin.set_monitors(Monitor())
+        email_plugin.set_testrun_result("PASS")
         email_plugin.publish()
         time.sleep(2)
-        t_after = time.gmtime()
-        header, msg_t = pop_inbox()
-        self.assertTrue(t_before <= msg_t <= t_after)
-        expected = "[OTS] [sw_product] Req#111: True"
-        self.assertTrue(expected, subject)
+        header = pop_inbox()
+        expected = "[OTS] [sw_product] Req#" + str(reqnumber) +": PASS"
+        self.assertTrue(expected, header)
 
 if __name__ == "__main__":
     unittest.main()

@@ -29,9 +29,9 @@ Requires an SMTP server
 """
 
 import logging
-import datetime
 import smtplib
 import configobj
+import socket
 
 from ots.server.server_config_filename import server_config_filename
 from ots.common.framework.api import PublisherPluginBase
@@ -59,7 +59,6 @@ class EmailPlugin(PublisherPluginBase):
     def __init__(self, request_id, testrun_uuid, sw_product, image,
                        email = None,
                        email_attachments = None,
-                       target_packages = None,
                        build_url = None,
                        notify_list = None):
         """
@@ -92,10 +91,12 @@ class EmailPlugin(PublisherPluginBase):
         self.sw_product = sw_product
         self.image = image
         self._build_url = build_url
+        config_file = server_config_filename()
+
+        config = configobj.ConfigObj(config_file).get("ots.email_plugin")
         #
         self._email = email
         self._email_attachments = email_attachments
-        self._target_packages = target_packages
         #
         self._mail_message = None
         #
@@ -106,16 +107,12 @@ class EmailPlugin(PublisherPluginBase):
         self._tested_packages = []
         self._notify_list = notify_list
 
-        config_file = server_config_filename()
-
-        config = configobj.ConfigObj(config_file).get("ots.email_plugin")
-
         self._from_address = config["from_address"]
         self._message_body = config["message_body"]
         self._message_subject = config["message_subject"]
         self._smtp_server = config["smtp_server"]
 
-        if config.as_bool("disabled"): # If email plugin is disabled overwrite
+        if config.as_bool("disabled"):   # If email plugin is disabled overwrite
             self._email = "off"          # option
         
 
@@ -162,8 +159,8 @@ class EmailPlugin(PublisherPluginBase):
     @property 
     def notify_list(self):
         """
-        @rtype : C{list}
-        @return : The email notify list 
+        @rtype: C{list}
+        @return: The email notify list
         """
         if self._notify_list is not None:
             return self._notify_list 
@@ -176,8 +173,8 @@ class EmailPlugin(PublisherPluginBase):
     @property
     def mail_message(self):
         """
-        @rtype : C{str}
-        @rparam : Mail message
+        @rtype: C{str}
+        @return: Mail message
         """
         if self._mail_message is None:
             self._mail_message = MailMessage(self._from_address,
@@ -211,7 +208,7 @@ class EmailPlugin(PublisherPluginBase):
     
     def set_testrun_result(self, testrun_result):
         """
-        @type: C{ots.common.testrun_result}
+        @type: C{str}
         @param: The testrun result
         """
         self._testrun_result = testrun_result
@@ -237,28 +234,32 @@ class EmailPlugin(PublisherPluginBase):
         """
         self._tested_packages = packages
 
-    def publish(self):
+    def publish(self,):
         """
         Sends the email
         """
-        if not self.is_email_on():
+        if not self.is_email_on:
             LOG.info("email plugin disabled")
             return
         
         if self._notify_list is not None:
             failed_addresses = None
+            mail_server = None
             server_url = self._smtp_server
-            print "Using smtp server: '%s'"%(server_url)
-            mail_server = smtplib.SMTP(server_url)
+            LOG.info( "Using smtp server: '%s'"%(server_url) )
             try:
+                mail_server = smtplib.SMTP(server_url)
                 failed_addresses = mail_server.sendmail(self._from_address,
                                                         self._notify_list, 
                                                         self.mail_message)
-            
+                LOG.info( "Email sent" )
             except smtplib.SMTPRecipientsRefused:
                 failed_addresses = self._notify_list
-            finally:   
-                mail_server.close()
+            except socket.gaierror:
+                LOG.error("Invalid or unknown SMTP host")
+            finally:
+                if mail_server is not None:
+                    mail_server.close()
             if failed_addresses:
                 
                 LOG.error("Error in sending mail to following addresses:")

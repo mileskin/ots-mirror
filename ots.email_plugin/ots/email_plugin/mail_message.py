@@ -20,14 +20,15 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""
+Functions for handling email format.
+"""
+
 import logging
 
 from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-
-from ots.results.api import result_2_string
 
 from ots.email_plugin.templates import DEFAULT_MESSAGE_BODY
 from ots.email_plugin.templates import DEFAULT_MESSAGE_SUBJECT
@@ -52,10 +53,10 @@ def format_result(result, exception):
     @rtype: C{str}
     @rparam: The formatted result 
     """
-    result = result_2_string(result)
+
     if exception is not None:
         return "%s (%s)" % (result, exception.strerror)
-    #FIXME: verbose code
+    
     return result
 
 def format_source_uris(source_uris_dict):
@@ -81,7 +82,13 @@ def format_packages(packages):
         return "(none)\n"
     packages_str = ""
     for (env, pkg_list) in packages.items():
-        pkgs = " ".join([pkg for pkg in pkg_list])
+        pkgs = ""
+        # Remove duplicate packages 
+        pkg_list = list(set(pkg_list))
+        for pkg in pkg_list:
+            # Result files are undefined packages
+            if pkg != "undefined":
+                pkgs += " " + pkg
         packages_str += "  " + env.environment + ": " + pkgs + "\n"
     return packages_str
     
@@ -168,6 +175,7 @@ class MailMessage(object):
         @rtype : C{str}
         @rtype : The subject
         """
+        
         return self.subject_template % (sw_product, 
                                         request_id, 
                                         result)
@@ -193,7 +201,7 @@ class MailMessage(object):
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
 
-        @type: C{ots.common.testrun_result}
+        @type: C{str}
         @param: The testrun result
         
         @type results : C{list} of C{ots.common.dto.results}
@@ -224,13 +232,13 @@ class MailMessage(object):
         msg["Subject"] = self._subject(request_id, sw_product, result)
         msg["From"] = self.from_address
         msg["To"] = ", ".join(notify_list)
-        msg.attach(MIMEText(self._body(request_id, sw_product, testrun_uuid,
+        msg.attach(MIMEText(self._body(request_id, testrun_uuid, sw_product,
                                        result, exception, tested_packages, 
                                        source_uris, build_url)))
         if result_files and email_attachments:
             try:
-                attachment = attachment(result_files, testrun_uuid)
-                msg.attach(attachment)
+                attach = attachment(testrun_uuid, result_files)
+                msg.attach(attach)
             except:
                 LOG.error("Error creating email attachement:",
                       exc_info = True)
