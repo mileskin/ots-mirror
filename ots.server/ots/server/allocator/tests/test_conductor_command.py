@@ -20,64 +20,40 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+"""Tests for ConductorEngine"""
+
 import unittest
-from ots.server.allocator.conductor_commands import ConductorCommands, get_commands
-from ots.server.hub.options_factory import OptionsFactory
-       
-def conductor_command(options_dict, host_testing):
-    """
-    Adapts the 
 
-    """
-    image = options_dict["image_url"]
-    options = OptionsFactory("example_sw_product", options_dict)()
-    #FIXME
-    is_package_distributed = False
-    storage_address = options_dict["storage_address"]
-    return get_commands(is_package_distributed,
-                        options.image, 
-                        options.hw_packages,
-                        options.host_packages,
-                        options.emmc, 
-                        '1',
-                        storage_address, 
-                        options.testfilter,
-                        options.flasher,
-                        options.timeout)
+from ots.server.allocator.conductor_command import conductor_command
 
-class TestConductorCommandsRegression(unittest.TestCase):
-
-    def assert_commands_equal(self, cmd1, cmd2):
-        self.assertEquals(cmd1[0], cmd2[0])
-        def cmd_2_dict(cmd): 
-            return dict(zip(cmd[0::2], cmd[1::2]))
-        dict_1, dict_2 = cmd_2_dict(cmd1[1:]), cmd_2_dict(cmd2[1:])
-        self.assertEquals(dict_1, dict_2)
+class TestConductorCommands(unittest.TestCase):
 
     def test_conductor_command_without_testpackages(self):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
-                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '3600']
+                    "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '30']
 
         result = conductor_command(options,
-                                   host_testing = False)[0]
-        self.assert_commands_equal(expected, result)
+                                   host_testing = False)
+        self.assertEquals(expected, result) 
+
 
     def test_conductor_command_with_emmc_flash(self):
-        options = {'image_url':"www.nokia.com", 
-                   'emmc_flash_parameter':"Gordon", 
+        options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"Gordon", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"", 'timeout':"30" }
         expected = ['conductor',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
-                    '-i', '1', '-c', 'foo', '-m', '3600']
+                    '-i', '1', '-c', 'foo', '-m', '30']
+
         result = conductor_command(options, 
-                                   host_testing = False)[0]
-        self.assert_commands_equal(expected, result)
+                                   host_testing = False)
+        self.assertEquals(expected, result)
 
     def test_conductor_command_with_flasher_no_pkgs(self):
+
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"", 
@@ -86,13 +62,14 @@ class TestConductorCommandsRegression(unittest.TestCase):
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
-                    '--flasherurl', "asdfasdf/asdf", '-m', '3600']
+                    '--flasherurl', "asdfasdf/asdf", '-m', '30']
 
         result = conductor_command(options, 
-                                   host_testing = False)[0]
-        self.assert_commands_equal(expected, result)
+                                   host_testing = False)
+        self.assertEquals(result, expected)
 
     def test_conductor_command_with_flasher_device_pkgs(self):
+
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
@@ -101,12 +78,14 @@ class TestConductorCommandsRegression(unittest.TestCase):
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
-                   '--flasherurl', "asdfasdf/asdf",
-                    "-t", "my-tests", '-m', '3600']
+                    '--flasherurl', "asdfasdf/asdf",
+                    "-t", "my-tests", '-m', '30']
 
         result = conductor_command(options, 
-                                   host_testing = False)[0]
-        self.assert_commands_equal(expected, result)
+                                   host_testing = False)
+        self.assertEquals(result, expected)
+
+
 
 if __name__ == "__main__":
     unittest.main()

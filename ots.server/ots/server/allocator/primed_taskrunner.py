@@ -29,7 +29,7 @@ from ots.common.routing.api import get_routing_key
 
 from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.api import taskrunner_factory
-from ots.server.allocator.conductor_commands import get_commands
+from ots.server.allocator.get_commands import get_commands
 
 LOG = logging.getLogger(__name__)
 
@@ -113,7 +113,7 @@ def primed_taskrunner(testrun_uuid, execution_timeout, priority,
                                     testrun_uuid)
     cmds = get_commands(is_package_distributed, image, hw_packages,
                         host_packages, emmc, testrun_uuid, _storage_address(),
-                        testfilter, flasher, execution_timeout)
+                        testfilter, execution_timeout, flasher)
     for cmd in cmds:
         LOG.debug("Add cmd '%s' to taskrunner"%(cmd))
         taskrunner.add_task(cmd)
