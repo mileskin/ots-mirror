@@ -56,7 +56,11 @@ class EmailPlugin(PublisherPluginBase):
     Sends the email to the `notify_list`
     """
 
-    def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
+    def __init__(self, request_id, testrun_uuid, sw_product, image,
+                       email = None,
+                       email_attachments = None,
+                       build_url = None,
+                       notify_list = None):
         """
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
@@ -86,14 +90,13 @@ class EmailPlugin(PublisherPluginBase):
         self.testrun_uuid = testrun_uuid
         self.sw_product = sw_product
         self.image = image
-        self._build_url = kwargs.get("build_url")
+        self._build_url = build_url
         config_file = server_config_filename()
 
         config = configobj.ConfigObj(config_file).get("ots.email_plugin")
         #
-        self._email = kwargs.get("email", config.get("email", "on"))
-        self._email_attachments = kwargs.get("email_attachments", 
-                                  config.get("email-attachments", "on"))
+        self._email = email
+        self._email_attachments = email_attachments
         #
         self._mail_message = None
         #
@@ -102,14 +105,14 @@ class EmailPlugin(PublisherPluginBase):
         self._results = None
         self._exception = None
         self._tested_packages = []
-        self._notify_list = kwargs.get("notify_list")
+        self._notify_list = notify_list
 
         self._from_address = config["from_address"]
         self._message_body = config["message_body"]
         self._message_subject = config["message_subject"]
         self._smtp_server = config["smtp_server"]
 
-        if config.as_bool("disabled"): # If email plugin is disabled overwrite
+        if config.as_bool("disabled"):   # If email plugin is disabled overwrite
             self._email = "off"          # option
         
 

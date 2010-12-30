@@ -77,6 +77,8 @@ class TestEmailPlugin(unittest.TestCase):
         email_plugin = EmailPlugin(reqnumber, 2222, 
                                    "sw_product", 
                                    "www.meego.com",
+                                   email = "on",
+                                   email_attachments = "on",
                                    notify_list=[RECIPIENT],
                                    build_url="build_url %s")
         exc = OTSException()
