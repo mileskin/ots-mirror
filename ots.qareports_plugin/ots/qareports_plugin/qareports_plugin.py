@@ -31,6 +31,10 @@ class QAReportsPlugin(PublisherPluginBase):
     """
 
     def __init__(self,
+                 request_id,
+                 testrun_uuid,
+                 sw_product,
+                 image,
                  qa_hwproduct=None,
                  qa_testtype=None,
                  qa_target=None,
