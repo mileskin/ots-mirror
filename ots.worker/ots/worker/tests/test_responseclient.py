@@ -124,8 +124,8 @@ class TestResponseClient(unittest.TestCase):
         msg = self.channel.msg
         self.assertTrue(msg)
         result = loads(msg.body)
-        self.assertEquals(result.results_xml.name, filename)
-        self.assertEquals(result.results_xml.read(), file_content)
+        self.assertEquals(result.data.name, filename)
+        self.assertEquals(result.data.read(), file_content)
         self.assertEquals(result.hostname, origin)
         self.assertEquals(result.package, test_package)
         self.assertEquals(result.environment, Environment(environment))

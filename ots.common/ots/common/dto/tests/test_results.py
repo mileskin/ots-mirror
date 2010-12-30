@@ -31,9 +31,9 @@ class TestResults(unittest.TestCase):
                           package = "pkg1", 
                           hostname = "unittest", 
                           environment = "meego")
-        self.assertEquals("foo", results.results_xml.name)
+        self.assertEquals("foo", results.data.name)
         self.assertEquals("<result>pass</result>",
-                          results.results_xml.read())
+                          results.data.read())
 
     def test_is_test_definition_true(self):
         results = Results("test_definition_for_asdf.xml",

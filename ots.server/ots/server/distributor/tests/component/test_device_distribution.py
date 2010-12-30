@@ -197,15 +197,15 @@ class TestDeviceDistribution(unittest.TestCase):
         def cb_handler(signal, dto, **kwargs):
             self.cb_called = True
             if isinstance(dto, Results):
-                filename = dto.results_xml.name 
+                filename = dto.data.name 
                 if filename == "test_definition.xml":
                     self.test_definition_file_received = True
                     self.assertEquals(EXPECTED.replace(' ','').replace('\n',''),
-                        dto.results_xml.read().replace(' ','').replace('\n',''))
+                        dto.data.read().replace(' ','').replace('\n',''))
                 elif filename == "dummy_results_file.xml":
                     self.results_file_received = True
                     expected = self._dummy_results_xml(filename)
-                    self.assertEquals(expected, dto.results_xml.read())
+                    self.assertEquals(expected, dto.data.read())
             
         DTO_SIGNAL.connect(cb_handler)
         

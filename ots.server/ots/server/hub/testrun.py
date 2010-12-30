@@ -75,7 +75,7 @@ class Testrun(object):
     def _results_xmls_iter(self):
         for result in self.results:
             if result.is_result_xml:
-                yield result.results_xml
+                yield result.data
         
     ###########################
     # DELEGATES

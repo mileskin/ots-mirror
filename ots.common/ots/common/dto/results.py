@@ -21,9 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 """
-The Container for the Results XML
+The Container for a the Result file
 """
-
 from StringIO import StringIO
 from ots.common.dto.environment import Environment
 
@@ -32,17 +31,17 @@ DEFINITION_XML_PATTERN = "test_definition_for_"
 
 class Results(object):
     """
-    The Results XML and associated metadata
+    The Result file and associated metadata
     """
 
     def __init__(self, name, content, 
                        package = None, hostname = None, environment = None):
         """
         @type name : C{str}
-        @param name : The name of the results_xml
+        @param name : The name of the result file
 
         @type content : C{str}
-        @param content : The xml content
+        @param content : file content
 
         @type package : C{str}
         @param package : The associated package
@@ -53,15 +52,15 @@ class Results(object):
         @type environment : C{str}
         @param environment : The name of the Environment
         """
-        self.results_xml = StringIO(content)
-        self.results_xml.name = name
+        self.data = StringIO(content)
+        self.data.name = name
         self.package = package
         self.hostname = hostname
         self.environment = Environment(environment)
 
     @property
     def name(self):
-        return self.results_xml.name
+        return self.data.name
 
     @property
     def is_result_xml(self):
