@@ -34,7 +34,7 @@ class QAReportsPlugin(PublisherPluginBase):
                  qa_hwproduct=None,
                  qa_testtype=None,
                  qa_target=None,
-                 qa_release_version = None
+                 qa_release_version = None,
                  qa_reporting_disabled = False):
         """
         @type qa_hwproduct: C{string}
