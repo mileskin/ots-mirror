@@ -306,6 +306,106 @@ class TestErrorConditions(unittest.TestCase):
         string = """'timeout': 1"""
         self.assertTrue(has_message(testrun_id, string))
 
+
+
+    def test_bad_testpackage_names(self):
+        options = Options()
+        options.testpackages = "test-definition-tests thisisnotatestpackage"
+        options.timeout = 1
+        print "****************************"
+        print "Triggering a testrun with invalid test package names '%s'"\
+            % options.testpackages
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "error_info set to \"Invalid testpackage(s): ['thisisnotatestpackage']\""
+        self.assertTrue(has_message(testrun_id, string))
+
+
+    def test_no_image_url(self):
+        options = Options()
+        options.timeout = 1
+        options.image = ""
+        print "****************************"
+        print "Triggering a testrun with empty image url"
+
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "error_info set to \"No image url or rootstrap url defined.\""
+        self.assertTrue(has_message(testrun_id, string))
+
+    def test_bad_distribution_model(self):
+        options = Options()
+        options.distribution = "sendalltestrunstowastebin"
+        options.timeout = 1
+        print "****************************"
+        print "Triggering a testrun with invalid test package distribution schema '%s'"\
+            % options.distribution
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "error_info set to \"Invalid distribution model: sendalltestrunstowastebin\""
+        self.assertTrue(has_message(testrun_id, string))
+
+    def test_perpackage_distribution_no_packages(self):
+        options = Options()
+        options.distribution = "perpackage"
+        options.timeout = 1
+        print "****************************"
+        print "Triggering a testrun with perpackage distribution without any testpackages defined"
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "error_info set to \"Test packages must be defined for specified distribution model 'perpackage'\""
+        self.assertTrue(has_message(testrun_id, string))
+
+
+
 class TestDeviceProperties(unittest.TestCase):
 
     def test_multiple_devicegroups(self):

@@ -60,7 +60,8 @@ class EmailPlugin(PublisherPluginBase):
                  email = None,
                  email_attachments = None,
                  build_url = None,
-                 notify_list = None):
+                 notify_list = None,
+                 **kwargs):
         """
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
