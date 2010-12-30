@@ -64,6 +64,11 @@ def _queue_size(queue):
     rparam:  Queue Size
     """
     ret_val = None
+
+    # Many tests post a message and immediately check queue size. This makes 
+    # tests more robust
+    time.sleep(1)
+
     connection = amqp.Connection(host = "localhost",
                                  userid = "guest",
                                  password = "guest",
