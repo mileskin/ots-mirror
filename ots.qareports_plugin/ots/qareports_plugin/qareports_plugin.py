@@ -39,7 +39,8 @@ class QAReportsPlugin(PublisherPluginBase):
                  qa_testtype=None,
                  qa_target=None,
                  qa_release_version = None,
-                 qa_reporting_disabled = False):
+                 qa_reporting_disabled = False,
+                 **kwargs):
         """
         @type qa_hwproduct: C{string}
         @param qa_hwproduct: HW product used in the report
@@ -69,9 +70,11 @@ class QAReportsPlugin(PublisherPluginBase):
         @type results : C{list} of C{ots.common.dto.results}
         @param results : The Results
         """
-        if results.is_result_xml:
-            self.result_xmls.append((results.name, results.data.read()))
-        self.attachments.append((results.name, results.data.read()))
+
+        for result in results:
+            if result.is_result_xml:
+                self.result_xmls.append((result.name, result.content))
+            self.attachments.append((result.name, result.content))
 
     def publish(self):
         """

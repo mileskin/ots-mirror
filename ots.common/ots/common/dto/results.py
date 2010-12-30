@@ -54,6 +54,7 @@ class Results(object):
         """
         self.data = StringIO(content)
         self.data.name = name
+        self.content = content
         self.package = package
         self.hostname = hostname
         self.environment = Environment(environment)
