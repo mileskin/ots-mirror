@@ -26,17 +26,16 @@ A module for generating conductor commands based on testrun options
 from ots.server.allocator.default_distribution_models import single_task_distribution, perpackage_distribution
 
 def get_commands(distribution_model,
-                  image_url,
-                  test_list,
-                  emmc_flash_parameter,
-                  testrun_id,
-                  storage_address,
-                  test_filter,
-                  timeout,
-                  flasher="",
-                  custom_distribution_models = []):
+                 image_url,
+                 test_list,
+                 emmc_flash_parameter,
+                 testrun_id,
+                 storage_address,
+                 test_filter,
+                 timeout,
+                 flasher="",
+                 custom_distribution_models = []):
     """Returns a list of conductor commands based on the options"""
-
     options = dict()
     options['image_url'] = image_url
     options['emmc_flash_parameter'] = emmc_flash_parameter
