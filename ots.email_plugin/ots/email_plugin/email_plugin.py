@@ -57,10 +57,10 @@ class EmailPlugin(PublisherPluginBase):
     """
 
     def __init__(self, request_id, testrun_uuid, sw_product, image,
-                       email = None,
-                       email_attachments = None,
-                       build_url = None,
-                       notify_list = None):
+                 email = None,
+                 email_attachments = None,
+                 build_url = None,
+                 notify_list = None):
         """
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client

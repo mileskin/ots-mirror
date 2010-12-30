@@ -318,7 +318,7 @@ class Hub(object):
             sandbox.exc_info = (None, None, None)
         else:
             testrun_result = self._testrun()
-        
+        result_string = result_to_string(testrun_result)        
         # Catch plug-in failures
         try:
             # TODO: What's the result format in publisher interface???????
