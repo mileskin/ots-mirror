@@ -116,7 +116,12 @@ class Hub(object):
 
         self._options_factory = OptionsFactory(self.sw_product, kwargs)
         self._taskrunner = None
-        self._init_logging()
+
+        # Dont enable before logging is configured properly!
+        # - If disabled all messages are visible in http logger.
+        # - if enabled, we don't get any logging from server.
+#        self._init_logging()
+
         self._publishers = Publishers(self.request_id, 
                                       self.testrun_uuid, 
                                       self.sw_product, 
