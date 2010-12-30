@@ -34,6 +34,41 @@ class TestResults(unittest.TestCase):
         self.assertEquals("foo", results.results_xml.name)
         self.assertEquals("<result>pass</result>",
                           results.results_xml.read())
+
+    def test_is_test_definition_true(self):
+        results = Results("test_definition_for_asdf.xml",
+                          "<result>pass</result>",
+                          package = "pkg1", 
+                          hostname = "unittest", 
+                          environment = "meego")
+        self.assertTrue(results.is_definition_xml)
+
+    def test_is_test_definition_false(self):
+        results = Results("thisisnotatest_definition_for_asdf.xml",
+                          "<result>pass</result>",
+                          package = "pkg1", 
+                          hostname = "unittest", 
+                          environment = "meego")
+        self.assertFalse(results.is_definition_xml)
+
+
+    def test_is_result_xml_true(self):
+        results = Results("tatam_xml_testrunner_results_for_asdf.xml",
+                          "<result>pass</result>",
+                          package = "pkg1", 
+                          hostname = "unittest", 
+                          environment = "meego")
+        self.assertTrue(results.is_result_xml)
+
+    def test_is_result_xml_false(self):
+        results = Results("thisisnotatatam_xml_testrunner_results_for_asdf.xml",
+                          "<result>pass</result>",
+                          package = "pkg1", 
+                          hostname = "unittest", 
+                          environment = "meego")
+        self.assertFalse(results.is_result_xml)
+
+
         
 if __name__ == "__main__":
     unittest.main()

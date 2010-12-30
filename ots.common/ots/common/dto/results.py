@@ -27,6 +27,9 @@ The Container for the Results XML
 from StringIO import StringIO
 from ots.common.dto.environment import Environment
 
+RESULT_XML_PATTERN = "tatam_xml_testrunner_results_for"
+DEFINITION_XML_PATTERN = "test_definition_for_"
+
 class Results(object):
     """
     The Results XML and associated metadata
@@ -56,3 +59,28 @@ class Results(object):
         self.hostname = hostname
         self.environment = Environment(environment)
 
+    @property
+    def name(self):
+        return self.results_xml.name
+
+    @property
+    def is_result_xml(self):
+        """
+        @rtype : C{bool}
+        @rparam : True if this is a result xml
+        """
+        if self.name.startswith(RESULT_XML_PATTERN):
+            return True
+        else:
+            return False
+
+    @property 
+    def is_definition_xml(self):
+        """
+        @rtype : C{bool}
+        @rparam : True if this is a test definition xml
+        """
+        if self.name.startswith(DEFINITION_XML_PATTERN):
+            return True
+        else:
+            return False
