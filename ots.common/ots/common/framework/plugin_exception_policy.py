@@ -44,5 +44,5 @@ class plugin_exception_policy:
         if type is not None:
             log.error("plugin exception:", exc_info = True)
             if self.swallow:
-                LOG.debug("Swallowing exception")
+                LOG.warning("Swallowing exception")
         return self.swallow 

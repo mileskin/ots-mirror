@@ -294,7 +294,7 @@ class Hub(object):
         except Exception, err:
             type, value, tb = sys.exc_info()
             testrun_result.addError(TestCase, (type, value, tb))
-            LOG.debug("publishing failed", exc_info=True)
+            LOG.error("publishing failed", exc_info=True)
         return testrun_result
 
     ################################
@@ -318,10 +318,18 @@ class Hub(object):
             sandbox.exc_info = (None, None, None)
         else:
             testrun_result = self._testrun()
+        
+        # Catch plug-in failures
+        try:
+            # TODO: What's the result format in publisher interface???????
+            self._publishers.set_testrun_result(result_string)
+            self._publishers.publish()
+        except Exception, error:
+            type, value, tb = sys.exc_info()
+            testrun_result.addError(TestCase, (type, value, tb))
+            LOG.error("publishing failed", exc_info=True)
+
         result_string = result_to_string(testrun_result)
-        # TODO: Whats the result format in publisher interface???????
-        self._publishers.set_testrun_result(result_string)
-        self._publishers.publish()
         LOG.info("Testrun finished with result: %s" % result_string)
         return testrun_result
 
