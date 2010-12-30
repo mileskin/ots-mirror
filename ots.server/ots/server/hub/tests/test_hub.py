@@ -91,7 +91,7 @@ class TestHubRun(unittest.TestCase):
         hub._taskrunner = mock_taskrunner
         hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertTrue(hub._publishers.testrun_result.wasSuccessful())
+        self.assertEquals(hub._publishers.testrun_result, "PASS")
 
     def test_fail(self):
         mock_taskrunner = MockTaskRunnerResultsFail()
@@ -100,7 +100,7 @@ class TestHubRun(unittest.TestCase):
         hub._taskrunner = mock_taskrunner
         hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertFalse(hub._publishers.testrun_result.wasSuccessful())
+        self.assertEquals(hub._publishers.testrun_result, "FAIL")
 
     def test_error(self):
         mock_taskrunner = MockTaskRunnerError()
@@ -111,9 +111,7 @@ class TestHubRun(unittest.TestCase):
         hub.run()
         self.assertTrue(isinstance(hub._publishers.exception, OTSException))
         testrun_result = hub._publishers.testrun_result
-        self.assertFalse(testrun_result.wasSuccessful())
-        # We have more than one error because no test results are available
-        self.assertEquals(2, len(testrun_result.errors))
+        self.assertEquals(hub._publishers.testrun_result, "ERROR")
 
     def test_server_faulty_error(self):
         mock_taskrunner = MockTaskRunnerError()
@@ -123,9 +121,7 @@ class TestHubRun(unittest.TestCase):
         hub._publishers = FaultyPublishersStub(None, None, None, None)
         hub.run()
         testrun_result = hub._publishers.testrun_result
-        self.assertFalse(testrun_result.wasSuccessful())
-        # We have more than one error because no test results are available
-        self.assertEquals(2, len(testrun_result.errors))
+        self.assertEquals(hub._publishers.testrun_result, "ERROR")
 
 class TestHubProperties(unittest.TestCase):
 
@@ -189,7 +185,7 @@ class TestHubFailSafePublishing(unittest.TestCase):
         hub._taskrunner = mock_taskrunner
         hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertFalse(hub._publishers.testrun_result.wasSuccessful())
+        self.assertEquals(hub._publishers.testrun_result, "ERROR")
         self.assertTrue(isinstance(hub._publishers.exception, ValueError))
 
 if __name__ == "__main__":
