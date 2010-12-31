@@ -29,7 +29,7 @@ class TestEnvironment(unittest.TestCase):
     def test_is_host_test(self):
         env = Environment("environment")
         self.assertFalse(env.is_host)
-        env = Environment("host.environment")
+        env = Environment("Host_Hadrware")
         self.assertTrue(env.is_host)
 
     def test_is_hardware(self):

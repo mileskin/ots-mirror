@@ -37,7 +37,7 @@ class Environment(object):
     The Environment Datatype
     """
 
-    HOST_TEST_PATTERN = "host.*"
+    HOST_TEST_PATTERN = "host_*"
     HARDWARE = "hardware"
 
     def __init__(self, environment):
@@ -50,7 +50,7 @@ class Environment(object):
     @property    
     def is_host(self):
         """Is this a host environment?"""
-        match = re.match(self.HOST_TEST_PATTERN, self.environment)
+        match = re.match(self.HOST_TEST_PATTERN, self.environment.lower())
         return match is not None
 
     @property 
