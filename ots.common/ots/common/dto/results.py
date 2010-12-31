@@ -54,7 +54,6 @@ class Results(object):
         """
         self.data = StringIO(content)
         self.data.name = name
-        self.content = content
         self.package = package
         self.hostname = hostname
         self.environment = Environment(environment)
@@ -62,6 +61,11 @@ class Results(object):
     @property
     def name(self):
         return self.data.name
+
+    @property
+    def content(self):
+        """Convenience method for accessing the data without StringIO"""
+        return self.data.getvalue()
 
     @property
     def is_result_xml(self):

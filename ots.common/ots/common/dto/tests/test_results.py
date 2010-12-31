@@ -35,6 +35,18 @@ class TestResults(unittest.TestCase):
         self.assertEquals("<result>pass</result>",
                           results.data.read())
 
+    def test_content(self):
+        results = Results("foo", "<result>pass</result>",
+                          package = "pkg1", 
+                          hostname = "unittest", 
+                          environment = "meego")
+        self.assertEquals("foo", results.data.name)
+        self.assertEquals("<result>pass</result>",
+                          results.data.read())
+        self.assertEquals("<result>pass</result>",
+                          results.content)
+
+
     def test_is_test_definition_true(self):
         results = Results("test_definition_for_asdf.xml",
                           "<result>pass</result>",
