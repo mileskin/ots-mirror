@@ -69,6 +69,7 @@ class LoggerPlugin(PublisherPluginBase):
         """
         initializes the logger
         """
+        logging.basicConfig() # This makes sure default formatters get loaded. Otherwise exc_info is not processed
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
         
