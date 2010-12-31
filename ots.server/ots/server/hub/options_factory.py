@@ -65,6 +65,7 @@ class OptionsFactory(object):
     aliases = {"image" : "image_url",
                "emmc" : "emmc_flash_parameter",
                "flasher" : "flasherurl",
+               "hosttest" : "host_packages",
                "packages" : "test_packages"}
 
     def __init__(self, sw_product, options_dict):
@@ -77,7 +78,7 @@ class OptionsFactory(object):
         """
         self._sw_product = sw_product
         self._options_dict = options_dict
-       
+
     #####################################
     # HELPER 
     #####################################
@@ -177,15 +178,14 @@ class OptionsFactory(object):
         #Take only the core options
         core_options_dict = {}
         core_config_file_options_dict = {}
-        for key in  self.core_options_names:
+        for key in self.core_options_names:
             if key in self._options_dict:
                 core_options_dict[key] = self._options_dict[key]
             if key in self.config_file_options_dict:
                 core_config_file_options_dict[key] = \
                      self.config_file_options_dict[key]
-        
-        core_options_dict.update(core_config_file_options_dict)
-  
+        core_config_file_options_dict.update(core_options_dict)
+        core_options_dict = core_config_file_options_dict
         #Patch aliases 
         for new_name, old_name in self.aliases.items():
             if self._options_dict.has_key(old_name):
