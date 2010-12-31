@@ -52,7 +52,7 @@ class TestDTOHandler(unittest.TestCase):
 
     def test_results(self):
         dto_handler = DTOHandler()
-        results = Results("foo" , "<test>bar</test>", package = "pkg1",
+        results = Results("tatam_xml_testrunner_results_for_foo" , "<test>bar</test>", package = "pkg1",
                           environment = "unittest")
         dto_handler._results(results)
         self.assertEquals(["pkg1"], 

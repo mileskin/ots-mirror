@@ -70,13 +70,14 @@ class DTOHandler(object):
         Handler for Results
         """
         environment = result.environment
-        LOG.debug("Received results for %s"%(environment))
+        LOG.debug("Received result file for %s"%(environment))
         packages = Packages(environment, [result.package])
-        if not self.tested_packages:
-            self.tested_packages = packages
-        else:
-            self.tested_packages.update(packages)
-        self.results.append(result)
+        if result.is_result_xml:
+            if not self.tested_packages:
+                self.tested_packages = packages
+            else:
+                self.tested_packages.update(packages)
+            self.results.append(result)
 
     def _packages(self, packages): 
         """
