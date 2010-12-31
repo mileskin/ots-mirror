@@ -162,8 +162,9 @@ class OptionsFactory(object):
                 sanitised_options_dict.pop(key)
             if config_file_options_dict.has_key(key):
                 config_file_options_dict.pop(key)    
-        
-        sanitised_options_dict.update(config_file_options_dict)
+
+        config_file_options_dict.update(sanitised_options_dict)
+        sanitised_options_dict = config_file_options_dict
         return sanitised_options_dict
         
     @property 
@@ -184,8 +185,11 @@ class OptionsFactory(object):
             if key in self.config_file_options_dict:
                 core_config_file_options_dict[key] = \
                      self.config_file_options_dict[key]
+        
         core_config_file_options_dict.update(core_options_dict)
         core_options_dict = core_config_file_options_dict
+        
+        # TODO: device properties dict needs to be updated separately. Otherwise it will get overwritten
         #Patch aliases 
         for new_name, old_name in self.aliases.items():
             if self._options_dict.has_key(old_name):
