@@ -92,7 +92,7 @@ class PySidePublisher(PublisherPluginBase):
         self.publisher_dialog.uris_label.setText("URIs: %s"%(uris))
 
     def set_results(self, results):
-        filenames = [result.results_xml.name for result in results]
+        filenames = [result.data.name for result in results]
         filenames = ','.join(filenames)
         self.publisher_dialog.filenames_label.setText(filenames)
 

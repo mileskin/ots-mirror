@@ -20,30 +20,13 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+#This shouldn't be necessary 
+#http://bugs.python.org/setuptools/issue36
 """
-Simple Context Manager 
+OTS Plugin for publishing results to Meego QA-reports tool
 """
 
-import traceback
-import logging 
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
 
-LOG = logging.getLogger(__name__)
-
-class plugin_exception_policy:
-    """
-    Plugin Exception Policy 
-    currently on or off
-    """
-    def __init__(self, swallow = True):
-        self.swallow = swallow
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, exception_type, value, tb):
-        if exception_type is not None:
-            # TODO: This does not get formatted properly in HTTP LOG. TB only visible in message details view
-            LOG.warning("Error in plugin", exc_info=(exception_type, value, tb))
-            if self.swallow:
-                LOG.debug("Ignoring plugin error")
-        return self.swallow 
+__import__('pkg_resources').declare_namespace(__name__)

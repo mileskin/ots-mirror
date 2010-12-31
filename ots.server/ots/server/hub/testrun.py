@@ -73,12 +73,9 @@ class Testrun(object):
         self.results = []
 
     def _results_xmls_iter(self):
-        #FIXME
-        XML_PATTERN = "tatam_xml_testrunner" 
         for result in self.results:
-            result_xml = result.results_xml
-            if result_xml.name.find(XML_PATTERN) != -1: 
-                yield result_xml
+            if result.is_result_xml:
+                yield result.data
         
     ###########################
     # DELEGATES

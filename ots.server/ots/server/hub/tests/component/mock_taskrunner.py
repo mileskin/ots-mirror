@@ -52,11 +52,11 @@ class MockTaskRunnerResultsBase(object):
         time.sleep(0.5)
         self._send_result("hardware_test", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_1")
+                          "tatam_xml_testrunner_results_for__results_for_1")
         time.sleep(0.5)
         self._send_result("hardware_test", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_2")
+                          "tatam_xml_testrunner_results_for__results_for_2")
 
 
     @staticmethod
@@ -76,9 +76,9 @@ class MockTaskRunnerResultsMissing(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        pkgs = Packages("hardware_test", ["tatam_xml_testrunner_1", 
-                                          "tatam_xml_testrunner_2", 
-                                          "tatam_xml_testrunner_3"])
+        pkgs = Packages("hardware_test", ["tatam_xml_testrunner_results_for__1", 
+                                          "tatam_xml_testrunner_results_for__2", 
+                                          "tatam_xml_testrunner_results_for__3"])
         DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs)
 
@@ -86,12 +86,12 @@ class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        pkgs = Packages("hardware_test", ["tatam_xml_testrunner_1", 
-                                          "tatam_xml_testrunner_2"])
+        pkgs = Packages("hardware_test", ["tatam_xml_testrunner_results_for__1", 
+                                          "tatam_xml_testrunner_results_for__2"])
         DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs)
-        pkgs_2 = Packages("host.unittest", ["tatam_xml_testrunner_1", 
-                                            "tatam_xml_testrunner_2"])
+        pkgs_2 = Packages("host.unittest", ["tatam_xml_testrunner_results_for__1", 
+                                            "tatam_xml_testrunner_results_for__2"])
         DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs_2)
 
@@ -99,16 +99,16 @@ class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
         self._send_testpackages()
         self._send_result("hardware_test", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_1")
+                          "tatam_xml_testrunner_results_for__1")
         self._send_result("hardware_test", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_2")
+                          "tatam_xml_testrunner_results_for__2")
         self._send_result("host.unittest", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_1")
+                          "tatam_xml_testrunner_results_for__1")
         self._send_result("host.unittest", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_2")
+                          "tatam_xml_testrunner_results_for__2")
 
 class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 
@@ -124,12 +124,12 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
 
     @staticmethod
     def _send_testpackages():
-        pkgs_1 = Packages("hardware_test", ["tatam_xml_testrunner_1", 
-                                            "tatam_xml_testrunner_2"])
+        pkgs_1 = Packages("hardware_test", ["tatam_xml_testrunner_results_for__1", 
+                                            "tatam_xml_testrunner_results_for__2"])
         DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs_1)
-        pkgs_2 = Packages("host.unittest", ["tatam_xml_testrunner_1", 
-                                            "tatam_xml_testrunner_2"])
+        pkgs_2 = Packages("host.unittest", ["tatam_xml_testrunner_results_for__1", 
+                                            "tatam_xml_testrunner_results_for__2"])
         DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs_2)
 
@@ -138,16 +138,16 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
         self._send_testpackages()
         self._send_result("hardware_test", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_1")
+                          "tatam_xml_testrunner_results_for__1")
         self._send_result("hardware_test", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_2")
+                          "tatam_xml_testrunner_results_for__2")
         self._send_result("host.unittest", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_1")
+                          "tatam_xml_testrunner_results_for__1")
         self._send_result("host.unittest", 
                           self.results_xml, 
-                          "tatam_xml_testrunner_2")
+                          "tatam_xml_testrunner_results_for__2")
 
 
 ####################################

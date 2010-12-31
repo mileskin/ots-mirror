@@ -21,25 +21,27 @@
 # ***** END LICENCE BLOCK *****
 
 """
-The Container for the Results XML
+The Container for a the Result file
 """
-
 from StringIO import StringIO
 from ots.common.dto.environment import Environment
 
+RESULT_XML_PATTERN = "tatam_xml_testrunner_results_for"
+DEFINITION_XML_PATTERN = "test_definition_for_"
+
 class Results(object):
     """
-    The Results XML and associated metadata
+    The Result file and associated metadata
     """
 
     def __init__(self, name, content, 
                        package = None, hostname = None, environment = None):
         """
         @type name : C{str}
-        @param name : The name of the results_xml
+        @param name : The name of the result file
 
         @type content : C{str}
-        @param content : The xml content
+        @param content : file content
 
         @type package : C{str}
         @param package : The associated package
@@ -50,9 +52,39 @@ class Results(object):
         @type environment : C{str}
         @param environment : The name of the Environment
         """
-        self.results_xml = StringIO(content)
-        self.results_xml.name = name
+        self.data = StringIO(content)
+        self.data.name = name
         self.package = package
         self.hostname = hostname
         self.environment = Environment(environment)
 
+    @property
+    def name(self):
+        return self.data.name
+
+    @property
+    def content(self):
+        """Convenience method for accessing the data without StringIO"""
+        return self.data.getvalue()
+
+    @property
+    def is_result_xml(self):
+        """
+        @rtype : C{bool}
+        @rparam : True if this is a result xml
+        """
+        if self.name.startswith(RESULT_XML_PATTERN):
+            return True
+        else:
+            return False
+
+    @property 
+    def is_definition_xml(self):
+        """
+        @rtype : C{bool}
+        @rparam : True if this is a test definition xml
+        """
+        if self.name.startswith(DEFINITION_XML_PATTERN):
+            return True
+        else:
+            return False

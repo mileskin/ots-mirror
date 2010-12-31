@@ -20,30 +20,26 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-Simple Context Manager 
-"""
+import os.path; j = os.path.join
+import sys
+from setuptools import setup, find_packages
 
-import traceback
-import logging 
+if sys.prefix.startswith("/usr") or sys.prefix == "/":
+    data_prefix="/" #install data and config files relative to root
+else:
+    data_prefix=sys.prefix #we are inside virtualenv, so install files relative to it
 
-LOG = logging.getLogger(__name__)
 
-class plugin_exception_policy:
-    """
-    Plugin Exception Policy 
-    currently on or off
-    """
-    def __init__(self, swallow = True):
-        self.swallow = swallow
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, exception_type, value, tb):
-        if exception_type is not None:
-            # TODO: This does not get formatted properly in HTTP LOG. TB only visible in message details view
-            LOG.warning("Error in plugin", exc_info=(exception_type, value, tb))
-            if self.swallow:
-                LOG.debug("Ignoring plugin error")
-        return self.swallow 
+setup(
+    name="ots.qareports_plugin",
+    namespace_packages=["ots", "ots.qareports_plugin"],
+    version="0.1.7",
+    include_package_data=True,
+    packages=find_packages(),
+    install_requires=['ots.server', 'configobj'],
+    entry_points={"ots.publisher_plugin":
+          ["publisher_klass = "\
+           "ots.qareports_plugin.qareports_plugin:QAReportsPlugin"]},
+    data_files=[(j(data_prefix,'etc'),
+                 ['ots/qareports_plugin/ots_qareports_plugin.conf'])]
+    )
