@@ -52,7 +52,6 @@ import sys
 import os
 import logging
 import logging.config
-import traceback
 import uuid
 from traceback import format_exception
 

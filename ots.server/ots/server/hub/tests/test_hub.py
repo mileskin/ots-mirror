@@ -158,14 +158,12 @@ class TestHubProperties(unittest.TestCase):
         self.assertFalse(hub.is_hw_enabled)
 
     def test_is_host_enabled(self):
-        #FIXME need to know priority
-        #hub = Hub("example_sw_product", 111, image = "foo", 
-        #          hosttest = "a-tests b-tests c-tests")
-        #self.assertTrue(hub.is_host_enabled)
-        #hub = Hub("example_sw_product", 111, image = "foo")
-        #self.assertFalse(hub.is_host_enabled)
-        pass
-
+        hub = Hub("example_sw_product", 111, image = "foo", 
+                  hosttest = "a-tests b-tests c-tests")
+        self.assertTrue(hub.is_host_enabled)
+        hub = Hub("example_sw_product", 111, image = "foo")
+        self.assertFalse(hub.is_host_enabled)
+        
     def test_options(self):
         hub = Hub(111, 111, image = "foo")
         self.assertEquals(0, hub.options.timeout)

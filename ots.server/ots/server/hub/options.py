@@ -26,7 +26,7 @@ Testrun options
 as provided by OTS clients.
 """
 
-import re
+from ots.server.hub.parameters_parser import string_2_list, string_2_dict
 
 ############################
 # FLAGS
@@ -207,34 +207,3 @@ class Options(object):
             pretty_packages =  ', '.join(invalid_packages)
             error_msg = "Invalid testpackage(s): %s" % pretty_packages
             raise ValueError(error_msg)
-
-def string_2_list(string):
-    """
-    Converts a spaced string to an array
-    
-    @param string: The string for conversion
-    @type product: C{str}
-    
-    @rtype: C{list} consisting of C{str}
-    @return: The converted string
-    """
-    if string:
-        spaces = re.compile(r'\s+')
-        return spaces.split(string.strip())
-    else:
-        return []
-
-def string_2_dict(string):
-    """
-    Converts a spaced string of form 'foo:1 bar:2 baz:3'
-    to a dictionary
-    
-    @param string: The string for conversion
-    @type product: C{str}
-    
-    @rtype: C{dict} consisting of C{str}
-    @return: The converted string
-    """
-    spaces = re.compile(r'\s+')
-    return dict([ pair.split(':', 1) for pair \
-                      in spaces.split(string) if ':' in pair ])
