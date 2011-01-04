@@ -81,11 +81,21 @@ class TestOptionsFactory(unittest.TestCase):
         #self.assertRaises(ValueError, options_factory.extended_options_dict)
      
     def test_factory(self):
+        # This is the correct behavior. Please fix options_factory so that device properties are fetched correctly.
+        # I already fixed this once but seems like sandbox thing broke it again. What happened to the unit test
+        # test_device_option_handling() ????
+        #
+        # Use case for this is:
+        #
+        # Basic User wants to run tests on n900, common device pool. He does not know about devicegroups. 
+        # User defines device parameter devicename: "n900". OTS reads default devicegroup from config files, appends 
+        # devicename from user input and executes tests in defaultdevicegroup.n900.
+
         options = OptionsFactory("example_sw_product",
                                  {"image" : "www.nokia.com",
                                   "email-attachments" : "on",
-                                  "device" : "foo:bar"})()
-        expected = {'devicegroup' : 'examplegroup'}
+                                  "device" : "devicename:bar"})()
+        expected = {'devicegroup' : 'examplegroup', 'devicename':'bar'}
         self.assertEquals(expected, options.device_properties)
 
     def _test_factory_raises_no_sw_product(self):

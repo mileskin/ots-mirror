@@ -99,6 +99,13 @@ class TestSuccessfulTestruns(unittest.TestCase):
         string = "Testrun finished with result: PASS"
         self.assertTrue(has_message(testrun_id, string))
 
+        # Check environment
+        string = "Environment: Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "Environment: Host_Hardware"
+        self.assertFalse(has_message(testrun_id, string))
+
         # Check message from conductor
         string = "Starting conductor at"
         self.assertTrue(has_message(testrun_id, string))
@@ -108,6 +115,55 @@ class TestSuccessfulTestruns(unittest.TestCase):
         self.assertTrue(has_message(testrun_id, string))
 
     def test_host_based_testrun_with_test_definition_tests(self):
+        options = Options()
+        options.engine = "default"
+        options.hosttest = "test-definition-tests"
+        options.testpackages = ""
+        options.sw_product = "ots-system-tests"
+        options.timeout = 30
+
+        print "****************************"
+        print "Triggering a testrun with test-definition-tests\n"
+        print "System requirements:"
+        print "Image with test-definition-tests available in %s" % options.image
+        print "SW Product %s defined" % options.sw_product
+        print "A fully functional worker configured to %s."\
+            % options.sw_product
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "PASS")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertFalse(has_errors(testrun_id))
+
+        string = "Testrun finished with result: PASS"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check environment
+        string = "Environment: Hardware"
+        self.assertFalse(has_message(testrun_id, string))
+
+        string = "Environment: Host_Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check message from conductor
+        string = "Starting conductor at"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check message from conductor
+        string = "Starting conductor at"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check a message from testrunner-lite
+        string = """Finished running tests."""
+        self.assertTrue(has_message(testrun_id, string))
+
+
+    def test_hw_and_host_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.engine = "default"
         options.hosttest = "test-definition-tests"
@@ -133,6 +189,13 @@ class TestSuccessfulTestruns(unittest.TestCase):
         self.assertFalse(has_errors(testrun_id))
 
         string = "Testrun finished with result: PASS"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check environment
+        string = "Environment: Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "Environment: Host_Hardware"
         self.assertTrue(has_message(testrun_id, string))
 
         # Check message from conductor

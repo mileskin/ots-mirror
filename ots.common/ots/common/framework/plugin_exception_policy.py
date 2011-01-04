@@ -42,7 +42,6 @@ class plugin_exception_policy:
 
     def __exit__(self, exception_type, value, tb):
         if exception_type is not None:
-            # TODO: This does not get formatted properly in HTTP LOG. TB only visible in message details view
             LOG.warning("Error in plugin", exc_info=(exception_type, value, tb))
             if self.swallow:
                 LOG.debug("Ignoring plugin error")
