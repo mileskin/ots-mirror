@@ -34,10 +34,23 @@ Django unit tests
 import unittest
 import logging
 import uuid
+
+from BeautifulSoup import BeautifulSoup
+
 from django.http import HttpRequest
+from django.test.client import Client
+
+from ots.server.hub.tests.component.mock_taskrunner import \
+                                             MockTaskRunnerResultsFail
+from ots.server.hub.tests.component.mock_taskrunner import \
+                                             MockTaskRunnerTimeout
+from ots.server.hub.tests.component.mock_taskrunner import \
+                                             MockTaskRunnerError
+from ots.server.hub.tests.component.mock_taskrunner import \
+                                             MockTaskRunnerResultsPass
+from ots.server.hub.api import Hub
 
 from ots.logger_plugin.localhandler import LocalHttpHandler
-
 from ots.logger_plugin.django_logger.models import LogMessage
 from ots.logger_plugin.django_logger.views import create_message
 
@@ -232,3 +245,134 @@ class TestLocalHttpHandler(unittest.TestCase):
         self.assertEquals(msg.module, "tests")
         self.assertEquals(msg.filename, "tests.py")
         self.assertEquals(msg.msg, msg_string)
+
+
+################################################
+# TestView Helpers 
+################################################
+
+#TODO: Remove Duplication.. Pretty well lifted verbatim from the ots.system
+
+def get_latest_testrun_id(content):
+    """
+    Scrape the latest testrun id from the global log
+    """
+    soup = BeautifulSoup(content)
+    table =  soup.findAll("table")[1]
+    row1 = table.findAll("tr")[1]
+    td = row1.findAll("td")[0]
+    a = td.findAll("a")[0].string
+    return a
+
+def has_message(content, testrun_id, string):
+    """
+    Tries to find a message in the log for the given testrun
+    Returns True if message was found
+    """
+    ret_val = False
+    soup = BeautifulSoup(content, 
+                         convertEntities=BeautifulSoup.ALL_ENTITIES)
+
+    table =  soup.findAll("table")[1]
+    rows = table.findAll("tr")
+    for tr in rows:
+        td = tr.findAll("td")
+        if td:
+            if td[5].string and td[5].string.count(string):
+                ret_val = True
+                break
+            elif td[5].string == None: # Check also <pre> messages </pre>
+                if td[5].findAll("pre")[0].string.count(string):
+                    ret_val = True
+                    break
+    return ret_val
+
+def has_errors(content, testrun_id):
+    """
+    Checks if testrun has any error messages
+    """
+    ret_val = False
+    soup = BeautifulSoup(content, 
+                         convertEntities=BeautifulSoup.ALL_ENTITIES)
+
+    table =  soup.findAll("table")[1]
+    rows = table.findAll("tr")
+    for tr in rows:
+        td = tr.findAll("td")
+        if td:
+            try:
+                error = td[4].findAll("span")[0].string
+                if error == "ERROR":
+                    ret_val = True
+                    break
+            except IndexError:
+                pass
+
+    return ret_val
+
+
+###################################################
+# Test View
+###################################################
+
+class TestView(unittest.TestCase):
+
+    def assert_has_latest(self, testrun_id):
+        client = Client()
+        response = client.get('/logger/view', follow = True)
+        content = response.content
+        latest_testrun_uuid = get_latest_testrun_id(content)
+        self.assertEquals(testrun_id, latest_testrun_uuid)
+
+    def get_log_content(self, testrun_id):
+        client = Client()
+        response = client.get('/logger/view/testrun/%s'%(testrun_id),
+                               follow = True)
+        content = response.content
+        return content
+
+    def test_passing_run(self):
+        mock_taskrunner = MockTaskRunnerResultsPass()
+        hub = Hub("example_sw_product", 111, image="image")
+        hub._taskrunner = mock_taskrunner
+        ret_val = hub.run()
+        testrun_id =  hub.testrun_uuid
+        self.assert_has_latest(testrun_id)
+        content = self.get_log_content(testrun_id)
+        string = "Testrun finished with result: PASS"
+        self.assertTrue(has_message(content, testrun_id, string))
+
+    def test_error_run(self):
+        mock_taskrunner = MockTaskRunnerError()
+        hub = Hub("example_sw_product", 111, image="image")
+        hub._taskrunner = mock_taskrunner
+        ret_val = hub.run()
+        testrun_id =  hub.testrun_uuid
+        self.assert_has_latest(testrun_id)
+        content = self.get_log_content(testrun_id)
+        self.assertTrue(has_errors(content, testrun_id))
+        #string = "Result set to ERROR"
+        #self.assertTrue(has_message(content, testrun_id, string))
+
+    def test_fail_run(self):
+        mock_taskrunner = MockTaskRunnerResultsFail()
+        hub = Hub("example_sw_product", 111, image="image")
+        hub._taskrunner = mock_taskrunner
+        ret_val = hub.run()
+        testrun_id =  hub.testrun_uuid
+        self.assert_has_latest(testrun_id)
+        content = self.get_log_content(testrun_id)
+        string = "Testrun finished with result: FAIL"
+        self.assertTrue(has_message(content, testrun_id, string))
+
+    def test_timeout(self):
+        mock_taskrunner = MockTaskRunnerTimeout()
+        hub = Hub("example_sw_product", 111, image="image")
+        hub._taskrunner = mock_taskrunner
+        ret_val = hub.run()
+        testrun_id =  hub.testrun_uuid
+        self.assert_has_latest(testrun_id)
+        content = self.get_log_content(testrun_id)
+        self.assertTrue(has_errors(content, testrun_id))
+        #string = "Result set to ERROR"
+        #self.assertTrue(has_message(content, testrun_id, string))
