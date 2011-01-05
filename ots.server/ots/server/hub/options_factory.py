@@ -156,14 +156,12 @@ class OptionsFactory(object):
                 raise ValueError("device has type '%s'"% type(device))
         return ret_val
 
-
     #######################################
     # PROPERTIES
     #######################################
 
     @property 
-    @staticmethod
-    def core_options_names():
+    def core_options_names(self):
         """
         The names of the Options necessary for core functionality  
         
