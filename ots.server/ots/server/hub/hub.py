@@ -116,6 +116,8 @@ class Hub(object):
         self._options_factory = OptionsFactory(self.sw_product, kwargs)
         self._taskrunner = None
 
+        self._options = None
+
         # Dont enable before logging is configured properly!
         # - If disabled all messages are visible in http logger.
         # - if enabled, we don't get any logging from server.
@@ -146,6 +148,7 @@ class Hub(object):
                             incoming_options))
         except ValueError:
             pass
+
     #############################################
     # Sandboxed Properties
     #############################################
@@ -214,7 +217,9 @@ class Hub(object):
 
     @property
     def options(self):
-        return self._options_factory()
+        if self._options is None:
+            self._options = self._options_factory()
+        return self._options
 
     @property 
     def taskrunner(self):
@@ -337,5 +342,5 @@ def result_to_string(testrun_result):
     elif testrun_result.failures:
         return "FAIL"
     else:
-#        LOG.debug("Testrun failure %s" % testrun_result.errors)
+        #LOG.debug("Testrun failure %s" % testrun_result.errors)
         return "ERROR"
