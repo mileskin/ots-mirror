@@ -329,6 +329,7 @@ class Hub(object):
             testrun_result = self._testrun()
         result_string = result_to_string(testrun_result)
         # TODO: Whats the result format in publisher interface???????
+        LOG.info("Result set to %s"%(result_string))
         self._publishers.set_testrun_result(result_string)
         self._publishers.publish()
         LOG.info("Testrun finished with result: %s" % result_string)

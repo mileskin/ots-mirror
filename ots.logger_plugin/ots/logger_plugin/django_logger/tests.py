@@ -351,8 +351,8 @@ class TestView(unittest.TestCase):
         self.assert_has_latest(testrun_id)
         content = self.get_log_content(testrun_id)
         self.assertTrue(has_errors(content, testrun_id))
-        #string = "Result set to ERROR"
-        #self.assertTrue(has_message(content, testrun_id, string))
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(content, testrun_id, string))
 
     def test_fail_run(self):
         mock_taskrunner = MockTaskRunnerResultsFail()
@@ -374,5 +374,5 @@ class TestView(unittest.TestCase):
         self.assert_has_latest(testrun_id)
         content = self.get_log_content(testrun_id)
         self.assertTrue(has_errors(content, testrun_id))
-        #string = "Result set to ERROR"
-        #self.assertTrue(has_message(content, testrun_id, string))
+        string = "Result set to ERROR"
+        self.assertTrue(has_message(content, testrun_id, string))
