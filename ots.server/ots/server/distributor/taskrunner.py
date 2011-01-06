@@ -210,7 +210,7 @@ class TaskRunner(object):
         Processes state change message 
         """
         if message.is_start:
-            self.timeout_handler.task_started()
+            self.timeout_handler.task_started(single_task = True)
         task = self._get_task(message.task_id)
         task.transition(message.condition)
         if task.is_finished:
