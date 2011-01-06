@@ -62,7 +62,6 @@ import ots.server
 
 from ots.server.allocator.api import primed_taskrunner
 
-import ots.server.hub.sandbox as sandbox_module
 from ots.server.hub.sandbox import sandbox
 from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
@@ -108,7 +107,6 @@ class Hub(object):
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
         """
-        reload(sandbox_module)
         self._sw_product = sw_product
         self._request_id = request_id
         self._testrun_uuid = None
@@ -296,8 +294,8 @@ class Hub(object):
                 # TODO: we should publish all exceptions, or just start
                 #       using TestrunResult for error reporting
                 publishers.set_exception(testrun.exceptions[0])
-
                 for error in testrun.exceptions:
+                    LOG.info("error_info set to '%s'"%(error.strerror))
                     testrun_result.addError(TestCase,
                                             (error, error.strerror, None))
         except Exception, err:
@@ -317,12 +315,13 @@ class Hub(object):
         @rtype : C{unittest.TestResult}
         @rparam : A TestResult 
         """
-        if sandbox.exc_info !=  (None, None, None): 
+        if sandbox.exc_info != (None, None, None): 
             LOG.error("Sandbox Error. Forced Initialisation")
             etype, value, tb = sandbox.exc_info
             str_tb = ''.join(format_exception(etype, value, tb, 50))
             LOG.error(str_tb)
             testrun_result = TestResult() 
+            LOG.info("error_info set to '%s'" %(str(value)))
             testrun_result.addError(TestCase, (etype, value, tb))
             sandbox.exc_info = (None, None, None)
         else:
