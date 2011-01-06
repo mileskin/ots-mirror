@@ -223,6 +223,10 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
 class TestErrorConditions(unittest.TestCase):
 
+    def assert_log_contains_string(self, testrun_id, string): 
+        self.assertTrue(has_message(testrun_id, string), 
+         "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
+
     def test_bad_image_url(self):
         # Trigger a testrun with non existing image url. Check correct result
         # and error message
@@ -250,7 +254,7 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assertTrue(has_message(testrun_id, string))
 
-        string = 'error_info set to "Could not download file'
+        string = "error_info set to 'Could not download file"
         self.assertTrue(has_message(testrun_id, string))
 
         # Check message from conductor
@@ -293,11 +297,11 @@ class TestErrorConditions(unittest.TestCase):
         # Check error message
 
         string = 'error_info set to "Timeout while executing test package testrunner-lite-regression-tests"'
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
         # Check message from conductor        
         string = 'Test execution error: Timeout while executing test package testrunner-lite-regression-tests'
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
 
 
@@ -321,21 +325,21 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Testrun finished with result: FAIL"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
         string = """No queue for this_should_not_exist"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
         string = """Incoming request: program: ots-system-tests, request: 0, notify_list: ['%s'], options: {"""  % (CONFIG["email"])
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'image': '%s'""" % CONFIG["image_url"]
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'distribution_model': 'default'"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'timeout': 1"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'device': 'devicegroup:this_should_not_exist'"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
     def test_non_existing_sw_product(self):
         options = Options()
@@ -355,19 +359,19 @@ class TestErrorConditions(unittest.TestCase):
         testrun_id = get_latest_testrun_id()
         print "testrun_id: %s" %testrun_id
         self.assertTrue(has_errors(testrun_id))
-        string = """Unknown sw_product this_should_not_exist"""
-        self.assertTrue(has_message(testrun_id, string))
+        string = """'this_should_not_exist' not found"""
+        self.assert_log_contains_string(testrun_id, string)
 
         string = """Incoming request: program: this_should_not_exist, request: 0, notify_list: ['%s'], options: {"""  % (CONFIG["email"])
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
 
         string = """'image': '%s'""" % CONFIG["image_url"]
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'distribution_model': 'default'"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'timeout': 1"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
 
 
@@ -390,10 +394,10 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to \"Invalid testpackage(s): ['thisisnotatestpackage']\""
-        self.assertTrue(has_message(testrun_id, string))
+        string = "error_info set to 'Invalid testpackage(s): thisisnotatestpackage'"
+        self.assert_log_contains_string(testrun_id, string)
 
 
     def test_no_image_url(self):
@@ -415,10 +419,10 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to \"No image url or rootstrap url defined.\""
-        self.assertTrue(has_message(testrun_id, string))
+        string = "Missing `image` parameter"
+        self.assert_log_contains_string(testrun_id, string)
 
     def test_bad_distribution_model(self):
         options = Options()
@@ -439,10 +443,10 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
         string = "error_info set to \"Invalid distribution model: sendalltestrunstowastebin\""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
     def test_perpackage_distribution_no_packages(self):
         options = Options()
@@ -462,10 +466,10 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
         string = "error_info set to \"Test packages must be defined for specified distribution model 'perpackage'\""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
 
 
