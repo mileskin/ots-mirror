@@ -27,7 +27,6 @@ from socket import gethostname
 from ots.common.framework.api import PublisherPluginBase
 from ots.common.dto.api import OTSException
 
-
 import ots.server.hub.sandbox as sandbox
 
 from ots.server.distributor.api import TaskRunner
@@ -109,7 +108,7 @@ class TestHubRun(unittest.TestCase):
         hub._taskrunner = mock_taskrunner
         hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertTrue(isinstance(hub._publishers.exception, OTSException))
+        self.assertTrue(isinstance(hub._publishers.exception, Exception))
         testrun_result = hub._publishers.testrun_result
         self.assertEquals(hub._publishers.testrun_result, "ERROR")
 

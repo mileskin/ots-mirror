@@ -107,6 +107,7 @@ class Hub(object):
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
         """
+        sandbox.is_on = True
         self._sw_product = sw_product
         self._request_id = request_id
         self._testrun_uuid = None
@@ -323,6 +324,7 @@ class Hub(object):
             testrun_result = TestResult() 
             LOG.info("error_info set to '%s'" %(str(value)))
             testrun_result.addError(TestCase, (etype, value, tb))
+            self._publishers.set_exception(value)
             sandbox.exc_info = (None, None, None)
         else:
             testrun_result = self._testrun()
