@@ -195,7 +195,8 @@ class TaskRunner(object):
         """
         msg = unpack_message(amqp_message)
         if isinstance(msg, StateChangeMessage):
-            LOGGER.debug("Received state change message %s " % msg.condition)
+            LOGGER.debug("Received state change message %s, task %s "\
+                             % (msg.condition, msg.task_id))
             self._task_transition(msg)
         else:
             #The message is data. Relay using a signal
