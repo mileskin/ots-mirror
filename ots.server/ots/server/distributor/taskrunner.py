@@ -173,10 +173,6 @@ class TaskRunner(object):
                                        queue_timeout, 
                                        controller_timeout)
 
-        # Tells if we are running only a single task
-        # Used for backward compatibility
-        self._single_task_mode = False
-        
 
     #############################################
     # MESSAGE HANDLING 
@@ -210,7 +206,7 @@ class TaskRunner(object):
         Processes state change message 
         """
         if message.is_start:
-            self.timeout_handler.task_started(single_task = True)
+            self.timeout_handler.task_started()
         task = self._get_task(message.task_id)
         task.transition(message.condition)
         if task.is_finished:
@@ -335,8 +331,6 @@ class TaskRunner(object):
             raise TaskRunnerException("This TaskRunner has already been run")
         self._is_run = True 
 
-        if len(self._tasks) == 1:
-            self._single_task_mode = True
         if not queue_exists(self._host, 
                             self._username, 
                             self._password, 
