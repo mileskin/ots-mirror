@@ -55,13 +55,14 @@ import ots.worker.tests
 import ots.server.distributor
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
 from ots.server.server_config_filename import server_config_filename
-
+from ots.server.distributor.exceptions import OtsExecutionTimeoutError
 from ots.tools.queue_management.delete_queue import delete_queue
 from ots.server.distributor.tests.component.worker_processes \
                                       import WorkerProcesses
 
 #Debug to allow running of Worker in separate terminal
 DEBUG = False
+VERBOSE = True
 
 ROUTING_KEY = "foo"
 
@@ -78,6 +79,7 @@ class TestStateBehaviour(unittest.TestCase):
         if not DEBUG:
             self.worker_processes = WorkerProcesses()
             self.testrun_id = None
+            self.testrun_id2 = None
           
     def tearDown(self):
         if not DEBUG:
@@ -86,6 +88,8 @@ class TestStateBehaviour(unittest.TestCase):
             delete_queue("localhost", self.queue)
         if self.testrun_id:
             delete_queue("localhost", testrun_queue_name(self.testrun_id))
+        if self.testrun_id2:
+            delete_queue("localhost", testrun_queue_name(self.testrun_id2))
 
     def test_failing_task(self):
         if not DEBUG:
@@ -160,6 +164,119 @@ class TestStateBehaviour(unittest.TestCase):
 
         self.assertFalse(all(self.worker_processes.exitcodes))
 
+    def test_worker_alive_after_server_timeout(self):
+        if not DEBUG:
+            self.worker_processes.start()
+        self.testrun_id = 111
+        self.testrun_id2 = 112
+        taskrunner1 = taskrunner_factory(
+                             routing_key = ROUTING_KEY,
+                             execution_timeout = 10,
+                             testrun_id = self.testrun_id,
+                             config_file = _distributor_config_filename())
+
+        command = ["sleep", "5"]
+        taskrunner1.add_task(command)
+        print "TASKS: %s" % taskrunner1._tasks[0].task_id
+
+        self.is_exception_raised = False
+
+        def cb_handler(signal, dto, **kwargs):
+            if isinstance(dto, Exception):
+                self.is_exception_raised = True
+
+        DTO_SIGNAL.connect(cb_handler)
+
+        # Overwrite server side timeout handler with a one that timeouts
+        from ots.server.distributor.timeout import Timeout
+        taskrunner1.timeout_handler = Timeout(1,
+                                       1,
+                                       1)
+
+        self.assertRaises(OtsExecutionTimeoutError, taskrunner1.run)
+        
+#        self.assertTrue(self.is_exception_raised)
+        
+        self.is_exception_raised = False
+
+        time.sleep(10) # Give worker time to reconnect
+
+        import logging
+        logging.debug("_________TASKRUNNER2____________")
+
+    # Trigger another task to make sure worker is still alive
+        taskrunner2 = taskrunner_factory(
+                             routing_key = ROUTING_KEY,
+                             execution_timeout = 10,
+                             testrun_id = self.testrun_id2,
+                             config_file = _distributor_config_filename())
+        taskrunner2.add_task(["echo", "foo"])
+        print "TASKS: %s" % taskrunner2._tasks[0].task_id
+        taskrunner2.run()
+        self.assertFalse(self.is_exception_raised)
+
+        self.send_quit()
+        time.sleep(1)
+
+        self.assertFalse(all(self.worker_processes.exitcodes))
+
+    def test_worker_alive_after_server_timeout_failing_task(self):
+        if not DEBUG:
+            self.worker_processes.start()
+        self.testrun_id = 111
+        self.testrun_id2 = 112
+        taskrunner1 = taskrunner_factory(
+                             routing_key = ROUTING_KEY,
+                             execution_timeout = 10,
+                             testrun_id = self.testrun_id,
+                             config_file = _distributor_config_filename())
+
+        command = ["sleep", "5",";",
+                   "command_error_mock", "localhost", str(self.testrun_id)]
+        taskrunner1.add_task(command)
+        print "TASKS: %s" % taskrunner1._tasks[0].task_id
+
+        self.is_exception_raised = False
+
+        def cb_handler(signal, dto, **kwargs):
+            if isinstance(dto, Exception):
+                self.is_exception_raised = True
+
+        DTO_SIGNAL.connect(cb_handler)
+
+        # Overwrite server side timeout handler with a one that timeouts
+        from ots.server.distributor.timeout import Timeout
+        taskrunner1.timeout_handler = Timeout(1,
+                                       1,
+                                       1)
+
+        self.assertRaises(OtsExecutionTimeoutError, taskrunner1.run)
+        
+#        self.assertTrue(self.is_exception_raised)
+        
+        self.is_exception_raised = False
+
+        time.sleep(10) # Give worker time to reconnect
+
+        import logging
+        logging.debug("_________TASKRUNNER2____________")
+
+    # Trigger another task to make sure worker is still alive
+        taskrunner2 = taskrunner_factory(
+                             routing_key = ROUTING_KEY,
+                             execution_timeout = 10,
+                             testrun_id = self.testrun_id2,
+                             config_file = _distributor_config_filename())
+        taskrunner2.add_task(["echo", "foo"])
+        print "TASKS: %s" % taskrunner2._tasks[0].task_id
+        taskrunner2.run()
+        self.assertFalse(self.is_exception_raised)
+
+        self.send_quit()
+        time.sleep(1)
+
+        self.assertFalse(all(self.worker_processes.exitcodes))
+
 
     def send_quit(self):
         cmd_msg = CommandMessage(["quit"],
@@ -190,7 +307,7 @@ def _distributor_config_filename():
 
                  
 if __name__ == "__main__": 
-    if DEBUG:
+    if VERBOSE:
         import logging
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
