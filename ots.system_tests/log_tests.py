@@ -274,7 +274,7 @@ class TestErrorConditions(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
 
         # Log checks:
         testrun_id = get_latest_testrun_id()
@@ -287,7 +287,7 @@ class TestErrorConditions(unittest.TestCase):
 
         # Check error message
 
-        string = 'error_info set to "Timeout while executing test package testrunner-lite-regression-tests"'
+        string = "error_info set to 'Timeout while executing test package testrunner-lite-regression-tests'"
         self.assert_log_contains_string(testrun_id, string)
 
         # Check message from conductor        
@@ -308,14 +308,14 @@ class TestErrorConditions(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
         
         # Log checks:
         testrun_id = get_latest_testrun_id()
         print "testrun_id: %s" %testrun_id
         self.assertTrue(has_errors(testrun_id))
 
-        string = "Testrun finished with result: FAIL"
+        string = "Testrun finished with result: ERROR"
         self.assert_log_contains_string(testrun_id, string)
 
         string = """No queue for this_should_not_exist"""
@@ -436,7 +436,7 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to \"Invalid distribution model: sendalltestrunstowastebin\""
+        string = "error_info set to 'Invalid distribution model: sendalltestrunstowastebin'"
         self.assert_log_contains_string(testrun_id, string)
 
     def test_perpackage_distribution_no_packages(self):
@@ -459,7 +459,7 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to \"Test packages must be defined for specified distribution model 'perpackage'\""
+        string = "error_info set to 'Test packages must be defined for specified distribution model 'perpackage''"
         self.assert_log_contains_string(testrun_id, string)
 
 
@@ -481,7 +481,7 @@ class TestDeviceProperties(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
 
         testrun_id1 = get_second_latest_testrun_id()        
         testrun_id2 = get_latest_testrun_id()
@@ -521,7 +521,7 @@ class TestDeviceProperties(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
 
         testrun_id1 = get_second_latest_testrun_id()        
         testrun_id2 = get_latest_testrun_id()
@@ -567,7 +567,7 @@ class TestDeviceProperties(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
 
         testrun_id1 = get_second_latest_testrun_id()        
         testrun_id2 = get_latest_testrun_id()
