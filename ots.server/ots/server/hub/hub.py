@@ -117,7 +117,7 @@ class Hub(object):
         if self._taskrunner is None:
             self._taskrunner = primed_taskrunner(self.testrun_uuid, 
                                                  self.options.timeout,
-                                                 self.options.priority,
+                                                 self.options.distribution_model,
                                                  self.options.device_properties,
                                                  self.options.image,
                                                  self.options.hw_packages,

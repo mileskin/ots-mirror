@@ -33,6 +33,8 @@ from ots.server.allocator.conductor_commands import get_commands
 
 LOG = logging.getLogger(__name__)
 
+PERPACKAGE = "perpackage"
+
 def _storage_address():
     """
     rtype: C{str}
@@ -53,7 +55,7 @@ def _storage_address():
 # PUBLIC METHOD
 #####################
 
-def primed_taskrunner(testrun_uuid, execution_timeout, priority, 
+def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model, 
                       device_properties,
                       image, hw_packages, host_packages,
                       emmc, testfilter, flasher, publishers): 
@@ -66,8 +68,8 @@ def primed_taskrunner(testrun_uuid, execution_timeout, priority,
     @type execution_timeout: C{int}
     @param execution_timeout: The execution timeout in minutes
 
-    @type priority: C{int}
-    @param priority: The priority of this testrun
+    @type distribution_model: C{str}
+    @param distribution_model: The name of the distribution_model
 
     @type device_properties : C{dict}
     @param device_properties : A dictionary of device properties 
@@ -105,7 +107,7 @@ def primed_taskrunner(testrun_uuid, execution_timeout, priority,
     """
 
     is_package_distributed = False
-    if priority == 1:
+    if distribution_model == PERPACKAGE:
         is_package_distributed = True
 
     routing_key = get_routing_key(device_properties)

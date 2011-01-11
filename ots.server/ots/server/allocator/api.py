@@ -21,3 +21,4 @@
 # ***** END LICENCE BLOCK *****
 
 from ots.server.allocator.primed_taskrunner import primed_taskrunner
+from ots.server.allocator.primed_taskrunner import PERPACKAGE
