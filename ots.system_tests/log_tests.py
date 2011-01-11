@@ -41,10 +41,6 @@ from BeautifulSoup import BeautifulSoup
 from ots.tools.trigger.ots_trigger import ots_trigger
 
 CONFIGFILE = "system_tests.conf"
-
-
-
-        
 CONFIG = ConfigObj(CONFIGFILE).get("log_tests")
 
 class Options(object):
@@ -73,7 +69,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
     def test_testrun_with_test_definition_tests(self):
         options = Options()
-        options.engine = "default"
         options.testpackages = "test-definition-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 30
@@ -116,7 +111,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
     def test_host_based_testrun_with_test_definition_tests(self):
         options = Options()
-        options.engine = "default"
         options.hosttest = "test-definition-tests"
         options.testpackages = ""
         options.sw_product = "ots-system-tests"
@@ -165,7 +159,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
     def test_hw_and_host_based_testrun_with_test_definition_tests(self):
         options = Options()
-        options.engine = "default"
         options.hosttest = "test-definition-tests"
         options.testpackages = "test-definition-tests"
         options.sw_product = "ots-system-tests"
@@ -232,7 +225,6 @@ class TestErrorConditions(unittest.TestCase):
         # and error message
         options = Options()
         options.image = options.image+"asdfasdfthiswontexistasdfasdf"
-        options.engine = "default"
         options.testpackages = "testrunner-lite-regression-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 30
@@ -267,7 +259,6 @@ class TestErrorConditions(unittest.TestCase):
         # fail and correct error message is generated
 
         options = Options()
-        options.engine = "default"
         options.testpackages = "testrunner-lite-regression-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 1
