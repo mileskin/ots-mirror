@@ -75,7 +75,7 @@ class LoggerPlugin(PublisherPluginBase):
         
         self._httphandler = LocalHttpHandler(testrun_uuid)
         
-        self._httphandler.setLevel(logging.DEBUG)
+        self._httphandler.setLevel(logging.INFO) # No debug msgs to end users
         root_logger.addHandler(self._httphandler)
         
     #############################################
