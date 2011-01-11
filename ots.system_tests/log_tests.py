@@ -234,12 +234,12 @@ class TestErrorConditions(unittest.TestCase):
 
         result = ots_trigger(options)
 
-        # Check the return value
-        self.assertEquals(result, "FAIL")
-        
         # Log checks:
         testrun_id = get_latest_testrun_id()
         print "testrun_id: %s" %testrun_id
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
 
         self.assertTrue(has_errors(testrun_id))
 
