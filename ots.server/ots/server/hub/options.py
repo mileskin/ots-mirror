@@ -28,8 +28,6 @@ as provided by OTS clients.
 
 from ots.server.hub.parameters_parser import string_2_list, string_2_dict
 
-from ots.server.allocator.api import PERPACKAGE
-
 ############################
 # FLAGS
 ############################

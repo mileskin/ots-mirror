@@ -33,8 +33,6 @@ from ots.server.allocator.get_commands import get_commands
 
 LOG = logging.getLogger(__name__)
 
-PERPACKAGE = "perpackage"
-
 def _storage_address():
     """
     rtype: C{str}
