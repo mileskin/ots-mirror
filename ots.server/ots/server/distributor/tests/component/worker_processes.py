@@ -42,8 +42,13 @@ def start_worker(config_filename):
     os.environ["PATH"] = new_path
     #create and start it
     worker = worker_factory(config_filename)
-    amqp_log_handler = create_amqp_log_handler() 
-    worker.amqp_log_handler = amqp_log_handler 
+
+#    AMQP log handler disabled because of problems in error situations
+#    (See test_worker_alive_after_server_timeout in distributor component tests)
+#    TODO: Fix in 0.9
+
+#    amqp_log_handler = create_amqp_log_handler() 
+#    worker.amqp_log_handler = amqp_log_handler 
     
     worker.start()
 

@@ -27,16 +27,6 @@ from ots.server.hub.options import Options, string_2_dict, string_2_list
 
 class TestOptions(unittest.TestCase):
 
-    def test_string_2_list(self):
-        expected = ['mary', 'had', 'a', 'little', 'lamb']
-        self.assertEquals(expected,
-                          string_2_list("mary had a little lamb"))
-
-    def test_string_2_dict(self):
-        expected = {'veg': 'oranges', 'fruit': 'apples', 'meat': 'beef'}
-        self.assertEquals(expected,
-                          string_2_dict("fruit:apples"\
-                                            " veg:oranges meat:beef"))
     def test_image(self):
         options = Options(**{"image" :"www.nokia.com"})
         self.assertEquals("www.nokia.com", options.image)

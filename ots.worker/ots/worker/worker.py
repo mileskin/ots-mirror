@@ -194,8 +194,13 @@ def main():
     #    
     _init_logging(options.config)
     worker = worker_factory(options.config)
-    amqp_log_handler = create_amqp_log_handler() 
-    worker.amqp_log_handler = amqp_log_handler 
+
+#    AMQP log handler disabled because of problems in error situations
+#    (See test_worker_alive_after_server_timeout in distributor component tests)
+#    TODO: Fix in 0.9
+#
+#    amqp_log_handler = create_amqp_log_handler() 
+#    worker.amqp_log_handler = amqp_log_handler 
     worker.start()
 
 if __name__ == '__main__':

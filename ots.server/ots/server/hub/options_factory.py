@@ -20,7 +20,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import os
+
+"""
+Safely create the Options API from a dictionary 
+setting configurable defaults
+""" 
+
 import configobj
 import logging
 
@@ -28,13 +33,15 @@ from ots.server.server_config_filename import server_config_filename
 
 from ots.server.hub.options import Options 
 from ots.server.hub.sandbox import sandbox
-
-"""
-Safely create the Options API from a dictionary 
-setting configurable defaults
-""" 
+from ots.server.hub.parameters_parser import string_2_dict
 
 LOG = logging.getLogger(__name__)
+
+##################################
+# KEYS
+##################################
+
+DEVICE = "device"
 
 ###################################
 # DEFAULTS 
@@ -58,8 +65,12 @@ class OptionsFactory(object):
         - The `options_dict` on the interface
         - The config options arising from the sw_pdt selection
 
+    The options_dict overrides the defaults from the configuration
+    in all but one case: the `device`. 
+    In the merging of `device` we do our best to ensure a `devicegroup` 
+    node for the routing.
 
-    The output are "Core" and "Extended" Options.
+    The outputs are "Core" and "Extended" Options.
     """
 
     aliases = {"image" : "image_url",
@@ -94,7 +105,8 @@ class OptionsFactory(object):
         @rtype: C{dict} or None
         @returns: The dictionary of options with "-" replaced by "_"
         """
-        return dict([(k.replace("-","_"), v) for k,v in options_dict.items()])
+        return dict([(k.replace("-" , "_"), v) 
+                     for k , v in options_dict.items()])
                     
     @staticmethod
     def _default_options_dict(sw_product):
@@ -111,9 +123,38 @@ class OptionsFactory(object):
         config = configobj.ConfigObj(conf).get('swproducts').get(sw_product)
         if not config:
             pdts = configobj.ConfigObj(conf).get('swproducts').keys()
-            msg = "'%s' not found in sw products: %s"%(sw_product, pdts)
+            msg = "'%s' not found in sw products: %s" % (sw_product, pdts)
             raise ValueError(msg)
         return config
+
+    @property
+    @sandbox({})
+    def _config_device_dict(self):
+        """
+        rtype : C{dict}
+        rparam : The `device` as taken from the config file
+                 TODO: defaults to empty dict
+        """
+        default_dict = self._default_options_dict(self._sw_product)
+        return default_dict.get(DEVICE, {})
+
+    @property
+    def _core_device_dict(self):
+        """
+        rtype : C{dict}
+        rparam : The `device` as taken from the core_options file
+                 TODO: defaults to empty dict
+        """
+        ret_val = {}
+        device = self.core_options_dict.get(DEVICE, None)
+        if device is not None:
+            if isinstance(device, str):
+                ret_val = string_2_dict(device)
+            elif isinstance(device, dict):
+                ret_val = device
+            else:
+                raise ValueError("device has type '%s'"% type(device))
+        return ret_val
 
     #######################################
     # PROPERTIES
@@ -166,7 +207,7 @@ class OptionsFactory(object):
         config_file_options_dict.update(sanitised_options_dict)
         sanitised_options_dict = config_file_options_dict
         return sanitised_options_dict
-        
+
     @property 
     def core_options_dict(self):
         """
@@ -185,17 +226,41 @@ class OptionsFactory(object):
             if key in self.config_file_options_dict:
                 core_config_file_options_dict[key] = \
                      self.config_file_options_dict[key]
-        
+         
         core_config_file_options_dict.update(core_options_dict)
         core_options_dict = core_config_file_options_dict
         
-        # TODO: device properties dict needs to be updated separately. Otherwise it will get overwritten
         #Patch aliases 
         for new_name, old_name in self.aliases.items():
             if self._options_dict.has_key(old_name):
                 core_options_dict[new_name] = self._options_dict[old_name]
+
         return core_options_dict
 
+    @property 
+    def processed_core_options_dict(self):
+        """
+        Recognised core options 
+        Overrides the defaults depending on configuration.
+
+        Ensures that there is `devicegroup` added to the device  
+       
+        rtype : C{dict}
+        rparam : The processed Options dictionary
+        """
+        #The `device` holds the attributes for the routing mechanism
+        #The routing presents an attribute based API 
+        #but the namespaces under the hood oblige the
+        #root node "devicegroup" to be present
+        #If it hasn't been provided as part of the options_dict 
+        #we dig back into the config file and try to pick it up from there
+        #See bugzilla FEA 8563
+        config_device_dict = self._config_device_dict
+        config_device_dict.update(self._core_device_dict)
+        processed_core_options_dict = self.core_options_dict
+        processed_core_options_dict[DEVICE] = config_device_dict
+        return processed_core_options_dict
+        
     #####################################
     # FACTORY METHOD
     #####################################
@@ -208,4 +273,4 @@ class OptionsFactory(object):
         if not self.core_options_dict.has_key("image"):
             raise ValueError("Missing `image` parameter")
         LOG.debug("Calling options with kwarg: %s"%(self.core_options_dict))
-        return Options(**self.core_options_dict)
+        return Options(**self.processed_core_options_dict)

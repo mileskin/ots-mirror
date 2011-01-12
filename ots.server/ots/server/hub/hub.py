@@ -52,7 +52,6 @@ import sys
 import os
 import logging
 import logging.config
-import traceback
 import uuid
 from traceback import format_exception
 
@@ -63,7 +62,6 @@ import ots.server
 
 from ots.server.allocator.api import primed_taskrunner
 
-import ots.server.hub.sandbox as sandbox_module
 from ots.server.hub.sandbox import sandbox
 from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
@@ -109,13 +107,15 @@ class Hub(object):
         @type request_id: C{str}
         @param request_id: An identifier for the request from the client
         """
-        reload(sandbox_module)
+        sandbox.is_on = True
         self._sw_product = sw_product
         self._request_id = request_id
         self._testrun_uuid = None
 
         self._options_factory = OptionsFactory(self.sw_product, kwargs)
         self._taskrunner = None
+
+        self._options = None
 
         # Dont enable before logging is configured properly!
         # - If disabled all messages are visible in http logger.
@@ -147,6 +147,7 @@ class Hub(object):
                             incoming_options))
         except ValueError:
             pass
+
     #############################################
     # Sandboxed Properties
     #############################################
@@ -215,7 +216,9 @@ class Hub(object):
 
     @property
     def options(self):
-        return self._options_factory()
+        if self._options is None:
+            self._options = self._options_factory()
+        return self._options
 
     @property 
     def taskrunner(self):
@@ -292,14 +295,14 @@ class Hub(object):
                 # TODO: we should publish all exceptions, or just start
                 #       using TestrunResult for error reporting
                 publishers.set_exception(testrun.exceptions[0])
-
                 for error in testrun.exceptions:
+                    LOG.info("error_info set to '%s'"%(error.strerror))
                     testrun_result.addError(TestCase,
                                             (error, error.strerror, None))
         except Exception, err:
             type, value, tb = sys.exc_info()
             testrun_result.addError(TestCase, (type, value, tb))
-            LOG.error("publishing failed", exc_info=True)
+            LOG.debug("publishing failed", exc_info=True)
         return testrun_result
 
     ################################
@@ -313,28 +316,23 @@ class Hub(object):
         @rtype : C{unittest.TestResult}
         @rparam : A TestResult 
         """
-        if sandbox.exc_info !=  (None, None, None): 
+        if sandbox.exc_info != (None, None, None): 
             LOG.error("Sandbox Error. Forced Initialisation")
             etype, value, tb = sandbox.exc_info
             str_tb = ''.join(format_exception(etype, value, tb, 50))
             LOG.error(str_tb)
             testrun_result = TestResult() 
+            LOG.info("error_info set to '%s'" %(str(value)))
             testrun_result.addError(TestCase, (etype, value, tb))
+            self._publishers.set_exception(value)
             sandbox.exc_info = (None, None, None)
         else:
             testrun_result = self._testrun()
-        result_string = result_to_string(testrun_result)        
-        # Catch plug-in failures
-        try:
-            # TODO: What's the result format in publisher interface???????
-            self._publishers.set_testrun_result(result_string)
-            self._publishers.publish()
-        except Exception, error:
-            type, value, tb = sys.exc_info()
-            testrun_result.addError(TestCase, (type, value, tb))
-            LOG.error("publishing failed", exc_info=True)
-
         result_string = result_to_string(testrun_result)
+        # TODO: Whats the result format in publisher interface???????
+        LOG.info("Result set to %s"%(result_string))
+        self._publishers.set_testrun_result(result_string)
+        self._publishers.publish()
         LOG.info("Testrun finished with result: %s" % result_string)
         return testrun_result
 
@@ -346,5 +344,5 @@ def result_to_string(testrun_result):
     elif testrun_result.failures:
         return "FAIL"
     else:
-#        LOG.debug("Testrun failure %s" % testrun_result.errors)
+        #LOG.debug("Testrun failure %s" % testrun_result.errors)
         return "ERROR"

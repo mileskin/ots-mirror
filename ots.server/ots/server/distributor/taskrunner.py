@@ -173,10 +173,6 @@ class TaskRunner(object):
                                        queue_timeout, 
                                        controller_timeout)
 
-        # Tells if we are running only a single task
-        # Used for backward compatibility
-        self._single_task_mode = False
-        
 
     #############################################
     # MESSAGE HANDLING 
@@ -199,7 +195,8 @@ class TaskRunner(object):
         """
         msg = unpack_message(amqp_message)
         if isinstance(msg, StateChangeMessage):
-            LOGGER.debug("Received state change message %s " % msg.condition)
+            LOGGER.debug("Received state change message %s, task %s "\
+                             % (msg.condition, msg.task_id))
             self._task_transition(msg)
         else:
             #The message is data. Relay using a signal
@@ -335,8 +332,6 @@ class TaskRunner(object):
             raise TaskRunnerException("This TaskRunner has already been run")
         self._is_run = True 
 
-        if len(self._tasks) == 1:
-            self._single_task_mode = True
         if not queue_exists(self._host, 
                             self._username, 
                             self._password, 

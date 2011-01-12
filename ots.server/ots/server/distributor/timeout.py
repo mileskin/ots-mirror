@@ -94,7 +94,7 @@ class Timeout(object):
         signal.signal(signal.SIGALRM, queue_timeout_handler)
         signal.alarm(self.queue_timeout)
 
-    def task_started(self, single_task = False):
+    def task_started(self):
         """sets timeout. Previous timeout will be overwritten."""
         def execution_timeout_handler(signum, frame):
             """
@@ -109,10 +109,8 @@ class Timeout(object):
             LOGGER.error("Execution timeout (server side)")
             raise OtsExecutionTimeoutError
 
-        if not single_task:
-            timeout = self._calculate_new_timeout()
-        else:
-            timeout = self.execution_timeout
+
+        timeout = self._calculate_new_timeout()
         LOGGER.info("Setting server side execution timeout to %s minutes" \
                           % (timeout/60))
         signal.signal(signal.SIGALRM, execution_timeout_handler)

@@ -59,8 +59,8 @@ class sandbox(object):
                 return func(*args)
             except:
                 if sandbox.is_on:
-                    LOG.exception("sandbox caught error")
                     if sandbox.exc_info == (None, None, None):
+                        LOG.exception("sandbox caught error")
                         sandbox.exc_info = sys.exc_info()
                     return self._ret_val
                 else:

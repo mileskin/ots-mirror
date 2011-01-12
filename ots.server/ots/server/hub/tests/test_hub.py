@@ -27,7 +27,6 @@ from socket import gethostname
 from ots.common.framework.api import PublisherPluginBase
 from ots.common.dto.api import OTSException
 
-
 import ots.server.hub.sandbox as sandbox
 
 from ots.server.distributor.api import TaskRunner
@@ -109,7 +108,7 @@ class TestHubRun(unittest.TestCase):
         hub._taskrunner = mock_taskrunner
         hub._publishers = PublishersStub(None, None, None, None)
         hub.run()
-        self.assertTrue(isinstance(hub._publishers.exception, OTSException))
+        self.assertTrue(isinstance(hub._publishers.exception, Exception))
         testrun_result = hub._publishers.testrun_result
         self.assertEquals(hub._publishers.testrun_result, "ERROR")
 
@@ -158,14 +157,12 @@ class TestHubProperties(unittest.TestCase):
         self.assertFalse(hub.is_hw_enabled)
 
     def test_is_host_enabled(self):
-        #FIXME need to know priority
-        #hub = Hub("example_sw_product", 111, image = "foo", 
-        #          hosttest = "a-tests b-tests c-tests")
-        #self.assertTrue(hub.is_host_enabled)
-        #hub = Hub("example_sw_product", 111, image = "foo")
-        #self.assertFalse(hub.is_host_enabled)
-        pass
-
+        hub = Hub("example_sw_product", 111, image = "foo", 
+                  hosttest = "a-tests b-tests c-tests")
+        self.assertTrue(hub.is_host_enabled)
+        hub = Hub("example_sw_product", 111, image = "foo")
+        self.assertFalse(hub.is_host_enabled)
+        
     def test_options(self):
         hub = Hub(111, 111, image = "foo")
         self.assertEquals(0, hub.options.timeout)

@@ -41,10 +41,6 @@ from BeautifulSoup import BeautifulSoup
 from ots.tools.trigger.ots_trigger import ots_trigger
 
 CONFIGFILE = "system_tests.conf"
-
-
-
-        
 CONFIG = ConfigObj(CONFIGFILE).get("log_tests")
 
 class Options(object):
@@ -73,7 +69,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
     def test_testrun_with_test_definition_tests(self):
         options = Options()
-        options.engine = "default"
         options.testpackages = "test-definition-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 30
@@ -116,7 +111,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
     def test_host_based_testrun_with_test_definition_tests(self):
         options = Options()
-        options.engine = "default"
         options.hosttest = "test-definition-tests"
         options.testpackages = ""
         options.sw_product = "ots-system-tests"
@@ -165,7 +159,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
     def test_hw_and_host_based_testrun_with_test_definition_tests(self):
         options = Options()
-        options.engine = "default"
         options.hosttest = "test-definition-tests"
         options.testpackages = "test-definition-tests"
         options.sw_product = "ots-system-tests"
@@ -223,12 +216,15 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
 class TestErrorConditions(unittest.TestCase):
 
+    def assert_log_contains_string(self, testrun_id, string): 
+        self.assertTrue(has_message(testrun_id, string), 
+         "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
+
     def test_bad_image_url(self):
         # Trigger a testrun with non existing image url. Check correct result
         # and error message
         options = Options()
         options.image = options.image+"asdfasdfthiswontexistasdfasdf"
-        options.engine = "default"
         options.testpackages = "testrunner-lite-regression-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 30
@@ -238,19 +234,19 @@ class TestErrorConditions(unittest.TestCase):
 
         result = ots_trigger(options)
 
-        # Check the return value
-        self.assertEquals(result, "FAIL")
-        
         # Log checks:
         testrun_id = get_latest_testrun_id()
         print "testrun_id: %s" %testrun_id
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
 
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
         self.assertTrue(has_message(testrun_id, string))
 
-        string = 'error_info set to "Could not download file'
+        string = "error_info set to 'Could not download file"
         self.assertTrue(has_message(testrun_id, string))
 
         # Check message from conductor
@@ -263,7 +259,6 @@ class TestErrorConditions(unittest.TestCase):
         # fail and correct error message is generated
 
         options = Options()
-        options.engine = "default"
         options.testpackages = "testrunner-lite-regression-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 1
@@ -279,7 +274,7 @@ class TestErrorConditions(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
 
         # Log checks:
         testrun_id = get_latest_testrun_id()
@@ -292,12 +287,12 @@ class TestErrorConditions(unittest.TestCase):
 
         # Check error message
 
-        string = 'error_info set to "Timeout while executing test package testrunner-lite-regression-tests"'
-        self.assertTrue(has_message(testrun_id, string))
+        string = "error_info set to 'Timeout while executing test package testrunner-lite-regression-tests'"
+        self.assert_log_contains_string(testrun_id, string)
 
         # Check message from conductor        
         string = 'Test execution error: Timeout while executing test package testrunner-lite-regression-tests'
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
 
 
@@ -313,29 +308,29 @@ class TestErrorConditions(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
         
         # Log checks:
         testrun_id = get_latest_testrun_id()
         print "testrun_id: %s" %testrun_id
         self.assertTrue(has_errors(testrun_id))
 
-        string = "Testrun finished with result: FAIL"
-        self.assertTrue(has_message(testrun_id, string))
+        string = "Testrun finished with result: ERROR"
+        self.assert_log_contains_string(testrun_id, string)
 
         string = """No queue for this_should_not_exist"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
         string = """Incoming request: program: ots-system-tests, request: 0, notify_list: ['%s'], options: {"""  % (CONFIG["email"])
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'image': '%s'""" % CONFIG["image_url"]
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'distribution_model': 'default'"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'timeout': 1"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'device': 'devicegroup:this_should_not_exist'"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
     def test_non_existing_sw_product(self):
         options = Options()
@@ -355,19 +350,19 @@ class TestErrorConditions(unittest.TestCase):
         testrun_id = get_latest_testrun_id()
         print "testrun_id: %s" %testrun_id
         self.assertTrue(has_errors(testrun_id))
-        string = """Unknown sw_product this_should_not_exist"""
-        self.assertTrue(has_message(testrun_id, string))
+        string = """'this_should_not_exist' not found"""
+        self.assert_log_contains_string(testrun_id, string)
 
         string = """Incoming request: program: this_should_not_exist, request: 0, notify_list: ['%s'], options: {"""  % (CONFIG["email"])
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
 
         string = """'image': '%s'""" % CONFIG["image_url"]
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'distribution_model': 'default'"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
         string = """'timeout': 1"""
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
 
 
@@ -390,10 +385,10 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to \"Invalid testpackage(s): ['thisisnotatestpackage']\""
-        self.assertTrue(has_message(testrun_id, string))
+        string = "error_info set to 'Invalid testpackage(s): thisisnotatestpackage'"
+        self.assert_log_contains_string(testrun_id, string)
 
 
     def test_no_image_url(self):
@@ -415,10 +410,10 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to \"No image url or rootstrap url defined.\""
-        self.assertTrue(has_message(testrun_id, string))
+        string = "Missing `image` parameter"
+        self.assert_log_contains_string(testrun_id, string)
 
     def test_bad_distribution_model(self):
         options = Options()
@@ -439,10 +434,10 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to \"Invalid distribution model: sendalltestrunstowastebin\""
-        self.assertTrue(has_message(testrun_id, string))
+        string = "error_info set to 'Invalid distribution model: sendalltestrunstowastebin'"
+        self.assert_log_contains_string(testrun_id, string)
 
     def test_perpackage_distribution_no_packages(self):
         options = Options()
@@ -462,10 +457,10 @@ class TestErrorConditions(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to \"Test packages must be defined for specified distribution model 'perpackage'\""
-        self.assertTrue(has_message(testrun_id, string))
+        string = "error_info set to 'Test packages must be defined for specified distribution model 'perpackage''"
+        self.assert_log_contains_string(testrun_id, string)
 
 
 
@@ -486,7 +481,7 @@ class TestDeviceProperties(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
 
         testrun_id1 = get_second_latest_testrun_id()        
         testrun_id2 = get_latest_testrun_id()
@@ -526,7 +521,7 @@ class TestDeviceProperties(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
 
         testrun_id1 = get_second_latest_testrun_id()        
         testrun_id2 = get_latest_testrun_id()
@@ -572,7 +567,7 @@ class TestDeviceProperties(unittest.TestCase):
         result = ots_trigger(options)
 
         # Check the return value
-        self.assertEquals(result, "FAIL")
+        self.assertEquals(result, "ERROR")
 
         testrun_id1 = get_second_latest_testrun_id()        
         testrun_id2 = get_latest_testrun_id()
