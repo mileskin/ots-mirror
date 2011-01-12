@@ -28,13 +28,14 @@ as provided by OTS clients.
 
 from ots.server.hub.parameters_parser import string_2_list, string_2_dict
 
+from ots.server.allocator.api import PERPACKAGE
+
 ############################
 # FLAGS
 ############################
 
 TRUE = "true"
 FALSE = "false"
-PERPACKAGE = "perpackage"
 ON = "on"
 
 #################################
@@ -142,14 +143,12 @@ class Options(object):
         return self._emmc
 
     @property
-    def priority(self):
+    def distribution_model(self):
         """
-        @rtype: C{int}
-        @return: The priority of the Testrun
+        @rtype: C{str}
+        @return: The name of the Distribution Model
         """
-        if self._distribution_model == PERPACKAGE:
-            return 1
-        return 2
+        return self._distribution_model 
 
     @property
     def flasher(self):
