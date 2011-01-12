@@ -104,9 +104,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, priority,
     rparam: A loaded Taskrunner 
     """
 
-    is_package_distributed = False
+    distribution_model = "default"
     if priority == 1:
-        is_package_distributed = True
+        distribution_model = "perpackage"
 
     routing_key = get_routing_key(device_properties)
     taskrunner = taskrunner_factory(routing_key, execution_timeout, 
@@ -117,7 +117,7 @@ def primed_taskrunner(testrun_uuid, execution_timeout, priority,
     if host_packages:
         test_list['host'] = ",".join(host_packages)
 
-    cmds = get_commands(is_package_distributed,
+    cmds = get_commands(distribution_model,
                         image,
                         test_list,
                         emmc,
