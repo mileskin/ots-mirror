@@ -113,9 +113,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, priority,
                                     testrun_uuid)
     test_list = dict()
     if hw_packages:
-        test_list['device'] = " ".join(hw_packages)
+        test_list['device'] = ",".join(hw_packages)
     if host_packages:
-        test_list['host'] = " ".join(host_packages)
+        test_list['host'] = ",".join(host_packages)
 
     cmds = get_commands(is_package_distributed,
                         image,
