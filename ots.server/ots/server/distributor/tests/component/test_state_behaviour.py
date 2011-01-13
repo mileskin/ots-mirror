@@ -62,7 +62,7 @@ from ots.server.distributor.tests.component.worker_processes \
 
 #Debug to allow running of Worker in separate terminal
 DEBUG = False
-VERBOSE = True
+VERBOSE = False
 
 ROUTING_KEY = "foo"
 
@@ -177,7 +177,6 @@ class TestStateBehaviour(unittest.TestCase):
 
         command = ["sleep", "5"]
         taskrunner1.add_task(command)
-        print "TASKS: %s" % taskrunner1._tasks[0].task_id
 
         self.is_exception_raised = False
 
@@ -201,9 +200,6 @@ class TestStateBehaviour(unittest.TestCase):
 
         time.sleep(10) # Give worker time to reconnect
 
-        import logging
-        logging.debug("_________TASKRUNNER2____________")
-
     # Trigger another task to make sure worker is still alive
         taskrunner2 = taskrunner_factory(
                              routing_key = ROUTING_KEY,
@@ -211,7 +207,6 @@ class TestStateBehaviour(unittest.TestCase):
                              testrun_id = self.testrun_id2,
                              config_file = _distributor_config_filename())
         taskrunner2.add_task(["echo", "foo"])
-        print "TASKS: %s" % taskrunner2._tasks[0].task_id
         taskrunner2.run()
         self.assertFalse(self.is_exception_raised)
 
@@ -234,7 +229,6 @@ class TestStateBehaviour(unittest.TestCase):
         command = ["sleep", "5",";",
                    "command_error_mock", "localhost", str(self.testrun_id)]
         taskrunner1.add_task(command)
-        print "TASKS: %s" % taskrunner1._tasks[0].task_id
 
         self.is_exception_raised = False
 
@@ -258,8 +252,6 @@ class TestStateBehaviour(unittest.TestCase):
 
         time.sleep(10) # Give worker time to reconnect
 
-        import logging
-        logging.debug("_________TASKRUNNER2____________")
 
     # Trigger another task to make sure worker is still alive
         taskrunner2 = taskrunner_factory(
@@ -268,7 +260,6 @@ class TestStateBehaviour(unittest.TestCase):
                              testrun_id = self.testrun_id2,
                              config_file = _distributor_config_filename())
         taskrunner2.add_task(["echo", "foo"])
-        print "TASKS: %s" % taskrunner2._tasks[0].task_id
         taskrunner2.run()
         self.assertFalse(self.is_exception_raised)
 
