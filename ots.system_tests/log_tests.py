@@ -67,14 +67,14 @@ class Options(object):
 
 class TestSuccessfulTestruns(unittest.TestCase):
 
-    def test_testrun_with_test_definition_tests(self):
+    def test_hw_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.testpackages = "test-definition-tests"
         options.sw_product = "ots-system-tests"
         options.timeout = 30
 
         print "****************************"
-        print "Triggering a testrun with test-definition-tests\n"
+        print "Triggering a HW based test run with test-definition-tests\n"
         print "System requirements:"
         print "Image with test-definition-tests available in %s" % options.image
         print "SW Product %s defined" % options.sw_product
@@ -108,7 +108,100 @@ class TestSuccessfulTestruns(unittest.TestCase):
         # Check a message from testrunner-lite
         string = """Finished running tests."""
         self.assertTrue(has_message(testrun_id, string))
-    
+
+    def test_host_based_testrun_with_test_definition_tests(self):
+        options = Options()
+        options.hosttest = "test-definition-tests"
+        options.testpackages = ""
+        options.sw_product = "ots-system-tests"
+        options.timeout = 30
+
+        print "****************************"
+        print "Triggering a testrun with test-definition-tests\n"
+        print "System requirements:"
+        print "Image with test-definition-tests available in %s" % options.image
+        print "SW Product %s defined" % options.sw_product
+        print "A fully functional worker configured to %s."\
+            % options.sw_product
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "PASS")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertFalse(has_errors(testrun_id))
+
+        string = "Testrun finished with result: PASS"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check environment
+        string = "Environment: Hardware"
+        self.assertFalse(has_message(testrun_id, string))
+
+        string = "Environment: Host_Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check message from conductor
+        string = "Starting conductor at"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check a message from testrunner-lite
+        string = """Finished running tests."""
+        self.assertTrue(has_message(testrun_id, string))
+
+    def test_hw_and_host_based_testrun_with_test_definition_tests(self):
+        options = Options()
+        options.hosttest = "test-definition-tests"
+        options.testpackages = "test-definition-tests"
+        options.sw_product = "ots-system-tests"
+        options.timeout = 60
+
+        print "****************************"
+        print "Triggering a testrun with test-definition-tests on host and hardware\n"
+        print "System requirements:"
+        print "Image with test-definition-tests available in %s" % options.image
+        print "SW Product %s defined" % options.sw_product
+        print "A fully functional worker capable of running test-definition-"\
+            "tests configured to sw_product %s." % options.sw_product
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "PASS")
+
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertFalse(has_errors(testrun_id))
+
+        string = "Testrun finished with result: PASS"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check environment
+        string = "Environment: Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "Environment: Host_Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check message from conductor
+        string = "Starting conductor at"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check that both environments get executed
+        string = "Environment: Host_Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        string = "Environment: Hardware"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check a message from testrunner-lite
+        string = """Finished running tests."""
+        self.assertTrue(has_message(testrun_id, string))
+
     def test_testrun_with_filter(self):
         options = Options()
         options.testpackages = "testrunner-lite-regression-tests"
@@ -162,99 +255,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
         string = "Executed 2 cases. Passed 2 Failed 0"
         self.assertTrue(has_message(testrun_id, string))
 
-    def test_host_based_testrun_with_test_definition_tests(self):
-        options = Options()
-        options.hosttest = "test-definition-tests"
-        options.testpackages = ""
-        options.sw_product = "ots-system-tests"
-        options.timeout = 30
-
-        print "****************************"
-        print "Triggering a testrun with test-definition-tests\n"
-        print "System requirements:"
-        print "Image with test-definition-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check environment
-        string = "Environment: Hardware"
-        self.assertFalse(has_message(testrun_id, string))
-
-        string = "Environment: Host_Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check a message from testrunner-lite
-        string = """Finished running tests."""
-        self.assertTrue(has_message(testrun_id, string))
-
-
-    def test_hw_and_host_based_testrun_with_test_definition_tests(self):
-        options = Options()
-        options.hosttest = "test-definition-tests"
-        options.testpackages = "test-definition-tests"
-        options.sw_product = "ots-system-tests"
-        options.timeout = 60
-
-        print "****************************"
-        print "Triggering a testrun with test-definition-tests on host and hardware\n"
-        print "System requirements:"
-        print "Image with test-definition-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker capable of running test-definition-tests configured to sw_product %s." % options.sw_product
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check environment
-        string = "Environment: Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        string = "Environment: Host_Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check that both environments get executed
-        string = "Environment: Host_Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        string = "Environment: Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check a message from testrunner-lite
-        string = """Finished running tests."""
-        self.assertTrue(has_message(testrun_id, string))
-
     def test_hw_based_testrun_split_into_multiple_tasks(self):
         options = Options()
         options.distribution = "perpackage"
@@ -293,7 +293,7 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
         # Check message from conductor
         string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assertTrue(has_message(testrun_id, string, 2))
 
         # Check a message from testrunner-lite
         string = "Finished running tests."
@@ -301,6 +301,64 @@ class TestSuccessfulTestruns(unittest.TestCase):
         
         # Check two messages from two separate tests on HW
         string = "Testrun ID: %s  Environment: Hardware" % testrun_id
+        self.assertTrue(has_message(testrun_id, string, 2))
+        
+        # Check correct test package executions
+        string = "Beginning to execute test package: test-definition-tests"
+        self.assertTrue(has_message(testrun_id, string, 1))
+        string = "Beginning to execute test package: testrunner-lite-regression-test"
+        self.assertTrue(has_message(testrun_id, string, 1))
+        
+        string = "Executed 1 cases. Passed 1 Failed 0"
+        self.assertTrue(has_message(testrun_id, string, 2))
+
+    def test_host_based_testrun_split_into_multiple_tasks(self):
+        options = Options()
+        options.distribution = "perpackage"
+        options.hosttest = \
+            "test-definition-tests testrunner-lite-regression-tests"
+        options.sw_product = "ots-system-tests"
+        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.timeout = 60
+
+        print "****************************"
+        print "Triggering two host based test runs with per package "\
+            "distribution"
+        print "System requirements:"
+        print "Image with test-definition-tests and testrunner-lite-" \
+            "regression-tests available in %s" % options.image
+        print "SW Product %s defined" % options.sw_product
+        print "A fully functional worker configured to %s."\
+            % options.sw_product
+        print "A fully functional worker capable of running test-definition-"\
+            "tests and testrunner-lite-regression-tests configured to "\
+            "sw_product %s." % options.sw_product
+        print "Filter set to run only one case from both packages: %s" \
+            % options.filter
+        
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "PASS")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertFalse(has_errors(testrun_id))
+
+        string = "Testrun finished with result: PASS"
+        self.assertTrue(has_message(testrun_id, string))
+
+        # Check message from conductor
+        string = "Starting conductor at"
+        self.assertTrue(has_message(testrun_id, string, 2))
+
+        # Check a message from testrunner-lite
+        string = "Finished running tests."
+        self.assertTrue(has_message(testrun_id, string, 2))
+        
+        # Check two messages from two separate tests on host
+        string = "Testrun ID: %s  Environment: Host_Hardware" % testrun_id
         self.assertTrue(has_message(testrun_id, string, 2))
         
         # Check correct test package executions
@@ -726,7 +784,7 @@ class TestDeviceProperties(unittest.TestCase):
         # Check the return value
         self.assertEquals(result, "ERROR")
 
-        testrun_id1 = get_second_latest_testrun_id()        
+        testrun_id1 = get_second_latest_testrun_id()
         testrun_id2 = get_latest_testrun_id()
         print "testrun_id1: %s" %testrun_id1
         print "testrun_id2: %s" %testrun_id2
