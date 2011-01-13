@@ -32,9 +32,11 @@ That adds LocalHttpHandler to log handlers.
 
 from ots.common.framework.publisher_plugin_base import PublisherPluginBase
 import logging
-#import logging.handlers
+import datetime
+import os
 from ots.logger_plugin.localhandler import LocalHttpHandler
 
+LOG_DIR = "/var/log/ots/"  # TODO: Log directory to config file
 
 class LoggerPlugin(PublisherPluginBase):
     """
@@ -58,25 +60,35 @@ class LoggerPlugin(PublisherPluginBase):
         """
 
         self._httphandler = None
-        self._initialize_logger(testrun_uuid)
+        self._filehandler = None
+        self._initialize_logger(testrun_uuid, request_id)
     
     def __del__(self):
         self._remove_logger()
     #############################################
     # Logger initialization
     #############################################
-    def _initialize_logger(self, testrun_uuid):
+    def _initialize_logger(self, testrun_uuid, request_id):
         """
         initializes the logger
         """
         logging.basicConfig() # This makes sure default formatters get loaded. Otherwise exc_info is not processed
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
-        
+
+        # HTTP handler for end users
         self._httphandler = LocalHttpHandler(testrun_uuid)
-        
         self._httphandler.setLevel(logging.INFO) # No debug msgs to end users
         root_logger.addHandler(self._httphandler)
+
+        # File handler for maintainers/developers
+        log_id_string = _generate_log_id_string(request_id, testrun_uuid)
+        format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
+        os.system("mkdir -p %s" % LOG_DIR)
+        self._filehandler = logging.FileHandler(LOG_DIR+log_id_string)
+        self._filehandler.setLevel(logging.DEBUG) # All messages to the files
+        self._filehandler.setFormatter(logging.Formatter(format))
+        root_logger.addHandler(self._filehandler)
         
     #############################################
     # Logger removal
@@ -89,3 +101,13 @@ class LoggerPlugin(PublisherPluginBase):
             root_logger = logging.getLogger('')
             root_logger.removeHandler(self._httphandler)
             
+
+
+def _generate_log_id_string(build_id, testrun_id):
+    """
+    Generates the log file name
+    """
+    request_id = "testrun_%s_request_%s_"% (testrun_id, build_id)
+    request_id += str(datetime.datetime.now()).\
+        replace(' ','_').replace(':','_').replace('.','_')
+    return request_id

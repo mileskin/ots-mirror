@@ -47,17 +47,18 @@ def get_commands(distribution_model,
 
     cmds = []
 
-    # Try custom distribution models first                                                                              
+    # Try custom distribution models first
+
     for dist in custom_distribution_models:
         if distribution_model == dist[0]:
             return(dist[1](test_list, options))
 
 
-    # Or use defaults                                                                                                   
+    # Or use defaults
     if distribution_model == "perpackage":
         cmds = perpackage_distribution(test_list,
                                        options)
-    else: # Default to single task distribution if nothing else matches                                                 
+    else: # Default to single task distribution if nothing else matches
         cmds = single_task_distribution(test_list,
                                         options)
     return cmds
