@@ -232,13 +232,13 @@ class TestPropertiesDistribution(unittest.TestCase):
 
 
 if __name__ == "__main__":
-#    import logging
-#    root_logger = logging.getLogger('')
-#    root_logger.setLevel(logging.DEBUG)
-#    log_handler = logging.StreamHandler()
-#    formatter = logging.Formatter(
-#        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-#    log_handler.setFormatter(formatter)
-#    log_handler.setLevel(logging.DEBUG)
-#    root_logger.addHandler(log_handler)
+    import logging
+    root_logger = logging.getLogger('')
+    root_logger.setLevel(logging.ERROR)
+    log_handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    log_handler.setFormatter(formatter)
+    log_handler.setLevel(logging.DEBUG)
+    root_logger.addHandler(log_handler)
     unittest.main()
