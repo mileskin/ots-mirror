@@ -56,7 +56,7 @@ def _storage_address():
 def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model, 
                       device_properties,
                       image, hw_packages, host_packages,
-                      emmc, testfilter, flasher, publishers): 
+                      emmc, testfilter, flasher, custom_distribution_model): 
     """
     Get a Taskrunner loaded with Tasks and ready to Run
 
@@ -97,8 +97,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     @type flasher: C{str}
     @param flasher: The URL of the flasher
 
-    @type publishers: # FIXME
-    @param publishers: #FIXME 
+    @type custom_distribution_model: C{callable}
+    @param custom_distribution_model: A callable matching the default models
+                                      in default_distribution_models.py
 
     rtype: L{Taskrunner}
     rparam: A loaded Taskrunner 
@@ -113,6 +114,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     if host_packages:
         test_list['host'] = ",".join(host_packages)
 
+    # Server deals with minutes, conductor uses seconds, 
+    execution_timeout = int(execution_timeout)*60
+
     cmds = get_commands(distribution_model,
                         image,
                         test_list,
@@ -120,8 +124,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
                         testrun_uuid,
                         _storage_address(),
                         testfilter,
-                        (int(execution_timeout)*60), # Server deals with minutes, conductor uses seconds, 
-                        flasher)
+                        execution_timeout,
+                        flasher,
+                        custom_distribution_model)
     for cmd in cmds:
         LOG.debug("Add cmd '%s' to taskrunner"%(cmd))
         taskrunner.add_task(cmd)
