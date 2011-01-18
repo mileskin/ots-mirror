@@ -59,7 +59,8 @@ class TestOptions(unittest.TestCase):
 
     def test_distribution_model(self):
         kwargs = {"image" : "www.nokia.com",
-                  "distribution_model" : "perpackage"}
+                  "distribution_model" : "perpackage",
+                  "packages": "joo-tests"}
         options = Options(**kwargs)
         self.assertEquals("perpackage", 
                           options.distribution_model)
@@ -68,6 +69,12 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals("foo", 
                           options.distribution_model)
+
+
+    def test_distribution_model_validation(self):
+        kwargs = {"image" : "www.nokia.com",
+                  "distribution_model" : "perpackage"}
+        self.assertRaises(ValueError, Options, **kwargs)
 
     def test_flasher(self):
         kwargs = {"image" : "www.nokia.com",

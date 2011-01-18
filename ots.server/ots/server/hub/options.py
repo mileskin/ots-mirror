@@ -45,6 +45,7 @@ TEST = "-test"
 BENCHMARK = "-benchmark"
 
 VALID_PKG_SUFFIXES = [TESTS, TEST, BENCHMARK]
+DEFAULT_DISTRIBUTION_MODELS = ["default", "perpackage"]
 
 ###################################
 # Options
@@ -55,7 +56,7 @@ class Options(object):
     Interface for the options available to the client
     """
 
-    def __init__(self, image, packages = None, plan = None,hosttest = None,
+    def __init__(self, image, packages = None, plan = None, hosttest = None,
                  device = {}, emmc = None, distribution_model = None,
                  flasher = None, testfilter = None, timeout = None,
                  input_plugin = None):
@@ -81,6 +82,8 @@ class Options(object):
         self.input_plugin = input_plugin # Deprecated
         self._timeout = timeout
         self._validate_packages(self.hw_packages)
+        self._validate_distribution_models(distribution_model, packages)
+
 
     ##################################
     # PROPERTIES
@@ -187,6 +190,26 @@ class Options(object):
         @param package: The package name
         """
         return any(map(package.endswith, VALID_PKG_SUFFIXES))
+
+    @staticmethod
+    def _validate_distribution_models(distribution_model, packages):
+        """
+        checks that all required options for given distribution model are
+        defined. Raises ValueError if something is missing.
+
+        @type distribution_model: C{str}
+        @param distribution_model: Name of the distribution model
+
+        @type packages: C{str}
+        @param packages: Testpackage names separated by comma
+
+        """
+        # Check that packages are defined if "perpackage" distribution is used
+        if distribution_model == 'perpackage' and len(packages) == 0:
+            error_msg = "Test packages must be defined for specified "\
+                +"distribution model '%s'" % distribution_model
+            raise ValueError(error_msg)
+
 
     def _validate_packages(self, packages):
         """
