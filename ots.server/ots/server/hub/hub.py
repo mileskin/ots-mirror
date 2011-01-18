@@ -243,7 +243,7 @@ class Hub(object):
         if distribution_model not in DEFAULT_DISTRIBUTION_MODELS:
             try:
                 entry_point = pkg_resources.iter_entry_points(
-                    group = "distribution_model",
+                    group = "ots_distribution_model",
                     name = distribution_model).next()
                 # TODO: options or extended options dict?
                 custom_distribution_model = entry_point.load(self.options)
