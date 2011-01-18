@@ -58,6 +58,7 @@ from traceback import format_exception
 from unittest import TestCase
 from unittest import TestResult
 from copy import deepcopy
+import pkg_resources
 import ots.server
 
 from ots.server.allocator.api import primed_taskrunner
@@ -69,6 +70,8 @@ from ots.server.hub.options_factory import OptionsFactory
 
 LOG = logging.getLogger()
 
+#TODO: move to somewhere else or implement default models as plugins
+DEFAULT_DISTRIBUTION_MODELS = ["default", "perpackage"]
 
 DEBUG = False
 
@@ -84,6 +87,9 @@ DEFAULT_REQUEST_ID = "default_request_id"
 NO_IMAGE = "no_image"
 DEFAULT_EXTENDED_OPTIONS_DICT = {} 
 
+class HubException(Exception):
+    """Error in Hub"""
+    pass
 
 ######################################
 # HUB
@@ -229,6 +235,26 @@ class Hub(object):
         rtype : L{ots.server.distributor.taskrunner}
         rparam : A Taskrunner loaded with Tasks
         """
+        custom_distribution_model = None
+        distribution_model = self.options.distribution_model
+        
+        # Search for custom package distribution models if not using default
+        # models
+        if distribution_model not in DEFAULT_DISTRIBUTION_MODELS:
+            try:
+                entry_point = pkg_resources.iter_entry_points(
+                    group = "distribution_model",
+                    name = distribution_model).next()
+                # TODO: options or extended options dict?
+                custom_distribution_model = entry_point.load(self.options)
+                LOG.info("Loaded custom distribution model '%s'"%
+                         (entry_point.module_name))
+            except StopIteration:
+                msg = "Cannot load custom distribution model '%s'" \
+                    % (distribution_model)
+                raise HubException(msg)
+
+
         if self._taskrunner is None:
             self._taskrunner = primed_taskrunner(self.testrun_uuid, 
                                               self.options.timeout,
@@ -240,7 +266,7 @@ class Hub(object):
                                               self.options.emmc,
                                               self.options.testfilter,
                                               self.options.flasher,
-                                              self._publishers)
+                                              custom_distribution_model)
 
         return self._taskrunner
 
@@ -339,6 +365,8 @@ class Hub(object):
 # TODO: Move to more suitable place? This same value should be reported in email
 # etc.
 def result_to_string(testrun_result):
+    """Converts testrun_result to PASS/FAIL/ERROR string"""
+
     if testrun_result.wasSuccessful():
         return "PASS"
     elif testrun_result.failures:
