@@ -53,7 +53,7 @@ def _storage_address():
 # PUBLIC METHOD
 #####################
 
-def primed_taskrunner(testrun_uuid, execution_timeout, priority, 
+def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model, 
                       device_properties,
                       image, hw_packages, host_packages,
                       emmc, testfilter, flasher, publishers): 
@@ -66,8 +66,8 @@ def primed_taskrunner(testrun_uuid, execution_timeout, priority,
     @type execution_timeout: C{int}
     @param execution_timeout: The execution timeout in minutes
 
-    @type priority: C{int}
-    @param priority: The priority of this testrun
+    @type distribution_model: C{str}
+    @param distribution_model: The name of the distribution_model
 
     @type device_properties : C{dict}
     @param device_properties : A dictionary of device properties 
@@ -104,20 +104,16 @@ def primed_taskrunner(testrun_uuid, execution_timeout, priority,
     rparam: A loaded Taskrunner 
     """
 
-    is_package_distributed = False
-    if priority == 1:
-        is_package_distributed = True
-
     routing_key = get_routing_key(device_properties)
     taskrunner = taskrunner_factory(routing_key, execution_timeout, 
                                     testrun_uuid)
     test_list = dict()
     if hw_packages:
-        test_list['device'] = " ".join(hw_packages)
+        test_list['device'] = ",".join(hw_packages)
     if host_packages:
-        test_list['host'] = " ".join(host_packages)
+        test_list['host'] = ",".join(host_packages)
 
-    cmds = get_commands(is_package_distributed,
+    cmds = get_commands(distribution_model,
                         image,
                         test_list,
                         emmc,

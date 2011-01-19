@@ -230,18 +230,18 @@ class Hub(object):
         rparam : A Taskrunner loaded with Tasks
         """
         if self._taskrunner is None:
-            self._taskrunner = primed_taskrunner(
-                                    self.testrun_uuid, 
-                                    self.options.timeout,
-                                    self.options.priority,
-                                    self.options.device_properties,
-                                    self.options.image,
-                                    self.options.hw_packages,
-                                    self.options.host_packages,
-                                    self.options.emmc,
-                                    self.options.testfilter,
-                                    self.options.flasher,
-                                    self._publishers)
+            self._taskrunner = primed_taskrunner(self.testrun_uuid, 
+                                              self.options.timeout,
+                                              self.options.distribution_model,
+                                              self.options.device_properties,
+                                              self.options.image,
+                                              self.options.hw_packages,
+                                              self.options.host_packages,
+                                              self.options.emmc,
+                                              self.options.testfilter,
+                                              self.options.flasher,
+                                              self._publishers)
+
         return self._taskrunner
 
     #########################
