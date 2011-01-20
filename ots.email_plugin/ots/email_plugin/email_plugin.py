@@ -212,7 +212,14 @@ class EmailPlugin(PublisherPluginBase):
         @type: C{str}
         @param: The testrun result
         """
-        self._testrun_result = testrun_result
+        
+        if testrun_result.wasSuccessful():
+            self._testrun_result = "PASS"
+        elif testrun_result.failures:
+            self._testrun_result = "FAIL"
+        else:
+            #LOG.debug("Testrun failure %s" % testrun_result.errors)
+            self._testrun_result = "ERROR"
 
     def set_results(self, results):
         """
