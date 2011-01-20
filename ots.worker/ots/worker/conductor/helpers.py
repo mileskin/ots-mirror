@@ -24,13 +24,15 @@
 """General helper methods, classes etc."""
 
 import ConfigParser
+import shlex
+
 
 def parse_config(config_file, section, current_config=None):
     """
     Parses config section from a file. Returns a dictionary.
     Values in current_config dictionary are updated from
     config_file if current_config is not None
- 
+
     @type config_file: C{string}
     @param config_file: Absolute path of configuration file
 
@@ -43,6 +45,7 @@ def parse_config(config_file, section, current_config=None):
     @rtype: C{dictionary}
     @return: Configuration dictionary
     """
+
     config = ConfigParser.ConfigParser()
     config.read(config_file)
     config_options = dict()
@@ -53,6 +56,7 @@ def parse_config(config_file, section, current_config=None):
         else:
             config_options[key] = value
     return config_options
+
 
 def parse_list(config_value):
     """
@@ -65,7 +69,12 @@ def parse_list(config_value):
     @rtype: C{list}
     @return: List presentation of configuration parameter value
     """
-    return [ item.strip().strip('"\'') for item in config_value.split(",") ]
+
+    splitter = shlex.shlex(config_value, posix=True)
+    splitter.whitespace += ','
+    splitter.whitespace_split = True
+    return list(splitter)
+
 
 def _update_config_items(config_dict, key, value):
     """
@@ -84,8 +93,10 @@ def _update_config_items(config_dict, key, value):
     @return: Configuration dictionary
 
     """
-    if config_dict.has_key(key):
-        if type (config_dict[key]) is type(list()):
+    if key in config_dict:
+        if type(config_dict[key]) is type(list()):
             config_dict[key] = config_dict[key] + parse_list(value)
-    return config_dict
+        else:
+            config_dict[key] = value
 
+    return config_dict
