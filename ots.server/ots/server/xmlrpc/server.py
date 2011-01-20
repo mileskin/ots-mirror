@@ -24,7 +24,6 @@
 A simple forking xmlrpc server for serving the ots public interface
 """
 
-import os
 import sys
 import configobj
 import logging
@@ -32,22 +31,12 @@ import logging
 from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from SocketServer import ForkingMixIn
 from ots.server.server_config_filename import server_config_filename
-from ots.server.hub.api import Hub, result_to_string
-from ots.server.distributor.api import TaskRunner
+from ots.server.xmlrpc.public import request_sync
 
 
 LOG = logging.getLogger(__name__)
 
-################################
-# HACKISH TESTING CAPABILITIES
-################################
 
-DEBUG = False
-
-if DEBUG:
-    from ots.server.hub.tests.component.mock_taskrunner import \
-                                       MockTaskRunnerResultsPass
-    
 ###########################
 # OTS FORKING SERVER
 ###########################
@@ -65,42 +54,6 @@ def _config():
     return config.get('host'), config.as_int('port')
 
 
-#############################
-# REQUEST_SYNC
-#############################
-
-def request_sync(sw_product, request_id, notify_list, options_dict):
-    """
-    Convenience function for the interface for the hub.
-    Processes the raw parameters and fires a testrun
-
-    @type sw_product: C{str}
-    @param sw_product: Name of the sw product this testrun belongs to
-
-    @type request_id: C{str}
-    @param request_id: An identifier for the request from the client
-
-    @type notify_list: C{list}
-    @param notify_list: Email addresses for notifications
-
-    #FIXME legacy interface 
-    @type options_dict: C{dict}
-    @param options_dict: A dictionary of options
-    """
-    
-    LOG.info(("Incoming request: program: %s,"\
-                  " request: %s, notify_list: %s, "\
-                  "options: %s") %\
-                 (sw_product, request_id, notify_list, options_dict))
-
-    options_dict["notify_list"] = notify_list
-
-    hub = Hub(sw_product, request_id, **options_dict)
-    if DEBUG:
-        hub._taskrunner = MockTaskRunnerResultsPass()
-    return result_to_string(hub.run())
-
-    
 def main(is_logging = False):
     """
     Top level script for XMLRPC interface
@@ -108,12 +61,11 @@ def main(is_logging = False):
     server = OtsForkingServer(_config(), SimpleXMLRPCRequestHandler)
     server.register_function(request_sync)
     print "Starting OTS xmlrpc server..."
-    print 
+    print
     print "Host: %s, Port: %s" % _config()
-    print 
+    print
 
     if is_logging:
-        import logging
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
         log_handler = logging.StreamHandler()
@@ -122,7 +74,7 @@ def main(is_logging = False):
         log_handler.setFormatter(formatter)
         log_handler.setLevel(logging.DEBUG)
         root_logger.addHandler(log_handler)
-    
+
     server.serve_forever()
 
 if __name__ == "__main__":
