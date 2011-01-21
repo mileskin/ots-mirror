@@ -110,8 +110,8 @@ class EmailPlugin(PublisherPluginBase):
 
         self._from_address = config["from_address"]
         self._message_body = config["message_body"]
-        self._message_subject = config["message_subject"]
         self._smtp_server = config["smtp_server"]
+        self._message_subject = config["message_subject"]
 
         if config.as_bool("disabled"):   # If email plugin is disabled overwrite
             self._email = "off"          # option
@@ -218,7 +218,6 @@ class EmailPlugin(PublisherPluginBase):
         elif testrun_result.failures:
             self._testrun_result = "FAIL"
         else:
-            #LOG.debug("Testrun failure %s" % testrun_result.errors)
             self._testrun_result = "ERROR"
 
     def set_results(self, results):

@@ -100,6 +100,9 @@ class LoggerPlugin(PublisherPluginBase):
         if self._httphandler is not None:
             root_logger = logging.getLogger('')
             root_logger.removeHandler(self._httphandler)
+        if self._filehandler is not None:
+            root_logger = logging.getLogger('')
+            root_logger.removeHandler(self._filehandler)
             
 
 
