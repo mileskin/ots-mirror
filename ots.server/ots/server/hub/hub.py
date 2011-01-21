@@ -277,7 +277,7 @@ class Hub(object):
             testrun_result.addSuccess(TestCase)if testrun.run() else \
                   testrun_result.addFailure(TestCase, (None, None, None))
         except Exception, err:
-            LOG.error("Testrun error", exc_info=err)
+            LOG.error("Testrun initialization error", exc_info=err)
             type, value, tb = sys.exc_info()
             publishers.set_exception(value)
             testrun_result.addError(TestCase, (type, value, tb))
@@ -317,10 +317,8 @@ class Hub(object):
         @rparam : A TestResult 
         """
         if sandbox.exc_info != (None, None, None): 
-            LOG.error("Sandbox Error. Forced Initialisation")
+            LOG.error("Testrun Error. Forced Initialisation", exc_info = sandbox.exc_info)
             etype, value, tb = sandbox.exc_info
-            str_tb = ''.join(format_exception(etype, value, tb, 50))
-            LOG.error(str_tb)
             testrun_result = TestResult() 
             LOG.info("error_info set to '%s'" %(str(value)))
             testrun_result.addError(TestCase, (etype, value, tb))
