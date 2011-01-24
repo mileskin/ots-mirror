@@ -277,7 +277,7 @@ class Hub(object):
             testrun_result.addSuccess(TestCase)if testrun.run() else \
                   testrun_result.addFailure(TestCase, (None, None, None))
         except Exception, err:
-            LOG.error("Testrun initialization error", exc_info=err)
+            LOG.error("Testrun error", exc_info=err)
             type, value, tb = sys.exc_info()
             publishers.set_exception(value)
             testrun_result.addError(TestCase, (type, value, tb))
