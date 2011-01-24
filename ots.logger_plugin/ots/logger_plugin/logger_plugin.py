@@ -65,6 +65,7 @@ class LoggerPlugin(PublisherPluginBase):
     
     def __del__(self):
         self._remove_logger()
+
     #############################################
     # Logger initialization
     #############################################
@@ -100,6 +101,9 @@ class LoggerPlugin(PublisherPluginBase):
         if self._httphandler is not None:
             root_logger = logging.getLogger('')
             root_logger.removeHandler(self._httphandler)
+        if self._filehandler is not None:
+            root_logger = logging.getLogger('')
+            root_logger.removeHandler(self._filehandler)
             
 
 
