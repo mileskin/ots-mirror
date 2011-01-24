@@ -64,4 +64,4 @@ class OTSException(Exception):
         return (self.__class__, self.__getstate__())
 
     def __str__(self):
-        return "Error: %s Error code: %s " % (self.strerror, self.errno)
+        return "Error: %s, Error code: %s " % (self.strerror, self.errno)
