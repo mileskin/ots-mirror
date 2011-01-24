@@ -28,55 +28,54 @@ from ots.server.hub.options import Options, string_2_dict, string_2_list
 class TestOptions(unittest.TestCase):
 
     def test_image(self):
-        options = Options(**{"image" :"www.nokia.com"})
+        options = Options(**{"image" :"www.nokia.com", "distribution_model": "default"})
         self.assertEquals("www.nokia.com", options.image)
 
     def test_hw_packages(self):
-        kwargs = {"image" : "www.nokia.com",
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
                  "packages": "pkg_1 pkg_2 pkg_3"}
         self.assertRaises(ValueError, Options, **kwargs)
-        kwargs = {"image" : "www.nokia.com",
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
                  "packages": "pkg_1-tests pkg_2-tests pkg_3-tests"}
         options = Options(**kwargs)
         self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
                           options.hw_packages)
 
     def test_host_packages(self):
-        kwargs = {"image" : "www.nokia.com"}
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default"}
         options = Options(**kwargs)
         self.assertEquals([], options.host_packages)
-        kwargs = {"image" : "www.nokia.com",
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
                  "hosttest": "pkg_1-tests pkg_2-tests pkg_3-tests"}
         options = Options(**kwargs)
         self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
                           options.host_packages)
 
     def test_emmc(self):
-        kwargs = {"image" : "www.nokia.com",
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
                   "emmc" : "foo"}
         options = Options(**kwargs)
         self.assertEquals("foo", options.emmc)
 
     def test_distribution_model(self):
         kwargs = {"image" : "www.nokia.com",
-                  "distribution_model" : "perpackage"}
+                  "distribution_model" : "perpackage",
+                  "packages": "asdf-tests"}
         options = Options(**kwargs)
         self.assertEquals("perpackage", 
                           options.distribution_model)
         kwargs = {"image" : "www.nokia.com",
                   "distribution_model" : "foo"}
-        options = Options(**kwargs)
-        self.assertEquals("foo", 
-                          options.distribution_model)
+        self.assertRaises(ValueError, Options, kwargs)
 
     def test_flasher(self):
-        kwargs = {"image" : "www.nokia.com",
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
                   "flasher" : "www.meego.com"}
         options = Options(**kwargs)
         self.assertEquals("www.meego.com", options.flasher)
 
     def test_testfilter(self):
-        kwargs = {"image" : "www.nokia.com",
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
                   "testfilter" : '"hello world"'}
         options = Options(**kwargs)
         self.assertEquals('\'"\\\'hello world\\\'"\'',
