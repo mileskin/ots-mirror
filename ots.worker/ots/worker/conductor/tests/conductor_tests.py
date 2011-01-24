@@ -147,8 +147,8 @@ class Mock_Executor(TE):
         super(Mock_Executor, self).__init__(testrun, stand_alone, responseclient,
               hostname, testrun_timeout)
     def _test_execution_error_handler(self, error_info, error_code):#, test_package):
-         #We're expecting ConductorError exception here
-         raise Exception("%s: %s: %s" % (test_package, error_info, error_code))
+        #We're expecting ConductorError exception here
+        raise Exception("%s: %s: %s" % (error_info, error_code))#(test_package, error_info, error_code))
     def _store_test_definition(self, path, test_package):
         pass
     def _get_command_for_testrunner(self):
@@ -204,7 +204,7 @@ class Stub_ResponseClient(object):
 class TestConductorInternalConstants(unittest.TestCase):
     def test_mandatory_constants_defined(self):
         """Check that required constants exist and are defined as expected"""
-        import conductor_config as c
+        import ots.worker.conductor.conductor_config as c
         c.DEBUG_LOG_FILE
         c.TEST_DEFINITION_FILE_NAME
         c.TESTRUN_LOG_FILE
@@ -233,7 +233,7 @@ class TestConductorInternalConstants(unittest.TestCase):
 
 class TestConductorConf(unittest.TestCase):
     def test_read_conductor_config(self):
-        import conductor
+        from ots.worker.conductor import conductor
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
         conf = conductor._read_configuration_files(conf_file)
         self.assertTrue(type(conf) == type(dict()))
@@ -245,7 +245,7 @@ class TestConductorConf(unittest.TestCase):
         self.assertTrue(conf['tmp_path'] != "")
 
     def test_read_conductor_config_with_optional_configs(self):
-        import conductor
+        from ots.worker.conductor import conductor
         optional_value = "ps aux"
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
         conf = conductor._read_configuration_files(conf_file)
@@ -277,12 +277,14 @@ class TestConductorConf(unittest.TestCase):
 
 
 class TestConductor(unittest.TestCase):
-    def _test_main(self): #TODO: Refactor code so that main can be tested
-        from conductor import main
-        main() 
+    def _test_main(self):
+        #TODO: Refactor code so that main can be tested
+        #import ots.worker.conductor
+        #main()
+        pass
 
     def test_check_command_line_options(self):
-        from conductor import _check_command_line_options
+        from ots.worker.conductor.conductor import _check_command_line_options
 
         options = Options()
         self.assertTrue(_check_command_line_options(options))
@@ -316,7 +318,7 @@ class TestConductor(unittest.TestCase):
 
     def test_parse_command_line(self):
         """Test default values from OptionParser"""
-        from conductor import _parse_command_line
+        from ots.worker.conductor.conductor import _parse_command_line
         (options, parser) = _parse_command_line(args=[])
         self.assertEquals(options.testrun_id, None)
         self.assertEquals(options.image_url, None)
@@ -335,8 +337,8 @@ class TestConductor(unittest.TestCase):
 class TestTestTarget(unittest.TestCase):
 
     def setUp(self):
-        from testtarget import TestTarget
-        from executor import TestRunData as TestRunData
+        from ots.worker.conductor.testtarget import TestTarget
+        from ots.worker.conductor.executor import TestRunData as TestRunData
         testrun = TestRunData( Options(), config = _conductor_config_simple() )
         self.testtarget = TestTarget(testrun)
 
@@ -377,8 +379,8 @@ class TestTestTarget(unittest.TestCase):
 class TestHardware(unittest.TestCase):
 
     def setUp(self):
-        from hardware import Hardware
-        from executor import TestRunData as TestRunData
+        from ots.worker.conductor.hardware import Hardware
+        from ots.worker.conductor.executor import TestRunData as TestRunData
         self.config = _conductor_config_simple()
         self.testrun = TestRunData( Options(), config = self.config )
         self.mock_hw = Mock_Hardware(self.testrun)
@@ -492,8 +494,8 @@ class TestHardware(unittest.TestCase):
 class TestRPMHardware(unittest.TestCase):
 
     def setUp(self):
-        from hardware import RPMHardware as RPMHardware
-        from executor import TestRunData as TestRunData
+        from ots.worker.conductor.hardware import RPMHardware as RPMHardware
+        from ots.worker.conductor.executor import TestRunData as TestRunData
         self.testrun = TestRunData( Options(), 
                                     config = _conductor_config_simple() )
         self.hw = RPMHardware(self.testrun)
@@ -524,8 +526,8 @@ class Test_Executor(unittest.TestCase):
     """
 
     def setUp(self):
-        from executor import Executor as Executor
-        from executor import TestRunData as TestRunData
+        from ots.worker.conductor.executor import Executor as Executor
+        from ots.worker.conductor.executor import TestRunData as TestRunData
         self.workdir = tempfile.mkdtemp("_test_conductor")
         self.testrun = TestRunData(Options(), config = _conductor_config_simple())
         self.testrun.workdir = self.workdir #inject our temp folder
@@ -763,7 +765,7 @@ class Test_Executor(unittest.TestCase):
         self.assertRaises(ConductorError, self.executor._testrunner_lite_error_handler,"",7)
 
     def test_items_missing_from_all_items(self):
-        from executor import items_missing_from_all_items
+        from ots.worker.conductor.executor import items_missing_from_all_items
         missing = items_missing_from_all_items(["z"], ["x", "y"])
         self.assertEquals(missing, ["z"])
         missing = items_missing_from_all_items([], ["x", "y"])
@@ -781,14 +783,14 @@ class TestDefaultFlasher(unittest.TestCase):
     """Tests for defaultflasher.py"""
 
     def test_exceptions(self):
-        from defaultflasher import FlashFailed
-        from defaultflasher import InvalidImage
-        from defaultflasher import InvalidConfig
-        from defaultflasher import ConnectionTestFailed
+        from ots.worker.conductor.defaultflasher import FlashFailed
+        from ots.worker.conductor.defaultflasher import InvalidImage
+        from ots.worker.conductor.defaultflasher import InvalidConfig
+        from ots.worker.conductor.defaultflasher import ConnectionTestFailed
 
     def test_softwareupdater_flash(self):
-        from defaultflasher import SoftwareUpdater
-        #sw_updater = defaultflasher.SoftwareUpdater()
+        from ots.worker.conductor.defaultflasher import SoftwareUpdater
+        
         sw_updater = SoftwareUpdater()
         sw_updater.flash("image1", "image2")
 
