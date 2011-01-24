@@ -62,3 +62,6 @@ class OTSException(Exception):
         see: http://bugs.python.org/issue1692335
         """
         return (self.__class__, self.__getstate__())
+
+    def __str__(self):
+        return "Error: %s Error code: %s " % (self.strerror, self.errno)
