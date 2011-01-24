@@ -1,7 +1,8 @@
+#!/usr/bin/python
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
 # Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
@@ -20,15 +21,26 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
-from get_spec_version import get_spec_version
+""" Gets version number from the spec file """
 
-setup(
-      name="ots.results",
-      author="meego-dev@meego.com",
-      version=get_spec_version(),
-      include_package_data=True,
-      namespace_packages=['ots', 'ots.results'],
-      packages=find_packages(),
-      zip_safe=False,
-      )
+import os
+
+def get_spec_version():
+    spec_location = "python-ots.spec"
+    try:
+        if not os.path.exists(spec_location):
+            spec_location = "../" + spec_location
+        specfile = open(spec_location)
+        for line in specfile:
+            version = line.find('Version:')
+            if version == -1:
+                continue
+            version = line.split(":")[1].strip()
+            break
+        specfile.close()
+        return version
+    except:
+        return None
+
+if __name__ == "__main__":
+    print get_spec_version()

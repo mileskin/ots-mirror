@@ -1,0 +1,5 @@
+/usr/local/bin/ots_delete_queue
+/usr/local/bin/ots_empty_queue
+/usr/local/bin/ots_trigger
+/usr/local/lib/python*/dist-packages/ots.tools-*
+/usr/local/lib/python*/dist-packages/ots/tools/*

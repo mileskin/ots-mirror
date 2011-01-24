@@ -1,0 +1,72 @@
+Source: python-ots
+Maintainer: Teemu Vainio <teemu.vainio@ixonos.com>
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4)
+XS-Python-Version: >=2.5
+Standards-Version: 3.8.4
+
+Package: python-ots-common
+Architecture: all
+Depends: python (>= 2.5), python-central (>= 0.6.7) 
+XB-Python-Version: >=2.5
+Description: Common libraries for OTS
+ Common libraries for OTS.
+
+Package: python-ots-results
+Architecture: all
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-common
+Provides: ${python:Provides}
+XB-Python-Version: >=2.5
+Description: Result libraries for OTS
+ Result libraries for OTS.
+
+Package: python-ots-server
+Architecture: all
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-amqplib, python-django, python-configobj, rabbitmq-server, python-ots-common
+Provides: ${python:Provides}
+XB-Python-Version: >=2.5
+Description: OTS server
+ OTS server which handles incoming test requests and
+ results processing.
+
+Package: python-ots-worker
+Architecture: all
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-amqplib, python-ots-common
+Provides: ${python:Provides}
+XB-Python-Version: >=2.5
+Description: OTS worker
+ OTS worker handles test device control and
+ test execution.
+
+Package: python-ots-tools
+Architecture: all
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-common
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: Helping tools for controlling OTS
+ Helping tools for controlling OTS.
+
+Package: python-ots-plugin-logger
+Architecture: all
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-server
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: Logger plugin to OTS server
+ Logger plugin to OTS server.
+
+Package: python-ots-plugin-qareports
+Architecture: all
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-server
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: MeeGo QA reports plugin to OTS server
+ MeeGo QA reports plugin to OTS server.
+
+Package: python-ots-plugin-email
+Architecture: all
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-server
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: Email plugin to OTS server
+ Email plugin to OTS server.
