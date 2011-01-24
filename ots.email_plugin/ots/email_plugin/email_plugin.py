@@ -257,13 +257,13 @@ class EmailPlugin(PublisherPluginBase):
             except smtplib.SMTPRecipientsRefused:
                 failed_addresses = self._notify_list
             except socket.gaierror:
-                LOG.error("Invalid or unknown SMTP host")
+                LOG.warning("Invalid or unknown SMTP host")
             finally:
                 if mail_server is not None:
                     mail_server.close()
             if failed_addresses:
                 
-                LOG.error("Error in sending mail to following addresses:")
-                LOG.error(str(failed_addresses)) 
+                LOG.warning("Error in sending mail to following addresses:")
+                LOG.warning(str(failed_addresses)) 
         else:
-            LOG.error("No address list")
+            LOG.warning("No address list")
