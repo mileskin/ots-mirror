@@ -262,8 +262,7 @@ class EmailPlugin(PublisherPluginBase):
                 if mail_server is not None:
                     mail_server.close()
             if failed_addresses:
-                
-                LOG.warning("Error in sending mail to following addresses:")
-                LOG.warning(str(failed_addresses)) 
+                LOG.warning("Error in sending mail to following addresses: %s"\
+                                % failed_addresses)
         else:
             LOG.warning("No address list")
