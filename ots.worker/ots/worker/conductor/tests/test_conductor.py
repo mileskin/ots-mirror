@@ -40,7 +40,7 @@ from ots.worker.command import CommandFailed
 from ots.worker.api import ResponseClient
 
 # Send log messages to stdout (by default)
-logging.basicConfig(stream = sys.stdout, level = logging.DEBUG, 
+logging.basicConfig(stream = sys.stdout, level = logging.DEBUG,
                     format = '%(asctime)s %(levelname)s %(message)s')
 
 from ots.worker.conductor.conductorerror import ConductorError
@@ -66,7 +66,7 @@ from ots.worker.conductor.hardware import Hardware as HW
 class Mock_Hardware(HW):
     """
     Stubs out methods that make calls to file system or to internet.
-    Stubs out use of flasher. 
+    Stubs out use of flasher.
     """
     def _urlretrieve(self, url, path):
         pass
@@ -82,12 +82,12 @@ class Mock_Hardware(HW):
         pass
     def _fetch_flasher(self):
         # Before separating Flasher configuration reading from Conductor this
-        # method just returned from real Hardware class when checking 
+        # method just returned from real Hardware class when checking
         # primary_flasher, because now obsoleted flasher was empty dict
         return 0
 
-class Stub_Hardware(object):  
-    """All public methods stubbed out. Option to inject exit_code coming from shell""" 
+class Stub_Hardware(object):
+    """All public methods stubbed out. Option to inject exit_code coming from shell"""
     def __init__(self, exit_code = 0):
         self.exit_code = exit_code
     def __str__(self):
@@ -132,7 +132,7 @@ class Options(object):
         self.flasher_url = None
 
 class Stub_Executor(object):
-    def __init__(self, testrun, stand_alone, responseclient = None, 
+    def __init__(self, testrun, stand_alone, responseclient = None,
                  hostname = "unknown"):
         self.env = ""
         self.stand_alone = stand_alone
@@ -147,12 +147,12 @@ class Mock_Executor(TE):
         super(Mock_Executor, self).__init__(testrun, stand_alone, responseclient,
               hostname, testrun_timeout)
     def _test_execution_error_handler(self, error_info, error_code):#, test_package):
-         #We're expecting ConductorError exception here
-         raise Exception("%s: %s: %s" % (test_package, error_info, error_code))
+        #We're expecting ConductorError exception here
+        raise Exception("%s: %s: %s" % (error_info, error_code))#(test_package, error_info, error_code))
     def _store_test_definition(self, path, test_package):
         pass
     def _get_command_for_testrunner(self):
-        return "" #TODO: self.testrunner_command 
+        return "" #TODO: self.testrunner_command
 
 class Mock_Executor_with_cmd(Mock_Executor):
     def __init__(self, testrun, stand_alone, responseclient = None,
@@ -187,7 +187,7 @@ class Stub_ResponseClient(object):
 
     def add_package_data(self, test_package, data):
         pass
-    def add_result(self, filename, content, origin="Unknown", 
+    def add_result(self, filename, content, origin="Unknown",
                          test_package="Unknown", environment="Unknown"):
         pass
     def set_state(self, state, status_info):
@@ -204,7 +204,7 @@ class Stub_ResponseClient(object):
 class TestConductorInternalConstants(unittest.TestCase):
     def test_mandatory_constants_defined(self):
         """Check that required constants exist and are defined as expected"""
-        import conductor_config as c
+        import ots.worker.conductor.conductor_config as c
         c.DEBUG_LOG_FILE
         c.TEST_DEFINITION_FILE_NAME
         c.TESTRUN_LOG_FILE
@@ -233,7 +233,7 @@ class TestConductorInternalConstants(unittest.TestCase):
 
 class TestConductorConf(unittest.TestCase):
     def test_read_conductor_config(self):
-        import conductor
+        from ots.worker.conductor import conductor
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
         conf = conductor._read_configuration_files(conf_file)
         self.assertTrue(type(conf) == type(dict()))
@@ -245,7 +245,7 @@ class TestConductorConf(unittest.TestCase):
         self.assertTrue(conf['tmp_path'] != "")
 
     def test_read_conductor_config_with_optional_configs(self):
-        import conductor
+        from ots.worker.conductor import conductor
         optional_value = "ps aux"
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
         conf = conductor._read_configuration_files(conf_file)
@@ -260,7 +260,7 @@ class TestConductorConf(unittest.TestCase):
         # Check that we do not have value in pre_test_info_commands that we will
         # insert from optional configuration file
         self.assertFalse(optional_value in conf['pre_test_info_commands'])
-         
+
         temp_folder = tempfile.mkdtemp("_optional_confs")
         temp_config = tempfile.mktemp(suffix='.conf', dir=temp_folder)
         fp = open(temp_config, 'w')
@@ -271,18 +271,20 @@ class TestConductorConf(unittest.TestCase):
         conf['custom_config_folder'] = temp_folder
         conf = conductor._read_optional_config_files(temp_folder, conf)
         self.assertTrue(optional_value in conf['pre_test_info_commands'])
- 
+
         os.unlink(temp_config)
         os.rmdir(temp_folder)
 
 
 class TestConductor(unittest.TestCase):
-    def _test_main(self): #TODO: Refactor code so that main can be tested
-        from conductor import main
-        main() 
+    def _test_main(self):
+        #TODO: Refactor code so that main can be tested
+        #import ots.worker.conductor
+        #main()
+        pass
 
     def test_check_command_line_options(self):
-        from conductor import _check_command_line_options
+        from ots.worker.conductor.conductor import _check_command_line_options
 
         options = Options()
         self.assertTrue(_check_command_line_options(options))
@@ -316,7 +318,7 @@ class TestConductor(unittest.TestCase):
 
     def test_parse_command_line(self):
         """Test default values from OptionParser"""
-        from conductor import _parse_command_line
+        from ots.worker.conductor.conductor import _parse_command_line
         (options, parser) = _parse_command_line(args=[])
         self.assertEquals(options.testrun_id, None)
         self.assertEquals(options.image_url, None)
@@ -335,8 +337,8 @@ class TestConductor(unittest.TestCase):
 class TestTestTarget(unittest.TestCase):
 
     def setUp(self):
-        from testtarget import TestTarget
-        from executor import TestRunData as TestRunData
+        from ots.worker.conductor.testtarget import TestTarget
+        from ots.worker.conductor.executor import TestRunData as TestRunData
         testrun = TestRunData( Options(), config = _conductor_config_simple() )
         self.testtarget = TestTarget(testrun)
 
@@ -377,8 +379,8 @@ class TestTestTarget(unittest.TestCase):
 class TestHardware(unittest.TestCase):
 
     def setUp(self):
-        from hardware import Hardware
-        from executor import TestRunData as TestRunData
+        from ots.worker.conductor.hardware import Hardware
+        from ots.worker.conductor.executor import TestRunData as TestRunData
         self.config = _conductor_config_simple()
         self.testrun = TestRunData( Options(), config = self.config )
         self.mock_hw = Mock_Hardware(self.testrun)
@@ -424,13 +426,13 @@ class TestHardware(unittest.TestCase):
     def test_fetch_release(self):
         self.testrun.image_url = "http://my.fake.server.com/path/image.bin"
         #we get OSError because file does not exist
-        self.assertRaises(OSError, self.mock_hw._fetch_release) 
+        self.assertRaises(OSError, self.mock_hw._fetch_release)
 
     def test_fetch_content_image(self):
         self.testrun.content_image_url = "http://my.fake.server.com/path/image.bin"
         expected_path = os.path.join(self.config['tmp_path'], "image.bin")
         #we get OSError because file does not exist
-        self.assertRaises(OSError, self.mock_hw._fetch_content_image) 
+        self.assertRaises(OSError, self.mock_hw._fetch_content_image)
 
     def test_cleanup(self):
         self.mock_hw.cleanup()
@@ -443,7 +445,7 @@ class TestHardware(unittest.TestCase):
         self.mock_hw.prepare() #returns doing nothing
 
     def test_flash(self):
-        #we get OSError because first image file does not exist. 
+        #we get OSError because first image file does not exist.
         #TODO: improve when file size checks removed
         self.assertRaises(OSError, self.mock_hw.prepare)
 
@@ -492,9 +494,9 @@ class TestHardware(unittest.TestCase):
 class TestRPMHardware(unittest.TestCase):
 
     def setUp(self):
-        from hardware import RPMHardware as RPMHardware
-        from executor import TestRunData as TestRunData
-        self.testrun = TestRunData( Options(), 
+        from ots.worker.conductor.hardware import RPMHardware as RPMHardware
+        from ots.worker.conductor.executor import TestRunData as TestRunData
+        self.testrun = TestRunData( Options(),
                                     config = _conductor_config_simple() )
         self.hw = RPMHardware(self.testrun)
 
@@ -524,8 +526,8 @@ class Test_Executor(unittest.TestCase):
     """
 
     def setUp(self):
-        from executor import Executor as Executor
-        from executor import TestRunData as TestRunData
+        from ots.worker.conductor.executor import Executor as Executor
+        from ots.worker.conductor.executor import TestRunData as TestRunData
         self.workdir = tempfile.mkdtemp("_test_conductor")
         self.testrun = TestRunData(Options(), config = _conductor_config_simple())
         self.testrun.workdir = self.workdir #inject our temp folder
@@ -533,7 +535,7 @@ class Test_Executor(unittest.TestCase):
         stand_alone = True
         self.executor = Mock_Executor(self.testrun, stand_alone, responseclient,
                                       hostname="hostname", testrun_timeout=60)
-                #NOTE!! STUBBED OUT so far: 
+                #NOTE!! STUBBED OUT so far:
                 #_test_execution_error_handler
                 #_store_test_definition
                 #_get_command_for_testrunner
@@ -636,7 +638,7 @@ class Test_Executor(unittest.TestCase):
         #test_package must match to string in Stub_Hardware
         test_package = "mypackage-test"
 
-        path = os.path.join(self.workdir, "conductor", self.testrun.id, 
+        path = os.path.join(self.workdir, "conductor", self.testrun.id,
                             self.executor.env)
         expected_stdout_file = \
                 os.path.join(path, "%s_testrunner_stdout.txt" % test_package)
@@ -654,7 +656,7 @@ class Test_Executor(unittest.TestCase):
 
         self.assertEquals(errors, 0)
 
-        #Check that files were created. 
+        #Check that files were created.
         self.assertTrue(os.path.isfile(expected_stdout_file))
         self.assertTrue(os.path.isfile(expected_stderr_file))
         self.assertTrue(os.path.isfile(expected_env_info_file))
@@ -662,7 +664,7 @@ class Test_Executor(unittest.TestCase):
 
     def test_default_ssh_command_executor(self):
         #Successful command, should not raise exception
-        cmd = self.executor._default_ssh_command_executor("ls", "my task") 
+        cmd = self.executor._default_ssh_command_executor("ls", "my task")
         self.assertTrue(isinstance(cmd, Command))
         self.assertEquals(cmd.return_value, 0)
 
@@ -699,10 +701,10 @@ class Test_Executor(unittest.TestCase):
 
         #Tests for ignore_normal_CommandFailed flag not to have effect with exit codes 129-255
         cmd = Stub_Command("", return_value = 129)
-        self.assertRaises(ConductorError, self.executor._ssh_command_exception_handler, 
+        self.assertRaises(ConductorError, self.executor._ssh_command_exception_handler,
                                           exc, cmd, "", ignore_normal_CommandFailed = True)
         cmd = Stub_Command("", return_value = 255)
-        self.assertRaises(ConductorError, self.executor._ssh_command_exception_handler, 
+        self.assertRaises(ConductorError, self.executor._ssh_command_exception_handler,
                                           exc, cmd, "", ignore_normal_CommandFailed = True)
 
         #Tests for SoftTimeoutException and HardTimeOutException
@@ -763,7 +765,7 @@ class Test_Executor(unittest.TestCase):
         self.assertRaises(ConductorError, self.executor._testrunner_lite_error_handler,"",7)
 
     def test_items_missing_from_all_items(self):
-        from executor import items_missing_from_all_items
+        from ots.worker.conductor.executor import items_missing_from_all_items
         missing = items_missing_from_all_items(["z"], ["x", "y"])
         self.assertEquals(missing, ["z"])
         missing = items_missing_from_all_items([], ["x", "y"])
@@ -781,14 +783,14 @@ class TestDefaultFlasher(unittest.TestCase):
     """Tests for defaultflasher.py"""
 
     def test_exceptions(self):
-        from defaultflasher import FlashFailed
-        from defaultflasher import InvalidImage
-        from defaultflasher import InvalidConfig
-        from defaultflasher import ConnectionTestFailed
+        from ots.worker.conductor.defaultflasher import FlashFailed
+        from ots.worker.conductor.defaultflasher import InvalidImage
+        from ots.worker.conductor.defaultflasher import InvalidConfig
+        from ots.worker.conductor.defaultflasher import ConnectionTestFailed
 
     def test_softwareupdater_flash(self):
-        from defaultflasher import SoftwareUpdater
-        #sw_updater = defaultflasher.SoftwareUpdater()
+        from ots.worker.conductor.defaultflasher import SoftwareUpdater
+
         sw_updater = SoftwareUpdater()
         sw_updater.flash("image1", "image2")
 
