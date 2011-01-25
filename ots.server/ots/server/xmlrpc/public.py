@@ -21,8 +21,10 @@
 # ***** END LICENCE BLOCK *****
 
 import logging
-from ots.server.hub.api import Hub, result_to_string
-from ots.server.distributor.api import TaskRunner
+import copy
+
+from ots.server.hub.api import Hub, result_to_string, OptionsFactory
+from ots.server.xmlrpc.process_handler import ProcessHandler
 
 
 LOG = logging.getLogger()
@@ -60,15 +62,59 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
     @type options_dict: C{dict}
     @param options_dict: A dictionary of options
     """
-    
-    LOG.info(("Incoming request: program: %s,"\
-                  " request: %s, notify_list: %s, "\
-                  "options: %s") %\
-                 (sw_product, request_id, notify_list, options_dict))
+
+    LOG.info(("Incoming request: program: %s," \
+              " request: %s, notify_list: %s, " \
+              "options: %s") % \
+             (sw_product, request_id, notify_list, options_dict))
 
     options_dict["notify_list"] = notify_list
 
-    hub = Hub(sw_product, request_id, **options_dict)
-    if DEBUG:
-        hub._taskrunner = MockTaskRunnerResultsPass()
-    return result_to_string(hub.run())
+    # hub = Hub(sw_product, request_id, **options_dict)
+    req_handler = RequestHandler(sw_product, request_id, **options_dict)
+    
+    # TODO: Check tests
+    #if DEBUG:
+    #    hub._taskrunner = MockTaskRunnerResultsPass()
+    
+    #return result_to_string(hub.run())
+    return req_handler.run()
+
+
+
+class RequestHandler(object):
+    
+    def __init__(self, sw_product, request_id, **options_dict):
+        self.sw_product = sw_product
+        self.request_id = request_id
+        self.options_dict = options_dict
+        
+        self.process_handler = ProcessHandler()
+        self._options_factory = OptionsFactory(self.sw_product, options_dict)
+        
+        self.hubs = None
+    
+    def run(self):
+        self._create_hubs()
+        return self._run_hubs()
+
+    #########################
+    # HELPERS
+    #########################
+    
+    def _create_hubs(self):
+        #testrun_list = []
+        #process_queues = []
+        
+        #if self._options_factory.processed_core_options_dict['device']:
+        #    pass
+        #else:
+        import pdb; pdb.set_trace()
+        self.hubs = Hub(self.sw_product,
+                        self.request_id,
+                        **self.options_dict)
+
+    def _run_hubs(self):
+        return self.hubs.run()
+    
+    
