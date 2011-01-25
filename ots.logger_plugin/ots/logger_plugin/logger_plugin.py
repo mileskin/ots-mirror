@@ -75,20 +75,24 @@ class LoggerPlugin(PublisherPluginBase):
         logging.basicConfig() # This makes sure default formatters get loaded. Otherwise exc_info is not processed
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
-
-        # HTTP handler for end users
-        self._httphandler = LocalHttpHandler(testrun_uuid)
-        self._httphandler.setLevel(logging.INFO) # No debug msgs to end users
-        root_logger.addHandler(self._httphandler)
-
-        # File handler for maintainers/developers
-        log_id_string = _generate_log_id_string(request_id, testrun_uuid)
-        format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
-        os.system("mkdir -p %s" % LOG_DIR)
-        self._filehandler = logging.FileHandler(LOG_DIR+log_id_string)
-        self._filehandler.setLevel(logging.DEBUG) # All messages to the files
-        self._filehandler.setFormatter(logging.Formatter(format))
-        root_logger.addHandler(self._filehandler)
+        
+        try:
+            # HTTP handler for end users
+            self._httphandler = LocalHttpHandler(testrun_uuid)
+            self._httphandler.setLevel(logging.INFO) # No debug msgs to end users
+            root_logger.addHandler(self._httphandler)
+            
+            # File handler for maintainers/developers
+            log_id_string = _generate_log_id_string(request_id, testrun_uuid)
+            format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
+            os.system("mkdir -p %s" % LOG_DIR)
+            self._filehandler = logging.FileHandler(LOG_DIR+log_id_string)
+            self._filehandler.setLevel(logging.DEBUG) # All messages to the files
+            self._filehandler.setFormatter(logging.Formatter(format))
+            root_logger.addHandler(self._filehandler)
+        except IOError, ioerror:
+            root_logger.error("IOError, no permission to write %s?" % LOG_DIR,
+                              exc_info=True)
         
     #############################################
     # Logger removal
