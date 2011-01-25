@@ -30,11 +30,15 @@ class OtsQueueDoesNotExistError(Exception):
 
 class OtsExecutionTimeoutError(Exception):
     """Exception raised if a task is not finished in time"""
-    pass
+    
+    def __str__(self):
+        return ("Server side timeout. (Worker went offline during "+\
+                    "testrun or some tasks were not started in time)")
 
 class OtsConnectionError(Exception):
     """A generic amqp connection error"""
-    pass
+    def __str__(self):
+        return "An AMQP connectivity issue was encountered"
 
 class OtsNotConnectedError(Exception):
     pass
@@ -44,3 +48,8 @@ class OtsQueueTimeoutError(Exception):
     def __init__(self, timeout_length, *args, **kwargs):
         self.timeout_length = timeout_length
         Exception.__init__(self, *args, **kwargs)
+
+    def __str__(self):
+        return ("The job was not started within %s minutes. "+\
+                    "A worker in that devicegroup may be down or there may be"+\
+                    " exceptional demand") % str(self.timeout_length / 60)
