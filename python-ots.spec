@@ -33,7 +33,7 @@ Result libraries for OTS.
 Summary:                OTS server
 Prefix:                 /usr
 Group:                  Development/Tools
-Requires:               python-amqplib, python-django, python-configobj, python-ots-common
+Requires:               python-amqplib, python-django, python-configobj, python-ots-common, test-definition
 %description            server
 OTS server which handles incoming test requests and
 results processing.
@@ -42,7 +42,7 @@ results processing.
 Summary:                OTS worker
 Prefix:                 /usr
 Group:                  Development/Tools
-Requires:               python-amqplib, python-ots-common
+Requires:               python-amqplib, python-ots-common, testrunner-lite
 %description            worker
 OTS worker handles test device control and
 test execution.

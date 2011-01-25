@@ -35,7 +35,7 @@ install:
 	  `find . -maxdepth 2 -name setup.py`; \
 	do \
 		cd `dirname $$package`; \
-		python setup.py install --optimize=1 --single-version-externally-managed --root="$(CURDIR)/debian/tmp/"; \
+		python setup.py install --optimize=1 --single-version-externally-managed --no-compile --root="$(CURDIR)/debian/tmp/"; \
 		cd -; \
 	done
 

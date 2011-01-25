@@ -23,7 +23,7 @@ Description: Result libraries for OTS
 
 Package: python-ots-server
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-amqplib, python-django, python-configobj, rabbitmq-server, python-ots-common
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-amqplib, python-django, python-configobj, rabbitmq-server, python-ots-common, test-definition
 Provides: ${python:Provides}
 XB-Python-Version: >=2.5
 Description: OTS server
@@ -32,7 +32,7 @@ Description: OTS server
 
 Package: python-ots-worker
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-amqplib, python-ots-common
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-amqplib, python-ots-common, testrunner-lite
 Provides: ${python:Provides}
 XB-Python-Version: >=2.5
 Description: OTS worker
