@@ -89,7 +89,7 @@ echo "Nothing to be built"
 packages=`find . -maxdepth 2 -name setup.py`
 for package in $packages; do
     cd `dirname $package`
-    python setup.py install --optimize=1 --single-version-externally-managed --root=$RPM_BUILD_ROOT
+    python setup.py install --root=$RPM_BUILD_ROOT
     cd -
 done
 
