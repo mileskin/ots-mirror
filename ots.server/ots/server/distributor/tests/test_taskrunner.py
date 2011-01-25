@@ -39,7 +39,7 @@ from ots.server.distributor.task import Task
 from ots.server.distributor.taskrunner import TaskRunner
 from ots.server.distributor.taskrunner import _init_queue, TaskRunnerException
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
-    OtsExecutionTimeoutError, OtsQueueTimeoutError, OtsConnectionError
+    OtsExecutionTimeoutError, OtsQueueTimeoutError
 
 
 class AMQPMessageStub:
