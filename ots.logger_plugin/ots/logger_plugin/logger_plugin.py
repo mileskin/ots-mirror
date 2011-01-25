@@ -21,8 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 # Ignoring warnings because this is plugin
-# pylint: disable=W0613
-# pylint: disable=R0903
+# pylint: disable-msg=W0613
+# pylint: disable-msg=R0903
 
 """
 The LoggerPlugin is a Publisher 
@@ -30,10 +30,11 @@ The LoggerPlugin is a Publisher
 That adds LocalHttpHandler to log handlers.
 """
 
-from ots.common.framework.publisher_plugin_base import PublisherPluginBase
 import logging
 import datetime
 import os
+from socket import gethostname
+from ots.common.framework.publisher_plugin_base import PublisherPluginBase
 from ots.logger_plugin.localhandler import LocalHttpHandler
 
 LOG_DIR = "/var/log/ots/"  # TODO: Log directory to config file
@@ -62,9 +63,32 @@ class LoggerPlugin(PublisherPluginBase):
         self._httphandler = None
         self._filehandler = None
         self._initialize_logger(testrun_uuid, request_id)
+        self._testrun_uuid = testrun_uuid
     
     def __del__(self):
         self._remove_logger()
+
+
+    def set_all_publisher_uris(self, uris_dict):
+        """
+        @type: C{dict} of C{str} : C{str}
+        @param: A Dictionary of uris for the published data 
+        for *all* Publishers in {name : uri} 
+        """
+        logging.getLogger(__name__).debug("Urls from all publishers: %s" % \
+                                              uris_dict)
+
+    def get_this_publisher_uris(self):
+        """
+        @rtype: C{dict} of C{str} : C{str}
+        @rparam: A Dictionary of uris for the published data 
+                 for *this* Publisher in {name : uri} 
+        """
+        # TODO: use django url mechanism to get the url instead of hardcoding
+        url = "http://%s/logger/view/testrun/%s/" % (gethostname(),
+                                                     self._testrun_uuid)
+        return {"Testrun log": url}
+
 
     #############################################
     # Logger initialization
@@ -73,7 +97,9 @@ class LoggerPlugin(PublisherPluginBase):
         """
         initializes the logger
         """
-        logging.basicConfig() # This makes sure default formatters get loaded. Otherwise exc_info is not processed
+        # This makes sure default formatters get loaded. Otherwise exc_info is
+        # not processed correctly
+        logging.basicConfig()
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
 
@@ -84,11 +110,11 @@ class LoggerPlugin(PublisherPluginBase):
 
         # File handler for maintainers/developers
         log_id_string = _generate_log_id_string(request_id, testrun_uuid)
-        format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
+        log_format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
         os.system("mkdir -p %s" % LOG_DIR)
         self._filehandler = logging.FileHandler(LOG_DIR+log_id_string)
         self._filehandler.setLevel(logging.DEBUG) # All messages to the files
-        self._filehandler.setFormatter(logging.Formatter(format))
+        self._filehandler.setFormatter(logging.Formatter(log_format))
         root_logger.addHandler(self._filehandler)
         
     #############################################
