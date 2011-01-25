@@ -106,7 +106,7 @@ def _check_complete(expected_packages_dict,
     #Format Exception
     if missing_packages:
         pretty_list = ', '.join(missing_packages)
-        msg = "Missing packages: %s" % (pretty_list)
+        msg = "Missing test results : %s" % (pretty_list)
         raise PackageException(msg)
     
 def is_valid_run(expected_packages_dict,

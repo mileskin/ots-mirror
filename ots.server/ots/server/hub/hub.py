@@ -277,12 +277,13 @@ class Hub(object):
             testrun_result.addSuccess(TestCase)if testrun.run() else \
                   testrun_result.addFailure(TestCase, (None, None, None))
         except Exception, err:
-            LOG.error("Testrun initialization error", exc_info=err)
             type, value, tb = sys.exc_info()
+            LOG.error(str(value) or "Testrun Error", exc_info=err)
             publishers.set_exception(value)
             testrun_result.addError(TestCase, (type, value, tb))
             if DEBUG:
                 raise
+
         # Quick and dirty hack to make all available information published
         try:
             LOG.info("Publishing results")
@@ -290,15 +291,7 @@ class Hub(object):
             publishers.set_tested_packages(testrun.tested_packages)
             publishers.set_results(testrun.results)
             publishers.set_monitors(testrun.monitors)
-            if testrun.exceptions:
-                LOG.debug("Publishing errors")
-                # TODO: we should publish all exceptions, or just start
-                #       using TestrunResult for error reporting
-                publishers.set_exception(testrun.exceptions[0])
-                for error in testrun.exceptions:
-                    LOG.info("error_info set to '%s'"%(error.strerror))
-                    testrun_result.addError(TestCase,
-                                            (error, error.strerror, None))
+
         except Exception, err:
             type, value, tb = sys.exc_info()
             testrun_result.addError(TestCase, (type, value, tb))
@@ -320,7 +313,6 @@ class Hub(object):
             LOG.error("Testrun Error. Forced Initialisation", exc_info = sandbox.exc_info)
             etype, value, tb = sandbox.exc_info
             testrun_result = TestResult() 
-            LOG.info("error_info set to '%s'" %(str(value)))
             testrun_result.addError(TestCase, (etype, value, tb))
             self._publishers.set_exception(value)
             sandbox.exc_info = (None, None, None)

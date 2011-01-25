@@ -240,6 +240,6 @@ class MailMessage(object):
                 attach = attachment(testrun_uuid, result_files)
                 msg.attach(attach)
             except:
-                LOG.error("Error creating email attachement:",
-                      exc_info = True)
+                LOG.warning("Error creating email attachement:",
+                            exc_info = True)
         return msg

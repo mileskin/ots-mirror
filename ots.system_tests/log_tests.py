@@ -547,7 +547,7 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assertTrue(has_message(testrun_id, string))
 
-        string = "error_info set to 'Could not download file"
+        string = "Error: Could not download file ots_system_test_image.tar.gzasdfasdfthiswontexistasdfasdf, Error code: 103"
         self.assertTrue(has_message(testrun_id, string))
 
         # Check message from conductor
@@ -588,7 +588,7 @@ class TestErrorConditions(unittest.TestCase):
 
         # Check error message
 
-        string = "error_info set to 'Timeout while executing test package testrunner-lite-regression-tests'"
+        string = "Error: Timeout while executing test package testrunner-lite-regression-tests, Error code: 1091"
         self.assert_log_contains_string(testrun_id, string)
 
         # Check message from conductor        
@@ -688,7 +688,7 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to 'Invalid testpackage(s): thisisnotatestpackage'"
+        string = "Invalid testpackage(s): thisisnotatestpackage"
         self.assert_log_contains_string(testrun_id, string)
 
 
@@ -737,7 +737,7 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to 'Invalid distribution model: sendalltestrunstowastebin'"
+        string = "Invalid distribution model: sendalltestrunstowastebin"
         self.assert_log_contains_string(testrun_id, string)
 
     def test_perpackage_distribution_no_packages(self):
@@ -760,7 +760,7 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assert_log_contains_string(testrun_id, string)
 
-        string = "error_info set to 'Test packages must be defined for specified distribution model 'perpackage''"
+        string = "Test packages must be defined for specified distribution model 'perpackage'"
         self.assert_log_contains_string(testrun_id, string)
 
 

@@ -110,8 +110,8 @@ class EmailPlugin(PublisherPluginBase):
 
         self._from_address = config["from_address"]
         self._message_body = config["message_body"]
-        self._message_subject = config["message_subject"]
         self._smtp_server = config["smtp_server"]
+        self._message_subject = config["message_subject"]
 
         if config.as_bool("disabled"):   # If email plugin is disabled overwrite
             self._email = "off"          # option
@@ -212,6 +212,7 @@ class EmailPlugin(PublisherPluginBase):
         @type: C{str}
         @param: The testrun result
         """
+        
         self._testrun_result = testrun_result
 
     def set_results(self, results):
@@ -257,13 +258,12 @@ class EmailPlugin(PublisherPluginBase):
             except smtplib.SMTPRecipientsRefused:
                 failed_addresses = self._notify_list
             except socket.gaierror:
-                LOG.error("Invalid or unknown SMTP host")
+                LOG.warning("Invalid or unknown SMTP host")
             finally:
                 if mail_server is not None:
                     mail_server.close()
             if failed_addresses:
-                
-                LOG.error("Error in sending mail to following addresses:")
-                LOG.error(str(failed_addresses)) 
+                LOG.warning("Error in sending mail to following addresses: %s"\
+                                % failed_addresses)
         else:
-            LOG.error("No address list")
+            LOG.warning("No address list")
