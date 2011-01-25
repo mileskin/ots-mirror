@@ -2,6 +2,10 @@
 
 set -e
 
-mkdir /opt/ots/
+DIR="/opt/ots/"
+
+if [ ! -d $DIR ]; then
+  mkdir $DIR
+fi
 
 #DEBHELPER#

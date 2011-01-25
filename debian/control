@@ -49,7 +49,7 @@ Description: Helping tools for controlling OTS
 
 Package: python-ots-plugin-logger
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-server
+Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-server, libapache2-mod-wsgi, apache2-mpm-prefork
 XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Logger plugin to OTS server

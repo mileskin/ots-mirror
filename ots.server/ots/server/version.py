@@ -1,9 +1,10 @@
+#!/usr/bin/python
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,10 +21,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#This shouldn't be necessary 
-#http://bugs.python.org/setuptools/issue36
+"""Version of the server"""
 
-import warnings
-warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+import pkg_resources
 
-__import__('pkg_resources').declare_namespace(__name__)
+__VERSION__ = pkg_resources.require("ots.server")[0].version

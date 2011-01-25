@@ -62,6 +62,7 @@ import ots.server
 
 from ots.server.allocator.api import primed_taskrunner
 
+from ots.server.version import __VERSION__
 from ots.server.hub.sandbox import sandbox
 from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
@@ -129,7 +130,7 @@ class Hub(object):
                                       **self.extended_options_dict)
         sandbox_is_on = False
         LOG.debug("Publishers initilialised... sandbox switched off...")
-        LOG.info("OTS Server. version '%s'" % (ots.server.__VERSION__))
+        LOG.info("OTS Server. version '%s'" % (__VERSION__))
 
         # Log incoming options to help testrun debugging.
         # These need to match the xmlrpc interface options!
