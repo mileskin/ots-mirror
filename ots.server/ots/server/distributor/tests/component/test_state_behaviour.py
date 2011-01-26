@@ -45,7 +45,7 @@ import time
 from amqplib import client_0_8 as amqp
 
 from ots.common.dto.api import CommandMessage
-from ots.common.dto.api import DTO_SIGNAL
+from ots.server.distributor.api import DTO_SIGNAL
 from ots.common.amqp.api import testrun_queue_name
 from ots.common.amqp.api import pack_message
 

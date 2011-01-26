@@ -84,7 +84,7 @@ DEFAULT_REQUEST_ID = "default_request_id"
 NO_IMAGE = "no_image"
 # In error cases we want to try email sending to get the error reported
 DEFAULT_EXTENDED_OPTIONS_DICT = {"email": "on",
-                                 "email-attachments": "off"} 
+                                 "email_attachments": "off"} 
 
 ######################################
 # HUB

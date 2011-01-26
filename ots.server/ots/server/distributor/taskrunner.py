@@ -41,10 +41,10 @@ from amqplib import client_0_8 as amqp
 
 from ots.common.dto.api import TaskCondition
 from ots.common.dto.api import CommandMessage, StateChangeMessage
-from ots.common.dto.api import DTO_SIGNAL
 from ots.common.amqp.api import pack_message, unpack_message
 from ots.common.amqp.api import testrun_queue_name
 
+from ots.server.distributor.dto_signal import DTO_SIGNAL
 from ots.server.distributor.task import Task
 from ots.server.distributor.queue_exists import queue_exists
 from ots.server.distributor.timeout import Timeout

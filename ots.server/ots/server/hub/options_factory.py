@@ -49,7 +49,7 @@ DEVICE = "device"
 
 # In error cases we want to try email sending to get the error reported
 CONFIG_FILE_OPTIONS_DICT = {"email": "on",
-                            "email-attachments": "off"}
+                            "email_attachments": "off"}
 
 
 ###############################
