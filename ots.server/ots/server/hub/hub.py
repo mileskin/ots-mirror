@@ -82,8 +82,9 @@ DEBUG = False
 EXAMPLE_SW_PRODUCT = "example_sw_product"
 DEFAULT_REQUEST_ID = "default_request_id"
 NO_IMAGE = "no_image"
-DEFAULT_EXTENDED_OPTIONS_DICT = {} 
-
+# In error cases we want to try email sending to get the error reported
+DEFAULT_EXTENDED_OPTIONS_DICT = {"email": "on",
+                                 "email-attachments": "off"} 
 
 ######################################
 # HUB
@@ -310,7 +311,8 @@ class Hub(object):
         @rparam : A TestResult 
         """
         if sandbox.exc_info != (None, None, None): 
-            LOG.error("Testrun Error. Forced Initialisation", exc_info = sandbox.exc_info)
+            LOG.error("Testrun Error. Forced Initialisation",\
+                          exc_info = sandbox.exc_info)
             etype, value, tb = sandbox.exc_info
             testrun_result = TestResult() 
             testrun_result.addError(TestCase, (etype, value, tb))
