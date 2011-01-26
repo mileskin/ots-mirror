@@ -8,14 +8,14 @@ Standards-Version: 3.8.4
 
 Package: python-ots-common
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7) 
+Depends: python (>= 2.5) 
 XB-Python-Version: >=2.5
 Description: Common libraries for OTS
  Common libraries for OTS.
 
 Package: python-ots-results
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-common
+Depends: python (>= 2.5), python-ots-common
 Provides: ${python:Provides}
 XB-Python-Version: >=2.5
 Description: Result libraries for OTS
@@ -23,7 +23,7 @@ Description: Result libraries for OTS
 
 Package: python-ots-server
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-amqplib, python-django, python-configobj, rabbitmq-server, python-ots-common, test-definition
+Depends: python (>= 2.5), python-amqplib, python-django, python-configobj, rabbitmq-server, python-ots-common, test-definition
 Provides: ${python:Provides}
 XB-Python-Version: >=2.5
 Description: OTS server
@@ -32,7 +32,7 @@ Description: OTS server
 
 Package: python-ots-worker
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-amqplib, python-ots-common, testrunner-lite
+Depends: python (>= 2.5), python-amqplib, python-ots-common, testrunner-lite
 Provides: ${python:Provides}
 XB-Python-Version: >=2.5
 Description: OTS worker
@@ -41,7 +41,7 @@ Description: OTS worker
 
 Package: python-ots-tools
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-common
+Depends: python (>= 2.5), python-ots-common
 XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Helping tools for controlling OTS
@@ -49,7 +49,7 @@ Description: Helping tools for controlling OTS
 
 Package: python-ots-plugin-logger
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-server, libapache2-mod-wsgi, apache2-mpm-prefork
+Depends: python (>= 2.5), python-ots-server, libapache2-mod-wsgi, apache2-mpm-prefork
 XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Logger plugin to OTS server
@@ -57,7 +57,7 @@ Description: Logger plugin to OTS server
 
 Package: python-ots-plugin-qareports
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-server
+Depends: python (>= 2.5), python-ots-server
 XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: MeeGo QA reports plugin to OTS server
@@ -65,7 +65,7 @@ Description: MeeGo QA reports plugin to OTS server
 
 Package: python-ots-plugin-email
 Architecture: all
-Depends: python (>= 2.5), python-central (>= 0.6.7), python-ots-server
+Depends: python (>= 2.5), python-ots-server
 XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Email plugin to OTS server
