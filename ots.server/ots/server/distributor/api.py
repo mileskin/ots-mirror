@@ -35,4 +35,4 @@ from ots.server.distributor.taskrunner_factory import taskrunner_factory
 # Exceptions
 
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
-     OtsExecutionTimeoutError, OtsQueueTimeoutError, OtsConnectionError
+     OtsExecutionTimeoutError, OtsQueueTimeoutError

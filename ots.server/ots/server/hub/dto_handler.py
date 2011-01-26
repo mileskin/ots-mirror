@@ -77,7 +77,7 @@ class DTOHandler(object):
                 self.tested_packages = packages
             else:
                 self.tested_packages.update(packages)
-            self.results.append(result)
+        self.results.append(result)
 
     def _packages(self, packages): 
         """

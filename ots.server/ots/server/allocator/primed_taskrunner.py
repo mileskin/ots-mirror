@@ -123,6 +123,6 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
                         (int(execution_timeout)*60), # Server deals with minutes, conductor uses seconds, 
                         flasher)
     for cmd in cmds:
-        LOG.debug("Add cmd '%s' to taskrunner"%(cmd))
+        LOG.info("Added cmd '%s' to taskrunner" % (" ".join(cmd)))
         taskrunner.add_task(cmd)
     return taskrunner
