@@ -3,8 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
-#
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
 # version 2.1 as published by the Free Software Foundation.
@@ -53,4 +52,3 @@ from django.dispatch.dispatcher import Signal
 
 
 DTO_SIGNAL = Signal()
-

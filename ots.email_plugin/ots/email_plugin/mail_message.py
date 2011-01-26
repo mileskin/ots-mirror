@@ -55,7 +55,7 @@ def format_result(result, exception):
     """
 
     if exception is not None:
-        return "%s (%s)" % (result, exception.strerror)
+        return "%s (%s)" % (result, exception)
     
     return result
 

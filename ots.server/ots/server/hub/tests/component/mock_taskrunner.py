@@ -25,8 +25,7 @@ import time
 
 from ots.common.dto.api import Results, Packages
 from ots.common.dto.api import OTSException
-from ots.common.dto.api import DTO_SIGNAL
-
+from ots.server.distributor.api import DTO_SIGNAL
 from ots.server.distributor.api import OtsExecutionTimeoutError
 
 import ots.results

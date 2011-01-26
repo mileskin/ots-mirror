@@ -55,7 +55,7 @@ import ots.worker
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException,  HardTimeoutException
 from ots.worker.command import CommandFailed
-
+from ots.common.dto.ots_exception import OTSException
 
 LOGGER = logging.getLogger(__name__)
 
@@ -232,15 +232,14 @@ class TaskBroker(object):
         except CommandFailed, exc:
             error_msg = "Command %s failed" % cmd_msg.command
             LOGGER.error(error_msg)
-            exception = sys.exc_info()[1]
-            exc.task_id = task_id
-            exception.task_id = task_id 
-            exception.strerror = error_msg
-            exc.strerror = error_msg
+
+            # We need to send pure OTSException because server does not know
+            # about ots.worker.command.CommandFailed and unpickle will fail
+            exception = OTSException(exc.errno, error_msg)
+            exception.task_id = task_id
             self._publish_exception(task_id,
                                     response_queue,
-#                                    exception)
-                                    exc)
+                                    exception)
         finally:
             self._set_log_handler(None)
             self._publish_task_state_change(task_id, response_queue)
