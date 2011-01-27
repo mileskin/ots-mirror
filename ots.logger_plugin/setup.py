@@ -34,4 +34,9 @@ setup(
       entry_points={"ots.publisher_plugin":
                     ["publisher_klass = "\
                      "ots.logger_plugin.logger_plugin:LoggerPlugin"]},
+      package_dir = {'ots.logger_plugin': 'ots/logger_plugin'},
+      package_data = {'ots.logger_plugin': ['django_logger/templates/*.wsgi',
+                                            'django_logger/templates/styles/*',
+                                            'django_logger/templates/logger/*',
+                                            'django_logger/templates/media/*']},
       )
