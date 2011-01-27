@@ -25,7 +25,7 @@ Common libraries for OTS.
 Summary:                Result libraries for OTS
 Prefix:                 /usr
 Group:                  Development/Tools
-Requires:               python
+Requires:               python, python-ots-common
 %description            results
 Result libraries for OTS.
 
@@ -33,7 +33,7 @@ Result libraries for OTS.
 Summary:                OTS server
 Prefix:                 /usr
 Group:                  Development/Tools
-Requires:               python-amqplib, python-django, python-configobj, python-ots-common, test-definition
+Requires:               python-amqplib, Django, python-configobj, python-ots-results, test-definition
 %description            server
 OTS server which handles incoming test requests and
 results processing.
@@ -59,7 +59,7 @@ Helping tools for controlling OTS.
 Summary:                Logger plugin to OTS server
 Prefix:                 /usr
 Group:                  Development/Tools
-Requires:               python-ots-server
+Requires:               python-ots-server, httpd, mod_wsgi
 %description            plugin-logger
 Logger plugin to OTS server.
 
@@ -115,7 +115,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %post server
 easy_install minixsv
-mkdir -p /var/log/ots
+DIR="/var/log/ots"
+
+if [ ! -d $DIR ]; then
+  mkdir $DIR
+fi
 
 %files worker
 %defattr(-,root,root)
@@ -139,6 +143,13 @@ mkdir -p /var/log/ots
 %defattr(-,root,root)
 /usr/lib/python*/site-packages/ots.logger_plugin-*
 /usr/lib/python*/site-packages/ots/logger_plugin/*
+
+%post plugin-logger
+DIR="/opt/ots/"
+
+if [ ! -d $DIR ]; then
+  mkdir $DIR
+fi
 
 %files plugin-qareports
 %defattr(-,root,root)
