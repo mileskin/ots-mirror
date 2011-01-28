@@ -37,7 +37,7 @@ class TestHelpers(unittest.TestCase):
         # Read configuration file and check correct parameters values
         config_dict = parse_config(config_file_path, "conductor")
 
-        self.assertEquals(config_dict["device_packaging"], "debian")
+        self.assertEquals(config_dict["device_packaging"], "rpm")
         self.assertEquals(config_dict["custom_config_folder"],
                           "/etc/conductor")
         self.assertEquals(config_dict["pre_test_info_commands_debian"],
@@ -49,7 +49,7 @@ class TestHelpers(unittest.TestCase):
                           "'top -n1 -b', 'df', 'ifconfig', 'route -n',\n"
                           "'printenv'")
         self.assertEquals(config_dict["files_fetched_after_testing"],
-                          "\"/var/log/syslog\"")
+                          "\"/var/log/messages\"")
         self.assertEquals(config_dict["tmp_path"], "/tmp/")
 
         # Check that parameter update works (_update_config_items fuction)
@@ -58,7 +58,7 @@ class TestHelpers(unittest.TestCase):
                           "'initctl lst', 'dpkg -o'"}
         config_dict = parse_config(config_file_path,
                                    "conductor", current_config)
-        self.assertEquals(config_dict["device_packaging"], "debian")
+        self.assertEquals(config_dict["device_packaging"], "rpm")
         self.assertEquals(config_dict["pre_test_info_commands_debian"],
                           "'initctl list', 'dpkg -l'")
 
