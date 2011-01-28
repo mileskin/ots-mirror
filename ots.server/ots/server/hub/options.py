@@ -82,7 +82,8 @@ class Options(object):
         self.input_plugin = input_plugin # Deprecated
         self._timeout = timeout
         self._validate_packages(self.hw_packages)
-        self._validate_distribution_models(distribution_model, (self.hw_packages + self.host_packages))
+        self._validate_distribution_models(
+                distribution_model,(self.hw_packages + self.host_packages))
 
 
     ##################################
