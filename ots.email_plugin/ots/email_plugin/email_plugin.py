@@ -244,7 +244,7 @@ class EmailPlugin(PublisherPluginBase):
             LOG.info("email plugin disabled")
             return
         
-        if self._notify_list is not None:
+        if type(self._notify_list) is list:
             failed_addresses = None
             mail_server = None
             server_url = self._smtp_server

@@ -1,0 +1,7 @@
+/etc/ots.ini
+/etc/conductor.conf
+/etc/conductor/
+/usr/local/bin/ots_worker
+/usr/local/bin/conductor
+/usr/local/lib/python*/dist-packages/ots.worker-*
+/usr/local/lib/python*/dist-packages/ots/worker/*

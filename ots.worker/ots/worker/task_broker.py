@@ -52,6 +52,7 @@ from ots.common.dto.api import StateChangeMessage, TaskCondition
 from ots.common.routing.api import get_queues
 
 import ots.worker
+from ots.worker.version import __VERSION__
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException,  HardTimeoutException
 from ots.worker.command import CommandFailed
@@ -339,10 +340,11 @@ class TaskBroker(object):
         min_worker_version = cmd_msg.min_worker_version
 
         if min_worker_version is not None:
-            major_minor, revision = ots.worker.__VERSION__.split("r", 1)
+            version = __VERSION__.split(".", 3)
+            major_version = version[0] + "." + version[1]
             LOGGER.debug("Min version: %s. Worker version: %s"%
-                         (min_worker_version, major_minor))
-            ret_val = float(major_minor) >= float(min_worker_version)
+                         (min_worker_version, major_version))
+            ret_val = float(major_version) >= float(min_worker_version)
         return ret_val
 
     def _set_log_handler(self, queue):

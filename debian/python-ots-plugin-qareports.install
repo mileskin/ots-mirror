@@ -1,0 +1,3 @@
+/etc/ots_qareports_plugin.conf
+/usr/local/lib/python*/dist-packages/ots.qareports_plugin-*
+/usr/local/lib/python*/dist-packages/ots/qareports_plugin/*

@@ -1,9 +1,10 @@
+#!/usr/bin/python
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,10 +21,26 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-#This shouldn't be necessary 
-#http://bugs.python.org/setuptools/issue36
+""" Gets version number from the spec file """
 
-import warnings
-warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+import os
 
-__import__('pkg_resources').declare_namespace(__name__)
+def get_spec_version():
+    spec_location = "python-ots.spec"
+    try:
+        if not os.path.exists(spec_location):
+            spec_location = "../" + spec_location
+        specfile = open(spec_location)
+        for line in specfile:
+            version = line.find('Version:')
+            if version == -1:
+                continue
+            version = line.split(":")[1].strip()
+            break
+        specfile.close()
+        return version
+    except:
+        return None
+
+if __name__ == "__main__":
+    print get_spec_version()
