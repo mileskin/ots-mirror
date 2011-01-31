@@ -1,5 +1,9 @@
-python-ots (0.8.0) unstable; urgency=low
+ots (0.8.0-1) unstable; urgency=low
 
-  * source package automatically created by stdeb 0.6.0
+  * OTS 0.8 initial release
+  * New server internal structure
+  * New plugin mechanism
+  * New config file format
+  * Advanced log views
 
  -- Teemu Vainio <teemu.vainio@ixonos.com>  Mon, 24 Jan 2011 08:17:37 +0200
