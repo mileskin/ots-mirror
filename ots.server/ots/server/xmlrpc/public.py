@@ -209,12 +209,10 @@ class RequestHandler(object):
 
 
 def _run_hub(pq, sw_product, request_id, options_dict):
-    testrun_id = '1'
-    
     hub = Hub(sw_product, request_id, **options_dict)
     result = hub.run()
     
-    pq.put({testrun_id : result})
+    pq.put({hub.testrun_uuid : result})
 
 
 
