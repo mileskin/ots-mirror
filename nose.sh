@@ -32,36 +32,26 @@ if [ $# -gt 0 ]; then
     echo "`basename $0` started with parameters: $@"
 fi
 
-#############
-#ots.common
-#############
+# Define tests
+SERVER_TESTS="ots.server/ots/server/allocator/tests/test_*.py ots.server/ots/server/distributor/tests/test_*.py ots.server/ots/server/xmlrpc/tests/test_*.py ots.server/ots/server/hub/tests/test_*.py"
 
-nosetests ots.common/ots/common/framework/tests/test_* $@
-nosetests ots.common/ots/common/dto/tests/test_* $@
-nosetests ots.common/ots/common/amqp/tests/test_* -e testrun_queue_name $@
+WORKER_TESTS="ots.worker/ots/worker/tests/test_*.py ots.worker/ots/worker/conductor/tests/test_*.py"
 
-#############
-#ots.server
-#############
+COMMON_TESTS="ots.common/ots/common/framework/tests/test_*.py ots.common/ots/common/amqp/tests/test_*.py ots.common/ots/common/routing/tests/test_*.py ots.common/ots/common/dto/tests/test_*.py"
 
-nosetests ots.server/ots/server/distributor/tests/test_* -e testrun -e test_remote $@
+RESULT_TESTS="ots.results/ots/results/tests/test_*.py"
 
-nosetests ots.server/ots/server/hub/tests/test_* -e testrun $@
-nosetests ots.server/ots/server/xmlrpc/tests/test_* $@
-nosetests ots.server/ots/server/allocator/tests/test_* $@
+EMAIL_PLUGIN_TESTS="ots.email_plugin/ots/email_plugin/tests/test_*.py"
 
-#############
-#ots.worker
-#############
-nosetests ots.worker/ots/worker/tests/test_* $@
+QA_REPORTS_PLUGIN_TESTS="ots.qareports_plugin/ots/qareports_plugin/tests/test_*.py"
 
-###################
-#ots.email_plugin
-###################
-nosetests ots.email_plugin/ots/email_plugin/tests/test_* $@
-
-##############
-#ots.results
-##############
-nosetests ots.results/ots/results/tests/test_* $@
-
+# Run tests
+nosetests \
+  $SERVER_TESTS \
+  $WORKER_TESTS \
+  $COMMON_TESTS \
+  $RESULT_TESTS \
+  $EMAIL_PLUGIN_TESTS \
+  $QA_REPORTS_PLUGIN_TESTS \
+  -e testrun_queue_name \
+  $@

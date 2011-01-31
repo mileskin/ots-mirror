@@ -128,6 +128,11 @@ class Testrun(object):
         ret_val = TestrunResult.FAIL
         if self.run_test is not None:
             self.run_test()
+
+            # At this point distributor has already finished so it's safe to re-raise the exceptions from worker side
+            if self.exceptions:
+                raise self.exceptions[0]
+
             is_valid_run(self.expected_packages,
                          self.tested_packages,
                          self.is_hw_enabled,

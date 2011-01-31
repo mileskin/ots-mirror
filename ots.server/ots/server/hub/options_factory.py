@@ -47,7 +47,9 @@ DEVICE = "device"
 # DEFAULTS 
 ###################################
 
-CONFIG_FILE_OPTIONS_DICT = {}
+# In error cases we want to try email sending to get the error reported
+CONFIG_FILE_OPTIONS_DICT = {"email": "on",
+                            "email_attachments": "off"}
 
 
 ###############################
@@ -203,7 +205,7 @@ class OptionsFactory(object):
                 sanitised_options_dict.pop(key)
             if config_file_options_dict.has_key(key):
                 config_file_options_dict.pop(key)    
-
+        
         config_file_options_dict.update(sanitised_options_dict)
         sanitised_options_dict = config_file_options_dict
         return sanitised_options_dict

@@ -32,6 +32,8 @@ import logging
 import ConfigParser
 
 import ots.server
+from ots.server.version import __VERSION__
+
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
 
 def init_logging(config_filename):
@@ -88,7 +90,7 @@ def main():
     options = parser.parse_args()[0]
 
     if options.version:
-        print "Version:", ots.server.__VERSION__
+        print "Version:", __VERSION__
         sys.exit(1)
 
     if not os.path.exists(options.config):

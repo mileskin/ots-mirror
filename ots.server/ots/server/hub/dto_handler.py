@@ -31,7 +31,7 @@ import logging
 from logging import LogRecord
 
 from ots.common.dto.api import Packages, Results, Environment, Monitor
-from ots.common.dto.api import DTO_SIGNAL
+from ots.server.distributor.api import DTO_SIGNAL
 
 LOG = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class DTOHandler(object):
                 self.tested_packages = packages
             else:
                 self.tested_packages.update(packages)
-            self.results.append(result)
+        self.results.append(result)
 
     def _packages(self, packages): 
         """

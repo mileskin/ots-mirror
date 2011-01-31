@@ -46,7 +46,7 @@ class TestMailMessage(unittest.TestCase):
         self.assertEquals("FAIL", format_result("FAIL", None))
         exc = OTSException()
         exc.strerror = "foo"
-        self.assertEquals("FAIL (foo)", format_result("FAIL", exc)) 
+        self.assertEquals("FAIL (Error: foo, Error code:  )", format_result("FAIL", exc))
         
 
     def test_format_source_uris(self):

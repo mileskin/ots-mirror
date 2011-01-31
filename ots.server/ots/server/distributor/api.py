@@ -31,8 +31,9 @@ Defines the ots.server.distributor API
 
 from ots.server.distributor.taskrunner import TaskRunner
 from ots.server.distributor.taskrunner_factory import taskrunner_factory
+from ots.server.distributor.dto_signal import DTO_SIGNAL
 
 # Exceptions
 
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
-     OtsExecutionTimeoutError, OtsQueueTimeoutError, OtsConnectionError
+     OtsExecutionTimeoutError, OtsQueueTimeoutError

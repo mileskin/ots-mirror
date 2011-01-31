@@ -134,7 +134,8 @@ class TestHubProperties(unittest.TestCase):
 
     def test_extended_options_dict(self):
         hub = Hub(111, 111)
-        self.assertEquals({}, hub.extended_options_dict)
+        expected = {'email_attachments': 'off', 'email': 'on'}
+        self.assertEquals(expected, hub.extended_options_dict)
         hub = Hub("example_sw_product", 111)
         expected = {'email_attachments': 'off', 'email': 'on'}
         self.assertEquals(expected, hub.extended_options_dict)
@@ -164,7 +165,7 @@ class TestHubProperties(unittest.TestCase):
         self.assertFalse(hub.is_host_enabled)
         
     def test_options(self):
-        hub = Hub(111, 111, image = "foo")
+        hub = Hub(111, 111, image = "foo", distribution_model = "default")
         self.assertEquals(0, hub.options.timeout)
         hub = Hub("example_sw_product", 1111, image = "foo")
         self.assertEquals(60, hub.options.timeout)
