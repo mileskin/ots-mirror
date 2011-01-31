@@ -143,6 +143,7 @@ fi
 %defattr(-,root,root)
 /usr/lib/python*/site-packages/ots.plugin.logger-*
 /usr/lib/python*/site-packages/ots/plugin/logger/*
+/usr/share/ots/plugin/logger/*
 
 %post plugin-logger
 DIR="/opt/ots/"

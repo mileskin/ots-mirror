@@ -34,9 +34,16 @@ setup(
       entry_points={"ots.publisher_plugin":
                     ["publisher_klass = "\
                      "ots.plugin.logger.logger_plugin:LoggerPlugin"]},
-      package_dir = {'ots.plugin.logger': 'ots/plugin/logger'},
-      package_data = {'ots.plugin.logger': ['django_logger/templates/*.wsgi',
-                                            'django_logger/templates/styles/*',
-                                            'django_logger/templates/logger/*',
-                                            'django_logger/templates/media/*']},
+      
+      data_files=[('/usr/share/ots/plugin/logger', ['ots/plugin/logger/django_logger/templates/ots.wsgi']),
+                  ('/usr/share/ots/plugin/logger/media', ['ots/plugin/logger/django_logger/templates/media/logo.png']),
+                  ('/usr/share/ots/plugin/logger/styles', ['ots/plugin/logger/django_logger/templates/styles/custom.css']),
+                  ('/usr/share/ots/plugin/logger/logger', ['ots/plugin/logger/django_logger/templates/logger/index.html',
+                                                           'ots/plugin/logger/django_logger/templates/logger/workers_view.html',
+                                                           'ots/plugin/logger/django_logger/templates/logger/filter_message_view.html',
+                                                           'ots/plugin/logger/django_logger/templates/logger/basic_testrun_view.html',
+                                                           'ots/plugin/logger/django_logger/templates/logger/advanced_message_view.html',
+                                                           'ots/plugin/logger/django_logger/templates/logger/logger_base.html',
+                                                           'ots/plugin/logger/django_logger/templates/logger/message_details_view.html',]),
+                 ]
       )

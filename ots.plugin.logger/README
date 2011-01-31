@@ -11,7 +11,7 @@ INSTALLATION
   
   1. Install django
 
-    sudo apt-get install python-django libapache2-mod-wsgi
+    sudo apt-get install python-django libapache2-mod-wsgi apache2-mpm-prefork
 
   2. Download the latest django xml-rpc plugin
 
@@ -33,9 +33,8 @@ INSTALLATION
   
   6. Create database
 
-    cd ots/plugin.logger/django_ots/
-    sudo python manage.py syncdb
-    sudo chown www-data:www-data /opt/ots/*
+    export DJANGO_SETTINGS_MODULE=ots.plugin.logger.django_ots.settings
+    django-admin syncdb
 
   7. Configure apache default configuration
 
@@ -57,7 +56,7 @@ INSTALLATION
 
   8. Copy www files to /var/www/
 
-    sudo cp -r ots/plugin.logger/django_logger/templates/* /var/www/
+    sudo cp -r /usr/share/ots/logger/* /var/www/
   
   9. Restart apache
 
