@@ -1,11 +1,9 @@
-#!/bin/bash
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -22,12 +20,18 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# Creates developer eggs for all the eggs with 'ots' namespace
-PACKAGES="ots.common ots.results ots.server ots.worker ots.tools 
-                  ots.plugin.email ots.plugin.logger ots.plugin.qareports"
-for egg_root in $PACKAGES
-do
-    cd "$egg_root"
-    python setup.py develop   
-    cd - 
-done
+from setuptools import setup, find_packages
+from get_spec_version import get_spec_version
+
+setup(
+      name = "ots.plugin.email",
+      author="teemu.vainio@ixonos.com",
+      namespace_packages = ["ots", "ots.plugin","ots.plugin.email"],
+      version=get_spec_version(),
+      include_package_data = True,
+      packages = find_packages(),
+      install_requires=['ots.server'],
+      entry_points={"ots.publisher_plugin":
+            ["publisher_klass "\
+             "= ots.plugin.email.email_plugin:EmailPlugin"]},
+     )

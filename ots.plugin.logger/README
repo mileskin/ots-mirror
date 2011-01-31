@@ -1,0 +1,66 @@
+  OTS Logger Plugin
+
+INTRODUCTION
+
+  This plugin enables HTTP logging functionality for OTS components.
+  
+INSTALLATION
+
+  These instructions are for Ubuntu, but similar steps are required for
+  other distributions too.
+  
+  1. Install django
+
+    sudo apt-get install python-django libapache2-mod-wsgi
+
+  2. Download the latest django xml-rpc plugin
+
+    https://launchpad.net/django-xmlrpc
+
+  3. Install django plugin
+
+    tar xzf django_xmlrpc-0.1.tar.gz
+    sudo mv django_xmlrpc /usr/local/lib/python2.6/dist-packages/
+
+  4. Create directory for database and set permissions
+
+    sudo mkdir /opt/ots/
+    sudo chown www-data:www-data /opt/ots/
+
+  5. Install plugin
+  
+    sudo python setup.py install
+  
+  6. Create database
+
+    cd ots/plugin.logger/django_ots/
+    sudo python manage.py syncdb
+    sudo chown www-data:www-data /opt/ots/*
+
+  7. Configure apache default configuration
+
+    sudo nano /etc/apache2/sites-enabled/000-default
+
+      <VirtualHost *:80>
+              AliasMatch /([^/]*\.css) /var/www/styles/$1
+              Alias /media/ /var/www/media/
+              <Directory /usr/local/wsgi/static>
+                      Order deny,allow
+                      Allow from all
+              </Directory>
+              WSGIScriptAlias / /var/www/ots.wsgi
+              <Directory /usr/local/wsgi/scripts>
+                      Order allow,deny
+                      Allow from all
+              </Directory>
+      </VirtualHost>
+
+  8. Copy www files to /var/www/
+
+    sudo cp -r ots/plugin.logger/django_logger/templates/* /var/www/
+  
+  9. Restart apache
+
+    sudo service apache2 restart
+
+  10. Browse http://localhost/logger/view/ 

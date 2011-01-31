@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -22,12 +20,4 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# Creates developer eggs for all the eggs with 'ots' namespace
-PACKAGES="ots.common ots.results ots.server ots.worker ots.tools 
-                  ots.plugin.email ots.plugin.logger ots.plugin.qareports"
-for egg_root in $PACKAGES
-do
-    cd "$egg_root"
-    python setup.py develop   
-    cd - 
-done
+from ots.plugin.email.email_plugin import EmailPlugin

@@ -41,9 +41,9 @@ COMMON_TESTS="ots.common/ots/common/framework/tests/test_*.py ots.common/ots/com
 
 RESULT_TESTS="ots.results/ots/results/tests/test_*.py"
 
-EMAIL_PLUGIN_TESTS="ots.email_plugin/ots/email_plugin/tests/test_*.py"
+EMAIL_PLUGIN_TESTS="ots.plugin.email/ots/plugin/email/tests/test_*.py"
 
-QA_REPORTS_PLUGIN_TESTS="ots.qareports_plugin/ots/qareports_plugin/tests/test_*.py"
+QA_REPORTS_PLUGIN_TESTS="ots.plugin.qareports/ots/plugin/qareports/tests/test_*.py"
 
 # Run tests
 nosetests \

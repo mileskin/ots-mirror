@@ -1,3 +1,7 @@
+* Fri Jan 28 2011 Teemu Vainio <teemu.vainio@ixonos.com> 0.8.1
+ - Changed plug-in namespaces BMC#13135
+ - Changed QA-Reports configuration file name
+
 * Fri Jan 28 2011 Teemu Vainio <teemu.vainio@ixonos.com> 0.8.0
  - OTS 0.8 initial release
  - New server internal structure

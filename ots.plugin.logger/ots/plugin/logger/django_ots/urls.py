@@ -1,11 +1,9 @@
-#!/bin/bash
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -22,12 +20,24 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# Creates developer eggs for all the eggs with 'ots' namespace
-PACKAGES="ots.common ots.results ots.server ots.worker ots.tools 
-                  ots.plugin.email ots.plugin.logger ots.plugin.qareports"
-for egg_root in $PACKAGES
-do
-    cd "$egg_root"
-    python setup.py develop   
-    cd - 
-done
+"""
+Django main url file
+"""
+
+# Ignoring naming pattern
+# pylint: disable=C0103
+
+from django.conf.urls.defaults import patterns, include
+
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
+
+urlpatterns = patterns('',
+
+    # Example:
+    (r'^logger/', include('ots.plugin.logger.django_logger.urls')),
+
+    (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
+
+)
