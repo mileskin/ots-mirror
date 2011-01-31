@@ -32,14 +32,14 @@ from pickle import dumps, loads
 from amqplib import client_0_8 as amqp
 
 from ots.common.dto.api import StateChangeMessage, TaskCondition
-from ots.common.dto.api import DTO_SIGNAL
+from ots.server.distributor.api import DTO_SIGNAL
 from ots.common.amqp.codec import pack_message
 
 from ots.server.distributor.task import Task
 from ots.server.distributor.taskrunner import TaskRunner
 from ots.server.distributor.taskrunner import _init_queue, TaskRunnerException
 from ots.server.distributor.exceptions import OtsQueueDoesNotExistError, \
-    OtsExecutionTimeoutError, OtsQueueTimeoutError, OtsConnectionError
+    OtsExecutionTimeoutError, OtsQueueTimeoutError
 
 
 class AMQPMessageStub:

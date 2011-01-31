@@ -46,4 +46,12 @@ EMAIL_PLUGIN_TESTS="ots.email_plugin/ots/email_plugin/tests/test_*.py"
 QA_REPORTS_PLUGIN_TESTS="ots.qareports_plugin/ots/qareports_plugin/tests/test_*.py"
 
 # Run tests
-nosetests $SERVER_TESTS $WORKER_TESTS $COMMON_TESTS $RESULT_TESTS $EMAIL_PLUGIN_TESTS $QA_REPORTS_PLUGIN_TESTS $@
+nosetests \
+  $SERVER_TESTS \
+  $WORKER_TESTS \
+  $COMMON_TESTS \
+  $RESULT_TESTS \
+  $EMAIL_PLUGIN_TESTS \
+  $QA_REPORTS_PLUGIN_TESTS \
+  -e testrun_queue_name \
+  $@

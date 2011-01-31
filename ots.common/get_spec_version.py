@@ -1,9 +1,10 @@
+#!/usr/bin/python
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,37 +21,26 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-The Signal for a DTO
-"""
-import sys
+""" Gets version number from the spec file """
 
-###################
+import os
 
-#Django has forked PyDispatcher
-#We will probably need the Django Signals 
-#But to avoid making ots.server.distributor a 
-#Django project use a MonkeyPatch for now
+def get_spec_version():
+    spec_location = "python-ots.spec"
+    try:
+        if not os.path.exists(spec_location):
+            spec_location = "../" + spec_location
+        specfile = open(spec_location)
+        for line in specfile:
+            version = line.find('Version:')
+            if version == -1:
+                continue
+            version = line.split(":")[1].strip()
+            break
+        specfile.close()
+        return version
+    except:
+        return None
 
-try:
-    from django.conf import settings
-    settings.DEBUG
-except ImportError:
-    import types
-    class SettingsStub(object):
-        """Stubs out django settings object"""
-        DEBUG = False
-    conf_stub = types.ModuleType("django.conf")
-    conf_stub.settings = SettingsStub()
-    sys.modules["django.conf"] = conf_stub
-#    LOGGER.debug("Monkey patching django.conf")
-
-from django.dispatch.dispatcher import Signal
-
-####################
-# Signal
-####################
-
-
-DTO_SIGNAL = Signal()
-
+if __name__ == "__main__":
+    print get_spec_version()

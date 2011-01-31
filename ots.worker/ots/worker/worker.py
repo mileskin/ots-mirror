@@ -185,7 +185,8 @@ def main():
     #
     options, args = parser.parse_args()
     if options.version:
-        print "Version:", ots.worker.__VERSION__
+        from ots.worker.version import __VERSION__
+        print "Version:", __VERSION__
         sys.exit(1)
     #
     if not os.path.exists(options.config):

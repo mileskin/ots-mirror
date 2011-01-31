@@ -1,0 +1,6 @@
+* Fri Jan 28 2011 Teemu Vainio <teemu.vainio@ixonos.com> 0.8.0
+ - OTS 0.8 initial release
+ - New server internal structure
+ - New plugin mechanism
+ - New config file format
+ - Advanced log views

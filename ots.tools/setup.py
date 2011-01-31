@@ -1,9 +1,9 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -21,21 +21,23 @@
 # ***** END LICENCE BLOCK *****
 
 from setuptools import setup, find_packages
+from get_spec_version import get_spec_version
 
 setup(
-    name="ots.tools",
-    description="Various helper tools for OTS",
-    author="teemu.vainio@ixonos.com",
-    version="0.1.2",
-    include_package_data=True,
-    namespace_packages=['ots'],
-    packages=find_packages(),
-    zip_safe=False,
+      name="ots.tools",
+      description="Various helper tools for OTS",
+      author="teemu.vainio@ixonos.com",
+      version=get_spec_version(),
+      include_package_data=True,
+      namespace_packages=['ots'],
+      packages=find_packages(),
+      zip_safe=False,
     
-    entry_points={
-      "console_scripts":
-          ["ots_trigger = ots.tools.trigger.ots_trigger:main",
-           "ots_empty_queue = ots.tools.queue_management.empty_queue:main",
-           "ots_delete_queue = ots.tools.queue_management.delete_queue:main",
-           ], },
-    )
+      entry_points={
+                    "console_scripts":
+                    ["ots_trigger = ots.tools.trigger.ots_trigger:main",
+                     "ots_empty_queue = ots.tools.queue_management.empty_queue:main",
+                     "ots_delete_queue = ots.tools.queue_management.delete_queue:main",
+                     ],
+                   },
+      )

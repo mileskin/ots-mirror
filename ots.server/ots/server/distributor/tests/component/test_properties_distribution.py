@@ -53,7 +53,7 @@ import time
 import unittest 
 import zipfile
 
-from ots.common.dto.api import DTO_SIGNAL
+from ots.server.distributor.api import DTO_SIGNAL
 from ots.common.amqp.api import testrun_queue_name 
 
 from ots.tools.queue_management.delete_queue import delete_queue
