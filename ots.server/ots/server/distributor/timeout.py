@@ -86,7 +86,6 @@ class Timeout(object):
             #
             #pylint: disable-msg=W0613
 
-            LOGGER.error("Queue timeout")
             raise OtsQueueTimeoutError(self.queue_timeout)
 
         LOGGER.info("Setting queue timeout to %s minutes" \
@@ -105,10 +104,7 @@ class Timeout(object):
             #
             #pylint: disable-msg=W0613
 
-
-            LOGGER.error("Execution timeout (server side)")
             raise OtsExecutionTimeoutError
-
 
         timeout = self._calculate_new_timeout()
         LOGGER.info("Setting server side execution timeout to %s minutes" \

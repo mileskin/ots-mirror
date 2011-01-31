@@ -62,6 +62,7 @@ import ots.server
 
 from ots.server.allocator.api import primed_taskrunner
 
+from ots.server.version import __VERSION__
 from ots.server.hub.sandbox import sandbox
 from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
@@ -82,8 +83,9 @@ DEBUG = False
 EXAMPLE_SW_PRODUCT = "example_sw_product"
 DEFAULT_REQUEST_ID = "default_request_id"
 NO_IMAGE = "no_image"
-DEFAULT_EXTENDED_OPTIONS_DICT = {} 
-
+# In error cases we want to try email sending to get the error reported
+DEFAULT_EXTENDED_OPTIONS_DICT = {"email": "on",
+                                 "email_attachments": "off"} 
 
 ######################################
 # HUB
@@ -129,7 +131,7 @@ class Hub(object):
                                       **self.extended_options_dict)
         sandbox_is_on = False
         LOG.debug("Publishers initilialised... sandbox switched off...")
-        LOG.info("OTS Server. version '%s'" % (ots.server.__VERSION__))
+        LOG.info("OTS Server. version '%s'" % (__VERSION__))
 
         # Log incoming options to help testrun debugging.
         # These need to match the xmlrpc interface options!
@@ -310,7 +312,8 @@ class Hub(object):
         @rparam : A TestResult 
         """
         if sandbox.exc_info != (None, None, None): 
-            LOG.error("Testrun Error. Forced Initialisation", exc_info = sandbox.exc_info)
+            LOG.error("Testrun Error. Forced Initialisation",\
+                          exc_info = sandbox.exc_info)
             etype, value, tb = sandbox.exc_info
             testrun_result = TestResult() 
             testrun_result.addError(TestCase, (etype, value, tb))

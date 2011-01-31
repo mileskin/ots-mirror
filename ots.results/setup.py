@@ -1,9 +1,9 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -21,14 +21,14 @@
 # ***** END LICENCE BLOCK *****
 
 from setuptools import setup, find_packages
-from get_git_version import get_git_version
+from get_spec_version import get_spec_version
 
 setup(
-    name="ots.results",
-    author="meego-dev@meego.com",
-    version="0.8r" + get_git_version(),
-    include_package_data=True,
-    namespace_packages=['ots', 'ots.results'],
-    packages=find_packages(),
-    zip_safe=False,
-    )
+      name="ots.results",
+      author="meego-dev@meego.com",
+      version=get_spec_version(),
+      include_package_data=True,
+      namespace_packages=['ots', 'ots.results'],
+      packages=find_packages(),
+      zip_safe=False,
+      )

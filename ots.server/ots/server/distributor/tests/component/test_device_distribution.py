@@ -43,7 +43,8 @@ import time
 import unittest 
 import zipfile
 
-from ots.common.dto.api import DTO_SIGNAL, Results
+from ots.server.distributor.api import DTO_SIGNAL
+from ots.common.dto.api import Results
 from ots.common.amqp.api import testrun_queue_name
 
 import ots.worker.tests
