@@ -158,8 +158,8 @@ class Hub(object):
     @sandbox(EXAMPLE_SW_PRODUCT)
     def sw_product(self):
         """
-        @type sw_product: C{str}
-        @param sw_product: Name of the sw product this testrun belongs to
+        @rtype C{str}
+        @rparam Name of the sw product this testrun belongs to
         """
         return str(self._sw_product).lower()
        
@@ -167,19 +167,27 @@ class Hub(object):
     @sandbox(DEFAULT_REQUEST_ID)
     def request_id(self):
         """
-        @type request_id: C{str}
-        @param request_id: An identifier for the request from the client
+        @rtype C{str}
+        @rparam An identifier for the request from the client
         """
         return str(self._request_id)
 
     @property
     @sandbox(DEFAULT_EXTENDED_OPTIONS_DICT)
     def extended_options_dict(self):
+        """
+        rtype : C{dict}
+        rparam : Additional Options passed to OTS
+        """
         return self._options_factory.extended_options_dict
 
     @property
     @sandbox(NO_IMAGE)
     def image(self):
+        """
+        rtype : C{dict}
+        rparam : Additional Options passed to OTS
+        """
         return self._options_factory().image
 
 
@@ -190,8 +198,8 @@ class Hub(object):
     @property
     def is_hw_enabled(self):
         """
-        @type is_hw_enabled: C{bool}
-        @param is_hw_enabled: Is hw testing enabled?
+        @rtype C{bool}
+        @rparam Is hw testing enabled?
         """        
         hw_packages = self.options.hw_packages
         return bool(len(hw_packages))
@@ -199,8 +207,8 @@ class Hub(object):
     @property 
     def is_host_enabled(self):
         """
-        @type is_host_enabled: C{bool}
-        @param is_host_enabled: Is host testing enabled
+        @rtype C{bool}
+        @rparam Is host testing enabled
         """
         host_packages = self.options.host_packages
         return  bool(len(host_packages))
@@ -208,8 +216,8 @@ class Hub(object):
     @property
     def testrun_uuid(self):
         """
-        @type testrun_uuid: C{str}
-        @param testrun_uuid: A globally unique identifier for the testrun
+        @rtype C{str}
+        @rparam A globally unique identifier for the testrun
         """
         if self._testrun_uuid is None:
             LOG.info("Testrun ID: '%s'"%(self._testrun_uuid))
@@ -218,6 +226,10 @@ class Hub(object):
 
     @property
     def options(self):
+        """
+        @rtype : C{ots.server.hub.options.Options
+        @rparam : The Options
+        """
         if self._options is None:
             self._options = self._options_factory()
         return self._options
@@ -228,8 +240,8 @@ class Hub(object):
         A Taskrunner loaded with Tasks as 
         allocated by preferences
 
-        rtype : L{ots.server.distributor.taskrunner}
-        rparam : A Taskrunner loaded with Tasks
+        @rtype : L{ots.server.distributor.taskrunner}
+        @rparam : A Taskrunner loaded with Tasks
         """
         if self._taskrunner is None:
             self._taskrunner = primed_taskrunner(self.testrun_uuid, 
@@ -279,10 +291,10 @@ class Hub(object):
             testrun_result.addSuccess(TestCase)if testrun.run() else \
                   testrun_result.addFailure(TestCase, (None, None, None))
         except Exception, err:
-            type, value, tb = sys.exc_info()
+            type, value, traceback = sys.exc_info()
             LOG.error(str(value) or "Testrun Error", exc_info=err)
             publishers.set_exception(value)
-            testrun_result.addError(TestCase, (type, value, tb))
+            testrun_result.addError(TestCase, (type, value, traceback))
             if DEBUG:
                 raise
 
@@ -295,8 +307,8 @@ class Hub(object):
             publishers.set_monitors(testrun.monitors)
 
         except Exception, err:
-            type, value, tb = sys.exc_info()
-            testrun_result.addError(TestCase, (type, value, tb))
+            type, value, traceback = sys.exc_info()
+            testrun_result.addError(TestCase, (type, value, traceback))
             LOG.debug("publishing failed", exc_info=True)
         return testrun_result
 
@@ -312,11 +324,11 @@ class Hub(object):
         @rparam : A TestResult 
         """
         if sandbox.exc_info != (None, None, None): 
-            LOG.error("Testrun Error. Forced Initialisation",\
+            LOG.error("Testrun Error. Forced Initialisation", \
                           exc_info = sandbox.exc_info)
-            etype, value, tb = sandbox.exc_info
+            etype, value, traceback = sandbox.exc_info
             testrun_result = TestResult() 
-            testrun_result.addError(TestCase, (etype, value, tb))
+            testrun_result.addError(TestCase, (etype, value, traceback))
             self._publishers.set_exception(value)
             sandbox.exc_info = (None, None, None)
         else:
@@ -332,10 +344,18 @@ class Hub(object):
 # TODO: Move to more suitable place? This same value should be reported in email
 # etc.
 def result_to_string(testrun_result):
+    """
+    Convert unittest.TestResult to string
+    
+    @type testrun_result: C{unittest.TestResult}
+    @param testrun_result: A TestResult
+    
+    @rtype C{str}
+    @rparam Result as string
+    """
     if testrun_result.wasSuccessful():
         return "PASS"
     elif testrun_result.failures:
         return "FAIL"
     else:
-        #LOG.debug("Testrun failure %s" % testrun_result.errors)
         return "ERROR"
