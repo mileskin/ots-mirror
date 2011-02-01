@@ -249,7 +249,7 @@ class Hub(object):
                 entry_point = pkg_resources.iter_entry_points(
                     group = "ots_distribution_model",
                     name = distribution_model).next()
-                # TODO: options or extended options dict?
+
                 custom_distribution_model = entry_point.load()(self.options)
                 LOG.info("Loaded custom distribution model '%s'"%
                          (entry_point.module_name))

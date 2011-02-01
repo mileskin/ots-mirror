@@ -45,7 +45,6 @@ TEST = "-test"
 BENCHMARK = "-benchmark"
 
 VALID_PKG_SUFFIXES = [TESTS, TEST, BENCHMARK]
-DEFAULT_DISTRIBUTION_MODELS = ["default", "perpackage"]
 
 ###################################
 # Options
