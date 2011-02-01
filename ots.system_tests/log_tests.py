@@ -514,6 +514,36 @@ class TestSuccessfulTestruns(unittest.TestCase):
         string = "Environment: Host_Hardware"
         self.assertTrue(has_message(testrun_id, string, 1))
 
+class TestCustomDistributionModels(unittest.TestCase):
+
+    def assert_log_contains_string(self, testrun_id, string): 
+        self.assertTrue(has_message(testrun_id, string), 
+         "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
+
+    def test_load_example_distribution_model(self):
+        options = Options()
+        options.distribution = "example_model"
+        options.timeout = 1
+        print "****************************"
+        print "Triggering a testrun with test package distribution schema '%s'"\
+            % options.distribution
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assert_log_contains_string(testrun_id, string)
+
+        string = "Example distribution model not implemented."
+        self.assert_log_contains_string(testrun_id, string)
+
 
 class TestErrorConditions(unittest.TestCase):
 

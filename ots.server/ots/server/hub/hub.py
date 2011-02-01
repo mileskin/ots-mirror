@@ -250,14 +250,12 @@ class Hub(object):
                     group = "ots_distribution_model",
                     name = distribution_model).next()
                 # TODO: options or extended options dict?
-                custom_distribution_model = entry_point.load(self.options)
+                custom_distribution_model = entry_point.load()(self.options)
                 LOG.info("Loaded custom distribution model '%s'"%
                          (entry_point.module_name))
             except StopIteration:
-                msg = "Cannot load custom distribution model '%s'" \
-                    % (distribution_model)
-                raise HubException(msg)
-
+                raise ValueError("Invalid distribution model: %s"\
+                                     % distribution_model)
 
         if self._taskrunner is None:
             self._taskrunner = primed_taskrunner(self.testrun_uuid, 

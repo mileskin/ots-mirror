@@ -214,9 +214,6 @@ class Options(object):
                 +"distribution model '%s'" % distribution_model
             raise ValueError(error_msg)
 
-        # A temporary check until custom distribution models are enabled
-        if distribution_model not in ['perpackage', 'default']:
-            raise ValueError("Invalid distribution model: %s" % distribution_model)
 
     def _validate_packages(self, packages):
         """
