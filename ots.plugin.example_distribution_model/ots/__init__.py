@@ -19,18 +19,11 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
-	
-from setuptools import setup, find_packages
-from get_spec_version import get_spec_version
 
-setup(
-    name = "example_distribution_model",
-    author = "meego-dev@meego.com",
-    version=get_spec_version(),
-    namespace_packages = ["ots", "ots.plugin"],
-    packages = find_packages(),
-    include_package_data = True,
-    entry_points={"ots_distribution_model":
-                      ["example_model = ots.plugin.example_distribution_model.example_model:get_model"]
-                  },
-    zip_safe = False)
+#This shouldn't be necessary
+#http://bugs.python.org/setuptools/issue36
+
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+
+__import__('pkg_resources').declare_namespace(__name__)

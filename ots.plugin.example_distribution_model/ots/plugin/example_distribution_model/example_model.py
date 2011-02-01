@@ -19,18 +19,29 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
-	
-from setuptools import setup, find_packages
-from get_spec_version import get_spec_version
 
-setup(
-    name = "example_distribution_model",
-    author = "meego-dev@meego.com",
-    version=get_spec_version(),
-    namespace_packages = ["ots", "ots.plugin"],
-    packages = find_packages(),
-    include_package_data = True,
-    entry_points={"ots_distribution_model":
-                      ["example_model = ots.plugin.example_distribution_model.example_model:get_model"]
-                  },
-    zip_safe = False)
+"""
+example custom distribution model
+"""
+
+from ots.server.allocator.conductor_command import conductor_command
+
+def example_model(test_list, options):
+    """
+    Implement your distribution model here. Examples can be found in
+    ots.server.allocator.default_distribution_models
+    """
+    raise NotImplementedError("Example distribution model not implemented.")
+
+def get_model(options):
+    """This is the factory method.
+
+    @type options: L{Options}
+    @param options: Testrun options in an ots.server.hub.options object
+
+    @rtype: C{callable}
+    @return: A callable 
+
+    """
+    
+    return example_model

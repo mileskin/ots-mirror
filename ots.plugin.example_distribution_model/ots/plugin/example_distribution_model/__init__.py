@@ -21,27 +21,5 @@
 # ***** END LICENCE BLOCK *****
 
 """
-example custom distribution model
+An example custom package distribution model plugin
 """
-
-from ots.server.allocator.conductor_command import conductor_command
-
-def example_model(test_list, options):
-    """
-    Implement your distribution model here. Examples can be found in
-    ots.server.allocator.default_distribution_models
-    """
-    raise NotImplementedError("Example distribution model not implemented.")
-
-def get_model(options):
-    """This is the factory method.
-
-    @type options: L{Options}
-    @param options: The package name
-
-    @rtype: C{callable}
-    @return: A callable 
-
-    """
-    
-    return example_model
