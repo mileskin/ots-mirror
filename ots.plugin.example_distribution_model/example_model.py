@@ -26,29 +26,12 @@ example custom distribution model
 
 from ots.server.allocator.conductor_command import conductor_command
 
-def custom_model(test_list, options):
+def example_model(test_list, options):
     """
     Implement your distribution model here. Examples can be found in
     ots.server.allocator.default_distribution_models
     """
-
-    commands = []
-
-    if not test_list:
-        raise ValueError("test_list not defined for distribution model")
-
-    if 'device' in test_list:
-        for test_package in test_list['device'].split(","):
-            options['test_packages'] = test_package
-            cmd = conductor_command(options, host_testing = False)
-            commands.append(cmd)
-
-    if 'host' in test_list:
-        for test_package in test_list['host'].split(","):
-            options['test_packages'] = test_package
-            cmd = conductor_command(options, host_testing = True)
-            commands.append(cmd)
-    return commands
+    raise NotImplementedError("Example distribution model not implemented.")
 
 def get_model(options):
     """This is the factory method.
@@ -61,4 +44,4 @@ def get_model(options):
 
     """
     
-    return custom_model
+    return example_model

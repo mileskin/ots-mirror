@@ -24,12 +24,12 @@ from setuptools import setup, find_packages
 from get_git_version import get_git_version
 	
 setup(
-    name = "custom_distribution_model",
+    name = "example_distribution_model",
     author = "meego-dev@meego.com",
     version = "0.8r" + get_git_version(),
     include_package_data = True,
-    py_modules=['custom_model'],
+    py_modules=['example_model'],
     entry_points={"ots_distribution_model":
-                      ["custom_model = custom_model:get_model"]
+                      ["example_model = example_model:get_model"]
                   },
     zip_safe = False)
