@@ -20,27 +20,20 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import logging
+"""
+This module provides public interface for OTS server
+"""
+
+#import logging
 
 from ots.server.xmlrpc.request_handler import RequestHandler
 
 
-LOG = logging.getLogger()
+#LOG = logging.getLogger()
 
 REQUEST_ERROR = 'ERROR'
 REQUEST_FAIL = 'FAIL'
 REQUEST_PASS = 'PASS'
-
-################################
-# HACKISH TESTING CAPABILITIES
-################################
-
-DEBUG = False
-
-if DEBUG:
-    from ots.server.hub.tests.component.mock_taskrunner import \
-                                       MockTaskRunnerResultsPass
-
 
 #############################
 # REQUEST_SYNC
@@ -65,10 +58,10 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
     @param options_dict: A dictionary of options
     """
 
-    LOG.info(("Incoming request: program: %s," \
-              " request: %s, notify_list: %s, " \
-              "options: %s") % \
-             (sw_product, request_id, notify_list, options_dict))
+    #LOG.info(("Incoming request: program: %s," \
+    #          " request: %s, notify_list: %s, " \
+    #          "options: %s") % \
+    #         (sw_product, request_id, notify_list, options_dict))
 
     options_dict["notify_list"] = notify_list
 
