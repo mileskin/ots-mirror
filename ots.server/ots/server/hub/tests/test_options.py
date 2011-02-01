@@ -64,10 +64,6 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals("perpackage", 
                           options.distribution_model)
-        kwargs = {"image" : "www.nokia.com",
-                  "distribution_model" : "foo"}
-        self.assertRaises(ValueError, Options, kwargs)
-
 
     def test_distribution_model_validation(self):
         kwargs = {"image" : "www.nokia.com",
