@@ -756,7 +756,7 @@ class Executor(object):
             self.log.debug(cmdstr)
             content += "==== %s ====\n" % plain_cmd
 
-            cmd = Command(cmdstr, soft_timeout = 30, hard_timeout = 35)
+            cmd = Command(cmdstr, soft_timeout = 60, hard_timeout = 70)
             try:
                 cmd.execute()
             except (SoftTimeoutException, HardTimeoutException):
