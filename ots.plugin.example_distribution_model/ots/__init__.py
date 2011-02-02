@@ -1,9 +1,9 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,16 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
-from get_spec_version import get_spec_version
+#This shouldn't be necessary
+#http://bugs.python.org/setuptools/issue36
 
-setup(
-      name="ots.results",
-      author="meego-dev@meego.com",
-      version=get_spec_version(),
-      include_package_data=True,
-      install_requires=['minixsv'],
-      namespace_packages=['ots', 'ots.results'],
-      packages=find_packages(),
-      zip_safe=False,
-      )
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+
+__import__('pkg_resources').declare_namespace(__name__)

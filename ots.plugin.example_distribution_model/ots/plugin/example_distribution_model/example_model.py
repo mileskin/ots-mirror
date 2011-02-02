@@ -1,9 +1,9 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,16 +20,28 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
-from get_spec_version import get_spec_version
+"""
+example custom distribution model
+"""
 
-setup(
-      name="ots.results",
-      author="meego-dev@meego.com",
-      version=get_spec_version(),
-      include_package_data=True,
-      install_requires=['minixsv'],
-      namespace_packages=['ots', 'ots.results'],
-      packages=find_packages(),
-      zip_safe=False,
-      )
+from ots.server.allocator.conductor_command import conductor_command
+
+def example_model(test_list, options):
+    """
+    Implement your distribution model here. Examples can be found in
+    ots.server.allocator.default_distribution_models
+    """
+    raise NotImplementedError("Example distribution model not implemented.")
+
+def get_model(options):
+    """This is the factory method.
+
+    @type options: L{Options}
+    @param options: Testrun options in an ots.server.hub.options object
+
+    @rtype: C{callable}
+    @return: A callable 
+
+    """
+    
+    return example_model
