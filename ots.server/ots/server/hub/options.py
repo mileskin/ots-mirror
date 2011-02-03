@@ -57,8 +57,7 @@ class Options(object):
 
     def __init__(self, image, packages = None, plan = None, hosttest = None,
                  device = {}, emmc = None, distribution_model = None,
-                 flasher = None, testfilter = None, timeout = None,
-                 input_plugin = None):
+                 flasher = None, testfilter = None, timeout = None):
         """
         @type: C{image}
         @param: The image url
@@ -78,7 +77,6 @@ class Options(object):
         self._distribution_model = distribution_model
         self._flasher = flasher
         self._testfilter = testfilter
-        self.input_plugin = input_plugin # Deprecated
         self._timeout = timeout
         self._validate_packages(self.hw_packages)
         self._validate_distribution_models(distribution_model,
