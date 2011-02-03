@@ -36,6 +36,15 @@ from ots.server.xmlrpc.public import request_sync
 
 LOG = logging.getLogger(__name__)
 
+################################
+# HACKISH TESTING CAPABILITIES
+################################
+
+DEBUG = False
+
+if DEBUG:
+    from ots.server.hub.tests.component.mock_taskrunner import \
+                                       MockTaskRunnerResultsPass
 
 ###########################
 # OTS FORKING SERVER
