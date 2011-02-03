@@ -141,8 +141,9 @@ fi
 
 %files plugin-logger
 %defattr(-,root,root)
-/usr/lib/python*/site-packages/ots.logger_plugin-*
-/usr/lib/python*/site-packages/ots/logger_plugin/*
+/usr/lib/python*/site-packages/ots.plugin.logger-*
+/usr/lib/python*/site-packages/ots/plugin/logger/*
+/usr/share/ots/plugin/logger/*
 
 %post plugin-logger
 DIR="/opt/ots/"
@@ -153,12 +154,12 @@ fi
 
 %files plugin-qareports
 %defattr(-,root,root)
-%config /etc/ots_qareports_plugin.conf
-/usr/lib/python*/site-packages/ots.qareports_plugin-*
-/usr/lib/python*/site-packages/ots/qareports_plugin/*
+%config /etc/ots_plugin_qareports.conf
+/usr/lib/python*/site-packages/ots.plugin.qareports-*
+/usr/lib/python*/site-packages/ots/plugin/qareports/*
 
 %files plugin-email
 %defattr(-,root,root)
-/usr/lib/python*/site-packages/ots.email_plugin-*
-/usr/lib/python*/site-packages/ots/email_plugin/*
+/usr/lib/python*/site-packages/ots.plugin.email*
+/usr/lib/python*/site-packages/ots/plugin/email/*
 

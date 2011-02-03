@@ -58,6 +58,7 @@ from traceback import format_exception
 from unittest import TestCase
 from unittest import TestResult
 from copy import deepcopy
+import pkg_resources
 import ots.server
 
 from ots.server.allocator.api import primed_taskrunner
@@ -70,6 +71,8 @@ from ots.server.hub.options_factory import OptionsFactory
 
 LOG = logging.getLogger()
 
+#TODO: move to somewhere else or implement default models as plugins
+DEFAULT_DISTRIBUTION_MODELS = ["default", "perpackage"]
 
 DEBUG = False
 
@@ -83,9 +86,14 @@ DEBUG = False
 EXAMPLE_SW_PRODUCT = "example_sw_product"
 DEFAULT_REQUEST_ID = "default_request_id"
 NO_IMAGE = "no_image"
+
 # In error cases we want to try email sending to get the error reported
 DEFAULT_EXTENDED_OPTIONS_DICT = {"email": "on",
                                  "email_attachments": "off"} 
+
+class HubException(Exception):
+    """Error in Hub"""
+    pass
 
 ######################################
 # HUB
@@ -243,6 +251,24 @@ class Hub(object):
         @rtype : L{ots.server.distributor.taskrunner}
         @rparam : A Taskrunner loaded with Tasks
         """
+        custom_distribution_model = None
+        distribution_model = self.options.distribution_model
+        
+        # Search for custom package distribution models if not using default
+        # models
+        if distribution_model not in DEFAULT_DISTRIBUTION_MODELS:
+            try:
+                entry_point = pkg_resources.iter_entry_points(
+                    group = "ots_distribution_model",
+                    name = distribution_model).next()
+
+                custom_distribution_model = entry_point.load()(self.options)
+                LOG.info("Loaded custom distribution model '%s'"%
+                         (entry_point.module_name))
+            except StopIteration:
+                raise ValueError("Invalid distribution model: %s"\
+                                     % distribution_model)
+
         if self._taskrunner is None:
             self._taskrunner = primed_taskrunner(self.testrun_uuid, 
                                               self.options.timeout,
@@ -254,7 +280,7 @@ class Hub(object):
                                               self.options.emmc,
                                               self.options.testfilter,
                                               self.options.flasher,
-                                              self._publishers)
+                                              custom_distribution_model)
 
         return self._taskrunner
 
@@ -353,6 +379,7 @@ def result_to_string(testrun_result):
     @rtype C{str}
     @rparam Result as string
     """
+
     if testrun_result.wasSuccessful():
         return "PASS"
     elif testrun_result.failures:

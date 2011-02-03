@@ -1,3 +1,11 @@
+ots (0.8.1-1) unstable; urgency=low
+
+  * Changed plug-in namespaces BMC#13135
+  * Changed QA-Reports configuration file name
+  * Changed ots.plugin.logger installation instructions
+
+ -- Teemu Vainio <teemu.vainio@ixonos.com>  Mon, 24 Jan 2011 08:17:37 +0200
+ 
 ots (0.8.0-1) unstable; urgency=low
 
   * OTS 0.8 initial release
