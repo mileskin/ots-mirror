@@ -794,13 +794,11 @@ class TestDeviceProperties(unittest.TestCase):
 
         self.assertTrue(has_errors(testrun_id1))
         self.assertTrue(has_errors(testrun_id2))
-        
-
 
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
-        string1 = """Using routing key this_should_not_exist_1"""
-        string2 = """Using routing key this_should_not_exist_either"""
+        string1 = """No queue for this_should_not_exist_1"""
+        string2 = """No queue for this_should_not_exist_either"""
         
         if (has_message(testrun_id1, string1)):
             self.assertTrue(has_message(testrun_id2, string2))
@@ -827,25 +825,21 @@ class TestDeviceProperties(unittest.TestCase):
         testrun_id1 = get_second_latest_testrun_id()        
         testrun_id2 = get_latest_testrun_id()
 
-
         print "latest testrun_id before test: %s" % old_testrun
         print "testrun_id1: %s" %testrun_id1
         print "testrun_id2: %s" %testrun_id2
-
 
         # Make sure we are not reading logs from previous runs
         self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
 
         self.assertTrue(has_errors(testrun_id1))
         self.assertTrue(has_errors(testrun_id2))
-        
-
 
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
 
-        string1 = """Using routing key this_should_not_exist.device1"""
-        string2 = """Using routing key this_should_not_exist.device2"""
+        string1 = """No queue for this_should_not_exist.device1"""
+        string2 = """No queue for this_should_not_exist.device2"""
         
         if (has_message(testrun_id1, string1)):
             self.assertTrue(has_message(testrun_id2, string2))
@@ -886,8 +880,8 @@ class TestDeviceProperties(unittest.TestCase):
         
 
         # Make sure correct routing keys are used
-        string1 = """Using routing key this_should_not_exist.device1.id1"""
-        string2 = """Using routing key this_should_not_exist.device1.id2"""
+        string1 = """No queue for this_should_not_exist.device1.id1"""
+        string2 = """No queue for this_should_not_exist.device1.id2"""
         
         if (has_message(testrun_id1, string1)):
             self.assertTrue(has_message(testrun_id2, string2))
