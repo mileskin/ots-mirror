@@ -21,7 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Module for request handling
+Module for handling OTS requests
 """
 
 #import logging
@@ -164,15 +164,18 @@ def _check_testruns_result_values(result_values):
     @return: Result value testruns
     """
     
+    if not len(result_values):
+        return REQUEST_ERROR
+    
     for value in result_values:
-        if not value.wasSuccessful() or value.failures:
+        if len(value.errors):
             return REQUEST_ERROR
     
     for value in result_values:
-        if not value.wasSuccessful():
+        if len(value.failures):
             return REQUEST_FAIL
-        
-    return REQUEST_PASS    
+    
+    return REQUEST_PASS
 
 def _validate_devicespecs(device_specs):
     """
