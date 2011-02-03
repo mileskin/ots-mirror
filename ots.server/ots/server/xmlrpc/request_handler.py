@@ -31,7 +31,7 @@ from ots.server.hub.api import Hub
 from ots.server.hub.parameters_parser import string_2_dict
 from ots.server.xmlrpc.process_handler import ProcessHandler
 from multiprocessing import Queue
-from unittest import TestResult
+#from unittest import TestResult
 
 
 #LOG = logging.getLogger()
@@ -47,11 +47,6 @@ class RequestHandler(object):
     """
     
     def __init__(self, sw_product, request_id, **options_dict):
-        
-        #LOG.info(("Request handler init(): swproduct: %s," \
-        #          " request_id: %s, options: %s") % \
-        #         (sw_product, request_id, options_dict))
-        
         self.sw_product = sw_product
         self.request_id = request_id
         self.options_dict = options_dict
@@ -189,8 +184,17 @@ def _validate_devicespecs(device_specs):
     """
     spec_dict = string_2_dict(device_specs)
     
+    if len(spec_dict) < 1:
+        return False
+    
+    # only following spec keys are accepted
     for spec in spec_dict:
         if spec not in ['devicegroup', 'devicename', 'deviceid']:
+            return False
+    
+    # device id cannot be in device spec without device name
+    if 'deviceid' in spec_dict:
+        if not 'devicename' in spec_dict:
             return False
     
     return True
