@@ -46,7 +46,9 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                              TESTRUNNER_VALIDATION_FAILS, \
                              TESTRUNNER_RESULT_FOLDER_FAILS, \
                              TESTRUNNER_XML_READER_FAILS, \
-                             TESTRUNNER_RESULT_LOGGING_FAILS
+                             TESTRUNNER_RESULT_LOGGING_FAILS, \
+                             TIMEOUT_FETCH_ENVIRONMENT_DETAILS, \
+                             TIMEOUT_FETCH_FILES_AFTER_TESTING
 
 from conductorerror import ConductorError
 
@@ -756,7 +758,9 @@ class Executor(object):
             self.log.debug(cmdstr)
             content += "==== %s ====\n" % plain_cmd
 
-            cmd = Command(cmdstr, soft_timeout = 30, hard_timeout = 35)
+            cmd = Command(cmdstr, 
+                          soft_timeout = TIMEOUT_FETCH_ENVIRONMENT_DETAILS,
+                          hard_timeout = TIMEOUT_FETCH_ENVIRONMENT_DETAILS + 5)
             try:
                 cmd.execute()
             except (SoftTimeoutException, HardTimeoutException):
@@ -791,7 +795,9 @@ class Executor(object):
                 continue
 
             cmdstr = self.target.get_command_to_copy_file(src_path, dest_path)
-            cmd = Command(cmdstr, soft_timeout = 10, hard_timeout = 15)
+            cmd = Command(cmdstr, 
+                          soft_timeout = TIMEOUT_FETCH_FILES_AFTER_TESTING,
+                          hard_timeout = TIMEOUT_FETCH_FILES_AFTER_TESTING + 5)
 
             while error_counter < SSH_CONNECTION_RETRIES:
                 error_counter += 1
