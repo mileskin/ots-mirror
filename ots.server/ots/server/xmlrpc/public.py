@@ -24,12 +24,7 @@
 This module provides public interface for OTS server
 """
 
-#import logging
-
 from ots.server.xmlrpc.request_handler import RequestHandler
-
-
-#LOG = logging.getLogger()
 
 REQUEST_ERROR = 'ERROR'
 REQUEST_FAIL = 'FAIL'
@@ -57,11 +52,6 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
     @type options_dict: C{dict}
     @param options_dict: A dictionary of options
     """
-
-    #LOG.info(("Incoming request: program: %s," \
-    #          " request: %s, notify_list: %s, " \
-    #          "options: %s") % \
-    #         (sw_product, request_id, notify_list, options_dict))
 
     options_dict["notify_list"] = notify_list
 
