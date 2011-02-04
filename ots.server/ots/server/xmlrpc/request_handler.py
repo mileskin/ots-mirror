@@ -94,12 +94,7 @@ class RequestHandler(object):
             device_specs = self.options_dict['device'].split(';')
             
             for spec in device_specs:
-                # Check that we have valid device specs
-                if not _validate_devicespecs(spec):
-                    continue
-                
                 options, queue = self._prepare_params(spec)
-                
                 self.process_queues.append(queue)
                 self.hubs_params.append((queue,
                                          self.sw_product,
@@ -167,34 +162,6 @@ def _check_testruns_result_values(result_values):
             return REQUEST_FAIL
     
     return REQUEST_PASS
-
-def _validate_devicespecs(device_specs):
-    """
-    Returns boolean value based on device_specs validation
-
-    @param device_specs: String that contains device specifications
-    @type options: C{Str}
-
-    @rtype: C{Boolean}
-    @return: True if device_specs are valid, False otherwise
-    """
-    spec_dict = string_2_dict(device_specs)
-    
-    if len(spec_dict) < 1:
-        return False
-    
-    # only following spec keys are accepted
-    for spec in spec_dict:
-        if spec not in ['devicegroup', 'devicename', 'deviceid']:
-            return False
-    
-    # device id cannot be in device spec without device name
-    if 'deviceid' in spec_dict:
-        if not 'devicename' in spec_dict:
-            return False
-    
-    return True
-
 
 def _run_hub(queue, sw_product, request_id, options_dict):
     """

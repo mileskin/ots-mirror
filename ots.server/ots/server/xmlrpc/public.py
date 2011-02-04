@@ -26,10 +26,6 @@ This module provides public interface for OTS server
 
 from ots.server.xmlrpc.request_handler import RequestHandler
 
-REQUEST_ERROR = 'ERROR'
-REQUEST_FAIL = 'FAIL'
-REQUEST_PASS = 'PASS'
-
 #############################
 # REQUEST_SYNC
 #############################
