@@ -528,7 +528,7 @@ class TestCustomDistributionModels(unittest.TestCase):
         print "Triggering a testrun with test package distribution schema '%s'"\
             % options.distribution
         print "This test requires that ots.plugin.example_distribution_model "\
-            +"is installed."
+            +"from examples/ is installed."
 
         result = ots_trigger(options)
 
