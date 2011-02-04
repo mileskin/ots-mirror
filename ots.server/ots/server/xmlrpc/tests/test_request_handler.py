@@ -23,9 +23,7 @@
 import unittest
 from unittest import TestResult, TestCase
 
-from ots.server.xmlrpc.request_handler import (_check_testruns_result_values, 
-                                               _validate_devicespecs)
-
+from ots.server.xmlrpc.request_handler import _check_testruns_result_values
 
 class TestRequestHandlerFunctions(unittest.TestCase):
     
@@ -94,26 +92,6 @@ class TestRequestHandlerFunctions(unittest.TestCase):
         result_values2.append(result2)
         self.assertEquals('FAIL', _check_testruns_result_values(result_values2))
         
-    def test_validate_devicespecs_successful(self):
-        valid_specs = ["devicegroup:handset",
-                       "devicegroup:handset devicename:n900"
-                       "devicegroup:handset devicename:n900 deviceid:1"
-                       ]
-        
-        for spec in valid_specs:
-            self.assertTrue(_validate_devicespecs(spec))
-        
-    def test_validate_devicespecs_failures(self):
-        err_specs = ["devicegrouphandset",
-                     "devicegroup;handset",
-                     "devicegroup-handset:",
-                     "devicegroup:handset devicenam:n900",
-                     "devicegroup:handset devicename-n900"
-                     "devicegroup:handset deviceid:1"
-                     "devicegroup:handset devicename:n900 deviceid;1"]
-        
-        for spec in err_specs:
-            self.assertFalse(_validate_devicespecs(spec))
 
     def _init_result_values(self):
         return [], unittest.TestResult()
