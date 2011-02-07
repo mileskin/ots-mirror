@@ -77,6 +77,7 @@ class Publishers(PublisherPluginBase):
         LOG.debug(plugin_dir)
         LOG.debug(plugins_iter(plugin_dir, "ots.publisher_plugin"))
         for publisher_klass in plugins_iter(plugin_dir, "ots.publisher_plugin"):
+            LOG.info(plugin_dir)
             LOG.debug("Publisher found: '%s'"%(publisher_klass))
             with plugin_exception_policy(self.SWALLOW_EXCEPTIONS):
                 publisher = publisher_klass(request_id,

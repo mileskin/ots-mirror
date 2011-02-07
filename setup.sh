@@ -24,7 +24,7 @@
 
 # Creates developer eggs for all the eggs with 'ots' namespace
 PACKAGES="ots.common ots.results ots.server ots.worker ots.tools 
-                  ots.email_plugin ots.logger_plugin ots.qareports_plugin"
+                  ots.plugin.email ots.plugin.logger ots.plugin.qareports"
 for egg_root in $PACKAGES
 do
     cd "$egg_root"

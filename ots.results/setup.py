@@ -28,6 +28,7 @@ setup(
       author="meego-dev@meego.com",
       version=get_spec_version(),
       include_package_data=True,
+      install_requires=['minixsv'],
       namespace_packages=['ots', 'ots.results'],
       packages=find_packages(),
       zip_safe=False,

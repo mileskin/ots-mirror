@@ -60,7 +60,6 @@ options_dict = {"image" : "www.nokia.com" ,
                 "distribution-model" : "",
                 "flasher" : "",
                 "testfilter" : "",
-                "input_plugin" : "bifh",
                 "email" : "on",
                 "email-attachments" : "on",
                 "notify_list": "asdf@asdf"}
