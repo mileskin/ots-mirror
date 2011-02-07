@@ -56,7 +56,7 @@ INSTALLATION
 
   8. Copy www files to /var/www/
 
-    sudo cp -r /usr/share/ots/logger/* /var/www/
+    sudo cp -r /usr/share/ots/plugin/logger/* /var/www/
   
   9. Restart apache
 
