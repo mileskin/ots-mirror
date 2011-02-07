@@ -1,6 +1,6 @@
 Summary: Open Test System 
 Name: python-ots
-Version: 0.8.1
+Version: 0.8.2
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: LGPL 2.1
@@ -151,6 +151,11 @@ DIR="/opt/ots/"
 if [ ! -d $DIR ]; then
   mkdir $DIR
 fi
+
+#SELinux settings
+chcon -R -t httpd_user_content_t /opt/ots
+setsebool httpd_unified 1
+
 
 %files plugin-qareports
 %defattr(-,root,root)
