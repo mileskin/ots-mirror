@@ -86,8 +86,8 @@ class TestGetCommands(unittest.TestCase):
                             storage_address,
                             test_filter,
                             timeout,
-                            custom_distribution_models =\
-                             [("custom1", custom_model1)])
+                            custom_distribution_model = custom_model1)
+                             
         
         self.assertEquals(cmds, expected_cmds)
 

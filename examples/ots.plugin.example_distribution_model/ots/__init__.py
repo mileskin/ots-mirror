@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -22,12 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# Creates developer eggs for all the eggs with 'ots' namespace
-PACKAGES="ots.common ots.results ots.server ots.worker ots.tools 
-                  ots.plugin.email ots.plugin.logger ots.plugin.qareports"
-for egg_root in $PACKAGES
-do
-    cd "$egg_root"
-    python setup.py develop   
-    cd - 
-done
+#This shouldn't be necessary
+#http://bugs.python.org/setuptools/issue36
+
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+
+__import__('pkg_resources').declare_namespace(__name__)

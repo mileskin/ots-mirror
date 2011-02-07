@@ -514,6 +514,38 @@ class TestSuccessfulTestruns(unittest.TestCase):
         string = "Environment: Host_Hardware"
         self.assertTrue(has_message(testrun_id, string, 1))
 
+class TestCustomDistributionModels(unittest.TestCase):
+
+    def assert_log_contains_string(self, testrun_id, string): 
+        self.assertTrue(has_message(testrun_id, string), 
+         "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
+
+    def test_load_example_distribution_model(self):
+        options = Options()
+        options.distribution = "example_model"
+        options.timeout = 1
+        print "****************************"
+        print "Triggering a testrun with test package distribution schema '%s'"\
+            % options.distribution
+        print "This test requires that ots.plugin.example_distribution_model "\
+            +"from examples/ is installed."
+
+        result = ots_trigger(options)
+
+        # Check the return value
+        self.assertEquals(result, "ERROR")
+        
+        # Log checks:
+        testrun_id = get_latest_testrun_id()
+        print "testrun_id: %s" %testrun_id
+        self.assertTrue(has_errors(testrun_id))
+
+        string = "Result set to ERROR"
+        self.assert_log_contains_string(testrun_id, string)
+
+        string = "Example distribution model not implemented."
+        self.assert_log_contains_string(testrun_id, string)
+
 
 class TestErrorConditions(unittest.TestCase):
 
@@ -794,13 +826,11 @@ class TestDeviceProperties(unittest.TestCase):
 
         self.assertTrue(has_errors(testrun_id1))
         self.assertTrue(has_errors(testrun_id2))
-        
-
 
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
-        string1 = """Using routing key this_should_not_exist_1"""
-        string2 = """Using routing key this_should_not_exist_either"""
+        string1 = """No queue for this_should_not_exist_1"""
+        string2 = """No queue for this_should_not_exist_either"""
         
         if (has_message(testrun_id1, string1)):
             self.assertTrue(has_message(testrun_id2, string2))
@@ -827,25 +857,21 @@ class TestDeviceProperties(unittest.TestCase):
         testrun_id1 = get_second_latest_testrun_id()        
         testrun_id2 = get_latest_testrun_id()
 
-
         print "latest testrun_id before test: %s" % old_testrun
         print "testrun_id1: %s" %testrun_id1
         print "testrun_id2: %s" %testrun_id2
-
 
         # Make sure we are not reading logs from previous runs
         self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
 
         self.assertTrue(has_errors(testrun_id1))
         self.assertTrue(has_errors(testrun_id2))
-        
-
 
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
 
-        string1 = """Using routing key this_should_not_exist.device1"""
-        string2 = """Using routing key this_should_not_exist.device2"""
+        string1 = """No queue for this_should_not_exist.device1"""
+        string2 = """No queue for this_should_not_exist.device2"""
         
         if (has_message(testrun_id1, string1)):
             self.assertTrue(has_message(testrun_id2, string2))
@@ -886,8 +912,8 @@ class TestDeviceProperties(unittest.TestCase):
         
 
         # Make sure correct routing keys are used
-        string1 = """Using routing key this_should_not_exist.device1.id1"""
-        string2 = """Using routing key this_should_not_exist.device1.id2"""
+        string1 = """No queue for this_should_not_exist.device1.id1"""
+        string2 = """No queue for this_should_not_exist.device1.id2"""
         
         if (has_message(testrun_id1, string1)):
             self.assertTrue(has_message(testrun_id2, string2))

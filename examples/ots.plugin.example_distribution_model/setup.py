@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -21,13 +19,18 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+	
+from setuptools import setup, find_packages
+from get_spec_version import get_spec_version
 
-# Creates developer eggs for all the eggs with 'ots' namespace
-PACKAGES="ots.common ots.results ots.server ots.worker ots.tools 
-                  ots.plugin.email ots.plugin.logger ots.plugin.qareports"
-for egg_root in $PACKAGES
-do
-    cd "$egg_root"
-    python setup.py develop   
-    cd - 
-done
+setup(
+    name = "example_distribution_model",
+    author = "meego-dev@meego.com",
+    version=get_spec_version(),
+    namespace_packages = ["ots", "ots.plugin"],
+    packages = find_packages(),
+    include_package_data = True,
+    entry_points={"ots_distribution_model":
+                      ["example_model = ots.plugin.example_distribution_model.example_model:get_model"]
+                  },
+    zip_safe = False)

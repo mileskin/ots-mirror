@@ -790,7 +790,6 @@ class TestDefaultFlasher(unittest.TestCase):
 
     def test_softwareupdater_flash(self):
         from ots.worker.conductor.defaultflasher import SoftwareUpdater
-
         sw_updater = SoftwareUpdater()
         sw_updater.flash("image1", "image2")
 
