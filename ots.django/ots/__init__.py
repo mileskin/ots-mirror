@@ -1,11 +1,9 @@
-#!/bin/bash
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -22,12 +20,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# Creates developer eggs for all the eggs with 'ots' namespace
-PACKAGES="ots.common ots.results ots.server ots.worker ots.tools ots.django
-                  ots.plugin.email ots.plugin.logger ots.plugin.qareports"
-for egg_root in $PACKAGES
-do
-    cd "$egg_root"
-    python setup.py develop   
-    cd - 
-done
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+
+__import__('pkg_resources').declare_namespace(__name__)

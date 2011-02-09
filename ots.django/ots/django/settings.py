@@ -29,7 +29,7 @@ Django settings file
 
 # Django settings for django_ots project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -92,7 +92,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-ROOT_URLCONF = 'ots.plugin.logger.django_ots.urls'
+ROOT_URLCONF = 'ots.django.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -110,7 +110,7 @@ INSTALLED_APPS = (
     'django_xmlrpc',
 
     # OTS components:
-    'ots.plugin.logger.django_logger',
+    'ots.django.logger',
 )
 
 XMLRPC_METHODS = (

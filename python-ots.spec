@@ -47,6 +47,14 @@ Requires:               python-amqplib, python-ots-common, testrunner-lite
 OTS worker handles test device control and
 test execution.
 
+%package                django
+Summary:                OTS django project
+Prefix:                 /usr
+Group:                  Development/Tools
+Requires:               Django, httpd, mod_wsgi
+%description            django
+OTS django project and applications.
+
 %package                tools
 Summary:                Helping tools for controlling OTS
 Prefix:                 /usr
@@ -59,7 +67,7 @@ Helping tools for controlling OTS.
 Summary:                Logger plugin to OTS server
 Prefix:                 /usr
 Group:                  Development/Tools
-Requires:               python-ots-server, httpd, mod_wsgi
+Requires:               python-ots-server, python-ots-django
 %description            plugin-logger
 Logger plugin to OTS server.
 
@@ -131,19 +139,11 @@ fi
 /usr/lib/python*/site-packages/ots.worker-*
 /usr/lib/python*/site-packages/ots/worker/*
 
-%files tools
+%files django
 %defattr(-,root,root)
-/usr/bin/ots_delete_queue
-/usr/bin/ots_empty_queue
-/usr/bin/ots_trigger
-/usr/lib/python*/site-packages/ots.tools-*
-/usr/lib/python*/site-packages/ots/tools/*
-
-%files plugin-logger
-%defattr(-,root,root)
-/usr/lib/python*/site-packages/ots.plugin.logger-*
-/usr/lib/python*/site-packages/ots/plugin/logger/*
-/usr/share/ots/plugin/logger/*
+/usr/lib/python*/site-packages/ots.django-*
+/usr/lib/python*/site-packages/ots/django/*
+/usr/share/ots/django/logger/*
 
 %post plugin-logger
 DIR="/opt/ots/"
@@ -156,6 +156,18 @@ fi
 chcon -R -t httpd_user_content_t /opt/ots
 setsebool httpd_unified 1
 
+%files tools
+%defattr(-,root,root)
+/usr/bin/ots_delete_queue
+/usr/bin/ots_empty_queue
+/usr/bin/ots_trigger
+/usr/lib/python*/site-packages/ots.tools-*
+/usr/lib/python*/site-packages/ots/tools/*
+
+%files plugin-logger
+%defattr(-,root,root)
+/usr/lib/python*/site-packages/ots.plugin.logger-*
+/usr/lib/python*/site-packages/ots/plugin/logger/*
 
 %files plugin-qareports
 %defattr(-,root,root)

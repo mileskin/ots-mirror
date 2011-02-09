@@ -27,7 +27,7 @@ apache or http.
 
 import logging
 from django.http import HttpRequest
-from ots.plugin.logger.django_logger.views import create_message
+from ots.django.logger.views import create_message
 from socket import gethostname
 
 class LocalHttpHandler(logging.Handler):

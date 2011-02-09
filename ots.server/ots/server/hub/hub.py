@@ -53,6 +53,8 @@ import os
 import logging
 import logging.config
 import uuid
+import datetime
+import configobj
 from traceback import format_exception
 
 from unittest import TestCase
@@ -68,6 +70,7 @@ from ots.server.hub.sandbox import sandbox
 from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
 from ots.server.hub.options_factory import OptionsFactory
+from ots.server.server_config_filename import server_config_filename
 
 LOG = logging.getLogger()
 
@@ -90,6 +93,9 @@ NO_IMAGE = "no_image"
 # In error cases we want to try email sending to get the error reported
 DEFAULT_EXTENDED_OPTIONS_DICT = {"email": "on",
                                  "email_attachments": "off"} 
+
+# Default log directory
+LOG_DIR = "/var/log/ots/"
 
 class HubException(Exception):
     """Error in Hub"""
@@ -126,11 +132,9 @@ class Hub(object):
         self._taskrunner = None
 
         self._options = None
-
-        # Dont enable before logging is configured properly!
-        # - If disabled all messages are visible in http logger.
-        # - if enabled, we don't get any logging from server.
-#        self._init_logging()
+        
+        self._filehandler = None
+        self._initialize_logger()
 
         self._publishers = Publishers(self.request_id, 
                                       self.testrun_uuid, 
@@ -157,6 +161,14 @@ class Hub(object):
                             incoming_options))
         except ValueError:
             pass
+    
+    def __del__(self):
+        """
+        Destructor
+        """
+        if self._filehandler is not None:
+            root_logger = logging.getLogger('')
+            root_logger.removeHandler(self._filehandler)
 
     #############################################
     # Sandboxed Properties
@@ -228,8 +240,8 @@ class Hub(object):
         @rparam A globally unique identifier for the testrun
         """
         if self._testrun_uuid is None:
-            LOG.info("Testrun ID: '%s'"%(self._testrun_uuid))
             self._testrun_uuid = uuid.uuid1().hex
+            LOG.info("Testrun ID: '%s'"%(self._testrun_uuid))
         return self._testrun_uuid
 
     @property
@@ -288,15 +300,36 @@ class Hub(object):
     # HELPERS
     #########################
 
-    @staticmethod
-    def _init_logging():
+    def _initialize_logger(self):
         """
-        Initialise the logging from the configuration file
+        initializes the logger
         """
-        dirname = os.path.dirname(os.path.abspath(__file__))
-        conf = os.path.join(dirname, "logging.conf")
-        if os.path.isfile(conf):
-            logging.config.fileConfig(conf)
+        # This makes sure default formatters get loaded. Otherwise exc_info is
+        # not processed correctly
+        logging.basicConfig()
+        root_logger = logging.getLogger('')
+        root_logger.setLevel(logging.DEBUG)
+        
+        config_file = server_config_filename()
+        
+        try:
+            config = configobj.ConfigObj(config_file).get("ots.server")
+            log_dir = config.get('log_dir', LOG_DIR)
+            # File handler for maintainers/developers
+            log_id_string = _generate_log_id_string(self._request_id, self.testrun_uuid)
+            format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
+            os.system("mkdir -p %s" % log_dir)
+            log_file = os.path.join(log_dir, log_id_string)
+            self._filehandler = logging.FileHandler(log_file)
+            self._filehandler.setLevel(logging.DEBUG) # All messages to the files
+            self._filehandler.setFormatter(logging.Formatter(format))
+            root_logger.addHandler(self._filehandler)
+        except IOError, ioerror:
+            root_logger.error("IOError, no permission to write %s?" % log_dir,
+                              exc_info=True)
+        except:
+            root_logger.error("Unexpected error while creating testrun log",
+                              exc_info=True)
                 
     def _testrun(self):
         """
@@ -386,3 +419,12 @@ def result_to_string(testrun_result):
         return "FAIL"
     else:
         return "ERROR"
+
+def _generate_log_id_string(build_id, testrun_id):
+    """
+    Generates the log file name
+    """
+    request_id = "testrun_%s_request_%s_"% (testrun_id, build_id)
+    request_id += str(datetime.datetime.now()).\
+        replace(' ','_').replace(':','_').replace('.','_')
+    return request_id

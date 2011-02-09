@@ -20,10 +20,24 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import os
-import sys
+"""
+Django main url file
+"""
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'ots.plugin.logger.django_ots.settings'
+# Ignoring naming pattern
+# pylint: disable=C0103
 
-import django.core.handlers.wsgi
-application = django.core.handlers.wsgi.WSGIHandler()
+from django.conf.urls.defaults import patterns, include
+
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
+
+urlpatterns = patterns('',
+
+    # Example:
+    (r'^logger/', include('ots.django.logger.urls')),
+
+    (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
+
+)

@@ -1,3 +1,7 @@
+* Fri Feb 04 2011 Teemu Vainio <teemu.vainio@ixonos.com> 0.8.2
+ - Created own package for django project
+ - Removed django project from plugin.logger
+
 * Fri Feb 04 2011 Teemu Vainio <teemu.vainio@ixonos.com> 0.8.1
  - Changed plug-in namespaces BMC#13135
  - Changed QA-Reports configuration file name
