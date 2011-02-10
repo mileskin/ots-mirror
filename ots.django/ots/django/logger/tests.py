@@ -51,8 +51,8 @@ from ots.server.hub.tests.component.mock_taskrunner import \
 from ots.server.hub.api import Hub
 
 from ots.plugin.logger.localhandler import LocalHttpHandler
-from ots.plugin.logger.django_logger.models import LogMessage
-from ots.plugin.logger.django_logger.views import create_message
+from ots.django.logger.models import LogMessage
+from ots.django.logger.views import create_message
 
 SERVICENAME = 'logmessage'
 RUN_ID      = uuid.uuid1().hex

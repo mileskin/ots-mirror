@@ -39,6 +39,14 @@ Description: OTS worker
  OTS worker handles test device control and
  test execution.
 
+Package: python-ots-django
+Architecture: all
+Depends: python (>= 2.5), python-django, libapache2-mod-wsgi, apache2-mpm-prefork
+Provides: ${python:Provides}
+XB-Python-Version: >=2.5
+Description: OTS django project
+ OTS django project and applications.
+
 Package: python-ots-tools
 Architecture: all
 Depends: python (>= 2.5), python-ots-common
@@ -49,7 +57,7 @@ Description: Helping tools for controlling OTS
 
 Package: python-ots-plugin-logger
 Architecture: all
-Depends: python (>= 2.5), python-ots-server, libapache2-mod-wsgi, apache2-mpm-prefork
+Depends: python (>= 2.5), python-ots-server, python-ots-django
 XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Logger plugin to OTS server

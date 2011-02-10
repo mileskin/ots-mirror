@@ -1,4 +1,4 @@
-<!--
+#!/usr/bin/python
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -20,37 +20,27 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
--->
 
-{% extends "logger/logger_base.html" %}
-{% block pagetitle %}OTS Workers{% endblock pagetitle %}
-{% block content %}
-{% load logger_template_tags %}
+""" Gets version number from the spec file """
 
+import os
 
-<table align="center">
-	<tr style="height:100%;">
-	{% for msg in message %}
-	<td width="50%"> 
-		<div id="worker_box">
-		<h2><a href="{% url ots.plugin.logger.django_logger.views.view_worker_details remote_host=msg.remote_host %}">{{ msg.remote_host }}</a></h2>
-		<p>{{ msg.remote_ip }}</p>
-		<p>{{ msg.date }}</p>
-		<p>{{ msg.msg }}</p>
-		</div>
-	</td>
-	{% if forloop.counter|divisibleby:"2" %}
-	</tr>
-	<tr>
-	{% endif %}
-	{% empty %}
-	<td width="100%">
-		<div id="worker_box">
-		<h2>Sorry, no matches!</h2>
-		<p>Could't find any log messages from database.</p>
-		</div>
-	</td>
-	{% endfor %}
-	</tr>
-</table>
-{% endblock content %}
+def get_spec_version():
+    spec_location = "python-ots.spec"
+    try:
+        if not os.path.exists(spec_location):
+            spec_location = "../" + spec_location
+        specfile = open(spec_location)
+        for line in specfile:
+            version = line.find('Version:')
+            if version == -1:
+                continue
+            version = line.split(":")[1].strip()
+            break
+        specfile.close()
+        return version
+    except:
+        return None
+
+if __name__ == "__main__":
+    print get_spec_version()

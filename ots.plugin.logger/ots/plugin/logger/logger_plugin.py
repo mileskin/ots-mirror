@@ -31,13 +31,9 @@ That adds LocalHttpHandler to log handlers.
 """
 
 import logging
-import datetime
-import os
 from socket import gethostname
 from ots.common.framework.publisher_plugin_base import PublisherPluginBase
 from ots.plugin.logger.localhandler import LocalHttpHandler
-
-LOG_DIR = "/var/log/ots/"  # TODO: Log directory to config file
 
 class LoggerPlugin(PublisherPluginBase):
     """
@@ -61,9 +57,8 @@ class LoggerPlugin(PublisherPluginBase):
         """
 
         self._httphandler = None
-        self._filehandler = None
-        self._initialize_logger(testrun_uuid, request_id)
         self._testrun_uuid = testrun_uuid
+        self._initialize_logger(testrun_uuid, request_id)
     
     def __del__(self):
         self._remove_logger()
@@ -103,23 +98,10 @@ class LoggerPlugin(PublisherPluginBase):
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
         
-        try:
-            # HTTP handler for end users
-            self._httphandler = LocalHttpHandler(testrun_uuid)
-            self._httphandler.setLevel(logging.INFO) # No debug msgs to end users
-            root_logger.addHandler(self._httphandler)
-            
-            # File handler for maintainers/developers
-            log_id_string = _generate_log_id_string(request_id, testrun_uuid)
-            format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
-            os.system("mkdir -p %s" % LOG_DIR)
-            self._filehandler = logging.FileHandler(LOG_DIR+log_id_string)
-            self._filehandler.setLevel(logging.DEBUG) # All messages to the files
-            self._filehandler.setFormatter(logging.Formatter(format))
-            root_logger.addHandler(self._filehandler)
-        except IOError, ioerror:
-            root_logger.error("IOError, no permission to write %s?" % LOG_DIR,
-                              exc_info=True)
+        # HTTP handler for end users
+        self._httphandler = LocalHttpHandler(testrun_uuid)
+        self._httphandler.setLevel(logging.INFO) # No debug msgs to end users
+        root_logger.addHandler(self._httphandler)
         
     #############################################
     # Logger removal
@@ -131,17 +113,3 @@ class LoggerPlugin(PublisherPluginBase):
         if self._httphandler is not None:
             root_logger = logging.getLogger('')
             root_logger.removeHandler(self._httphandler)
-        if self._filehandler is not None:
-            root_logger = logging.getLogger('')
-            root_logger.removeHandler(self._filehandler)
-            
-
-
-def _generate_log_id_string(build_id, testrun_id):
-    """
-    Generates the log file name
-    """
-    request_id = "testrun_%s_request_%s_"% (testrun_id, build_id)
-    request_id += str(datetime.datetime.now()).\
-        replace(' ','_').replace(':','_').replace('.','_')
-    return request_id
