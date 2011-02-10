@@ -21,19 +21,20 @@
 # ***** END LICENCE BLOCK *****
 
 """
-The AMQP Connection 
+The AMQP Connection
 
 Caches connection parameters to allow reconnection.
 
 FIXME: retries need adding to this class
 """
 
-import logging 
+import logging
 
 
 from amqplib import client_0_8 as amqp
 
-LOGGER = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
+
 
 class Connection(object):
     """
@@ -43,7 +44,7 @@ class Connection(object):
     #@ivar channel: amqp connection (amqplib.client_0_8.channel)
 
     connection = None
-    
+
     def __init__(self, vhost, host, port, username, password):
         """
         @type vhost: C{string}
@@ -73,29 +74,30 @@ class Connection(object):
         """
         Create the connection to the rabbitMQ server
         """
-        LOGGER.debug("Connecting to RabbitMQ")
+        LOG.debug("Connecting to RabbitMQ")
         self.connection = amqp.Connection(
-                            host = ("%s:%s" % (self._host, self._port)),
-                            userid = self._username,
-                            password = self._password,
-                            virtual_host = self._vhost,
-                            insist = False)
+                            host=("%s:%s" % (self._host, self._port)),
+                            userid=self._username,
+                            password=self._password,
+                            virtual_host=self._vhost,
+                            insist=False)
         self.channel = self.connection.channel()
-          
+
     def clean_up(self):
         """
         Cleans up after ourselves, closing connections etc.
         """
-        LOGGER.debug('Shutting down connection to Rabbit')
+        LOG.debug('Shutting down connection to Rabbit')
         try:
             self.channel.close()
             try:
                 self.connection.close()
             except AttributeError:
-                LOGGER.debug("Connection already lost")
+                LOG.debug("Connection already lost")
         except:
-            LOGGER.exception("clean_up() failed")
-        #Fix Memory leaks
+            LOG.exception("clean_up() failed")
+
+        #FIXME: Fix Memory leaks
         if hasattr(self.channel, "callbacks"):
             del self.channel.callbacks
         if hasattr(self.connection, "channels"):
