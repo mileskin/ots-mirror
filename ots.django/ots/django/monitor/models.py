@@ -21,7 +21,7 @@
 # ***** END LICENCE BLOCK *****
 
 """
-Django models file
+Django models file for monitoring data
 """
 
 # Ignoring class has no __init__ method
@@ -39,32 +39,23 @@ class Testrun(models.Model):
     device_group = models.CharField(max_length=255)
     queue = models.CharField(max_length=255)
     configuration = models.CharField(max_length=255)
-    
-    # TODO: define 'host_worker_instances'
-    #host_worker_instances =  
-    
-    requestor = models.CharField(max_length=255)
+    host_worker_instances = models.TextField()
+    requestor = models.EmailField()
     request_id = models.CharField(max_length=255)
-    
-    # TODO: define 'error'
+    error = models.CharField(max_length=255)
     
     class Meta:
         """
         Meta class for model
         """
-        db_table = 'events'
+        db_table = 'monitor_testrun'
 
-    def __unicode__(self):
-        """
-        Unicode function for table
-        """
-        return self.msg
 
 class Event(models.Model):
     """
     Model for Event data
     """
-    testrun_id = models.CharField(db_index=True, max_length=32)
+    testrun_id = models.ForeignKey(Testrun)
     event_name = models.CharField(max_length=255)
     event_emit = models.CharField(max_length=255)
     event_receive = models.CharField(max_length=255)
@@ -73,10 +64,4 @@ class Event(models.Model):
         """
         Meta class for model
         """
-        db_table = 'events'
-
-    def __unicode__(self):
-        """
-        Unicode function for table
-        """
-        return self.msg
+        db_table = 'monitor_event'
