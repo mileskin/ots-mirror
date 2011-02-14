@@ -111,6 +111,7 @@ INSTALLED_APPS = (
 
     # OTS components:
     'ots.django.logger',
+    'ots.django.monitor',
 )
 
 XMLRPC_METHODS = (
