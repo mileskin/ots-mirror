@@ -21,15 +21,5 @@
 # ***** END LICENCE BLOCK *****
 
 """
-File for django urls
+Custom template tags for logger
 """
-
-# Ignoring naming pattern
-# pylint: disable=C0103
-
-from django.conf.urls.defaults import patterns
-from ots.django.monitor.views import main_page
-
-urlpatterns = patterns('',
-    (r'^view/$', main_page),
-)

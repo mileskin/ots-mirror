@@ -20,16 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-File for django urls
-"""
+import os
+import sys
 
-# Ignoring naming pattern
-# pylint: disable=C0103
+os.environ['DJANGO_SETTINGS_MODULE'] = 'ots.django.settings'
 
-from django.conf.urls.defaults import patterns
-from ots.django.monitor.views import main_page
-
-urlpatterns = patterns('',
-    (r'^view/$', main_page),
-)
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()
