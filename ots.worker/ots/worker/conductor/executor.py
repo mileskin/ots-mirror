@@ -32,6 +32,7 @@ from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
+from ots.common.dto.api import MonitorType
 
 from ots.worker.conductor.hardware import Hardware, RPMHardware
 # Import internal constants
@@ -182,7 +183,6 @@ class Executor(object):
             errors = self._execute_tests()
         finally: #exceptions are not caught here. They just pass by.
             self.target.cleanup()
-            self._set_status("FINISHED", self.testrun.image_filename)
 
         return errors
 
@@ -193,8 +193,9 @@ class Executor(object):
         """Execute the tests"""
 
         self._create_testrun_folder()
-        self._set_status("FLASHING", self.testrun.image_filename)
+        self._set_status(MonitorType.DEVICE_FLASH_STARTED, self.testrun.image_filename)
         self.target.prepare()
+        self._set_status(MonitorType.DEVICE_FLASH_ENDED, self.testrun.image_filename)
         self._define_test_packages()
         self._fetch_environment_details()
 
@@ -216,13 +217,14 @@ class Executor(object):
                 self._create_result_folders()
                 self._install_package(test_package)
                 self._fetch_test_definition(test_package)
-                self._set_status("TESTING", test_package)
+                self._set_status(MonitorType.TEST_PACKAGE_STARTED, test_package)
      
                 # Press the timer button
                 time_current = time.time()
                 testrun_status = self._run_tests(test_package, start_time, \
                                                  time_current)
-                self._set_status("STORING_RESULTS", test_package)
+                self._set_status(MonitorType.TEST_PACKAGE_ENDED, test_package)
+                self._set_status(MonitorType.RESULTS, test_package)
                 self._store_result_files(self.testrun.results_target_dir, 
                                          test_package)
                 self._remove_package(test_package)

@@ -28,10 +28,11 @@ import logging
 import warnings
 
 from amqplib import client_0_8 as amqp
+from socket import gethostname
 
 from ots.common.amqp.api import pack_message, unpack_message
 from ots.common.amqp.api import testrun_queue_name
-from ots.common.dto.api import Environment, Results, Packages
+from ots.common.dto.api import Environment, Results, Packages, Monitor
 from ots.common.dto.ots_exception import OTSException
 
 LOGGER = logging.getLogger(__file__)
@@ -95,17 +96,13 @@ class ResponseClient(object):
                           environment = environment)
         self._send_message(pack_message(results))
 
-    def set_state(self, state, status_info):
-        """Calls OTSMessageIO to create testrun state change message"""
-        pass
-        #FIXME
-        # if state not in ("NOT_STARTED", "QUEUED", "TESTING", "FLASHING", \
-#                              "STORING_RESULTS", "FINISHED"):
-#             LOGGER.warning("Unknown testrun state %s given, skipping "\
-#                                  "setting state" % state)
-#             return
-#         status_message = StatusMessage(state, status_info)
-#         self._send_message(pack_message(status_message))
+    def set_state(self, event_type, description):
+        """Calls Monitor DTO to create testrun state change message"""
+        
+        monitor_event = Monitor(event_type = event_type,
+                                sender = gethostname(),
+                                description = description)
+        self._send_message(pack_message(monitor_event))
 
 
     def set_error(self, error_info, error_code):
