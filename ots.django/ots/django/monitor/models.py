@@ -43,6 +43,7 @@ class Testrun(models.Model):
     requestor = models.EmailField()
     request_id = models.CharField(max_length=255)
     error = models.CharField(max_length=255)
+    start_time = models.DateTimeField(auto_now=True)
     
     class Meta:
         """
@@ -57,11 +58,28 @@ class Event(models.Model):
     """
     testrun_id = models.ForeignKey(Testrun)
     event_name = models.CharField(max_length=255)
-    event_emit = models.CharField(max_length=255)
-    event_receive = models.CharField(max_length=255)
+    event_emit = models.PositiveIntegerField()
+    event_receive = models.PositiveIntegerField()
 
     class Meta:
         """
         Meta class for model
         """
         db_table = 'monitor_event'
+
+
+class Package(models.Model):
+    """
+    Model for Test Package data
+    """
+    testrun_id = models.ForeignKey(Testrun)
+    package_name = models.CharField(max_length=255)
+    status = models.PositiveIntegerField()
+    duration = models.PositiveIntegerField()
+    start_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        """
+        Meta class for model
+        """
+        db_table = 'monitor_package'
