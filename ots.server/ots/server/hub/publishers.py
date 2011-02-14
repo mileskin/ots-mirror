@@ -39,6 +39,9 @@ import logging
 from ots.common.framework.api import PublisherPluginBase
 from ots.common.framework.api import plugins_iter
 from ots.common.framework.api import plugin_exception_policy
+from ots.common.dto.api import Monitor
+from ots.server.distributor.api import DTO_SIGNAL
+
 
 LOG = logging.getLogger(__name__)
 
@@ -88,6 +91,9 @@ class Publishers(PublisherPluginBase):
                 LOG.debug("Adding publisher: '%s'"%(publisher))
                 self._publishers.append(publisher)
         self._share_uris(testrun_uuid)
+        
+        DTO_SIGNAL.connect(self._callback)
+
     
     ##########################################
     # HELPERS
@@ -121,6 +127,24 @@ class Publishers(PublisherPluginBase):
                 if hasattr(publisher, method_name):
                     method = getattr(publisher, method_name)
                     yield method(*args, **kwargs)
+
+    def _callback(self, signal, dto, **kwargs):
+        """
+        @type signal: L{django.dispatch.dispatcher.Signal}
+        @param signal: The django signal
+
+        @type dto: L{ots.common.dto}
+        @param dto: An OTS Data Transfer Object
+
+        The callback for DTO_SIGNAL 
+        Multimethod that delegates
+        data to the handler depending on <type>
+        """
+        LOG.info("Got signal!")
+        LOG.info(dto)
+        LOG.info(signal)
+        if isinstance(dto, Monitor):
+            LOG.info(dto.duration)
 
     #############################################
     # Setters

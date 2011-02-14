@@ -31,8 +31,6 @@ The Monitor Plugin for OTS
 import logging
 
 from ots.common.framework.api import PublisherPluginBase
-from ots.server.distributor.api import DTO_SIGNAL
-from ots.common.dto.api import Monitor
 
 LOG = logging.getLogger(__name__)
 
@@ -45,7 +43,6 @@ class MonitorPlugin(PublisherPluginBase):
         """
         initialization
         """
-        DTO_SIGNAL.connect(self._callback)
         LOG.info('Monitor Plugin loaded')
 
     def set_monitors(self, monitors):
@@ -55,20 +52,3 @@ class MonitorPlugin(PublisherPluginBase):
         """
         LOG.info("got monitors")
 
-    def _callback(self, signal, dto, **kwargs):
-        """
-        @type signal: L{django.dispatch.dispatcher.Signal}
-        @param signal: The django signal
-
-        @type dto: L{ots.common.dto}
-        @param dto: An OTS Data Transfer Object
-
-        The callback for DTO_SIGNAL 
-        Multimethod that delegates
-        data to the handler depending on <type>
-        """
-        LOG.info("Got signal!")
-        LOG.info(dto)
-        LOG.info(signal)
-        if isinstance(dto, Monitor):
-            LOG.info(dto.duration)
