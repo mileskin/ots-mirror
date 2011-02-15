@@ -36,7 +36,7 @@ from django.conf.urls.defaults import patterns, include
 urlpatterns = patterns('',
 
     # Example:
-    (r'^logger/', include('ots.django.logger.urls')),
+    (r'^logger/', include('ots.plugin.logger.urls')),
 
     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
 

@@ -53,7 +53,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
 
-from ots.django.logger.models import LogMessage
+from ots.plugin.logger.models import LogMessage
 
 ROW_AMOUNT_IN_PAGE = 50
 

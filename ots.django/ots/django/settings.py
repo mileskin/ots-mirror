@@ -110,7 +110,7 @@ INSTALLED_APPS = (
     'django_xmlrpc',
 
     # OTS components:
-    'ots.django.logger',
+    'ots.plugin.logger',
 )
 
 XMLRPC_METHODS = (

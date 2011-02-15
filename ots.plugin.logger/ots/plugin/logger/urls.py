@@ -28,13 +28,13 @@ File for django urls
 # pylint: disable=C0103
 
 from django.conf.urls.defaults import patterns
-from ots.django.logger.views import view_workers
-from ots.django.logger.views import view_worker_details
-from ots.django.logger.views import basic_testrun_viewer
-from ots.django.logger.views import filter_message_viewer
-from ots.django.logger.views import main_page
-from ots.django.logger.views import view_message_details
-from ots.django.logger.views import create_message
+from ots.plugin.logger.views import view_workers
+from ots.plugin.logger.views import view_worker_details
+from ots.plugin.logger.views import basic_testrun_viewer
+from ots.plugin.logger.views import filter_message_viewer
+from ots.plugin.logger.views import main_page
+from ots.plugin.logger.views import view_message_details
+from ots.plugin.logger.views import create_message
 
 urlpatterns = patterns('',
     (r'^view/workers/$', view_workers),
