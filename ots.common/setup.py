@@ -31,4 +31,5 @@ setup(
       namespace_packages=["ots"],
       packages=find_packages(),
       zip_safe=False,
+      install_requires=['amqplib']
       )
