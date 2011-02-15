@@ -71,7 +71,7 @@ class MonitorPlugin(PublisherPluginBase):
                                     requestor='',
                                     request_id=request_id)
             self._testrun.save()
-        except TypeError, error:
+        except (TypeError, AttributeError), error:
             LOG.error("Testrun object creation failed: %s" % error)
 
     def set_monitors(self, monitors):
@@ -87,5 +87,5 @@ class MonitorPlugin(PublisherPluginBase):
                           event_emit=monitors.emitted,
                           event_receive=monitors.received)
             self._testrun.add(event)
-        except TypeError, err:
+        except (TypeError, AttributeError), error:
             LOG.error("Event object creation failed: %s" % error)
