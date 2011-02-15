@@ -38,7 +38,7 @@
 	<tbody>
 	    {% for message in messages %}
     	<tr class="{% cycle 'odd' 'even' %}">
-			<td><a href="{% url ots.django.logger.views.basic_testrun_viewer run_id=message.run_id %}">{{ message.run_id }}</a></td>
+			<td><a href="{% url ots.plugin.logger.views.basic_testrun_viewer run_id=message.run_id %}">{{ message.run_id }}</a></td>
 			<td>{{ message.date|format_datetime }}</td>
 			<td>{{ message.module }}</td>
 			<td>{% autoescape off %}<span class="{{ message.levelname }}">{{ message.levelname }}</span>{% endautoescape %}</td>

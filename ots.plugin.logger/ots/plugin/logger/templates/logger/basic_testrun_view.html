@@ -41,7 +41,7 @@
 	    {% for message in messages %}
     	<tr class="{% cycle 'odd' 'even' %}">
     		<td>{{ starttime|calculate_delta:message.date }}</td>
-			<td><a class="date" href="{% url ots.django.logger.views.view_message_details log_id=message.id %}" >{{ message.date }}</a></td>
+			<td><a class="date" href="{% url ots.plugin.logger.views.view_message_details log_id=message.id %}" >{{ message.date }}</a></td>
 			<td>{{ message.remote_host }}</td>
 			<td>{{ message.module }}</td>
 			<td>{% autoescape off %}<span class="{{ message.levelname }}">{{ message.levelname }}</span>{% endautoescape %}</td>

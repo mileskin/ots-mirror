@@ -108,8 +108,8 @@
     
 	    {% for message in messages %}
     	<tr class="{% cycle '' 'even' %}">
-    		<td><a href="{% url ots.django.logger.views.view_message_details log_id=message.id %}">{{ message.run_id }}</a></td>
-    		<td><a href="{% url ots.django.logger.views.view_message_details log_id=message.id %}">{{ message.date|format_datetime }}</a></td>
+    		<td><a href="{% url ots.plugin.logger.views.view_message_details log_id=message.id %}">{{ message.run_id }}</a></td>
+    		<td><a href="{% url ots.plugin.logger.views.view_message_details log_id=message.id %}">{{ message.date|format_datetime }}</a></td>
 			<td>{{ message.remote_host }}</td>
 			<td>{{ message.module }}</td>
 			<td>{% autoescape off %}{{ message.levelname|result_judge:message.levelno }}{% endautoescape %}</td>

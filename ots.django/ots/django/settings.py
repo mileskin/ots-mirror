@@ -29,7 +29,7 @@ Django settings file
 
 # Django settings for django_ots project.
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
