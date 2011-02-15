@@ -31,15 +31,13 @@ class MonitorType(object):
     TASK_ENDED = "Task is ended"
     TESTRUN_ENDED = "Testrun ended"
     
-    DEVICE_FLASH_STARTED = "Device flash started"
-    DEVICE_FLASH_ENDED = "Device flash ended"
-    DEVICE_BOOT_STARTED = "Device boot started"
-    DEVICE_BOOT_ENDED = "Device boot ended"
+    DEVICE_FLASH = "Device flashing"
+    DEVICE_BOOT = "Device booting"
+    
+    TEST_EXECUTION = "Test execution"
     
     TEST_PACKAGE_STARTED = "Test package started"
     TEST_PACKAGE_ENDED = "Test package ended"
-    
-    RESULTS = "Worker storing results"
 
 class Monitor(object):
     """
