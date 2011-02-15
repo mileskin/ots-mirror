@@ -142,7 +142,7 @@ class Publishers(PublisherPluginBase):
         """
         if isinstance(dto, Monitor):
             if dto.received is None:
-                msg.set_received()
+                dto.set_received()
             self.set_monitors(dto)
 
     #############################################
