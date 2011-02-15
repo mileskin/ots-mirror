@@ -143,6 +143,7 @@ class Hub(object):
                                       self.sw_product, 
                                       self.image,
                                       **self.extended_options_dict)
+        LOG.debug(self.extended_options_dict)
         sandbox_is_on = False
         LOG.debug("Publishers initilialised... sandbox switched off...")
         LOG.info("OTS Server. version '%s'" % (__VERSION__))

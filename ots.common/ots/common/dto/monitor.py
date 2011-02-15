@@ -92,8 +92,7 @@ class Monitor(object):
         """
         return self._event_received
     
-    @received.setter
-    def received(self, value = None):
+    def set_received(self, value = None):
         """
         @rtype: C{int}
         @param: Received time in seconds

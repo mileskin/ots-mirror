@@ -201,7 +201,7 @@ class TaskRunner(object):
         else:
             #The message is data. Relay using a signal
             if isinstance(msg, Monitor):
-                msg.received = None
+                msg.set_received()
             DTO_SIGNAL.send(sender = "TaskRunner", dto = msg)
   
     def _task_transition(self, message):
