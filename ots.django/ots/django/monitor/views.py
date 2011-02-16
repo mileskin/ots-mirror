@@ -55,6 +55,7 @@ from django.template import loader, Context
 
 from ots.django.monitor.models import Testrun
 from ots.django.monitor.models import Event
+from ots.django.monitor.models import Package
 
 ROW_AMOUNT_IN_PAGE = 50
 
@@ -68,11 +69,20 @@ def main_page(request):
     context_dict = {
     'MEDIA_URL' : settings.MEDIA_URL,
     }
-
-    queues = Testrun.objects.values('queue').distinct()
     
-        
+    queues = Testrun.objects.values('queue').distinct()    
+    
     context_dict['queues']  = queues
     template = loader.get_template('monitor/index.html')
     return HttpResponse(template.render(Context(context_dict)))
 
+def view_queue_details(request,queue_name=None):
+    context_dict = {
+    'MEDIA_URL' : settings.MEDIA_URL,
+    }
+    
+    testruns = Testrun.objects.filter(queue=queue_name)
+    context_dict['testruns'] = testruns
+    context_dict['queue_name'] = queue_name
+    template = loader.get_template('monitor/queue_details_view.html')
+    return HttpResponse(template.render(Context(context_dict)))

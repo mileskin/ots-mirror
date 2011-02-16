@@ -21,26 +21,34 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 -->
+
 {% extends "monitor/monitor_base.html" %}
-{% block pagetitle %}Test runs{% endblock pagetitle %}
+{% block pagetitle %}Details of {{ testrun.testrun_id }} testrun{% endblock pagetitle %}
 {% block content %}
 {% load monitor_template_tags %}
-<table id="testrun_list">
+<table id="testrun_info" >
 	<thead>
 		<tr>
-			<th style="width:5%">Queue</th>
-			<th style="width:15%">Created</th>
-			<th style="width:15%">Module</th>
-			<th style="width:10%">Level</th>
-			<th style="width:55%">Message</th>
+		    <th style="width:20%">Id</th>
+			<th style="width:15%">start_time</th>
+			<th style="width:15%">device_group</th>
+			<th style="width:15%">Hosts</th>
+			<th style="width:20%">requestor</th>
+			<th style="width:5%">request_id</th>
+			<th style="width:15%">error</th>
+			
 		</tr>
 	</thead>
 	<tbody>
-	    {% for queue in queues %}
+	    {% for testrun in testruns %}
     	<tr class="{% cycle 'odd' 'even' %}">
-    		<td>{{ queue.queue }}<td>
-    		<td><a href="{% url ots.django.monitor.views.main_page %}">Main</a></td>
-    		<td><a href="{% url ots.django.monitor.views.view_queue_details queue_name=queue.queue %}">{{ queue.queue }}</a></td>
+		   <td>{{ testrun.testrun_id }}</td>
+		   <td>{{ testrun.start_time|format_datetime }}</td>
+		   <td>{{ testrun.device_group }}</td>
+		   <td>{{ testrun.host_worker_instances }}</td>
+		   <td>{{ testrun.requestor }}</td>
+		   <td>{{ testrun.request_id }}</td>
+		   <td>{{ testrun.error }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
