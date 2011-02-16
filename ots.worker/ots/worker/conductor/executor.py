@@ -193,9 +193,8 @@ class Executor(object):
         """Execute the tests"""
 
         self._create_testrun_folder()
-        self._set_status(MonitorType.DEVICE_FLASH_STARTED, self.testrun.image_filename)
+        self._set_status(MonitorType.DEVICE_FLASH, self.testrun.image_filename)
         self.target.prepare()
-        self._set_status(MonitorType.DEVICE_FLASH_ENDED, self.testrun.image_filename)
         self._define_test_packages()
         self._fetch_environment_details()
 
@@ -207,6 +206,7 @@ class Executor(object):
             self.log.info("Testrun timeout not specified")
 
         start_time = time.time()
+        self._set_status(MonitorType.TEST_EXECUTION)
 
         for test_package in self.testrun.test_packages:
 
@@ -224,7 +224,6 @@ class Executor(object):
                 testrun_status = self._run_tests(test_package, start_time, \
                                                  time_current)
                 self._set_status(MonitorType.TEST_PACKAGE_ENDED, test_package)
-                self._set_status(MonitorType.RESULTS, test_package)
                 self._store_result_files(self.testrun.results_target_dir, 
                                          test_package)
                 self._remove_package(test_package)
@@ -491,7 +490,7 @@ class Executor(object):
             raise ConductorError(error_info, "102")
 
 
-    def _set_status(self, state, status_info):
+    def _set_status(self, state, status_info = ""):
         """Set state of testrun on OTS info service"""
         if not self.stand_alone:
             self.responseclient.set_state(state, status_info)

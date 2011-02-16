@@ -25,18 +25,33 @@ import time
 
 class MonitorType(object):
     UNKNOWN = "Unknown"
+    # Emitted in Hub after plug-ins are loaded
     TESTRUN_REQUESTED = "Testrun requested"
+    # Emitted in taskrunner when tasks are added to queue
+    # Description: task.id
     TASK_INQUEUE = "Task in queue"
+    # OTS worker sends this event when processes a task
+    # Description: task.id 
     TASK_ONGOING = "Task is ongoing"
+    # OTS worker sends this when the task is done
+    # Description: task.id    
     TASK_ENDED = "Task is ended"
+    # Emitted in taskrunner when tasks are added to queue
     TESTRUN_ENDED = "Testrun ended"
     
+    # Conductor sends this event when starts flashing
+    # Description: image url
     DEVICE_FLASH = "Device flashing"
+    # Conductor sends this event when flashing is done
     DEVICE_BOOT = "Device booting"
-    
+    # Conductor sends this event when execution starts
     TEST_EXECUTION = "Test execution"
     
+    # Conductor sends this event when starting test package execution
+    # Description: test package name
     TEST_PACKAGE_STARTED = "Test package started"
+    # Conductor sends this event when test package has been executed
+    # Description: test package name
     TEST_PACKAGE_ENDED = "Test package ended"
 
 class Monitor(object):
