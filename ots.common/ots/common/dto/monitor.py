@@ -40,6 +40,7 @@ class MonitorType(object):
     TESTRUN_ENDED = "Testrun ended"
     
     # Conductor sends this event when starts flashing
+    # Description: image url
     DEVICE_FLASH = "Device flashing"
     # Conductor sends this event when flashing is done
     DEVICE_BOOT = "Device booting"
