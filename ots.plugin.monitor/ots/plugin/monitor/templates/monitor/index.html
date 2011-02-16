@@ -39,8 +39,8 @@
 	    {% for queue in queues %}
     	<tr class="{% cycle 'odd' 'even' %}">
     		<td>{{ queue.queue }}<td>
-    		<td><a href="{% url ots.django.monitor.views.main_page %}">Main</a></td>
-    		<td><a href="{% url ots.django.monitor.views.view_queue_details queue_name=queue.queue %}">{{ queue.queue }}</a></td>
+    		<td><a href="{% url ots.plugin.monitor.views.main_page %}">Main</a></td>
+    		<td><a href="{% url ots.plugin.monitor.views.view_queue_details queue_name=queue.queue %}">{{ queue.queue }}</a></td>
 		</tr>
 		{% endfor %}
 	</tbody>

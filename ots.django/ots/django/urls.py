@@ -38,7 +38,7 @@ urlpatterns = patterns('',
 
     # Example:
     (r'^logger/', include('ots.django.logger.urls')),
-    (r'^monitor/', include('ots.django.monitor.urls')),
+    (r'^monitor/', include('ots.plugin.monitor.urls')),
 
     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
 

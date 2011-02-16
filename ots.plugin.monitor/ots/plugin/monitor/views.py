@@ -53,9 +53,8 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
 
-from ots.django.monitor.models import Testrun
-from ots.django.monitor.models import Event
-from ots.django.monitor.models import Package
+from ots.plugin.monitor.models import Testrun
+from ots.plugin.monitor.models import Event
 
 ROW_AMOUNT_IN_PAGE = 50
 

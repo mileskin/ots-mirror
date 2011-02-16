@@ -67,19 +67,3 @@ class Event(models.Model):
         """
         db_table = 'monitor_event'
 
-
-class Package(models.Model):
-    """
-    Model for Test Package data
-    """
-    testrun_id = models.ForeignKey(Testrun)
-    package_name = models.CharField(max_length=255)
-    status = models.PositiveIntegerField()
-    duration = models.PositiveIntegerField()
-    start_time = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        """
-        Meta class for model
-        """
-        db_table = 'monitor_package'
