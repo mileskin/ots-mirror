@@ -140,11 +140,10 @@ class Publishers(PublisherPluginBase):
         Multimethod that delegates
         data to the handler depending on <type>
         """
-        LOG.info("Got signal!")
-        LOG.info(dto)
-        LOG.info(signal)
         if isinstance(dto, Monitor):
-            LOG.info(dto.duration)
+            if dto.received is None:
+                dto.set_received()
+            self.set_monitors(dto)
 
     #############################################
     # Setters
@@ -185,12 +184,12 @@ class Publishers(PublisherPluginBase):
         """
         list(self._delegator_iter("set_results", results))
         
-    def set_monitors(self, monitors):
+    def set_monitors(self, monitor):
         """
-        @type monitors : C{list} of C{ots.common.dto.monitor}
-        @param monitors : The monitors
+        @type monitors : C{ots.common.dto.monitor}
+        @param monitors : Monitor events for plugins
         """
-        list(self._delegator_iter("set_monitors", monitors))
+        list(self._delegator_iter("set_monitors", monitor))
         
     ###########################################
     # Getters

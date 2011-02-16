@@ -1,9 +1,9 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,11 +20,18 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from ots.common.dto.environment import Environment 
-from ots.common.dto.packages import Packages
-from ots.common.dto.results import Results
-from ots.common.dto.monitor import Monitor, MonitorType
-from ots.common.dto.messages import CommandMessage, StateChangeMessage
-from ots.common.dto.messages import TaskCondition
-from ots.common.dto.ots_exception import OTSException
+from setuptools import setup, find_packages
+from get_spec_version import get_spec_version
 
+setup(
+      name="ots.plugin.monitor",
+      author="",
+      namespace_packages=["ots", "ots.plugin", "ots.plugin.monitor"],
+      version=get_spec_version(),
+      include_package_data=True,
+      packages=find_packages(),
+      install_requires=['ots.server', 'ots.django'],
+      entry_points={"ots.publisher_plugin":
+                    ["publisher_klass = "\
+                     "ots.plugin.monitor.monitor_plugin:MonitorPlugin"]},
+      )

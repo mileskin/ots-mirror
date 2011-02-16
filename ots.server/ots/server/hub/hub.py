@@ -71,6 +71,8 @@ from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
 from ots.server.hub.options_factory import OptionsFactory
 from ots.server.server_config_filename import server_config_filename
+from ots.server.distributor.dto_signal import send_monitor_event
+from ots.common.dto.api import MonitorType
 
 LOG = logging.getLogger()
 
@@ -141,6 +143,7 @@ class Hub(object):
                                       self.sw_product, 
                                       self.image,
                                       **self.extended_options_dict)
+        LOG.debug(self.extended_options_dict)
         sandbox_is_on = False
         LOG.debug("Publishers initilialised... sandbox switched off...")
         LOG.info("OTS Server. version '%s'" % (__VERSION__))
@@ -159,6 +162,7 @@ class Hub(object):
                             request_id,
                             notify_list,
                             incoming_options))
+            send_monitor_event(MonitorType.TESTRUN_REQUESTED,__name__)
         except ValueError:
             pass
     

@@ -30,7 +30,10 @@ The Monitor Plugin for OTS
 
 import logging
 
+from ots.common.dto.monitor import Monitor
 from ots.common.framework.api import PublisherPluginBase
+from ots.django.monitor.models import Testrun, Event, Package
+
 
 LOG = logging.getLogger(__name__)
 
@@ -39,16 +42,50 @@ class MonitorPlugin(PublisherPluginBase):
     """
     Monitor Plugin  
     """
-    def __init__(self):
+    def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
         """
-        initialization
+        Initialization
+        
+        @type request_id: C{str}
+        @param request_id: An identifier for the request from the client
+
+        @type testrun_uuid: C{str}
+        @param testrun_uuid: The unique identifier for the testrun
+
+        @type sw_product: C{str}
+        @param sw_product: Name of the sw product this testrun belongs to
+
+        @type image : C{str}
+        @param image : The URL of the image
         """
         LOG.info('Monitor Plugin loaded')
 
+        try:
+            # Create a new testrun object to db
+            # TODO: check parameter fillings
+            self._testrun = Testrun(testrun_id=testrun_uuid,
+                                    device_group='',
+                                    queue='',
+                                    configuration='',
+                                    host_worker_instances='',
+                                    requestor='',
+                                    request_id=request_id)
+            self._testrun.save()
+        except (TypeError, AttributeError), error:
+            LOG.error("Testrun object creation failed: %s" % error)
+
     def set_monitors(self, monitors):
         """
-        @type packages : C{ots.common.dto.packages}
-        @param packages: The Test Packages that were run
+        @type monitors: C{ots.common.dto.monitor}
+        @param monitors: Monitor class
         """
-        LOG.info("got monitors")
-
+        LOG.debug("Got monitor information: %s" % monitors)
+        
+        try:
+            event = Event(testrun_id=self._testrun,
+                          event_name=monitors.type,
+                          event_emit=monitors.emitted,
+                          event_receive=monitors.received)
+            event.save()
+        except (TypeError, AttributeError), error:
+            LOG.error("Event object creation failed: %s" % error)
