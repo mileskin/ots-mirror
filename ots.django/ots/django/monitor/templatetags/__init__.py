@@ -21,20 +21,5 @@
 # ***** END LICENCE BLOCK *****
 
 """
-File for django urls
+Custom template tags for logger
 """
-
-# Ignoring naming pattern
-# pylint: disable=C0103
-
-from django.conf.urls.defaults import patterns, include, handler500, handler404
-
-from ots.django.monitor.views import main_page
-from ots.django.monitor.views import view_queue_details
-
-urlpatterns = patterns('',
-    (r'^view/$', main_page),
-    (r'^view/queue/(?P<queue_name>[^/]+)/$',view_queue_details),
-    (r'^view/testrun/(?P<testrun_id>[^/]+)/$',view_testrun_details),
-    #(r'^view/queue/$',view_queue_details),
-)

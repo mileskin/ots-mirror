@@ -27,7 +27,8 @@ Django main url file
 # Ignoring naming pattern
 # pylint: disable=C0103
 
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls.defaults import patterns, include, handler500, handler404
+
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -37,6 +38,7 @@ urlpatterns = patterns('',
 
     # Example:
     (r'^logger/', include('ots.django.logger.urls')),
+    (r'^monitor/', include('ots.django.monitor.urls')),
 
     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
 

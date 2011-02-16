@@ -1,0 +1,71 @@
+<!--
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="robots" content="index,follow" />
+
+    <!-- custom stylesheet -->
+    <link rel="stylesheet" 
+	  type="text/css" 
+	  media="all" 
+	  href="/styles/custom.css" />
+    <title>{% block title %}OTS{% endblock title %}</title>
+	<script language="javascript"> 
+	function toggle(elementName) {
+		var ele = document.getElementById(elementName);
+		if(ele.style.display == "block") {
+	    	ele.style.display = "none";
+	  	}
+		else {
+			ele.style.display = "block";
+		}
+	} 
+	</script>
+  </head>
+  <body>
+    <div class="main">
+	    <div id="header">
+	    </div>
+		<div id="menu">
+		  <table id="menu_list">	
+		  <td><a href="{% url ots.django.monitor.views.main_page %}">Main</a></td>
+		  </table>
+		</div>
+		<div id="contentArea">
+		<h2 style="text-align:center;">{% block pagetitle %} {% endblock pagetitle %}</h2>
+		{% block content %}
+		{% endblock content %} 	
+		</div>	
+		<div id="footer">
+			<a class="footerlink" href="http://wiki.meego.com/Quality/QA-tools" >wiki.meego.com/Quality/QA-tools</a>
+		</div>
+	</div>
+  </body>
+</html>
+
