@@ -82,10 +82,10 @@ class MonitorPlugin(PublisherPluginBase):
         LOG.debug("Got monitor information: %s" % monitors)
         
         try:
-            event = Event(testrun_id=self._testrun.testrun_id,
+            event = Event(testrun_id=self._testrun,
                           event_name=monitors.type,
                           event_emit=monitors.emitted,
                           event_receive=monitors.received)
-            self._testrun.add(event)
+            event.save()
         except (TypeError, AttributeError), error:
             LOG.error("Event object creation failed: %s" % error)
