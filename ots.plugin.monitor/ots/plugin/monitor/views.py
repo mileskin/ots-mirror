@@ -85,3 +85,11 @@ def view_queue_details(request,queue_name=None):
     context_dict['queue_name'] = queue_name
     template = loader.get_template('monitor/queue_details_view.html')
     return HttpResponse(template.render(Context(context_dict)))
+
+def view_testrun_list(request):
+    context_dict = {}
+    
+    testruns = Testrun.objects.all()
+    context_dict['testruns'] = testruns
+    template = loader.get_template('monitor/testrun_list.html')
+    return HttpResponse(template.render(Context(context_dict)))

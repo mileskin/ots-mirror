@@ -54,7 +54,7 @@ def main():
         testrun["pk"] = i
         
         fields = dict()
-        fields["testrun_id"] = str(uuid.uuid1())
+        fields["testrun_id"] = str(uuid.uuid1().hex)
         fields["device_group"] = "example_device_group"
         fields["queue"] = "sw product"
         fields["configuration"] = "configuration"
@@ -67,28 +67,13 @@ def main():
         testrun["fields"] = fields
         json_data.append(testrun)
         
-        for y in xrange(NUM_OF_TESTPACKAGES):
-            package = dict()
-            package["model"] = "monitor.Package"
-            package["pk"] = package_count
-            fields = dict()
-            fields["testrun_id"] = i
-            fields["package_name"] = "test-package-" + str(y)
-            fields["status"] = random.randint(0,1)
-            fields["duration"] = random.randint(2,60)
-            
-            package["fields"] = fields
-            json_data.append(package)
-            
-            package_count += 1
-        
-        for y in xrange(NUM_OF_EVENTS):
+        for y in event_list:
             event = dict()
             event["model"] = "monitor.Event"
             event["pk"] = event_count
             fields = dict()
             fields["testrun_id"] = i
-            fields["event_name"] = event_list[random.randint(0, len(event_list)-1)]
+            fields["event_name"] = y
             fields["event_emit"] = time.time()
             fields["event_receive"] = time.time() + 1
             

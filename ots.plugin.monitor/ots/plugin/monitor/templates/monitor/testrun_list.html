@@ -1,0 +1,55 @@
+<!--
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+-->
+
+{% extends "monitor/monitor_base.html" %}
+{% block pagetitle %}Testrun list{% endblock pagetitle %}
+{% block content %}
+<table id="testrun_info" >
+	<thead>
+		<tr>
+		    <th style="width:30%">Id</th>
+			<th style="width:10%">start_time</th>
+			<th style="width:10%">device_group</th>
+			<th style="width:10%">Hosts</th>
+			<th style="width:15%">requestor</th>
+			<th style="width:5%">request_id</th>
+			<th style="width:15%">error</th>
+			
+		</tr>
+	</thead>
+	<tbody>
+	    {% for testrun in testruns %}
+    	<tr class="{% cycle 'odd' 'even' %}">
+		   <td>{{ testrun.testrun_id }}</td>
+		   <td>{{ testrun.start_time|format_datetime }}</td>
+		   <td>{{ testrun.device_group }}</td>
+		   <td>{{ testrun.host_worker_instances }}</td>
+		   <td>{{ testrun.requestor }}</td>
+		   <td>{{ testrun.request_id }}</td>
+		   <td>{{ testrun.error }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock content %}
