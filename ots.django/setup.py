@@ -29,17 +29,10 @@ setup(
       namespace_packages=["ots", "ots.django"],
       version=get_spec_version(),
       include_package_data=True,
-      packages=find_packages(),      
+      packages=find_packages(),
       install_requires=['django'],
-      data_files=[('/usr/share/ots/django/logger', ['ots/django/logger/templates/ots.wsgi']),
-                  ('/usr/share/ots/django/logger/media', ['ots/django/logger/templates/media/logo.png']),
-                  ('/usr/share/ots/django/logger/styles', ['ots/django/logger/templates/styles/custom.css']),
-                  ('/usr/share/ots/django/logger/logger', ['ots/django/logger/templates/logger/index.html',
-                                                           'ots/django/logger/templates/logger/workers_view.html',
-                                                           'ots/django/logger/templates/logger/filter_message_view.html',
-                                                           'ots/django/logger/templates/logger/basic_testrun_view.html',
-                                                           'ots/django/logger/templates/logger/advanced_message_view.html',
-                                                           'ots/django/logger/templates/logger/logger_base.html',
-                                                           'ots/django/logger/templates/logger/message_details_view.html',]),
-                 ]
+      data_files=[('/usr/share/ots/django', ['ots/django/templates/ots.wsgi']),
+                  ('/usr/share/ots/django/media', ['ots/django/templates/media/logo.png']),
+                  ('/usr/share/ots/django/styles', ['ots/django/templates/styles/custom.css']),
+                  ]
       )
