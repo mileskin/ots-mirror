@@ -31,10 +31,11 @@ from django.conf.urls.defaults import patterns, include, handler500, handler404
 
 from ots.plugin.monitor.views import main_page
 from ots.plugin.monitor.views import view_queue_details
+from ots.plugin.monitor.views import view_group_details
 
 urlpatterns = patterns('',
     (r'^view/$', main_page),
     (r'^view/queue/(?P<queue_name>[^/]+)/$',view_queue_details),
-#    (r'^view/testrun/(?P<testrun_id>[^/]+)/$',view_testrun_details),
+    (r'^view/group/(?P<devicegroup>[^/]+)/$',view_group_details),
     #(r'^view/queue/$',view_queue_details),
 )

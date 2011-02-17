@@ -85,3 +85,15 @@ def view_queue_details(request,queue_name=None):
     context_dict['queue_name'] = queue_name
     template = loader.get_template('monitor/queue_details_view.html')
     return HttpResponse(template.render(Context(context_dict)))
+
+def view_group_details(request, devicegroup=None):
+    context_dict = {
+    'MEDIA_URL' : settings.MEDIA_URL,
+    }
+    
+    testruns = Testrun.objects.filter(device_group=devicegroup)
+    context_dict['testruns'] = testruns
+    context_dict['devicegroup'] = devicegroup
+    template = loader.get_template('monitor/queue_details_view.html')
+    return HttpResponse(template.render(Context(context_dict)))
+    
