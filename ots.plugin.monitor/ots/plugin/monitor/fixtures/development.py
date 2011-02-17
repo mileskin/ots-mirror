@@ -48,13 +48,16 @@ def main():
         if event[0] != "_":
             event_list.append(value)
     
+    print event_list
+    
     for i in xrange(NUM_OF_TESTRUNS):
         testrun = dict()
         testrun["model"] = "monitor.Testrun"
         testrun["pk"] = i
         
+        tr_id = str(uuid.uuid1().hex)
         fields = dict()
-        fields["testrun_id"] = str(uuid.uuid1().hex)
+        fields["testrun_id"] = tr_id
         fields["device_group"] = "example_device_group"
         fields["queue"] = "sw product"
         fields["configuration"] = "configuration"
@@ -62,20 +65,23 @@ def main():
         fields["requestor"] = "esa-pekka.miettinen@digia.com"
         fields["request_id"] = "666"
         fields["error"] = ""
+        fields["verdict"] = random.randint(0,3)
 
         
         testrun["fields"] = fields
         json_data.append(testrun)
         
+        last_time = 0
         for y in event_list:
+            last_time = time.time() + random.randint(10,100) + last_time
             event = dict()
             event["model"] = "monitor.Event"
             event["pk"] = event_count
             fields = dict()
             fields["testrun_id"] = i
             fields["event_name"] = y
-            fields["event_emit"] = time.time()
-            fields["event_receive"] = time.time() + 1
+            fields["event_emit"] = last_time
+            fields["event_receive"] = last_time + 1
             
             event["fields"] = fields
             json_data.append(event)

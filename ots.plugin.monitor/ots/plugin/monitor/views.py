@@ -55,6 +55,7 @@ from django.template import loader, Context
 
 from ots.plugin.monitor.models import Testrun
 from ots.plugin.monitor.models import Event
+from ots.common.dto.api import MonitorType
 
 ROW_AMOUNT_IN_PAGE = 50
 
@@ -86,10 +87,44 @@ def view_queue_details(request,queue_name=None):
     template = loader.get_template('monitor/queue_details_view.html')
     return HttpResponse(template.render(Context(context_dict)))
 
+def testrun_status(testrun):
+    """
+    Returns 
+    """
+
+def stats(event_list):
+    
+    event_category = {
+                      "Queue time" : [MonitorType.TASK_INQUEUE, MonitorType.TASK_ONGOING],
+                      "Flash time" : [MonitorType.DEVICE_FLASH, MonitorType.DEVICE_BOOT],
+                      "Boot time" : [MonitorType.DEVICE_BOOT, MonitorType.TEST_EXECUTION],
+                      "Total time" : [MonitorType.TESTRUN_REQUESTED, MonitorType.TESTRUN_ENDED],
+                      }
+    stats = dict()
+    for (category_name, category_events) in event_category.iteritems():
+        start_time = None
+        end_time = None
+        start_event = category_events[0]
+        end_event = category_events[1]
+        for event in event_list:
+            if start_time != None and end_time != None:
+                break
+            
+            if start_event == event.event_name:
+                start_time = event.event_emit
+                continue
+            if end_event == event.event_name:
+                end_time = event.event_emit
+                continue         
+        if start_time != None and end_time != None:
+            stats[category_name] = end_time - start_time
+    return stats
+
 def view_testrun_list(request):
     context_dict = {}
     
-    testruns = Testrun.objects.all()
-    context_dict['testruns'] = testruns
+    ongoing_testruns = Event.objects.filter(event_name = MonitorType.TEST_EXECUTION).exclude(event_name = MonitorType.TESTRUN_ENDED)
+
+    context_dict['ongoing_testruns'] = ongoing_testruns
     template = loader.get_template('monitor/testrun_list.html')
     return HttpResponse(template.render(Context(context_dict)))
