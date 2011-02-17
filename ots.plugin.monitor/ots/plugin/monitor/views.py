@@ -46,6 +46,7 @@ monitor.error('error message')
 monitor.critical('critical message')
 """
 import datetime
+import time
 import socket
 from copy import deepcopy
 
@@ -87,10 +88,20 @@ def view_queue_details(request,queue_name=None):
     template = loader.get_template('monitor/queue_details_view.html')
     return HttpResponse(template.render(Context(context_dict)))
 
-def testrun_status(testrun):
+def testrun_state(testrun_events):
     """
-    Returns 
+    Returns testrun's current state:
+        Queue,
+        Ongoing,
+        Finished,
     """
+    
+    if len(testrun_events.filter(event_name = MonitorType.TESTRUN_ENDED)) > 0:
+        return "Finished"
+    elif len(testrun_events.filter(event_name = MonitorType.TASK_ONGOING)) > 0:
+        return "Ongoing"
+    else:
+        return "Queue"
 
 def stats(event_list):
     
@@ -123,8 +134,19 @@ def stats(event_list):
 def view_testrun_list(request):
     context_dict = {}
     
-    ongoing_testruns = Event.objects.filter(event_name = MonitorType.TEST_EXECUTION).exclude(event_name = MonitorType.TESTRUN_ENDED)
+    testruns = Testrun.objects.filter(verdict = -1)
+    ongoing_testruns = []
+    queue_testruns = []
+    
+    for testrun in testruns:
+        testrun_events = Event.objects.filter(testrun_id = testrun.id)
+        state = testrun_state(testrun_events)
+        if state  == "Queue":
+            queue_testruns.append(testrun)
+        elif state == "Ongoing":
+            ongoing_testruns.append(testrun)
 
     context_dict['ongoing_testruns'] = ongoing_testruns
+    context_dict['queue_testruns'] = queue_testruns
     template = loader.get_template('monitor/testrun_list.html')
     return HttpResponse(template.render(Context(context_dict)))

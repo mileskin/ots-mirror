@@ -28,7 +28,7 @@
 Template tags for monitor
 """
 
-import time, logging
+import time, logging, datetime
 from django import template
 register = template.Library()
 
@@ -51,10 +51,11 @@ def result_judge(levelname, levelnumber):
     return strOut
 
 @register.filter
-def calculate_delta(starttime, currenttime):
+def calculate_delta(starttime):
     """
     Calculates delta time
     """
+    currenttime = datetime.datetime.now()
     strout = (currenttime - starttime)
     return strout
 

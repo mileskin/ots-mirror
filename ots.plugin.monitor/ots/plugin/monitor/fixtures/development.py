@@ -32,7 +32,7 @@ import time
 
 from ots.common.dto.monitor import MonitorType
 
-NUM_OF_TESTRUNS = 100
+NUM_OF_TESTRUNS = 1000
 NUM_OF_TESTPACKAGES = 10
 NUM_OF_EVENTS = 10
 
@@ -65,14 +65,28 @@ def main():
         fields["requestor"] = "esa-pekka.miettinen@digia.com"
         fields["request_id"] = "666"
         fields["error"] = ""
-        fields["verdict"] = random.randint(0,3)
+        fields["verdict"] = random.randint(-1,3)
 
         
         testrun["fields"] = fields
         json_data.append(testrun)
         
         last_time = 0
+        state = fields["verdict"]
         for y in event_list:
+            randnum = random.randint(0,1)
+            
+            if state == -1:
+                
+                # If 1, then testrun is in execution phase
+                if randnum == 1:
+                    if y == MonitorType.ETESTRUN_ENDED:
+                        break
+                else:
+                    if y == MonitorType.CTASK_ONGOING:
+                        break                    
+                    
+            
             last_time = time.time() + random.randint(10,100) + last_time
             event = dict()
             event["model"] = "monitor.Event"
