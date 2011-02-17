@@ -29,6 +29,28 @@
 <table id="testrun_info" >
 	<thead>
 		<tr>
+			<th style="width:10%">Title</th>
+			<th style="width:19%">Data</th>
+		</tr>
+	</thead>
+	{% if devicegroup %}
+	<tr>
+		<td>Device group:</td>
+		<td>{{ devicegroup }}</td>
+	</tr>
+	{% endif %}
+	<tr>
+		<td>Total testruns:</td>
+		<td>{{ runcount }}</td>
+	</tr>
+	<tr>
+		<td>Finished testruns:</td>
+		<td>{{ finishedcount }}</td>
+	</tr>
+</table>
+<table id="testrun_info" >
+	<thead>
+		<tr>
 		    <th style="width:20%">Id</th>
 			<th style="width:15%">start_time</th>
 			<th style="width:15%">device_group</th>

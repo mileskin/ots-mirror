@@ -91,9 +91,21 @@ def view_group_details(request, devicegroup=None):
     'MEDIA_URL' : settings.MEDIA_URL,
     }
     
-    testruns = Testrun.objects.filter(device_group=devicegroup)
+    testruns = Testrun.objects.select_related().filter(device_group=devicegroup)
+    runs_on_group = testruns.count()
+    finished = testruns.filter(event__event_name__exact="Testrun ended")
+    finished_ids = finished.values_list('id',flat=True).distinct()
+    #print finished_ids
+    #ongoing = testruns.exclude(event__testrun_id__in=finished_ids)
+    runs_finished = finished.count()
     context_dict['testruns'] = testruns
     context_dict['devicegroup'] = devicegroup
-    template = loader.get_template('monitor/queue_details_view.html')
+    context_dict['finished'] = finished
+    context_dict['runcount'] = runs_on_group
+    context_dict['finishedcount'] = runs_finished
+    
+    #Top req, finished, waiting , ongoing, error%
+    
+    template = loader.get_template('monitor/group_details_view.html')
     return HttpResponse(template.render(Context(context_dict)))
     
