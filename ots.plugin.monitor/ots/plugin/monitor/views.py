@@ -147,6 +147,7 @@ def stats(event_list):
                       "Queue time" : [MonitorType.TASK_INQUEUE, MonitorType.TASK_ONGOING],
                       "Flash time" : [MonitorType.DEVICE_FLASH, MonitorType.DEVICE_BOOT],
                       "Boot time" : [MonitorType.DEVICE_BOOT, MonitorType.TEST_EXECUTION],
+                      "Execution time" : [MonitorType.TEST_EXECUTION, MonitorType.TESTRUN_ENDED],
                       "Total time" : [MonitorType.TESTRUN_REQUESTED, MonitorType.TESTRUN_ENDED],
                       }
     stats = dict()
@@ -196,17 +197,14 @@ def view_group_details(request, devicegroup=None):
     }
     
     testruns = Testrun.objects.select_related().filter(device_group=devicegroup)
+
     runs_on_group = testruns.count()
-    finished = testruns.filter(event__event_name__exact="Testrun ended")
-    finished_ids = finished.values_list('id',flat=True).distinct()
-    #print finished_ids
-    #ongoing = testruns.exclude(event__testrun_id__in=finished_ids)
-    runs_finished = finished.count()
+    runs_finished = testruns.filter(verdict__in=[0,1,2]).count()
+    
     context_dict['testruns'] = testruns.order_by('-event__event_receive')
     context_dict['devicegroup'] = devicegroup
-    context_dict['finished'] = finished
     context_dict['runcount'] = runs_on_group
-    runs_finished = testruns.filter(verdict__in=[0,1,2]).count()
+    
     context_dict['finishedcount'] = runs_finished
 
     requestors = testruns.values_list('requestor',flat=True).distinct()
@@ -214,26 +212,50 @@ def view_group_details(request, devicegroup=None):
     toprtor = ''
     for requestor in requestors:
          reqsbyrtor = testruns.filter(requestor=requestor).count()
-         print requestor+" has "+str(reqsbyrtor)
          if reqsbyrtor > reqs:
              reqs = reqsbyrtor
              toprtor = requestor
-    #testruns.annotate(num_requests=Count('requestor'))
-    print "top requestor "+toprtor+" / "+str(reqs)
+    
     context_dict['top_requestor'] = toprtor
     context_dict['top_requests'] = reqs
+    
+    queue_times = []
+    exec_times = []
+    flash_times = []
+    clients = []
+    for testrun in testruns:
+        clients.extend(testrun.host_worker_instances.split(','))
+        run_stats = stats(Event.objects.filter(testrun_id = testrun.id))
+        if "Queue time" in run_stats:
+            queue_times.append(run_stats['Queue time'])
+        if "Flash time" in run_stats:
+            flash_times.append(run_stats['Flash time'])
+        if "Execution time" in run_stats:
+            exec_times.append(run_stats['Execution time'])
+    
+    #print clients
+    #sclient = set(clients)
+    #print sclient
+    #clients = list(sclient)
+    clients = list(set(clients))
+    #print clients
+    context_dict['num_of_clients'] = len(clients)
+    context_dict['avg_flash'] = sum(flash_times,0.0)/len(flash_times)
+    context_dict['avg_queue'] = sum(queue_times,0.0)/len(queue_times)
+    context_dict['avg_execution'] = sum(exec_times,0.0)/len(exec_times)
+    
     passed_runs = testruns.filter(verdict=0).count()
     failed_runs = testruns.filter(verdict=1).count()
     ongoing_runs= testruns.filter(verdict=-1).count()
     error_runs = testruns.filter(verdict=2).count()
+    
     context_dict['passed_runs'] = passed_runs
     context_dict['failed_runs'] = failed_runs
     context_dict['ongoing_runs'] = ongoing_runs
     context_dict['error_runs'] = error_runs
     context_dict['error_rate'] = round((1.0*error_runs/runs_finished)*100,2)
     context_dict['pass_rate'] = round((1.0*passed_runs/runs_finished)*100,2)
-    context_dict['fail_rate'] = round((1.0*failed_runs/runs_finished)*100,2)
-     
+    context_dict['fail_rate'] = round((1.0*failed_runs/runs_finished)*100,2)  
     
     #error_runs,ongoing_runs,failed_runs,passed_runs,top_requests,top_requestor
     #Top req, finished, waiting , ongoing, error%
