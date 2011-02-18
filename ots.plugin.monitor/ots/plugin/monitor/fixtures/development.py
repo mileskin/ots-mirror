@@ -32,7 +32,7 @@ import time
 
 from ots.common.dto.monitor import MonitorType
 
-NUM_OF_TESTRUNS = 100
+NUM_OF_TESTRUNS = 1000
 NUM_OF_TESTPACKAGES = 10
 NUM_OF_EVENTS = 10
 
@@ -48,13 +48,16 @@ def main():
         if event[0] != "_":
             event_list.append(value)
     
+    print event_list
+    
     for i in xrange(NUM_OF_TESTRUNS):
         testrun = dict()
         testrun["model"] = "monitor.Testrun"
         testrun["pk"] = i
         
+        tr_id = str(uuid.uuid1().hex)
         fields = dict()
-        fields["testrun_id"] = str(uuid.uuid1())
+        fields["testrun_id"] = tr_id
         fields["device_group"] = "example_device_group"
         fields["queue"] = "sw product"
         fields["configuration"] = "configuration"
@@ -62,35 +65,37 @@ def main():
         fields["requestor"] = "esa-pekka.miettinen@digia.com"
         fields["request_id"] = "666"
         fields["error"] = ""
+        fields["verdict"] = random.randint(-1,3)
 
         
         testrun["fields"] = fields
         json_data.append(testrun)
         
-        for y in xrange(NUM_OF_TESTPACKAGES):
-            package = dict()
-            package["model"] = "monitor.Package"
-            package["pk"] = package_count
-            fields = dict()
-            fields["testrun_id"] = i
-            fields["package_name"] = "test-package-" + str(y)
-            fields["status"] = random.randint(0,1)
-            fields["duration"] = random.randint(2,60)
+        last_time = 0
+        state = fields["verdict"]
+        for y in event_list:
+            randnum = random.randint(0,1)
             
-            package["fields"] = fields
-            json_data.append(package)
+            if state == -1:
+                
+                # If 1, then testrun is in execution phase
+                if randnum == 1:
+                    if y == MonitorType.ETESTRUN_ENDED:
+                        break
+                else:
+                    if y == MonitorType.CTASK_ONGOING:
+                        break                    
+                    
             
-            package_count += 1
-        
-        for y in xrange(NUM_OF_EVENTS):
+            last_time = time.time() + random.randint(10,100) + last_time
             event = dict()
             event["model"] = "monitor.Event"
             event["pk"] = event_count
             fields = dict()
             fields["testrun_id"] = i
-            fields["event_name"] = event_list[random.randint(0, len(event_list)-1)]
-            fields["event_emit"] = time.time()
-            fields["event_receive"] = time.time() + 1
+            fields["event_name"] = y
+            fields["event_emit"] = last_time
+            fields["event_receive"] = last_time + 1
             
             event["fields"] = fields
             json_data.append(event)

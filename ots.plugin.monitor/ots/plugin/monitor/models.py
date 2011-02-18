@@ -44,6 +44,7 @@ class Testrun(models.Model):
     request_id = models.CharField(max_length=255)
     error = models.CharField(max_length=255)
     start_time = models.DateTimeField(auto_now=True)
+    verdict = models.PositiveIntegerField()
     
     class Meta:
         """

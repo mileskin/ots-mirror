@@ -47,6 +47,26 @@
 		<td>Finished testruns:</td>
 		<td>{{ finishedcount }}</td>
 	</tr>
+	<tr>
+		<td>Ongoing:</td>
+		<td>{{ ongoing_runs }}</td>
+	</tr>
+	<tr>
+		<td>Errors:</td>
+		<td>{{ error_runs }} ({{ error_rate }}%)</td>
+	</tr>
+	<tr> 
+		<td>Passed:</td>
+		<td>{{ passed_runs }} ({{ pass_rate }}%)</td>
+	</tr>
+	<tr>
+		<td>Failed:</td>
+		<td>{{ failed_runs }} ({{ fail_rate }}%)</td>
+	</tr>
+	<tr>
+		<td>Top requestor:</td>
+		<td>{{ top_requestor }} ({{ top_requests }})</td>
+	</tr>
 </table>
 <table id="testrun_info" >
 	<thead>
