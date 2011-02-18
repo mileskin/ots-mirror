@@ -104,7 +104,7 @@ def main_page(request):
     return HttpResponse(template.render(Context(context_dict)))
 
 def _top_requestor(device_group_data):
-    req_list = Testrun.objects.values("requestor"). \
+    req_list = device_group_data.values("requestor"). \
         annotate(Count('requestor')).order_by("-requestor__count")
     return req_list[0].get('requestor')
 
