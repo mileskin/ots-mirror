@@ -35,6 +35,14 @@ class Testrun(models.Model):
     """
     Model for testrun data
     """
+    STATE_CHOICES = (
+        (u'1', u'in_queue'),
+        (u'2', u'in_execution'),
+        (u'3', u'pass'),
+        (u'4', u'fail'),
+        (u'5', u'error'),
+    )
+
     testrun_id = models.CharField(db_index=True, max_length=32)
     device_group = models.CharField(max_length=255)
     queue = models.CharField(max_length=255)
@@ -44,8 +52,8 @@ class Testrun(models.Model):
     request_id = models.CharField(max_length=255)
     error = models.CharField(max_length=255)
     start_time = models.DateTimeField(auto_now=True)
-    verdict = models.PositiveIntegerField()
-    
+    state = models.CharField(max_length=2, choices=STATE_CHOICES)
+
     class Meta:
         """
         Meta class for model

@@ -22,27 +22,33 @@
 # ***** END LICENCE BLOCK *****
 -->
 {% extends "monitor/monitor_base.html" %}
-{% block pagetitle %}Test runs{% endblock pagetitle %}
+{% block pagetitle %}Status for last 24 hours{% endblock pagetitle %}
 {% block content %}
 {% load monitor_template_tags %}
 <table id="testrun_list">
-	<thead>
-		<tr>
-			<th style="width:5%">Queue</th>
-			<th style="width:15%">Created</th>
-			<th style="width:15%">Module</th>
-			<th style="width:10%">Level</th>
-			<th style="width:55%">Message</th>
-		</tr>
-	</thead>
-	<tbody>
-	    {% for queue in queues %}
-    	<tr class="{% cycle 'odd' 'even' %}">
-    		<td>{{ queue.queue }}<td>
-    		<td><a href="{% url ots.plugin.monitor.views.main_page %}">Main</a></td>
-    		<td><a href="{% url ots.plugin.monitor.views.view_queue_details queue_name=queue.queue %}">{{ queue.queue }}</a></td>
-		</tr>
-		{% endfor %}
-	</tbody>
+    <thead>
+        <tr>
+            <th style="width:15%">Device Group</th>
+            <th style="width:15%">Top Requestor</th>
+            <th style="width:15%">Runs</th>
+            <th style="width:15%">Finished</th>
+            <th style="width:15%">Waiting</th>
+            <th style="width:15%">Ongoing</th>
+            <th style="width:15%">Error %</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tr in testruns %}
+        <tr class="{% cycle 'odd' 'even' %}">
+            <td>{{ tr.device_group }}<td>
+            <td>{{ tr.top_requestor }}</td>
+            <td>{{ tr.runs }}</td>
+            <td>{{ tr.finished }}</td>
+            <td>{{ tr.waiting }}</td>
+            <td>{{ tr.ongoing }}</td>
+            <td>{{ tr.error_ratio }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock content %}

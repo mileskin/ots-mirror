@@ -65,25 +65,26 @@ def main():
         fields["requestor"] = "esa-pekka.miettinen@digia.com"
         fields["request_id"] = "666"
         fields["error"] = ""
-        fields["verdict"] = random.randint(-1,3)
+        # fields["verdict"] = random.randint(-1,3)
+        fields['state'] = random.choice(['1', '2', '3', '4', '5'])
 
         
         testrun["fields"] = fields
         json_data.append(testrun)
         
         last_time = 0
-        state = fields["verdict"]
+        state = fields["state"]
         for y in event_list:
             randnum = random.randint(0,1)
             
-            if state == -1:
+            if state in ['1', '2']:
                 
                 # If 1, then testrun is in execution phase
                 if randnum == 1:
-                    if y == MonitorType.ETESTRUN_ENDED:
+                    if y == MonitorType.TESTRUN_ENDED:
                         break
                 else:
-                    if y == MonitorType.CTASK_ONGOING:
+                    if y == MonitorType.TASK_ONGOING:
                         break                    
                     
             

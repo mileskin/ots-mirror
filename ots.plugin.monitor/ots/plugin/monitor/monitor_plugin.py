@@ -32,7 +32,8 @@ import logging
 
 from ots.common.dto.monitor import Monitor
 from ots.common.framework.api import PublisherPluginBase
-from ots.django.monitor.models import Testrun, Event, Package
+#from ots.django.monitor.models import Testrun, Event, Package
+from ots.plugin.monitor.models import Testrun, Event
 
 
 LOG = logging.getLogger(__name__)

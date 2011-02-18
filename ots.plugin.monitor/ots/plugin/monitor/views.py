@@ -59,24 +59,61 @@ from ots.plugin.monitor.models import Testrun
 from ots.plugin.monitor.models import Event
 from ots.common.dto.api import MonitorType
 
+
 ROW_AMOUNT_IN_PAGE = 50
+
+
+class TestrunView():
+    device_group = None
+    top_requestor = None
+    runs = 0
+    finished = 0
+    waiting = 0
+    ongoing = 0
+    error_ratio = 0.0
 
 def main_page(request):
     """
-        Index page for viewing summary from all test runs.
-        @type request: L{HttpRequest}
-        @param request: HttpRequest of the view
-
+    Index page for viewing summary from all test runs.
+    @type request: L{HttpRequest}
+    @param request: HttpRequest of the view
     """
     context_dict = {
-    'MEDIA_URL' : settings.MEDIA_URL,
-    }
+                    'MEDIA_URL' : settings.MEDIA_URL,
+                    }
+    testruns = []
+
+    device_groups = Testrun.objects.values_list('device_group',
+                                                flat=True).distinct()
+
+    for device_group in device_groups:
+        tr_view = TestrunView()
+        dg_data = Testrun.objects.filter(device_group=device_group)
+
+        tr_view.device_group = device_group
+        tr_view.top_requestor = _top_requestor(dg_data)
+        tr_view.runs = dg_data.count()
+        tr_view.finished = dg_data.filter(state__in=['3', '4', '5']).count()
+        tr_view.waiting = dg_data.filter(state='1').count()
+        tr_view.ongoing = dg_data.filter(state='2').count()
+        tr_view.error_ratio = _calculate_error_ratio(dg_data)
+        testruns.append(tr_view)
     
-    queues = Testrun.objects.values('queue').distinct()    
-    
-    context_dict['queues']  = queues
+    context_dict['testruns'] = testruns
     template = loader.get_template('monitor/index.html')
     return HttpResponse(template.render(Context(context_dict)))
+
+def _top_requestor(device_group_data):
+    req_list = Testrun.objects.values("requestor"). \
+        annotate(Count('requestor')).order_by("-requestor__count")
+    return req_list[0].get('requestor')
+
+
+def _calculate_error_ratio(device_group_data):
+    errors = float(device_group_data.filter(state__in=['5']).count())
+    others = float(device_group_data.filter(state__in=['3', '4']).count())
+    error_ratio = errors / others * 100
+    return "%.1f" % error_ratio
 
 def view_queue_details(request,queue_name=None):
     context_dict = {
