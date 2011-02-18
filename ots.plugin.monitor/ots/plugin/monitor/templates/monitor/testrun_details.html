@@ -61,8 +61,8 @@
         <td>{{ testrun.request_id }}</td>
     </tr>
     <tr>
-        <td class="title">Verdict:</td>
-        <td>{{ testrun.verdict }}</td>
+        <td class="title">State:</td>
+        <td>{{ testrun.state }}</td>
     </tr>
 </table>
 
@@ -99,7 +99,7 @@
 	<tbody>
 	    {% for event in events %}
     	<tr>
-           <td>{{ event.event_receive|calculate_delta_sec }}</td>
+           <td>{{ event.event_receive|calculate_delta }}</td>
 		   <td>{{ event.event_name }}</td>
 		   <td>{{ event.event_emit }}</td>
 		   <td>{{ event.event_receive }}</td>

@@ -109,6 +109,8 @@ def view_queue_details(request,queue_name=None):
     'MEDIA_URL' : settings.MEDIA_URL,
     }
     
+    context_dict.update(_handle_date_filter(request))
+    
     testruns = Testrun.objects.filter(queue=queue_name)
     context_dict['testruns'] = testruns
     context_dict['queue_name'] = queue_name
@@ -173,31 +175,27 @@ def view_testrun_list(request, device_group = None):
     
     context_dict.update(_handle_date_filter(request))
     
-    testruns = Testrun.objects.filter(verdict = -1, 
+    testruns = Testrun.objects.filter(state__lt = 2, 
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
     
     if device_group:
         testruns = testruns.filter(device_group = device_group)
     
+    testruns = testruns.order_by("-state")
+    
     ongoing_testruns = []
     queue_testruns = []
     
-    for testrun in testruns:
-        testrun_events = Event.objects.filter(testrun_id = testrun.id)
-        state = testrun_state(testrun_events)
-        if state  == "Queue":
-            queue_testruns.append(testrun)
-        elif state == "Ongoing":
-            ongoing_testruns.append(testrun)
-
-    context_dict['ongoing_testruns'] = ongoing_testruns
-    context_dict['queue_testruns'] = queue_testruns
+    context_dict['testruns'] = testruns
+    
     template = loader.get_template('monitor/testrun_list.html')
     return HttpResponse(template.render(Context(context_dict)))
 
 def view_testrun_details(request, testrun_id):
     context_dict = {}
+    
+    context_dict.update(_handle_date_filter(request))
     
     testrun = Testrun.objects.get(testrun_id = testrun_id)
     events = Event.objects.filter(testrun_id = testrun.id)

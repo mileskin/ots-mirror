@@ -29,26 +29,46 @@ import inspect
 import uuid
 import random
 import time
-
+import datetime
 from ots.common.dto.monitor import MonitorType
 
 NUM_OF_TESTRUNS = 1000
 NUM_OF_TESTPACKAGES = 10
-NUM_OF_EVENTS = 10
+
+DEVICE_GROUPS = ["meego_n900", "meego_netbook", "meego_aava"]
+QUEUE = ["common_n900", "common_netbook", "common_aava"]
+REQUESTORS = ['esa-pekka.miettinen@digia.com', 'elias.luttinen@digia.com', 'ville.niutanen@digia.com']
+
+EVENT_COUNT = 0
+
+def _generate_events(event_list, testrun_id, timestamp):
+
+    global EVENT_COUNT
+    
+    retlist = []
+    
+    for event_name in event_list:
+        event = dict()
+        event["model"] = "monitor.Event"
+        event["pk"] = EVENT_COUNT
+        fields = dict()
+        fields["testrun_id"] = testrun_id
+        fields["event_name"] = event_name
+        fields["event_emit"] = datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M")
+        fields["event_receive"] = datetime.datetime.fromtimestamp(timestamp + random.randint(1,10)).strftime("%Y-%m-%d %H:%M")
+        
+        event["fields"] = fields
+        EVENT_COUNT += 1
+        
+        timestamp += random.randint(1,60) * 60
+        
+        retlist.append(event)
+    
+    return retlist
 
 def main():
     
     json_data = []
-    
-    event_list = []
-    package_count = 1
-    event_count = 1
-    
-    for (event, value) in inspect.getmembers(MonitorType):
-        if event[0] != "_":
-            event_list.append(value)
-    
-    print event_list
     
     for i in xrange(NUM_OF_TESTRUNS):
         testrun = dict()
@@ -58,50 +78,58 @@ def main():
         tr_id = str(uuid.uuid1().hex)
         fields = dict()
         fields["testrun_id"] = tr_id
-        fields["device_group"] = "example_device_group"
-        fields["queue"] = "sw product"
+        fields["device_group"] = DEVICE_GROUPS[random.randint(0, len(DEVICE_GROUPS)-1)]
+        fields["queue"] = QUEUE[random.randint(0, len(QUEUE)-1)]
         fields["configuration"] = "configuration"
-        fields["host_worker_instances"] = "ots.worker1,ots.worker2"
-        fields["requestor"] = "esa-pekka.miettinen@digia.com"
-        fields["request_id"] = "666"
-        fields["error"] = ""
-        fields["verdict"] = random.randint(-1,3)
+        fields["requestor"] = REQUESTORS[random.randint(0, len(REQUESTORS)-1)]
+        fields["request_id"] = random.randint(1,12345)
+        
+        timestamp = time.time() - (random.randint(1, 48) * 30 * 60)
+        
+        fields["start_time"] = datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M")
+        
+
+        state = random.randint(0,4)
+        fields["state"] = state
+        testrun["fields"] = fields
+        
+        event_list = []
+        
+        #Queue state
+        if state == 0:
+            event_list = [MonitorType.TESTRUN_REQUESTED, 
+                          MonitorType.TASK_INQUEUE]
+            fields["host_worker_instances"] = ""
+            fields["error"] = ""
+        # Execution state
+        elif state >= 1:
+            event_list = [MonitorType.TESTRUN_REQUESTED, 
+                          MonitorType.TASK_INQUEUE,
+                          MonitorType.TASK_ONGOING,
+                          MonitorType.DEVICE_FLASH,
+                          MonitorType.DEVICE_BOOT,
+                          MonitorType.TEST_EXECUTION,
+                          ]
+            workers = ""
+            for x in xrange(random.randint(1,10)):
+                workers += "ots_worker_" + str(x) + ","
+                
+            fields["host_worker_instances"] = workers
+            fields["error"] = ""
+            
+            # Pass / Fail state
+            if state >= 2:
+                event_list.append(MonitorType.TESTRUN_ENDED)
+            
+            # Error state
+            if state == 4:
+                fields["error"] = "Error code: " + str(random.randint(666,1000))       
 
         
-        testrun["fields"] = fields
         json_data.append(testrun)
-        
-        last_time = 0
-        state = fields["verdict"]
-        for y in event_list:
-            randnum = random.randint(0,1)
-            
-            if state == -1:
-                
-                # If 1, then testrun is in execution phase
-                if randnum == 1:
-                    if y == MonitorType.ETESTRUN_ENDED:
-                        break
-                else:
-                    if y == MonitorType.CTASK_ONGOING:
-                        break                    
-                    
-            
-            last_time = time.time() + random.randint(10,100) + last_time
-            event = dict()
-            event["model"] = "monitor.Event"
-            event["pk"] = event_count
-            fields = dict()
-            fields["testrun_id"] = i
-            fields["event_name"] = y
-            fields["event_emit"] = last_time
-            fields["event_receive"] = last_time + 1
-            
-            event["fields"] = fields
-            json_data.append(event)
-            
-            event_count += 1
-            
+        json_data.extend(_generate_events(event_list, i, timestamp))
+    
+    
     json_file = open("development.json", 'w')
     json_file.write(json.dumps(json_data))
     json_file.close()
