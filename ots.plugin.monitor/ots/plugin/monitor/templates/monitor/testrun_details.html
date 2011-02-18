@@ -1,0 +1,110 @@
+<!--
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+-->
+
+{% extends "monitor/monitor_base.html" %}
+{% block pagetitle %}Testrun details{% endblock pagetitle %}
+{% block content %}
+{% load monitor_template_tags %}
+
+<table id="testrun_details" >
+    <tr>
+        <td class="title">Testrun ID:</td>
+        <td>{{ testrun.testrun_id }}</td>
+    </tr>
+    <tr>
+        <td class="title">Device Group:</td>
+        <td>{{ testrun.device_group }}</td>
+    </tr>
+    <tr>
+        <td class="title">Queue:</td>
+        <td>{{ testrun.queue }}</td>
+    </tr>
+    <tr>
+        <td class="title">Start time:</td>
+        <td>{{ testrun.start_time }}</td>
+    </tr>
+    <tr>
+        <td class="title">Configuration:</td>
+        <td>{{ testrun.testrun_id }}</td>
+    </tr>
+    <tr>
+        <td class="title">Workers:</td>
+        <td>{{ testrun.host_worker_instances }}</td>
+    </tr>
+    <tr>
+        <td class="title">Requestor:</td>
+        <td>{{ testrun.requestor }}</td>
+    </tr>
+    <tr>
+        <td class="title">Request id:</td>
+        <td>{{ testrun.request_id }}</td>
+    </tr>
+    <tr>
+        <td class="title">Verdict:</td>
+        <td>{{ testrun.verdict }}</td>
+    </tr>
+</table>
+
+<p />
+
+<table id="testrun_list" >
+    <thead>
+        <tr>
+            {% for stat in testrun_stats %}
+               <th> {{ stat.name }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            {% for stat in testrun_stats %}
+               <td> {{ stat.delta }}</td>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+
+<p />
+
+<table id="testrun_list" >
+	<thead>
+		<tr>
+		    <th style="width:10%">Delta time</th>
+			<th style="width:15%">Event name</th>
+            <th style="width:15%">Emitted</th>
+			<th style="width:10%">Received</th>
+		</tr>
+	</thead>
+	<tbody>
+	    {% for event in events %}
+    	<tr>
+           <td>{{ event.event_receive|calculate_delta_sec }}</td>
+		   <td>{{ event.event_name }}</td>
+		   <td>{{ event.event_emit }}</td>
+		   <td>{{ event.event_receive }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock content %}

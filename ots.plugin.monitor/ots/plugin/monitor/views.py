@@ -53,12 +53,38 @@ from copy import deepcopy
 from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
+from django import forms
+from django.forms.formsets import formset_factory
 
 from ots.plugin.monitor.models import Testrun
 from ots.plugin.monitor.models import Event
 from ots.common.dto.api import MonitorType
 
 ROW_AMOUNT_IN_PAGE = 50
+
+def _handle_date_filter(request):
+    date_dict = dict()
+    
+    if request.method == 'POST':
+        post = request.POST
+        try:
+            date_dict['datefilter_start'] = datetime.datetime.strptime(post.get("startdate"), "%Y-%m-%d %H:%M")
+        except ValueError:
+            date_dict['datefilter_start'] = datetime.datetime(year=1900, month=1, day=1)
+        try:
+            date_dict['datefilter_end'] = datetime.datetime.strptime(post.get("enddate"), "%Y-%m-%d %H:%M")
+        except ValueError:
+            date_dict['datefilter_end'] = datetime.datetime.now()
+    else:
+        date_dict['datefilter_start']  = request.session.get("datefilter_start", datetime.datetime.fromtimestamp(time.time()-24*3600))
+        date_dict['datefilter_end']  =  request.session.get("datefilter_end",datetime.datetime.now())
+    
+    request.session.update(date_dict)
+    
+    date_dict['datefilter_start_str']  = date_dict['datefilter_start'].strftime("%Y-%m-%d %H:%M")
+    date_dict['datefilter_end_str']  = date_dict['datefilter_end'].strftime("%Y-%m-%d %H:%M")
+    
+    return date_dict
 
 def main_page(request):
     """
@@ -71,9 +97,10 @@ def main_page(request):
     'MEDIA_URL' : settings.MEDIA_URL,
     }
     
-    queues = Testrun.objects.values('queue').distinct()    
+    context_dict.update(_handle_date_filter(request))
     
-    context_dict['queues']  = queues
+    context_dict['queues']  = ""
+    
     template = loader.get_template('monitor/index.html')
     return HttpResponse(template.render(Context(context_dict)))
 
@@ -103,6 +130,15 @@ def testrun_state(testrun_events):
     else:
         return "Queue"
 
+class Stats(object):
+    name = ""
+    delta = 0
+    
+    def __init__(self, name, delta):
+        self.name = name
+        self.delta = delta
+    
+
 def stats(event_list):
     
     event_category = {
@@ -111,7 +147,7 @@ def stats(event_list):
                       "Boot time" : [MonitorType.DEVICE_BOOT, MonitorType.TEST_EXECUTION],
                       "Total time" : [MonitorType.TESTRUN_REQUESTED, MonitorType.TESTRUN_ENDED],
                       }
-    stats = dict()
+    stats = []
     for (category_name, category_events) in event_category.iteritems():
         start_time = None
         end_time = None
@@ -128,13 +164,22 @@ def stats(event_list):
                 end_time = event.event_emit
                 continue         
         if start_time != None and end_time != None:
-            stats[category_name] = end_time - start_time
+            stats.append(Stats(category_name, end_time - start_time))
+
     return stats
 
-def view_testrun_list(request):
+def view_testrun_list(request, device_group = None):
     context_dict = {}
     
-    testruns = Testrun.objects.filter(verdict = -1)
+    context_dict.update(_handle_date_filter(request))
+    
+    testruns = Testrun.objects.filter(verdict = -1, 
+                                      start_time__gte = context_dict["datefilter_start"],
+                                      start_time__lte = context_dict["datefilter_end"])
+    
+    if device_group:
+        testruns = testruns.filter(device_group = device_group)
+    
     ongoing_testruns = []
     queue_testruns = []
     
@@ -149,4 +194,19 @@ def view_testrun_list(request):
     context_dict['ongoing_testruns'] = ongoing_testruns
     context_dict['queue_testruns'] = queue_testruns
     template = loader.get_template('monitor/testrun_list.html')
+    return HttpResponse(template.render(Context(context_dict)))
+
+def view_testrun_details(request, testrun_id):
+    context_dict = {}
+    
+    testrun = Testrun.objects.get(testrun_id = testrun_id)
+    events = Event.objects.filter(testrun_id = testrun.id)
+    
+    testrun_stats = stats(events)
+    
+    context_dict["testrun"] = testrun
+    context_dict["events"] = events
+    context_dict["testrun_stats"] = testrun_stats
+    
+    template = loader.get_template('monitor/testrun_details.html')
     return HttpResponse(template.render(Context(context_dict)))

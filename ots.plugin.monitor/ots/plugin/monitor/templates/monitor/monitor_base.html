@@ -55,8 +55,17 @@
 		<div id="menu">
 		  <table id="menu_list">	
 		  <td><a href="{% url ots.plugin.monitor.views.main_page %}">Main</a></td>
+          <td><a href="{% url ots.plugin.monitor.views.view_testrun_list %}">Testruns</a></td>
 		  </table>
 		</div>
+        <div id="date_select">
+            <form method="post" action="">
+                <input type="text" name="startdate" id="filterdate" value="{{ datefilter_start_str }}" />
+                -
+                <input type="text" name="enddate" id="filterdate" value="{{ datefilter_end_str }}" />
+                <input id="submit" type="submit" value="Filter" />
+            </form>
+        </div>
 		<div id="contentArea">
 		<h2 style="text-align:center;">{% block pagetitle %} {% endblock pagetitle %}</h2>
 		{% block content %}

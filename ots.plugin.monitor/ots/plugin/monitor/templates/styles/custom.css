@@ -38,10 +38,9 @@ a.date:hover
 
 DIV.main
 {
-	margin:0px auto;
+  margin:0px auto;
   width:80%;
   text-align:left;
-
 }
 
 #menu
@@ -96,7 +95,25 @@ DIV.red
   border-collapse:collapse;
 }
 
-#testrun_list td, #testrun_list th, #testrun_info td, #testrun_info th
+#testrun_details
+{
+  font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+  width: 50%;
+  border-collapse:collapse;
+}
+
+#testrun_details td.title
+{
+  font-size:1.1em;
+  text-align:left;
+  padding-top:5px;
+  padding-bottom:4px;
+  background-color:#A7C942;
+  color:#ffffff;
+  width: 200px;
+}
+
+#testrun_list td, #testrun_list th, #testrun_info td, #testrun_info th, #testrun_details td, #testrun_details th
 {
   font-size:1em;
   border:1px solid #98bf21;
@@ -105,12 +122,12 @@ DIV.red
 
 #testrun_list th, #testrun_info th
 {
-font-size:1.1em;
-text-align:left;
-padding-top:5px;
-padding-bottom:4px;
-background-color:#A7C942;
-color:#ffffff;
+  font-size:1.1em;
+  text-align:left;
+  padding-top:5px;
+  padding-bottom:4px;
+  background-color:#A7C942;
+  color:#ffffff;
 }
 
 #testrun_list tr.odd, #testrun_info tr.odd
@@ -122,6 +139,31 @@ color:#ffffff;
 #testrun_list tr.even:hover, #testrun_list tr.odd:hover
 {
   background-color: #cff;
+}
+
+#testrun_list td.ongoing
+{
+  height: 10px;
+  background-image: url(/media/green.png); 
+  background-repeat: no-repeat;
+}
+
+#testrun_list td.queue
+{
+  height: 10px;
+  background-image: url(/media/yellow.png); 
+  background-repeat: no-repeat;
+}
+
+#testrun_list tr.ongoing
+{
+  
+}
+
+#testrun_list tr.queue
+{
+  color:#000000;
+  background-color:#EAF2D3;
 }
 
 #worker_box
@@ -166,3 +208,20 @@ SPAN.ERROR
   color:red;
 }
 
+#date_select
+{
+  margin:auto;
+  width:100%;
+}
+
+#submit
+{
+  border: 1px solid black;
+  background-color:#EAF2D3;
+}
+
+#filterdate
+{
+  border: 1px solid black;
+  width: 150px;
+}

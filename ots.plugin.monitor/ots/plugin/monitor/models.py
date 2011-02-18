@@ -59,8 +59,8 @@ class Event(models.Model):
     """
     testrun_id = models.ForeignKey(Testrun)
     event_name = models.CharField(max_length=255)
-    event_emit = models.PositiveIntegerField()
-    event_receive = models.PositiveIntegerField()
+    event_emit = models.DateTimeField(auto_now=True)
+    event_receive = models.DateTimeField(auto_now=True)
 
     class Meta:
         """

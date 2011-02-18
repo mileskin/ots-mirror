@@ -60,6 +60,15 @@ def calculate_delta(starttime):
     return strout
 
 @register.filter
+def calculate_delta_sec(starttime):
+    """
+    Calculate delta time between seconds
+    """
+    currenttime = time.time()
+    strout = (currenttime - starttime)
+    return strout
+
+@register.filter
 def format_datetime(currenttime):
     """
     Formats datetime for nicer format
