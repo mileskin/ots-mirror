@@ -223,26 +223,32 @@ def view_testrun_list(request, device_group = None):
     
     context_dict.update(_handle_date_filter(request))
     
-    testruns = Testrun.objects.filter(state__lt = 2, 
+    testruns = Testrun.objects.filter( 
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
     
     if device_group:
         testruns = testruns.filter(device_group = device_group)
     
-    testruns = testruns.order_by("-state")
-    
-    ongoing_testruns = []
-    queue_testruns = []
+    testruns = testruns.order_by("state")
     
     total_count = testruns.count()
-    onqueue_count = testruns.filter(state = 0).count()
-    execution_count = testruns.filter(state = 1).count()
+    inqueue_count = testruns.filter(state = 0).count()
+    ongoing_count = testruns.filter(state = 1).count()
+    passed_count = testruns.filter(state = 2).count()
+    failed_count = testruns.filter(state = 3).count()
+    error_count = testruns.filter(state = 4).count()
+
     
     context_dict['testruns'] = testruns
     context_dict['total_count'] = total_count
-    context_dict['onqueue_count'] = onqueue_count
-    context_dict['execution_count'] = execution_count
+    
+    if total_count != 0:
+        context_dict['inqueue_count'] = "%d (%.1f %%)" % (inqueue_count,  100.0*inqueue_count/total_count)
+        context_dict['ongoing_count'] = "%d (%.1f %%)" % (ongoing_count,  100.0*ongoing_count/total_count)
+        context_dict['passed_count'] = "%d (%.1f %%)" % (passed_count,  100.0*passed_count/total_count)
+        context_dict['failed_count'] = "%d (%.1f %%)" % (failed_count,  100.0*failed_count/total_count)
+        context_dict['error_count'] = "%d (%.1f %%)" % (error_count,  100.0*error_count/total_count)
     
     template = loader.get_template('monitor/testrun_list.html')
     return HttpResponse(template.render(Context(context_dict)))
@@ -262,20 +268,6 @@ def view_testrun_details(request, testrun_id):
     context_dict["testrun_stats"] = testrun_stats
     
     template = loader.get_template('monitor/testrun_details.html')
-    return HttpResponse(template.render(Context(context_dict)))
-
-    for testrun in testruns:
-        testrun_events = Event.objects.filter(testrun_id = testrun.id)
-        state = testrun_state(testrun_events)
-        if state  == "Queue":
-            queue_testruns.append(testrun)
-        elif state == "Ongoing":
-            ongoing_testruns.append(testrun)
-
-
-    context_dict['ongoing_testruns'] = ongoing_testruns
-    context_dict['queue_testruns'] = queue_testruns
-    template = loader.get_template('monitor/testrun_list.html')
     return HttpResponse(template.render(Context(context_dict)))
 
 def view_group_details(request, devicegroup=None):
@@ -325,10 +317,10 @@ def view_group_details(request, devicegroup=None):
     context_dict['avg_queue'] = round(sum(queue_times,0.0)/len(queue_times)/60.0,1)
     context_dict['avg_execution'] = round(sum(exec_times,0.0)/len(exec_times)/60.0,1)
     
-    passed_runs = testruns.filter(state=0).count()
-    failed_runs = testruns.filter(state=1).count()
-    ongoing_runs= testruns.filter(state=-1).count()
-    error_runs = testruns.filter(state=2).count()
+    passed_runs = testruns.filter(state=2).count()
+    failed_runs = testruns.filter(state=3).count()
+    ongoing_runs= testruns.filter(state=1).count()
+    error_runs = testruns.filter(state=4).count()
     
     context_dict['passed_runs'] = passed_runs
     context_dict['failed_runs'] = failed_runs

@@ -36,17 +36,6 @@
 	  media="all" 
 	  href="/styles/custom.css" />
     <title>{% block title %}OTS Monitor{% endblock title %}</title>
-	<script language="javascript"> 
-	function toggle(elementName) {
-		var ele = document.getElementById(elementName);
-		if(ele.style.display == "block") {
-	    	ele.style.display = "none";
-	  	}
-		else {
-			ele.style.display = "block";
-		}
-	} 
-	</script>
   </head>
   <body>
     <div class="main">
@@ -59,15 +48,21 @@
 		  </table>
 		</div>
         <div id="date_select">
+            <table id="filter_table">
+            <tr><td>
             <form method="post" action="">
                 <input type="text" name="startdate" id="filterdate" value="{{ datefilter_start_str }}" />
                 -
                 <input type="text" name="enddate" id="filterdate" value="{{ datefilter_end_str }}" />
                 <input id="submit" type="submit" value="Filter" />
             </form>
+            </td>
+            </tr>
+            </table>
         </div>
 		<div id="contentArea">
-		<h2 style="text-align:center;">{% block pagetitle %} {% endblock pagetitle %}</h2>
+		<div id="page_title">{% block pagetitle %} {% endblock pagetitle %}</div>
+		</p>
 		{% block content %}
 		{% endblock content %} 	
 		</div>	

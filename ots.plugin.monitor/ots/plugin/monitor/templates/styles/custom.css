@@ -1,9 +1,9 @@
 body
 {
   background-color:#ffffff;
-	margin:50px 0px; 
-	padding:0px;
-	text-align:center;
+  margin:50px 0px; 
+  padding:0px;
+  text-align:center;
 }
 
 a
@@ -45,13 +45,12 @@ DIV.main
 
 #menu
 {
-	border-bottom: 1px solid #cacaca;
+  border-bottom: 1px solid #cacaca;
 }
 
 #menu_list
 {
   height:50px;
-  margin:auto;
   border-collapse:collapse;
 }
 
@@ -61,18 +60,12 @@ DIV.main
   padding-right:15px;
 }
 
-DIV.red
-{
-  color:red;
-}
-
 #header
 {
   border-bottom: 7px solid #ED0089;
-	height: 66px;
-	background-image: url(/media/logo.png); 
-	background-repeat: no-repeat;
-
+  height: 66px;
+  background-image: url(/media/logo.png); 
+  background-repeat: no-repeat;
 }
 
 #contentArea
@@ -81,11 +74,21 @@ DIV.red
   padding-top:5px;
 }
 
+#page_title
+{
+  font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+  font-weight:bold;
+  font-size:18pt;
+  border-bottom: 3px solid #ED0089;
+  padding-bottom:5px;
+  width:50%;
+}
+
 #footer
 {
   border-top: 7px solid #ED0089;
-	padding-top: 10px;
-	text-align:center;
+  padding-top: 10px;
+  text-align:center;
 }
 
 #testrun_list, #testrun_info
@@ -141,29 +144,44 @@ DIV.red
   background-color: #cff;
 }
 
-#testrun_list td.ongoing
+td.state_0
 {
-  height: 10px;
-  background-image: url(/media/green.png); 
+  background-image: url(/media/inqueue.png);
   background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
 }
 
-#testrun_list td.queue
+td.state_1
 {
-  height: 10px;
-  background-image: url(/media/yellow.png); 
+  background-image: url(/media/ongoing.png);
   background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
 }
 
-#testrun_list tr.ongoing
+td.state_2
 {
-  
+  background-image: url(/media/passed.png);
+  background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
 }
 
-#testrun_list tr.queue
+td.state_3
 {
-  color:#000000;
-  background-color:#EAF2D3;
+  background-image: url(/media/failed.png);
+  background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
+}
+
+td.state_4
+{
+  background-image: url(/media/error.png);
+  background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
 }
 
 #worker_box
@@ -187,7 +205,7 @@ DIV.red
     white-space: nowrap;
 }
 
-SPAN.INFO
+SPAN.INFO, SPAN.PASSED
 {
   color:green;
 }
@@ -197,6 +215,10 @@ SPAN.DEBUG
   color:blue;
 }
 
+SPAN.FAILED
+{
+  color:orange;
+}
 
 SPAN.WARNING
 {
@@ -219,9 +241,15 @@ SPAN.ERROR
   border: 1px solid black;
   background-color:#EAF2D3;
 }
-
 #filterdate
 {
   border: 1px solid black;
+  background-color:#EAF2D3;
   width: 150px;
+  text-align:center;
+}
+#filter_table
+{
+  width: 100%;
+  text-align: center;
 }
