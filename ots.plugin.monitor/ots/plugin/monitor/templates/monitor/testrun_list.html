@@ -26,6 +26,11 @@
 {% block pagetitle %}Testrun list{% endblock pagetitle %}
 {% block content %}
 {% load monitor_template_tags %}
+
+Total: {{total_count}} <br/>
+Onqueue: {{onqueue_count}} <br/>
+Execution: {{execution_count}} <br/>
+
 <table id="testrun_list" >
 	<thead>
 		<tr>

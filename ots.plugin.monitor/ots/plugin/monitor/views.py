@@ -187,7 +187,14 @@ def view_testrun_list(request, device_group = None):
     ongoing_testruns = []
     queue_testruns = []
     
+    total_count = testruns.count()
+    onqueue_count = testruns.filter(state = 0).count()
+    execution_count = testruns.filter(state = 1).count()
+    
     context_dict['testruns'] = testruns
+    context_dict['total_count'] = total_count
+    context_dict['onqueue_count'] = onqueue_count
+    context_dict['execution_count'] = execution_count
     
     template = loader.get_template('monitor/testrun_list.html')
     return HttpResponse(template.render(Context(context_dict)))
@@ -208,3 +215,4 @@ def view_testrun_details(request, testrun_id):
     
     template = loader.get_template('monitor/testrun_details.html')
     return HttpResponse(template.render(Context(context_dict)))
+

@@ -90,7 +90,6 @@
 <table id="testrun_list" >
 	<thead>
 		<tr>
-		    <th style="width:10%">Delta time</th>
 			<th style="width:15%">Event name</th>
             <th style="width:15%">Emitted</th>
 			<th style="width:10%">Received</th>
@@ -99,7 +98,6 @@
 	<tbody>
 	    {% for event in events %}
     	<tr>
-           <td>{{ event.event_receive|calculate_delta }}</td>
 		   <td>{{ event.event_name }}</td>
 		   <td>{{ event.event_emit }}</td>
 		   <td>{{ event.event_receive }}</td>
