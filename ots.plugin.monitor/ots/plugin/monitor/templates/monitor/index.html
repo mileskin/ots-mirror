@@ -22,26 +22,26 @@
 # ***** END LICENCE BLOCK *****
 -->
 {% extends "monitor/monitor_base.html" %}
-{% block pagetitle %}Status for last 24 hours{% endblock pagetitle %}
+{% block pagetitle %}{% endblock pagetitle %}
 {% block content %}
 {% load monitor_template_tags %}
 
 <table id="testrun_list">
     <thead>
         <tr>
-            <th style="width:15%">Device Group</th>
-            <th style="width:15%">Top Requestor</th>
-            <th style="width:15%">Runs</th>
-            <th style="width:15%">Finished</th>
-            <th style="width:15%">Waiting</th>
-            <th style="width:15%">Ongoing</th>
-            <th style="width:15%">Error %</th>
+            <th style="width:25%">Device Group</th>
+            <th style="width:25%">Top Requestor</th>
+            <th style="width:5%">Runs</th>
+            <th style="width:5%">Finished</th>
+            <th style="width:5%">Waiting</th>
+            <th style="width:5%">Ongoing</th>
+            <th style="width:5%">Error %</th>
         </tr>
     </thead>
     <tbody>
         {% for tr in testruns %}
         <tr class="{% cycle 'odd' 'even' %}">
-            <td>{{ tr.device_group }}<td>
+            <td><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=tr.device_group %}">{{ tr.device_group }}</a></td>
             <td>{{ tr.top_requestor }}</td>
             <td>{{ tr.runs }}</td>
             <td>{{ tr.finished }}</td>

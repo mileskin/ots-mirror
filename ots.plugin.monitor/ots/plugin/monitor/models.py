@@ -36,11 +36,11 @@ class Testrun(models.Model):
     Model for testrun data
     """
     STATE_CHOICES = (
-        (u'1', u'in_queue'),
-        (u'2', u'in_execution'),
-        (u'3', u'pass'),
-        (u'4', u'fail'),
-        (u'5', u'error'),
+        (u'0', u'in_queue'),
+        (u'1', u'in_execution'),
+        (u'2', u'pass'),
+        (u'3', u'fail'),
+        (u'4', u'error'),
     )
 
     testrun_id = models.CharField(db_index=True, max_length=32)

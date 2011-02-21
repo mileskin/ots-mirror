@@ -111,8 +111,10 @@ def main():
                           MonitorType.TEST_EXECUTION,
                           ]
             workers = ""
-            for x in xrange(random.randint(1,10)):
+            for x in xrange(random.randint(1,3)):
                 workers += "ots_worker_" + str(x) + ","
+            
+            workers = workers[0:(len(workers)-1)]
                 
             fields["host_worker_instances"] = workers
             fields["error"] = ""

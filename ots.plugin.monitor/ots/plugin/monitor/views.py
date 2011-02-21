@@ -107,8 +107,6 @@ def main_page(request):
     }
     
     context_dict.update(_handle_date_filter(request))
-    
-    context_dict['queues']  = ""
 
     testruns = []
 
@@ -117,14 +115,16 @@ def main_page(request):
 
     for device_group in device_groups:
         tr_view = TestrunView()
-        dg_data = Testrun.objects.filter(device_group=device_group)
+        dg_data = Testrun.objects.filter(device_group=device_group,
+                                      start_time__gte = context_dict["datefilter_start"],
+                                      start_time__lte = context_dict["datefilter_end"])
 
         tr_view.device_group = device_group
-        tr_view.top_requestor = _top_requestor(dg_data)
+        tr_view.top_requestor = "%s (%d)" % (_top_requestor(dg_data))
         tr_view.runs = dg_data.count()
-        tr_view.finished = dg_data.filter(state__in=['3', '4', '5']).count()
-        tr_view.waiting = dg_data.filter(state='1').count()
-        tr_view.ongoing = dg_data.filter(state='2').count()
+        tr_view.finished = dg_data.filter(state__in=['2', '3', '4']).count()
+        tr_view.waiting = dg_data.filter(state='0').count()
+        tr_view.ongoing = dg_data.filter(state='1').count()
         tr_view.error_ratio = _calculate_error_ratio(dg_data)
         testruns.append(tr_view)
     
@@ -135,13 +135,20 @@ def main_page(request):
 def _top_requestor(device_group_data):
     req_list = device_group_data.values("requestor"). \
         annotate(Count('requestor')).order_by("-requestor__count")
-    return req_list[0].get('requestor')
+    
+    if len(req_list) > 0:
+        return req_list[0].get('requestor'), req_list[0].get('requestor__count')
+    
+    return None,0
 
 
 def _calculate_error_ratio(device_group_data):
-    errors = float(device_group_data.filter(state__in=['5']).count())
-    others = float(device_group_data.filter(state__in=['3', '4']).count())
-    error_ratio = errors / others * 100
+    errors = float(device_group_data.filter(state__in=['4']).count())
+    others = float(device_group_data.filter(state__in=['2', '3']).count())
+    if others != 0.0:
+        error_ratio = errors / others * 100
+    else:
+        error_ratio = 0.0
     return "%.1f" % error_ratio
 
 def view_queue_details(request,queue_name=None):
@@ -276,28 +283,25 @@ def view_group_details(request, devicegroup=None):
     'MEDIA_URL' : settings.MEDIA_URL,
     }
     
-    testruns = Testrun.objects.select_related().filter(device_group=devicegroup)
+    context_dict.update(_handle_date_filter(request))
+    
+    testruns = Testrun.objects.filter(device_group=devicegroup,
+                                      start_time__gte = context_dict["datefilter_start"],
+                                      start_time__lte = context_dict["datefilter_end"])
 
     runs_on_group = testruns.count()
-    runs_finished = testruns.filter(verdict__in=[0,1,2]).count()
+    runs_finished = testruns.filter(state__in=[2,3,4]).count()
     
-    context_dict['testruns'] = testruns.order_by('-event__event_receive')
+    context_dict['testruns'] = testruns.order_by('state', 'start_time')
     context_dict['devicegroup'] = devicegroup
     context_dict['runcount'] = runs_on_group
     
     context_dict['finishedcount'] = runs_finished
 
-    requestors = testruns.values_list('requestor',flat=True).distinct()
-    reqs = 0
-    toprtor = ''
-    for requestor in requestors:
-         reqsbyrtor = testruns.filter(requestor=requestor).count()
-         if reqsbyrtor > reqs:
-             reqs = reqsbyrtor
-             toprtor = requestor
-    
+    toprtor, toprcount = _top_requestor(testruns)
+        
     context_dict['top_requestor'] = toprtor
-    context_dict['top_requests'] = reqs
+    context_dict['top_requests'] = toprcount
     
     queue_times = []
     exec_times = []
@@ -306,28 +310,25 @@ def view_group_details(request, devicegroup=None):
     for testrun in testruns:
         clients.extend(testrun.host_worker_instances.split(','))
         run_stats = stats(Event.objects.filter(testrun_id = testrun.id))
-        if "Queue time" in run_stats:
-            queue_times.append(run_stats['Queue time'])
-        if "Flash time" in run_stats:
-            flash_times.append(run_stats['Flash time'])
-        if "Execution time" in run_stats:
-            exec_times.append(run_stats['Execution time'])
+        
+        for stat in run_stats:
+            if stat.name == "Queue time":
+                queue_times.append(stat.delta.seconds)
+            if stat.name == "Flash time":
+                flash_times.append(stat.delta.seconds)
+            if stat.name == "Execution time":
+                exec_times.append(stat.delta.seconds)
     
-    #print clients
-    #sclient = set(clients)
-    #print sclient
-    #clients = list(sclient)
     clients = list(set(clients))
-    #print clients
     context_dict['num_of_clients'] = len(clients)
-    context_dict['avg_flash'] = sum(flash_times,0.0)/len(flash_times)
-    context_dict['avg_queue'] = sum(queue_times,0.0)/len(queue_times)
-    context_dict['avg_execution'] = sum(exec_times,0.0)/len(exec_times)
+    context_dict['avg_flash'] = round(sum(flash_times,0.0)/len(flash_times)/60.0,1)
+    context_dict['avg_queue'] = round(sum(queue_times,0.0)/len(queue_times)/60.0,1)
+    context_dict['avg_execution'] = round(sum(exec_times,0.0)/len(exec_times)/60.0,1)
     
-    passed_runs = testruns.filter(verdict=0).count()
-    failed_runs = testruns.filter(verdict=1).count()
-    ongoing_runs= testruns.filter(verdict=-1).count()
-    error_runs = testruns.filter(verdict=2).count()
+    passed_runs = testruns.filter(state=0).count()
+    failed_runs = testruns.filter(state=1).count()
+    ongoing_runs= testruns.filter(state=-1).count()
+    error_runs = testruns.filter(state=2).count()
     
     context_dict['passed_runs'] = passed_runs
     context_dict['failed_runs'] = failed_runs
