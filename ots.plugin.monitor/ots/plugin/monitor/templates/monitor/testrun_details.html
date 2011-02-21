@@ -54,7 +54,7 @@
     </tr>
     <tr>
         <td class="title">Requestor:</td>
-        <td>{{ testrun.requestor }}</td>
+        <td><a href="{% url ots.plugin.monitor.views.view_requestor_details requestor=testrun.requestor %}">{{ testrun.requestor }}</a></td>
     </tr>
     <tr>
         <td class="title">Request id:</td>

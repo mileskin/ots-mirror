@@ -33,6 +33,7 @@ from ots.plugin.monitor.views import main_page
 from ots.plugin.monitor.views import view_group_details
 from ots.plugin.monitor.views import view_testrun_list
 from ots.plugin.monitor.views import view_testrun_details
+from ots.plugin.monitor.views import view_requestor_details
 
 
 urlpatterns = patterns('',
@@ -41,6 +42,6 @@ urlpatterns = patterns('',
     (r'^view/testruns/$', view_testrun_list),
     (r'^view/testruns/(?P<device_group>\w+)/$', view_testrun_list),
     (r'^view/testrun/(?P<testrun_id>\w+)/$', view_testrun_details),
-#    (r'^view/testrun/(?P<testrun_id>[^/]+)/$',view_testrun_details),
+    (r'^view/testruns/(?P<requestor>[^/]+)/$',view_requestor_details),
     #(r'^view/queue/$',view_queue_details),
 )
