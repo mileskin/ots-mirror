@@ -23,9 +23,67 @@
 -->
 
 {% extends "monitor/monitor_base.html" %}
-{% block pagetitle %}Details of {{ testrun.testrun_id }} testrun{% endblock pagetitle %}
+{% block pagetitle %}Details of {{ devicegroup }}{% endblock pagetitle %}
 {% block content %}
 {% load monitor_template_tags %}
+<table id="testrun_info" >
+	<thead>
+		<tr>
+			<th style="width:10%">Title</th>
+			<th style="width:19%">Data</th>
+		</tr>
+	</thead>
+	{% if devicegroup %}
+	<tr>
+		<td>Device group:</td>
+		<td>{{ devicegroup }}</td>
+	</tr>
+	{% endif %}
+	<tr>
+		<td>Total testruns:</td>
+		<td>{{ runcount }}</td>
+	</tr>
+	<tr>
+		<td>Finished testruns:</td>
+		<td>{{ finishedcount }}</td>
+	</tr>
+	<tr>
+		<td>Ongoing:</td>
+		<td>{{ ongoing_runs }}</td>
+	</tr>
+	<tr>
+		<td>Errors:</td>
+		<td>{{ error_runs }} ({{ error_rate }}%)</td>
+	</tr>
+	<tr> 
+		<td>Passed:</td>
+		<td>{{ passed_runs }} ({{ pass_rate }}%)</td>
+	</tr>
+	<tr>
+		<td>Failed:</td>
+		<td>{{ failed_runs }} ({{ fail_rate }}%)</td>
+	</tr>
+	<tr>
+		<td>Top requestor:</td>
+		<td>{{ top_requestor }} ({{ top_requests }})</td>
+	</tr>
+	<tr>
+		<td>Average queue time:</td>
+		<td>{{ avg_queue }}</td>
+	</tr>
+	<tr>
+		<td>Average flash time:</td>
+		<td>{{ avg_flash }}</td>
+	</tr>
+	<tr>
+		<td>Average execution time:</td>
+		<td>{{ avg_execution }}</td>
+	</tr>
+	<tr>
+		<td>Number of clients:</td>
+		<td>{{ num_of_clients }}</td>
+	</tr>
+</table>
 <table id="testrun_info" >
 	<thead>
 		<tr>
