@@ -23,9 +23,9 @@
 -->
 
 {% extends "monitor/monitor_base.html" %}
-{% block pagetitle %}Testruns requestsd by {{ requestor }}{% endblock pagetitle %}
-{% block content %}
 {% load monitor_template_tags %}
+{% block pagetitle %}Testruns requestsd by {{ requestor|strip_email }}{% endblock pagetitle %}
+{% block content %}
 
 Total: {{total_count}} <br/>
 In queue: {{onqueue_count}} <br/>

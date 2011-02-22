@@ -76,3 +76,9 @@ def format_datetime(currenttime):
     strout = currenttime.strftime("%Y-%m-%d %H:%M:%S")
     return strout
 
+@register.filter
+def strip_email(email):
+    """
+    Strips the end of email address
+    """
+    return email.split('@')[0]
