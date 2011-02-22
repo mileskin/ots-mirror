@@ -98,7 +98,7 @@
 		</tr>
 	</thead>
 	<tbody>
-	    {% for testrun in testruns %}
+	    {% for testrun in testruns.object_list %}
     	<tr class="{% cycle 'odd' 'even' %}">
            <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_details testrun_id=testrun.testrun_id %}">{{ testrun.testrun_id }}</a></td>
 		   <td>{{ testrun.start_time|format_datetime }}</td>
@@ -110,4 +110,23 @@
 		{% endfor %}
 	</tbody>
 </table>
+<div class="pagination">
+	<span class="step-links">
+		{% if testruns.has_previous %}
+			<a href="?page={{ testruns.previous_page_number }}">previous</a>
+		{% endif %}
+		{% for page_num in testruns.paginator.page_range %}
+			{% if page_num == testruns.number %}
+				<span class="current">
+					{{ testruns.number }}
+				</span>
+			{% else %}
+				<a href="?page= {{ page_num }}">{{ page_num }}</a>
+			{% endif %}
+		{% endfor %}
+		{% if testruns.has_next %}
+			<a href="?page={{ testruns.next_page_number }}">next</a>
+		{% endif %}
+	</span>
+</div>
 {% endblock content %}

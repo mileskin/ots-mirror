@@ -54,6 +54,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
 from django.db.models import Count
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from ots.plugin.monitor.models import Testrun
 from ots.plugin.monitor.models import Event
@@ -61,6 +62,31 @@ from ots.common.dto.api import MonitorType
 
 
 ROW_AMOUNT_IN_PAGE = 50
+
+
+def _paginate(request,list_items):
+    """paginates list of items
+
+        @type request: L{HttpRequest}
+        @param request: HttpRequest of the view
+
+        @type list_items: C{list} or C{QuerySet}
+        @param list_items: list of items to be paginated
+
+        @rtype: L{list} or L{QuerySet}
+        @return: Returns items on page
+    
+    """
+    paginator = Paginator(list_items,ROW_AMOUNT_IN_PAGE)
+    try: 
+        page = int(request.GET.get('page','1'))
+    except ValueError:
+        page = 1
+    try:
+        list = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        list = paginator.page(paginator.num_pages)
+    return list
 
 def _handle_date_filter(request):
     date_dict = dict()
@@ -227,7 +253,7 @@ def view_testrun_list(request, device_group = None):
     onqueue_count = testruns.filter(state = 0).count()
     execution_count = testruns.filter(state = 1).count()
     
-    context_dict['testruns'] = testruns
+    context_dict['testruns'] = _paginate(request,testruns)
     context_dict['total_count'] = total_count
     context_dict['onqueue_count'] = onqueue_count
     context_dict['execution_count'] = execution_count
@@ -266,6 +292,7 @@ def view_testrun_details(request, testrun_id):
     template = loader.get_template('monitor/testrun_list.html')
     return HttpResponse(template.render(Context(context_dict)))
 
+
 def view_group_details(request, devicegroup):
     """ Shows testruns and details of device group view
 
@@ -289,10 +316,11 @@ def view_group_details(request, devicegroup):
     testruns = Testrun.objects.filter(device_group=devicegroup,
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
-
+    
+    
     runs_finished = testruns.filter(state__in=[2,3,4]).count()
     
-    context_dict['testruns'] = testruns.order_by('state', 'start_time')
+    context_dict['testruns'] = _paginate(request,testruns.order_by('state', 'start_time'))
     context_dict['devicegroup'] = devicegroup
     context_dict['runcount'] = testruns.count()
     context_dict['finishedcount'] = runs_finished
@@ -371,7 +399,7 @@ def view_requestor_details(request, requestor):
                                       start_time__lte = context_dict["datefilter_end"])
 
     context_dict['requestor'] = requestor
-    context_dict['testruns'] = testruns
+    context_dict['testruns'] = _paginate(request,testruns)
     context_dict['total_count'] = testruns.count()
     context_dict['onqueue_count'] = testruns.filter(state = 0).count()
     context_dict['execution_count'] = testruns.filter(state = 1).count()
