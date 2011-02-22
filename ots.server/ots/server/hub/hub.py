@@ -368,7 +368,6 @@ class Hub(object):
             publishers.set_expected_packages(testrun.expected_packages)
             publishers.set_tested_packages(testrun.tested_packages)
             publishers.set_results(testrun.results)
-            publishers.set_monitors(testrun.monitors)
 
         except Exception, err:
             type, value, traceback = sys.exc_info()
