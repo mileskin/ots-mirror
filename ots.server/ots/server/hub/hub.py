@@ -162,6 +162,7 @@ class Hub(object):
                             request_id,
                             notify_list,
                             incoming_options))
+            # Send first monitor event
             send_monitor_event(MonitorType.TESTRUN_REQUESTED,__name__)
         except ValueError:
             pass

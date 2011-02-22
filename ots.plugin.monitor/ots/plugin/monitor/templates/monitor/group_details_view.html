@@ -41,21 +41,25 @@
 		<td class="title">Finished testruns:</td>
 		<td>{{ finishedcount }}</td>
 	</tr>
+    <tr>
+        <td class="title">In queue:</td>
+        <td class="state_0">{{ inqueue_runs }}</td>
+    </tr>
 	<tr>
 		<td class="title">Ongoing:</td>
-		<td>{{ ongoing_runs }}</td>
+		<td class="state_1">{{ ongoing_runs }}</td>
 	</tr>
 	<tr> 
 		<td class="title">Passed:</td>
-		<td><span class="passed">{{ passed_runs }} ({{ pass_rate }} %)</span></td>
+		<td class="state_2"><span class="passed">{{ passed_runs }} ({{ pass_rate }} %)</span></td>
 	</tr>
 	<tr>
 		<td class="title">Failed:</td>
-		<td><span class="failed">{{ failed_runs }} ({{ fail_rate }} %)</span></td>
+		<td class="state_3"><span class="failed">{{ failed_runs }} ({{ fail_rate }} %)</span></td>
 	</tr>
     <tr>
         <td class="title">Errors:</td>
-        <td><span class="error">{{ error_runs }} ({{ error_rate }} %)</span></td>
+        <td class="state_4"><span class="error">{{ error_runs }} ({{ error_rate }} %)</span></td>
     </tr>
 	<tr>
 		<td class="title">Top requestor:</td>
