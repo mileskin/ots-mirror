@@ -30,16 +30,9 @@ import uuid
 import random
 import time
 import datetime
-from ots.common.dto.monitor import MonitorType
 
-NUM_OF_TESTRUNS = 1000
-NUM_OF_TESTPACKAGES = 10
-
-DEVICE_GROUPS = ["meego_n900", "meego_netbook", "meego_aava"]
-QUEUE = ["common_n900", "common_netbook", "common_aava"]
-REQUESTORS = ['esa-pekka.miettinen@digia.com', 'elias.luttinen@digia.com', 'ville.niutanen@digia.com']
-
-EVENT_COUNT = 0
+NUM_OF_TESTPACKAGES = 1000
+NUM_OF_TESTRUNS = 10000
 
 def _generate_events(event_list, testrun_id, timestamp):
 
@@ -69,68 +62,32 @@ def _generate_events(event_list, testrun_id, timestamp):
 def main():
     
     json_data = []
-    
-    for i in xrange(NUM_OF_TESTRUNS):
-        testrun = dict()
-        testrun["model"] = "monitor.Testrun"
-        testrun["pk"] = i
+    history_count = 1
+    for i in xrange(NUM_OF_TESTPACKAGES):
+        package = dict()
+        package["model"] = "history.Package"
+        package["pk"] = i
         
-        tr_id = str(uuid.uuid1().hex)
         fields = dict()
-        fields["testrun_id"] = tr_id
-        fields["device_group"] = DEVICE_GROUPS[random.randint(0, len(DEVICE_GROUPS)-1)]
-        fields["queue"] = QUEUE[random.randint(0, len(QUEUE)-1)]
-        fields["configuration"] = "configuration"
-        fields["requestor"] = REQUESTORS[random.randint(0, len(REQUESTORS)-1)]
-        fields["request_id"] = random.randint(1,12345)
+        fields["package_name"] = "test-package" + str(i) + "-tests"    
+        package["fields"] = fields
         
-        timestamp = time.time() - (random.randint(1, 48) * 30 * 60)
+        json_data.append(package)
         
-        fields["start_time"] = datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M")
+    for y in xrange(NUM_OF_TESTRUNS):
+        history = dict()
+        history["model"] = "history.History"
+        history["pk"] = history_count
         
-
-        state = random.randint(0,4)
-        fields["state"] = state
-        testrun["fields"] = fields
+        fields = dict()
+        fields["package_id"] = random.randint(1, NUM_OF_TESTPACKAGES)
+        fields["duration"] = random.randint(5, 60) * 60
+        fields["testrun_id"] = uuid.uuid4().hex
+        fields["verdict"] = random.randint(0,4)    
+        history["fields"] = fields
+        history_count += 1
         
-        event_list = []
-        
-        #Queue state
-        if state == 0:
-            event_list = [MonitorType.TESTRUN_REQUESTED, 
-                          MonitorType.TASK_INQUEUE]
-            fields["host_worker_instances"] = ""
-            fields["error"] = ""
-        # Execution state
-        elif state >= 1:
-            event_list = [MonitorType.TESTRUN_REQUESTED, 
-                          MonitorType.TASK_INQUEUE,
-                          MonitorType.TASK_ONGOING,
-                          MonitorType.DEVICE_FLASH,
-                          MonitorType.DEVICE_BOOT,
-                          MonitorType.TEST_EXECUTION,
-                          ]
-            workers = ""
-            for x in xrange(random.randint(1,3)):
-                workers += "ots_worker_" + str(x) + ","
-            
-            workers = workers[0:(len(workers)-1)]
-                
-            fields["host_worker_instances"] = workers
-            fields["error"] = ""
-            
-            # Pass / Fail state
-            if state >= 2:
-                event_list.append(MonitorType.TESTRUN_ENDED)
-            
-            # Error state
-            if state == 4:
-                fields["error"] = "Error code: " + str(random.randint(666,1000))       
-
-        
-        json_data.append(testrun)
-        json_data.extend(_generate_events(event_list, i, timestamp))
-    
+        json_data.append(history)
     
     json_file = open("development.json", 'w')
     json_file.write(json.dumps(json_data))

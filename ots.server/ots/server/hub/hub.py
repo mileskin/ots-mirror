@@ -138,12 +138,11 @@ class Hub(object):
         self._filehandler = None
         self._initialize_logger()
 
+        LOG.debug(self._options_factory.all_options_dict)
         self._publishers = Publishers(self.request_id, 
                                       self.testrun_uuid, 
-                                      self.sw_product, 
-                                      self.image,
-                                      **self.extended_options_dict)
-        LOG.debug(self.extended_options_dict)
+                                      self.sw_product,
+                                      **self._options_factory.all_options_dict)
         sandbox_is_on = False
         LOG.debug("Publishers initilialised... sandbox switched off...")
         LOG.info("OTS Server. version '%s'" % (__VERSION__))
@@ -279,7 +278,7 @@ class Hub(object):
                     group = "ots_distribution_model",
                     name = distribution_model).next()
 
-                custom_distribution_model = entry_point.load()(self.options)
+                custom_distribution_model = entry_point.load()(self._options_factory.all_options_dict)
                 LOG.info("Loaded custom distribution model '%s'"%
                          (entry_point.module_name))
             except StopIteration:

@@ -57,8 +57,12 @@ class Publishers(PublisherPluginBase):
     #The policy for handling exceptions of the Publisher Plugins
     SWALLOW_EXCEPTIONS = True
 
-    def __init__(self, request_id, testrun_uuid, 
-                       sw_product, image, **kwargs):
+    def __init__(self,
+                 request_id,
+                 testrun_uuid,
+                 sw_product = None,
+                 image = None,
+                 **kwargs):
 
         """
         @type request_id: C{str}

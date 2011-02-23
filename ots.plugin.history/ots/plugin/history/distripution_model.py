@@ -28,6 +28,11 @@ import string
 
 LOG = logging.getLogger(__name__)
 
+REQUEST_OPTIONS = None
+
+DEFAULT_RUNTIME = 60
+DEFAULT_GROUPS = 1000
+
 def get_test_package_history(test_packages):
     """
     Returns dictionary of test packages and their latest execution
@@ -52,7 +57,7 @@ def get_test_package_history(test_packages):
             db_package = db_package[0]
             history = History.objects.filter(package_id = db_package.id).\
                         order_by("-start_time")[:1]
-            duration = history[0].duration
+            duration = history[0].duration / 60
         
         history_list[package] = duration
     
@@ -76,14 +81,33 @@ def history_model(test_list, options):
 
     commands = []
     
+    req_options = REQUEST_OPTIONS
+    
+    max_runtime = int(req_options.get("testrun_max", DEFAULT_RUNTIME))
+    max_groups = int(req_options.get("testrun_groups", DEFAULT_GROUPS))
+    
     if not test_list:
         raise ValueError("test_list not defined for distribution model")
 
     if 'device' in test_list:
         test_packages = test_list['device'].split(",")
         test_history = get_test_package_history(test_packages)
+        LOG.debug(test_history)
+        package_groups = group_packages(test_history, max_runtime, max_groups)
         
-        package_groups = group_packages(test_history)
+        for group in package_groups:
+            options['test_packages'] = string.join(group, ",")
+            LOG.debug(group)
+            cmd = conductor_command(options, host_testing = False)
+            LOG.debug(cmd)
+            commands.append(cmd)
+
+    # TODO: how to handle these packages?!    
+    if 'host' in test_list:
+        test_packages = test_list['host'].split(",")
+        test_history = get_test_package_history(test_packages)
+        
+        package_groups = group_packages(test_history, max_runtime, max_groups)
         
         for group in package_groups:
             options['test_packages'] = string.join(group, ",")
@@ -105,4 +129,8 @@ def get_model(options):
     @return: A callable 
 
     """
+    
+    global REQUEST_OPTIONS
+    REQUEST_OPTIONS = options
+    
     return history_model
