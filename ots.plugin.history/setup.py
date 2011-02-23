@@ -20,8 +20,21 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import warnings
-warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
+from setuptools import setup, find_packages
+from get_spec_version import get_spec_version
 
-__import__('pkg_resources').declare_namespace(__name__)
-
+setup(
+      name="ots.plugin.history",
+      author="esa-pekka.miettinen@digia.com",
+      namespace_packages=["ots", "ots.plugin", "ots.plugin.history"],
+      version=get_spec_version(),
+      include_package_data=True,
+      packages=find_packages(),
+      install_requires=['ots.server', 'ots.django'],
+      entry_points={"ots.publisher_plugin":
+                    ["publisher_klass = "\
+                     "ots.plugin.history.history_plugin:HistoryPlugin"],
+                     "ots_distribution_model":
+                      ["history = ots.plugin.history.distripution_model:get_model"]
+                   },
+      )

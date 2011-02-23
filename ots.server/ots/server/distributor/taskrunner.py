@@ -200,6 +200,7 @@ class TaskRunner(object):
             self._task_transition(msg)
         else:
             #The message is data. Relay using a signal
+            # If message is monitor message, make received timestamp
             if isinstance(msg, Monitor):
                 msg.set_received()
             DTO_SIGNAL.send(sender = "TaskRunner", dto = msg)
@@ -266,7 +267,10 @@ class TaskRunner(object):
             log_msg = "Sending command '%s' with key '%s'" \
                           % (task.command, self._routing_key)
             LOGGER.debug(log_msg)
+            
+            #Send task in queue event with task id
             send_monitor_event(MonitorType.TASK_INQUEUE ,__name__, task.task_id)
+            
             cmd_msg = CommandMessage(task.command, 
                                      self._testrun_queue,
                                      task.task_id,

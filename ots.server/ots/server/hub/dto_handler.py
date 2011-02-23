@@ -120,12 +120,6 @@ class DTOHandler(object):
         elif isinstance(dto, Packages):
             self._packages(dto)
         elif isinstance(dto, Monitor):
-            LOG.debug("DTO: %s" % dto)
-            LOG.debug("\t%s" % dto.type)
-            LOG.debug("\t%s" % dto.sender)
-            LOG.debug("\t%s" % dto.description)
-            LOG.debug("\t%s" % str(dto.emitted))
-            LOG.debug("\t%s" % str(dto.received))
-            self.monitors.append(dto)
+            pass
         else:
             LOG.debug("Unknown DTO: '%s'"%(dto))

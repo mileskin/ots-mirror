@@ -20,8 +20,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import warnings
-warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
-
-__import__('pkg_resources').declare_namespace(__name__)
-
+"""
+Distribution model plug-in for history based execution.
+"""

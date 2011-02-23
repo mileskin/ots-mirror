@@ -138,12 +138,11 @@ class Hub(object):
         self._filehandler = None
         self._initialize_logger()
 
+        LOG.debug(self._options_factory.all_options_dict)
         self._publishers = Publishers(self.request_id, 
                                       self.testrun_uuid, 
-                                      self.sw_product, 
-                                      self.image,
-                                      **self.extended_options_dict)
-        LOG.debug(self.extended_options_dict)
+                                      self.sw_product,
+                                      **self._options_factory.all_options_dict)
         sandbox_is_on = False
         LOG.debug("Publishers initilialised... sandbox switched off...")
         LOG.info("OTS Server. version '%s'" % (__VERSION__))
@@ -162,6 +161,7 @@ class Hub(object):
                             request_id,
                             notify_list,
                             incoming_options))
+            # Send first monitor event
             send_monitor_event(MonitorType.TESTRUN_REQUESTED,__name__)
         except ValueError:
             pass
@@ -278,7 +278,7 @@ class Hub(object):
                     group = "ots_distribution_model",
                     name = distribution_model).next()
 
-                custom_distribution_model = entry_point.load()(self.options)
+                custom_distribution_model = entry_point.load()(self._options_factory.all_options_dict)
                 LOG.info("Loaded custom distribution model '%s'"%
                          (entry_point.module_name))
             except StopIteration:
@@ -367,7 +367,6 @@ class Hub(object):
             publishers.set_expected_packages(testrun.expected_packages)
             publishers.set_tested_packages(testrun.tested_packages)
             publishers.set_results(testrun.results)
-            publishers.set_monitors(testrun.monitors)
 
         except Exception, err:
             type, value, traceback = sys.exc_info()

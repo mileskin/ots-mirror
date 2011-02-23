@@ -89,6 +89,7 @@ DIV.main
   border-top: 7px solid #ED0089;
   padding-top: 10px;
   text-align:center;
+  font-size: 8px;
 }
 
 #testrun_list, #testrun_info
