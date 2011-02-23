@@ -106,6 +106,13 @@ class HistoryPlugin(PublisherPluginBase):
         """
         try:
             for (test_package, data) in self._test_packages.items():
+                
+                start_time = datetime.datetime.fromtimestamp(data[0])
+                duration = data[1]
+                
+                if duration is None:
+                    continue
+                
                 db_package = Package.objects.filter(package_name = test_package)
                 
                 if db_package.count() == 0:
@@ -113,9 +120,6 @@ class HistoryPlugin(PublisherPluginBase):
                     db_package.save()
                 else:
                     db_package = db_package[0]
-                
-                start_time = datetime.datetime.fromtimestamp(data[0])
-                duration = data[1]
                 
                 history = History(package_id = db_package,
                                   start_time = start_time,

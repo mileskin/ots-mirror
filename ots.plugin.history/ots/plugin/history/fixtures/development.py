@@ -34,31 +34,6 @@ import datetime
 NUM_OF_TESTPACKAGES = 1000
 NUM_OF_TESTRUNS = 10000
 
-def _generate_events(event_list, testrun_id, timestamp):
-
-    global EVENT_COUNT
-    
-    retlist = []
-    
-    for event_name in event_list:
-        event = dict()
-        event["model"] = "monitor.Event"
-        event["pk"] = EVENT_COUNT
-        fields = dict()
-        fields["testrun_id"] = testrun_id
-        fields["event_name"] = event_name
-        fields["event_emit"] = datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M")
-        fields["event_receive"] = datetime.datetime.fromtimestamp(timestamp + random.randint(1,10)).strftime("%Y-%m-%d %H:%M")
-        
-        event["fields"] = fields
-        EVENT_COUNT += 1
-        
-        timestamp += random.randint(1,60) * 60
-        
-        retlist.append(event)
-    
-    return retlist
-
 def main():
     
     json_data = []

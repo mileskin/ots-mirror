@@ -57,7 +57,7 @@ def get_test_package_history(test_packages):
             db_package = db_package[0]
             history = History.objects.filter(package_id = db_package.id).\
                         order_by("-start_time")[:1]
-            duration = history[0].duration / 60
+            duration = history[0].duration
         
         history_list[package] = duration
     
