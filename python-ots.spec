@@ -143,9 +143,9 @@ fi
 %defattr(-,root,root)
 /usr/lib/python*/site-packages/ots.django-*
 /usr/lib/python*/site-packages/ots/django/*
-/usr/share/ots/django/templates/*
+/usr/share/ots/django/*
 
-%post plugin-logger
+%post django
 DIR="/opt/ots/"
 
 if [ ! -d $DIR ]; then
