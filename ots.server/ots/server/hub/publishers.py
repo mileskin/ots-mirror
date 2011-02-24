@@ -39,6 +39,9 @@ import logging
 from ots.common.framework.api import PublisherPluginBase
 from ots.common.framework.api import plugins_iter
 from ots.common.framework.api import plugin_exception_policy
+from ots.common.dto.api import Monitor
+from ots.server.distributor.api import DTO_SIGNAL
+
 
 LOG = logging.getLogger(__name__)
 
@@ -54,8 +57,12 @@ class Publishers(PublisherPluginBase):
     #The policy for handling exceptions of the Publisher Plugins
     SWALLOW_EXCEPTIONS = True
 
-    def __init__(self, request_id, testrun_uuid, 
-                       sw_product, image, **kwargs):
+    def __init__(self,
+                 request_id,
+                 testrun_uuid,
+                 sw_product = None,
+                 image = None,
+                 **kwargs):
 
         """
         @type request_id: C{str}
@@ -88,6 +95,9 @@ class Publishers(PublisherPluginBase):
                 LOG.debug("Adding publisher: '%s'"%(publisher))
                 self._publishers.append(publisher)
         self._share_uris(testrun_uuid)
+        
+        DTO_SIGNAL.connect(self._callback)
+
     
     ##########################################
     # HELPERS
@@ -121,6 +131,26 @@ class Publishers(PublisherPluginBase):
                 if hasattr(publisher, method_name):
                     method = getattr(publisher, method_name)
                     yield method(*args, **kwargs)
+
+    def _callback(self, signal, dto, **kwargs):
+        """
+        @type signal: L{django.dispatch.dispatcher.Signal}
+        @param signal: The django signal
+
+        @type dto: L{ots.common.dto}
+        @param dto: An OTS Data Transfer Object
+
+        The callback for DTO_SIGNAL 
+        Multimethod that delegates
+        data to the handler depending on <type>
+        """
+        # Forward all monitor events to plugins
+        if isinstance(dto, Monitor):
+            # Make received timestamp if not defined
+            # earlier
+            if dto.received is None:
+                dto.set_received()
+            self.set_monitors(dto)
 
     #############################################
     # Setters
@@ -161,12 +191,12 @@ class Publishers(PublisherPluginBase):
         """
         list(self._delegator_iter("set_results", results))
         
-    def set_monitors(self, monitors):
+    def set_monitors(self, monitor):
         """
-        @type monitors : C{list} of C{ots.common.dto.monitor}
-        @param monitors : The monitors
+        @type monitors : C{ots.common.dto.monitor}
+        @param monitors : Monitor events for plugins
         """
-        list(self._delegator_iter("set_monitors", monitors))
+        list(self._delegator_iter("set_monitors", monitor))
         
     ###########################################
     # Getters

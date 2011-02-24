@@ -45,10 +45,11 @@ import os
 import sys
 from time import sleep
 import logging
+from socket import gethostname
 from itertools import cycle
 
 from ots.common.amqp.api import unpack_message, pack_message
-from ots.common.dto.api import StateChangeMessage, TaskCondition
+from ots.common.dto.api import StateChangeMessage, TaskCondition, Monitor, MonitorType
 from ots.common.routing.api import get_queues
 
 import ots.worker
@@ -294,6 +295,19 @@ class TaskBroker(object):
         LOGGER.debug("Task in state: '%s'"%(state))
         state_msg = StateChangeMessage(task_id, state)
         amqp_message = pack_message(state_msg) 
+        self.channel.basic_publish(amqp_message,
+                                   mandatory = True,
+                                   exchange = response_queue,
+                                   routing_key = response_queue)
+        
+        # Monitor event send
+        event_type = MonitorType.TASK_ONGOING
+        if state == TaskCondition.FINISH:
+            event_type = MonitorType.TASK_ENDED
+        monitor_event = Monitor(event_type,
+                                gethostname(),
+                                task_id)
+        amqp_message = pack_message(monitor_event) 
         self.channel.basic_publish(amqp_message,
                                    mandatory = True,
                                    exchange = response_queue,

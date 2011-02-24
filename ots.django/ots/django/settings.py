@@ -111,6 +111,8 @@ INSTALLED_APPS = (
 
     # OTS components:
     'ots.plugin.logger',
+    'ots.plugin.monitor',
+    'ots.plugin.history'
 )
 
 XMLRPC_METHODS = (

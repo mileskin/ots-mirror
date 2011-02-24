@@ -24,7 +24,7 @@
 The Signal for a DTO
 """
 import sys
-
+from ots.common.dto.monitor import Monitor
 ###################
 
 #Django has forked PyDispatcher
@@ -53,3 +53,26 @@ from django.dispatch.dispatcher import Signal
 
 
 DTO_SIGNAL = Signal()
+
+def send_monitor_event(monitory_type, sender = None, description = None):
+    """
+    Create monitor instance and send it
+    
+    @type event_type: C{MonitorType}
+    @param event_type: Event type
+
+    @type sender : C{str}
+    @param sender : Event sender
+
+    @type description : C{str}
+    @param description : Event description
+    """
+    
+    monitor = Monitor(event_type = monitory_type, 
+                      sender = sender, 
+                      description = description)
+    
+    DTO_SIGNAL.send(sender = sender, dto = monitor)
+    
+    
+

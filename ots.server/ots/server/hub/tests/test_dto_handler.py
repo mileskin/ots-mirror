@@ -70,12 +70,6 @@ class TestDTOHandler(unittest.TestCase):
         self.assertEquals(["pkg1", "pkg2", "pkg3", "pkg4"],
                            dto_handler.expected_packages.packages("env"))
 
-    def test_monitors(self):
-        dto_handler = DTOHandler()
-        monitor = Monitor()
-        dto_handler._callback(None, monitor) 
-        self.assertEquals(monitor, dto_handler.monitors[0])
-
     def test_callback_exception(self):
         dto_handler = DTOHandler()
         class TestException(Exception):

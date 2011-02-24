@@ -30,6 +30,7 @@ from amqplib.client_0_8 import AMQPChannelException
 
 from ots.common.amqp.api import pack_message
 
+
 class AMQPLogHandler(logging.Handler):
     """
     CustomHandler for AMQP
@@ -61,4 +62,4 @@ class AMQPLogHandler(logging.Handler):
                                            exchange = self.exchange,
                                            routing_key = self.queue)
             except AMQPChannelException:
-                print "Can't log to %s"%(self.queue)
+                print "Can't log to %s" % (self.queue)

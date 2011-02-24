@@ -1,0 +1,117 @@
+<!--
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+-->
+
+{% extends "monitor/monitor_base.html" %}
+{% block pagetitle %}Details of: {{ devicegroup }}{% endblock pagetitle %}
+{% block content %}
+{% load monitor_template_tags %}
+<table id="testrun_details" >
+	{% if devicegroup %}
+	<tr>
+		<td class="title">Device group:</td>
+		<td>{{ devicegroup }}</td>
+	</tr>
+	{% endif %}
+	<tr>
+		<td class="title">Total testruns:</td>
+		<td>{{ runcount }}</td>
+	</tr>
+	<tr>
+		<td class="title">Finished testruns:</td>
+		<td>{{ finishedcount }}</td>
+	</tr>
+    <tr>
+        <td class="title">In queue:</td>
+        <td class="state_0">{{ inqueue_runs }}</td>
+    </tr>
+	<tr>
+		<td class="title">Ongoing:</td>
+		<td class="state_1">{{ ongoing_runs }}</td>
+	</tr>
+	<tr> 
+		<td class="title">Passed:</td>
+		<td class="state_2"><span class="passed">{{ passed_runs }} ({{ pass_rate }} %)</span></td>
+	</tr>
+	<tr>
+		<td class="title">Failed:</td>
+		<td class="state_3"><span class="failed">{{ failed_runs }} ({{ fail_rate }} %)</span></td>
+	</tr>
+    <tr>
+        <td class="title">Errors:</td>
+        <td class="state_4"><span class="error">{{ error_runs }} ({{ error_rate }} %)</span></td>
+    </tr>
+	<tr>
+		<td class="title">Top requestor:</td>
+		<td>{{ top_requestor }} ({{ top_requests }})</td>
+	</tr>
+	<tr>
+		<td class="title">Average queue time:</td>
+		<td>{{ avg_queue }} [min]</td>
+	</tr>
+	<tr>
+		<td class="title">Average flash time:</td>
+		<td>{{ avg_flash }} [min]</td>
+	</tr>
+	<tr>
+		<td class="title">Average execution time:</td>
+		<td>{{ avg_execution }} [min]</td>
+	</tr>
+	<tr>
+		<td class="title">Number of clients:</td>
+		<td>{{ num_of_clients }}</td>
+	</tr>
+</table>
+<p />
+<table id="testrun_list" >
+	<thead>
+		<tr>
+            <th style="width:1%">S</th>
+            <th style="width:1%">L</th>            		      
+		    <th style="width:15%">Id</th>
+			<th style="width:15%">Start time</th>
+            <th style="width:15%">Active time</th>
+			<th style="width:20%">Requestor</th>
+			<th style="width:5%">Req Id</th>
+			<th style="width:15%">Error</th>
+            <th style="width:15%">Workers</th>
+			
+		</tr>
+	</thead>
+	<tbody>
+	    {% for testrun in testruns %}
+    	<tr class="{% cycle 'odd' 'even' %}">
+           <td class="state_{{testrun.state}}"></td>
+           <td><a href="{{ testrun.testrun_id|logger_url }}"><img class="log" src="/media/log.png" alt="Show logs" border="0" /></a></td>
+           <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_details testrun_id=testrun.testrun_id %}">{{ testrun.testrun_id }}</a></td>
+		   <td>{{ testrun.start_time|format_datetime }}</td>
+           <td>{{ testrun.start_time|calculate_delta }}</td>
+		   <td>{{ testrun.requestor }}</td>
+		   <td>{{ testrun.request_id }}</td>
+		   <td>{{ testrun.error }}</td>
+           <td>{{ testrun.host_worker_instances }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock content %}

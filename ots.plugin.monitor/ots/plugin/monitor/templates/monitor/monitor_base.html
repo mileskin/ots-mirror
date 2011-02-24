@@ -1,0 +1,78 @@
+<!--
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="robots" content="index,follow" />
+
+    <!-- custom stylesheet -->
+    <link rel="stylesheet" 
+	  type="text/css" 
+	  media="all" 
+	  href="/styles/custom.css" />
+    <title>{% block title %}OTS Monitor{% endblock title %}</title>
+  </head>
+  <body>
+    <div class="main">
+	    <div id="header">
+	    </div>
+		<div id="menu">
+		  <table id="menu_list">	
+		  <td><a href="{% url ots.plugin.monitor.views.main_page %}">Main</a></td>
+          <td><a href="{% url ots.plugin.monitor.views.view_testrun_list %}">Testruns</a></td>
+		  </table>
+		</div>
+        <div id="date_select">
+            <table id="filter_table">
+            <tr><td>
+            <form method="post" action="">
+                <input type="text" name="startdate" id="filterdate" value="{{ datefilter_start_str }}" />
+                -
+                <input type="text" name="enddate" id="filterdate" value="{{ datefilter_end_str }}" />
+                <input id="submit" name="submit_filter" type="submit" value="Filter" />
+                <input id="submit" name="submit_clear" type="submit" value="Follow 24h" />
+            </form>
+            </td>
+            </tr>
+            </table>
+        </div>
+		<div id="contentArea">
+		<div id="page_title">{% block pagetitle %} {% endblock pagetitle %}</div>
+		</p>
+		{% block content %}
+		{% endblock content %} 	
+		</div>	
+		<div id="footer">
+		    State icons by <a class="footerlink" href="http://itweek.deviantart.com/">iTweek</a><br />
+		    Log icon by <a class="footerlink" href="http://www.webappers.com/">WebAppers</a> under Creative Commons 3.0 License<br />
+			<a class="footerlink" href="http://wiki.meego.com/Quality/QA-tools" >wiki.meego.com/Quality/QA-tools</a>
+		</div>
+	</div>
+  </body>
+</html>
+

@@ -239,6 +239,18 @@ class OptionsFactory(object):
 
         return core_options_dict
 
+    @property
+    def all_options_dict(self):
+        """
+        Returns all options
+        Overrides the defaults
+        """
+        sanitised_options_dict = self._sanitise_options(self._options_dict)
+        config_file_options_dict = self.config_file_options_dict
+        
+        config_file_options_dict.update(sanitised_options_dict)
+        return config_file_options_dict
+
     @property 
     def processed_core_options_dict(self):
         """

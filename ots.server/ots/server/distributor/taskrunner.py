@@ -40,11 +40,11 @@ import errno
 from amqplib import client_0_8 as amqp
 
 from ots.common.dto.api import TaskCondition
-from ots.common.dto.api import CommandMessage, StateChangeMessage
+from ots.common.dto.api import CommandMessage, StateChangeMessage, Monitor, MonitorType
 from ots.common.amqp.api import pack_message, unpack_message
 from ots.common.amqp.api import testrun_queue_name
 
-from ots.server.distributor.dto_signal import DTO_SIGNAL
+from ots.server.distributor.dto_signal import DTO_SIGNAL, send_monitor_event
 from ots.server.distributor.task import Task
 from ots.server.distributor.queue_exists import queue_exists
 from ots.server.distributor.timeout import Timeout
@@ -200,6 +200,9 @@ class TaskRunner(object):
             self._task_transition(msg)
         else:
             #The message is data. Relay using a signal
+            # If message is monitor message, make received timestamp
+            if isinstance(msg, Monitor):
+                msg.set_received()
             DTO_SIGNAL.send(sender = "TaskRunner", dto = msg)
   
     def _task_transition(self, message):
@@ -264,6 +267,10 @@ class TaskRunner(object):
             log_msg = "Sending command '%s' with key '%s'" \
                           % (task.command, self._routing_key)
             LOGGER.debug(log_msg)
+            
+            #Send task in queue event with task id
+            send_monitor_event(MonitorType.TASK_INQUEUE ,__name__, task.task_id)
+            
             cmd_msg = CommandMessage(task.command, 
                                      self._testrun_queue,
                                      task.task_id,
@@ -345,6 +352,7 @@ class TaskRunner(object):
             self._wait_for_all_tasks()
             LOGGER.info("All Tasks completed")
         finally:
+            send_monitor_event(MonitorType.TESTRUN_ENDED ,__name__)
             LOGGER.debug("stopping...")
             self.timeout_handler.stop()
             self._close()
