@@ -387,11 +387,16 @@ def view_group_details(request, devicegroup):
                 exec_time += stat.delta.seconds
                 exec_count += 1
     
-    clients = list(set(clients))
+    if len(clients):
+        clients = list(set(clients))
+    
     context_dict['num_of_clients'] = len(clients)
-    context_dict['avg_queue'] = round(queue_time/queue_count/60.0,1)
-    context_dict['avg_flash'] = round(flash_time/flash_count/60.0,1)
-    context_dict['avg_execution'] = round(exec_time/exec_count/60.0,1)
+    if queue_count:
+        context_dict['avg_queue'] = round(queue_time/queue_count/60.0,1)
+    if flash_count:
+        context_dict['avg_flash'] = round(flash_time/flash_count/60.0,1)
+    if exec_count:
+        context_dict['avg_execution'] = round(exec_time/exec_count/60.0,1)
     
     #get run counts
     passed_runs = testrun_stats.get("passed")

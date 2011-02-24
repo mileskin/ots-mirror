@@ -54,7 +54,8 @@ def strip_email(email):
     """
     Strips the end of email address
     """
-    return email.split('@')[0]
+    if email is not None:
+        return email.split('@')[0]
 
 @register.filter
 def state_as_string(state):
