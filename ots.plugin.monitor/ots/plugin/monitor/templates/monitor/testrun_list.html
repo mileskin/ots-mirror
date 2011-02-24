@@ -39,31 +39,49 @@
 </p>
 
 <table id="testrun_list" >
-	<thead>
-		<tr>
+    <thead>
+        <tr>
             <th style="width:1%">S</th>
             <th style="width:1%">L</th>
-		    <th style="width:10%">Run ID</th>
-			<th style="width:15%">Start time</th>
+            <th style="width:10%">Run ID</th>
+            <th style="width:15%">Start time</th>
             <th style="width:15%">Active time</th>
-			<th style="width:20%">Device group</th>
+            <th style="width:20%">Device group</th>
             <th style="width:20%">Requestor</th>
             <th style="width:15%">Workers</th>
-		</tr>
-	</thead>
-	<tbody>
-	    {% for testrun in testruns %}
-        <tr class="{% cycle 'odd' 'even' %}">
-           <td class="state_{{testrun.state}}"></td>
-           <td><a href="{{ testrun.testrun_id|logger_url }}"><img class="log" src="/media/log.png" alt="Show logs" border="0" /></a></td>
-		   <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_details testrun_id=testrun.testrun_id %}">{{ testrun.testrun_id }}</a></td>
-		   <td>{{ testrun.start_time|format_datetime }}</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for testrun in testruns.object_list %}
+        <tr class="{% if testrun.state %}ongoing{% else %}queue{% endif %}">
+           <td class="{% if testrun.state %}ongoing{% else %}queue{% endif %}"></td>
+           <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_details testrun_id=testrun.testrun_id %}">{{ testrun.testrun_id }}</a></td>
+           <td>{{ testrun.start_time|format_datetime }}</td>
            <td>{{ testrun.start_time|calculate_delta }}</td>
-		   <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_list device_group=testrun.device_group %}">{{ testrun.device_group }}</a></td>
+           <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_list device_group=testrun.device_group %}">{{ testrun.device_group }}</a></td>
            <td>{{ testrun.requestor }}</td>
            <td>{{ testrun.host_worker_instances }}</td>
-		</tr>
-		{% endfor %}
-	</tbody>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
+<div class="pagination">
+    <span class="step-links">
+        {% if testruns.has_previous %}
+            <a href="?page={{ testruns.previous_page_number }}">previous</a>
+        {% endif %}
+        {% for page_num in testruns.paginator.page_range %}
+            {% if page_num == testruns.number %}
+                <span class="current">
+                    {{ testruns.number }}
+                </span>
+            {% else %}
+                <a href="?page= {{ page_num }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if testruns.has_next %}
+            <a href="?page={{ testruns.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
 {% endblock content %}

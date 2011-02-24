@@ -45,7 +45,7 @@ class PublisherPluginBase(object):
         
     def set_testrun_result(self, testrun_result):
         """
-        @type packages : C{ots.results.testrun_result
+        @type packages : C{ots.results.testrun_result}
         @param packages: The result of the Testrun
         """
         #FIXME move testrun result to common? 

@@ -36,23 +36,24 @@ class Testrun(models.Model):
     Model for testrun data
     """
     STATE_CHOICES = (
-        (u'0', u'in_queue'),
-        (u'1', u'in_execution'),
-        (u'2', u'pass'),
-        (u'3', u'fail'),
-        (u'4', u'error'),
+        (u'0', u'IN_QUEUE'),
+        (u'1', u'IN_EXECUTION'),
+        (u'2', u'PASS'),
+        (u'3', u'FAIL'),
+        (u'4', u'ERROR'),
     )
 
     testrun_id = models.CharField(db_index=True, max_length=32)
     device_group = models.CharField(max_length=255)
     queue = models.CharField(max_length=255)
-    configuration = models.CharField(max_length=255)
-    host_worker_instances = models.TextField()
+    configuration = models.TextField()
+    host_worker_instances = models.CharField(max_length=255)
     requestor = models.EmailField()
     request_id = models.CharField(max_length=255)
     error = models.CharField(max_length=255)
     start_time = models.DateTimeField(auto_now=True)
     state = models.CharField(max_length=2, choices=STATE_CHOICES)
+
     class Meta:
         """
         Meta class for model
