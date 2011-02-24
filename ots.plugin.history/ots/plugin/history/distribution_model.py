@@ -42,7 +42,7 @@ def get_test_package_history(test_packages):
     @param test_list: List of test packages
     
     @rtype: C{dict}
-    @return: Dictionary of test package names and execution times  
+    @return: Dictionary of test package names and execution times (in minute)
     
     """
     
@@ -57,7 +57,10 @@ def get_test_package_history(test_packages):
             db_package = db_package[0]
             history = History.objects.filter(package_id = db_package.id).\
                         order_by("-start_time")[:1]
-            duration = history[0].duration
+            duration = history[0].duration / 60
+            
+            if duration == 0:
+                duration = 1
         
         history_list[package] = duration
     

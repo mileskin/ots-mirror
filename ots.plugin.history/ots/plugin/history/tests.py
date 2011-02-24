@@ -42,7 +42,7 @@ def _create_test_data():
         db_pack.save()
             
         history = History(package_id = db_pack,
-                          duration = i * 60,
+                          duration = i * 60 * 60,
                           testrun_id = uuid.uuid4().hex,
                           verdict = random.randint(0,4))
         history.save()
