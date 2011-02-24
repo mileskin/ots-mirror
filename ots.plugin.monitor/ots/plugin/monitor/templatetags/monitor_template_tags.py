@@ -28,27 +28,9 @@
 Template tags for monitor
 """
 
-import time, logging, datetime
+import time, datetime
 from django import template
 register = template.Library()
-
-@register.filter
-def convert_epoch_to_string(value):
-    """
-    Converts epoch value to string
-    """
-    return time.ctime(float(value))
-
-@register.filter
-def result_judge(levelname, levelnumber):
-    """
-    If loglevel is error or bigger, mark it with red tag
-    """
-    if int(levelnumber) >= logging.ERROR:
-        strOut = '<div class="red"><b>%s</b></div>' % levelname
-    else:
-        strOut = levelname
-    return strOut
 
 @register.filter
 def calculate_delta(starttime):
@@ -56,15 +38,6 @@ def calculate_delta(starttime):
     Calculates delta time
     """
     currenttime = datetime.datetime.now()
-    strout = (currenttime - starttime)
-    return strout
-
-@register.filter
-def calculate_delta_sec(starttime):
-    """
-    Calculate delta time between seconds
-    """
-    currenttime = time.time()
     strout = (currenttime - starttime)
     return strout
 
@@ -82,3 +55,28 @@ def strip_email(email):
     Strips the end of email address
     """
     return email.split('@')[0]
+
+@register.filter
+def state_as_string(state):
+    retStr = "In queue"
+    if state == 1:
+        retStr = "Ongoing"
+    elif state == 2:
+        retStr = "Passed"
+    elif state == 3:
+        retStr = "Failed"
+    elif state == 4:
+        retStr = "Error"
+    return retStr
+
+@register.filter
+def logger_url(runid):
+    
+    url = "http://logger_plugin_not_installed/%s" % (runid)
+    try:
+        from ots.django.logger.views import basic_testrun_viewer
+        from django.core.urlresolvers import reverse
+        url = reverse(basic_testrun_viewer,args=[runid])
+    finally:
+        return url
+

@@ -62,8 +62,20 @@
     </tr>
     <tr>
         <td class="title">State:</td>
-        <td>{{ testrun.state }}</td>
+        <td class="state_{{testrun.state}}">{{ testrun.state|state_as_string }}</td>
     </tr>
+    <tr>
+        <td class="title">Log:</td>
+        <td><a href="{{ testrun.testrun_id|logger_url }}"><img class="log" src="/media/log.png" alt="Show logs" border="0" /></a></td>
+    </tr>
+    {% if testrun.error != "" %}
+    <tr>
+        <td colspan="2" class="title">Error:</td>
+    </tr>
+    <tr>
+        <td colspan="2">{{testrun.error}}</td>
+    </tr>
+    {% endif %}
 </table>
 
 <p />
@@ -97,7 +109,7 @@
 	</thead>
 	<tbody>
 	    {% for event in events %}
-    	<tr>
+    	<tr class="{% cycle 'odd' 'even' %}">
 		   <td>{{ event.event_name }}</td>
 		   <td>{{ event.event_emit }}</td>
 		   <td>{{ event.event_receive }}</td>

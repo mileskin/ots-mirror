@@ -27,30 +27,41 @@
 {% block content %}
 {% load monitor_template_tags %}
 
-Total: {{total_count}} <br/>
-In queue: {{onqueue_count}} <br/>
-Execution: {{execution_count}} <br/>
+<table id="testrun_details">
+<tr><td class="title">Total:</td><td>{{total_count}}</td>
+<tr><td class="title">In queue:</td><td class="state_0">{{inqueue_count}}</td>
+<tr><td class="title">Ongoing:</td><td class="state_1">{{ongoing_count}}</td>
+<tr><td class="title">Passed:</td><td class="state_2">{{passed_count}}</td>
+<tr><td class="title">Failed:</td><td class="state_3">{{failed_count}}</td>
+<tr><td class="title">Error:</td><td class="state_4">{{error_count}}</td>
+</table>
+
+</p>
 
 <table id="testrun_list" >
 	<thead>
 		<tr>
-		    <th style="width:1%"></th>
+            <th style="width:1%">S</th>
+            <th style="width:1%">L</th>
 		    <th style="width:10%">Run ID</th>
 			<th style="width:15%">Start time</th>
             <th style="width:15%">Active time</th>
-			<th style="width:10%">Device group</th>
-			<th style="width:10%">Workers</th>
+			<th style="width:20%">Device group</th>
+            <th style="width:20%">Requestor</th>
+            <th style="width:15%">Workers</th>
 		</tr>
 	</thead>
 	<tbody>
 	    {% for testrun in testruns.object_list %}
-    	<tr class="{% if testrun.state %}ongoing{% else %}queue{% endif %}">
-    	   <td class="{% if testrun.state %}ongoing{% else %}queue{% endif %}"></td>
+        <tr class="{% cycle 'odd' 'even' %}">
+           <td class="state_{{testrun.state}}"></td>
+           <td><a href="{{ testrun.testrun_id|logger_url }}"><img class="log" src="/media/log.png" alt="Show logs" border="0" /></a></td>
 		   <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_details testrun_id=testrun.testrun_id %}">{{ testrun.testrun_id }}</a></td>
 		   <td>{{ testrun.start_time|format_datetime }}</td>
            <td>{{ testrun.start_time|calculate_delta }}</td>
 		   <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_list device_group=testrun.device_group %}">{{ testrun.device_group }}</a></td>
-		   <td>{{ testrun.host_worker_instances }}</td>
+           <td><a href="{% url ots.plugin.monitor.views.view_requestor_details requestor=testrun.requestor %}">{{ testrun.requestor|strip_email }}</a></td>
+           <td>{{ testrun.host_worker_instances }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>

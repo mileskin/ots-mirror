@@ -140,7 +140,10 @@ class Publishers(PublisherPluginBase):
         Multimethod that delegates
         data to the handler depending on <type>
         """
+        # Forward all monitor events to plugins
         if isinstance(dto, Monitor):
+            # Make received timestamp if not defined
+            # earlier
             if dto.received is None:
                 dto.set_received()
             self.set_monitors(dto)

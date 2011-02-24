@@ -22,7 +22,7 @@
 # ***** END LICENCE BLOCK *****
 -->
 {% extends "monitor/monitor_base.html" %}
-{% block pagetitle %}{% endblock pagetitle %}
+{% block pagetitle %}Device group information{% endblock pagetitle %}
 {% block content %}
 {% load monitor_template_tags %}
 
@@ -44,10 +44,10 @@
             <td><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=tr.device_group %}">{{ tr.device_group }}</a></td>
             <td><a href="{% url ots.plugin.monitor.views.view_requestor_details requestor=tr.top_requestor %}">{{ tr.top_requestor|strip_email }}</a> ({{ tr.top_request_count }})</td>
             <td>{{ tr.runs }}</td>
-            <td>{{ tr.finished }}</td>
-            <td>{{ tr.waiting }}</td>
-            <td>{{ tr.ongoing }}</td>
-            <td>{{ tr.error_ratio }}</td>
+            <td><span class="debug">{{ tr.finished }}</span></td>
+            <td><span class="failed">{{ tr.waiting }}</span></td>
+            <td><span class="info">{{ tr.ongoing }}</span></td>
+            <td><span class="error">{{ tr.error_ratio }}</span></td>
         </tr>
         {% endfor %}
     </tbody>

@@ -1,9 +1,9 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -24,6 +24,10 @@
 import time
 
 class MonitorType(object):
+    """
+    Class which defines all static Monitor types
+    """
+    
     UNKNOWN = "Unknown"
     # Emitted in Hub after plug-ins are loaded
     TESTRUN_REQUESTED = "Testrun requested"
@@ -31,10 +35,13 @@ class MonitorType(object):
     # Description: task.id
     TASK_INQUEUE = "Task in queue"
     # OTS worker sends this event when processes a task
-    # Description: task.id 
+    # Description: task.id
+    # Sender: OTS worker host name
+         
     TASK_ONGOING = "Task is ongoing"
     # OTS worker sends this when the task is done
     # Description: task.id    
+    # Sender: OTS worker host name
     TASK_ENDED = "Task is ended"
     # Emitted in taskrunner when tasks are added to queue
     TESTRUN_ENDED = "Testrun ended"
