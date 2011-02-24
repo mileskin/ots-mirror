@@ -87,13 +87,13 @@ def strip_email(email):
 @register.filter
 def state_as_string(state):
     retStr = "In queue"
-    if state == 1:
+    if state == "1":
         retStr = "Ongoing"
-    elif state == 2:
+    elif state == "2":
         retStr = "Passed"
-    elif state == 3:
+    elif state == "3":
         retStr = "Failed"
-    elif state == 4:
+    elif state == "4":
         retStr = "Error"
     return retStr
 
@@ -102,7 +102,7 @@ def logger_url(runid):
     
     url = "http://logger_plugin_not_installed/%s" % (runid)
     try:
-        from ots.django.logger.views import basic_testrun_viewer
+        from ots.plugin.logger.views import basic_testrun_viewer
         from django.core.urlresolvers import reverse
         url = reverse(basic_testrun_viewer,args=[runid])
     finally:

@@ -99,7 +99,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for testrun in testruns %}
+        {% for testrun in testruns.object_list %}
         <tr class="{% cycle 'odd' 'even' %}">
            <td class="state_{{testrun.state}}"></td>
            <td><a href="{{ testrun.testrun_id|logger_url }}"><img class="log" src="/media/log.png" alt="Show logs" border="0" /></a></td>

@@ -32,6 +32,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
 from django.db.models import Count
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from ots.plugin.monitor.models import Testrun
 from ots.plugin.monitor.models import Event
@@ -60,6 +61,30 @@ class Stats(object):
     def __init__(self, name, delta):
         self.name = name
         self.delta = delta
+
+def _paginate(request,list_items):
+    """paginates list of items
+
+        @type request: L{HttpRequest}
+        @param request: HttpRequest of the view
+
+        @type list_items: C{list} or C{QuerySet}
+        @param list_items: list of items to be paginated
+
+        @rtype: L{list} or L{QuerySet}
+        @return: Returns items on page
+    
+    """
+    paginator = Paginator(list_items,ROW_AMOUNT_IN_PAGE)
+    try: 
+        page = int(request.GET.get('page','1'))
+    except ValueError:
+        page = 1
+    try:
+        list = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        list = paginator.page(paginator.num_pages)
+    return list
 
 def _handle_date_filter(request):
     """
@@ -241,7 +266,7 @@ def main_page(request):
     testruns = []
     start = time.time()
     device_groups = Testrun.objects.values_list('device_group',
-                                                flat=True).distinct()
+                                                flat=True).exclude(device_group = "").distinct()
 
     for device_group in device_groups:
         tr_view = TestrunView()
@@ -360,20 +385,21 @@ def view_group_details(request, devicegroup):
     testrun_stats = _calculate_testrun_stats(testruns)
     runs_finished = testrun_stats.get("finished")
     
-
     context_dict['testruns'] = _paginate(request,testruns.order_by('state', 'start_time'))
     context_dict['devicegroup'] = devicegroup
     context_dict['runcount'] = testrun_stats.get("runs")
     context_dict['finishedcount'] = runs_finished
 
-    toprtor, toprcount = _top_requestor(testruns)
+    #fetch top requestor for testruns
+    context_dict['top_requestor'], context_dict['top_requests'] = _top_requestor(testruns)
         
-    context_dict['top_requestor'] = toprtor
-    context_dict['top_requests'] = toprcount
-    
-    queue_times = []
-    exec_times = []
-    flash_times = []
+    #calculate average times
+    queue_time = 0
+    queue_count = 0
+    flash_time = 0
+    flash_count = 0
+    exec_time = 0
+    exec_count = 0
     clients = []
     for testrun in testruns:
         clients.extend(testrun.host_worker_instances.split(','))
@@ -381,17 +407,19 @@ def view_group_details(request, devicegroup):
         
         for stat in run_stats:
             if stat.name == "Queue time":
-                queue_times.append(stat.delta.seconds)
+                queue_time += stat.delta.seconds
+                queue_count += 1 
             if stat.name == "Flash time":
-                flash_times.append(stat.delta.seconds)
+                flash_time += stat.delta.seconds
+                flash_count += 1
             if stat.name == "Execution time":
-                exec_times.append(stat.delta.seconds)
+                exec_time += stat.delta.seconds
+                exec_count += 1
     
     if len(clients):
         clients = list(set(clients))
     
     context_dict['num_of_clients'] = len(clients)
-
     if queue_count:
         context_dict['avg_queue'] = round(queue_time/queue_count/60.0,1)
     if flash_count:
@@ -407,15 +435,13 @@ def view_group_details(request, devicegroup):
     
     context_dict['passed_runs'] = passed_runs
     context_dict['failed_runs'] = failed_runs
-    context_dict['ongoing_runs'] = ongoing_runs
     context_dict['error_runs'] = error_runs
-
     context_dict['ongoing_runs'] = testrun_stats.get("ongoing")
     context_dict['inqueue_runs'] = inqueue_runs
     context_dict['error_rate'] = "%.1f" % testrun_stats.get("error_ration")
     context_dict['pass_rate'] = "%.1f" % testrun_stats.get("passed_ration")
     context_dict['fail_rate'] = "%.1f" % testrun_stats.get("failed_ration")
-    
+        
     t = time.time()-start
     print "view_group_details",t
     template = loader.get_template('monitor/group_details_view.html')
@@ -433,9 +459,7 @@ def view_requestor_details(request, requestor):
         @rtype: L{HttpResponse}
         @return: Returns HttpResponse containing the view.
     """
-    context_dict = {
-    'MEDIA_URL' : settings.MEDIA_URL,
-    }
+    context_dict = dict()
     
     context_dict.update(_handle_date_filter(request))
     start = time.time()
@@ -444,11 +468,18 @@ def view_requestor_details(request, requestor):
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
 
+    testruns = testruns.order_by("state")
+    testrun_stats = _calculate_testrun_stats(testruns)
+    
     context_dict['requestor'] = requestor
-    context_dict['testruns'] = _paginate(request,testruns)
-    context_dict['total_count'] = testruns.count()
-    context_dict['onqueue_count'] = testruns.filter(state = 0).count()
-    context_dict['execution_count'] = testruns.filter(state = 1).count()
+    context_dict['testruns'] = _paginate(request, testruns)
+    context_dict['total_count'] = testrun_stats.get("runs")
+    
+    context_dict['inqueue_count'] = "%d (%.1f %%)" % (testrun_stats.get("inqueue"), testrun_stats.get("inqueue_ration"))
+    context_dict['ongoing_count'] = "%d (%.1f %%)" % (testrun_stats.get("ongoing"), testrun_stats.get("ongoing_ration"))
+    context_dict['passed_count'] = "%d (%.1f %%)" % (testrun_stats.get("passed"), testrun_stats.get("passed_ration"))
+    context_dict['failed_count'] = "%d (%.1f %%)" % (testrun_stats.get("failed"), testrun_stats.get("failed_ration"))
+    context_dict['error_count'] = "%d (%.1f %%)" % (testrun_stats.get("error"), testrun_stats.get("error_ration"))
     
     t = time.time()-start
     print "view_requestor_details",t

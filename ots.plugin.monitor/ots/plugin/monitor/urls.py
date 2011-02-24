@@ -33,6 +33,7 @@ from ots.plugin.monitor.views import main_page
 from ots.plugin.monitor.views import view_group_details
 from ots.plugin.monitor.views import view_testrun_list
 from ots.plugin.monitor.views import view_testrun_details
+from ots.plugin.monitor.views import view_requestor_details
 
 
 urlpatterns = patterns('',

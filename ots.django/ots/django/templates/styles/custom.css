@@ -1,9 +1,9 @@
 body
 {
   background-color:#ffffff;
-	margin:50px 0px; 
-	padding:0px;
-	text-align:center;
+  margin:50px 0px; 
+  padding:0px;
+  text-align:center;
 }
 
 a
@@ -38,21 +38,19 @@ a.date:hover
 
 DIV.main
 {
-	margin:0px auto;
+  margin:0px auto;
   width:80%;
   text-align:left;
-
 }
 
 #menu
 {
-	border-bottom: 1px solid #cacaca;
+  border-bottom: 1px solid #cacaca;
 }
 
 #menu_list
 {
   height:50px;
-  margin:auto;
   border-collapse:collapse;
 }
 
@@ -62,18 +60,12 @@ DIV.main
   padding-right:15px;
 }
 
-DIV.red
-{
-  color:red;
-}
-
 #header
 {
   border-bottom: 7px solid #ED0089;
-	height: 66px;
-	background-image: url(/media/logo.png); 
-	background-repeat: no-repeat;
-
+  height: 66px;
+  background-image: url(/media/logo.png); 
+  background-repeat: no-repeat;
 }
 
 #contentArea
@@ -82,11 +74,22 @@ DIV.red
   padding-top:5px;
 }
 
+#page_title
+{
+  font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+  font-weight:bold;
+  font-size:18pt;
+  border-bottom: 3px solid #ED0089;
+  padding-bottom:5px;
+  width:50%;
+}
+
 #footer
 {
   border-top: 7px solid #ED0089;
-	padding-top: 10px;
-	text-align:center;
+  padding-top: 10px;
+  text-align:center;
+  font-size: 8px;
 }
 
 #testrun_list, #testrun_info
@@ -96,7 +99,25 @@ DIV.red
   border-collapse:collapse;
 }
 
-#testrun_list td, #testrun_list th, #testrun_info td, #testrun_info th
+#testrun_details
+{
+  font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+  width: 50%;
+  border-collapse:collapse;
+}
+
+#testrun_details td.title
+{
+  font-size:1.1em;
+  text-align:left;
+  padding-top:5px;
+  padding-bottom:4px;
+  background-color:#A7C942;
+  color:#ffffff;
+  width: 200px;
+}
+
+#testrun_list td, #testrun_list th, #testrun_info td, #testrun_info th, #testrun_details td, #testrun_details th
 {
   font-size:1em;
   border:1px solid #98bf21;
@@ -105,12 +126,12 @@ DIV.red
 
 #testrun_list th, #testrun_info th
 {
-font-size:1.1em;
-text-align:left;
-padding-top:5px;
-padding-bottom:4px;
-background-color:#A7C942;
-color:#ffffff;
+  font-size:1.1em;
+  text-align:left;
+  padding-top:5px;
+  padding-bottom:4px;
+  background-color:#A7C942;
+  color:#ffffff;
 }
 
 #testrun_list tr.odd, #testrun_info tr.odd
@@ -122,6 +143,46 @@ color:#ffffff;
 #testrun_list tr.even:hover, #testrun_list tr.odd:hover
 {
   background-color: #cff;
+}
+
+td.state_0
+{
+  background-image: url(/media/inqueue.png);
+  background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
+}
+
+td.state_1
+{
+  background-image: url(/media/ongoing.png);
+  background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
+}
+
+td.state_2
+{
+  background-image: url(/media/passed.png);
+  background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
+}
+
+td.state_3
+{
+  background-image: url(/media/failed.png);
+  background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
+}
+
+td.state_4
+{
+  background-image: url(/media/error.png);
+  background-repeat: no-repeat;
+  background-position:right;
+  height:24px;
 }
 
 #worker_box
@@ -145,7 +206,7 @@ color:#ffffff;
     white-space: nowrap;
 }
 
-SPAN.INFO
+SPAN.INFO, SPAN.PASSED
 {
   color:green;
 }
@@ -155,6 +216,10 @@ SPAN.DEBUG
   color:blue;
 }
 
+SPAN.FAILED
+{
+  color:orange;
+}
 
 SPAN.WARNING
 {
@@ -166,3 +231,26 @@ SPAN.ERROR
   color:red;
 }
 
+#date_select
+{
+  margin:auto;
+  width:100%;
+}
+
+#submit
+{
+  border: 1px solid black;
+  background-color:#EAF2D3;
+}
+#filterdate
+{
+  border: 1px solid black;
+  background-color:#EAF2D3;
+  width: 150px;
+  text-align:center;
+}
+#filter_table
+{
+  width: 100%;
+  text-align: center;
+}
