@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -21,36 +21,30 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 -->
-
 {% extends "logger/logger_base.html" %}
-{% block pagetitle %}OTS Workers{% endblock pagetitle %}
+{% block pagetitle %}Worker '{{ remote_host }}' testruns{% endblock pagetitle %}
 {% block content %}
 {% load logger_template_tags %}
-
-
-<table align="center">
-	<tr style="height:100%;">
-	{% for msg in message %}
-	<td width="50%"> 
-		<div id="worker_box">
-		<h2><a href="{% url ots.django.logger.views.view_worker_details remote_host=msg.remote_host %}">{{ msg.remote_host }}</a></h2>
-		<p>{{ msg.remote_ip }}</p>
-		<p>{{ msg.date }}</p>
-		<p>{{ msg.msg }}</p>
-		</div>
-	</td>
-	{% if forloop.counter|divisibleby:"2" %}
-	</tr>
-	<tr>
-	{% endif %}
-	{% empty %}
-	<td width="100%">
-		<div id="worker_box">
-		<h2>Sorry, no matches!</h2>
-		<p>Could't find any log messages from database.</p>
-		</div>
-	</td>
-	{% endfor %}
-	</tr>
+<table id="testrun_list">
+	<thead>
+		<tr>
+			<th style="width:5%">Run id</th>
+			<th style="width:15%">Created</th>
+			<th style="width:15%">Module</th>
+			<th style="width:10%">Level</th>
+			<th style="width:55%">Message</th>
+		</tr>
+	</thead>
+	<tbody>
+	    {% for message in messages %}
+    	<tr class="{% cycle 'odd' 'even' %}">
+			<td><a href="{% url ots.plugin.logger.views.basic_testrun_viewer run_id=message.run_id %}">{{ message.run_id }}</a></td>
+			<td>{{ message.date|format_datetime }}</td>
+			<td>{{ message.module }}</td>
+			<td>{% autoescape off %}<span class="{{ message.levelname }}">{{ message.levelname }}</span>{% endautoescape %}</td>
+			<td>{{ message.msg }}{% if message.exc_text %} <pre>{{message.exc_text}}</pre>{% endif %}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
 </table>
 {% endblock content %}

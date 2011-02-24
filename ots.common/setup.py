@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -31,4 +31,5 @@ setup(
       namespace_packages=["ots"],
       packages=find_packages(),
       zip_safe=False,
+      install_requires=['amqplib']
       )

@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -53,7 +53,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
 
-from ots.django.logger.models import LogMessage
+from ots.plugin.logger.models import LogMessage
 
 ROW_AMOUNT_IN_PAGE = 50
 

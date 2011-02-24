@@ -1,2 +1,3 @@
 /usr/local/lib/python*/dist-packages/ots.plugin.logger-*
 /usr/local/lib/python*/dist-packages/ots/plugin/logger/*
+/usr/share/ots/plugin/logger/*

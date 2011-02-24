@@ -143,9 +143,9 @@ fi
 %defattr(-,root,root)
 /usr/lib/python*/site-packages/ots.django-*
 /usr/lib/python*/site-packages/ots/django/*
-/usr/share/ots/django/logger/*
+/usr/share/ots/django/*
 
-%post plugin-logger
+%post django
 DIR="/opt/ots/"
 
 if [ ! -d $DIR ]; then
@@ -168,6 +168,7 @@ setsebool httpd_unified 1
 %defattr(-,root,root)
 /usr/lib/python*/site-packages/ots.plugin.logger-*
 /usr/lib/python*/site-packages/ots/plugin/logger/*
+/usr/share/ots/plugin/logger/*
 
 %files plugin-qareports
 %defattr(-,root,root)

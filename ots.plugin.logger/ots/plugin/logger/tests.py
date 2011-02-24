@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -51,8 +51,8 @@ from ots.server.hub.tests.component.mock_taskrunner import \
 from ots.server.hub.api import Hub
 
 from ots.plugin.logger.localhandler import LocalHttpHandler
-from ots.django.logger.models import LogMessage
-from ots.django.logger.views import create_message
+from ots.plugin.logger.models import LogMessage
+from ots.plugin.logger.views import create_message
 
 SERVICENAME = 'logmessage'
 RUN_ID      = uuid.uuid1().hex

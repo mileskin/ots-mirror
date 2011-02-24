@@ -71,13 +71,39 @@ def calculate_delta_sec(starttime):
 @register.filter
 def format_datetime(currenttime):
     """
-    Strips the end of email address
+    Formats datetime for nicer format
     """
-    return email.split('@')[0]
+    strout = currenttime.strftime("%Y-%m-%d %H:%M:%S")
+    return strout
 
 @register.filter
 def strip_email(email):
     """
     Strips the end of email address
     """
-    return email.split('@')[0]
+    if email is not None:
+        return email.split('@')[0]
+
+@register.filter
+def state_as_string(state):
+    retStr = "In queue"
+    if state == "1":
+        retStr = "Ongoing"
+    elif state == "2":
+        retStr = "Passed"
+    elif state == "3":
+        retStr = "Failed"
+    elif state == "4":
+        retStr = "Error"
+    return retStr
+
+@register.filter
+def logger_url(runid):
+    
+    url = "http://logger_plugin_not_installed/%s" % (runid)
+    try:
+        from ots.plugin.logger.views import basic_testrun_viewer
+        from django.core.urlresolvers import reverse
+        url = reverse(basic_testrun_viewer,args=[runid])
+    finally:
+        return url

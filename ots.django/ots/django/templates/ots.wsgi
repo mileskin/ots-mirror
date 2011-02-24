@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -20,6 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-Custom template tags for logger
-"""
+import os
+import sys
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'ots.django.settings'
+
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()

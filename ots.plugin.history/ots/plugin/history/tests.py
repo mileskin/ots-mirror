@@ -28,7 +28,7 @@ import random
 
 from ots.plugin.history.models import Package, History
 from ots.plugin.history.history_plugin import HistoryPlugin
-from ots.plugin.history.distripution_model import get_test_package_history, history_model, get_model
+from ots.plugin.history.distribution_model import get_test_package_history, history_model, get_model
 from ots.plugin.history.schedule_algo import group_packages
 from ots.common.dto.monitor import Monitor, MonitorType
 
@@ -42,7 +42,7 @@ def _create_test_data():
         db_pack.save()
             
         history = History(package_id = db_pack,
-                          duration = i * 60,
+                          duration = i * 60 * 60,
                           testrun_id = uuid.uuid4().hex,
                           verdict = random.randint(0,4))
         history.save()
