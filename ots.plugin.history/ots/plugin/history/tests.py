@@ -28,7 +28,7 @@ import random
 
 from ots.plugin.history.models import Package, History
 from ots.plugin.history.history_plugin import HistoryPlugin
-from ots.plugin.history.distripution_model import get_test_package_history, history_model, get_model
+from ots.plugin.history.distribution_model import get_test_package_history, history_model, get_model
 from ots.plugin.history.schedule_algo import group_packages
 from ots.common.dto.monitor import Monitor, MonitorType
 

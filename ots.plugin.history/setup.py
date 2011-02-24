@@ -35,6 +35,6 @@ setup(
                     ["publisher_klass = "\
                      "ots.plugin.history.history_plugin:HistoryPlugin"],
                      "ots_distribution_model":
-                      ["history = ots.plugin.history.distripution_model:get_model"]
+                      ["history = ots.plugin.history.distribution_model:get_model"]
                    },
       )
