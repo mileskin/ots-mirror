@@ -33,6 +33,7 @@ import logging
 from ots.common.dto.monitor import Monitor, MonitorType
 from ots.common.framework.api import PublisherPluginBase
 from ots.plugin.monitor.models import Testrun, Event
+from ots.common.amqp.testrun_queue_name import testrun_queue_name
 
 
 LOG = logging.getLogger(__name__)
@@ -61,18 +62,22 @@ class MonitorPlugin(PublisherPluginBase):
         LOG.info('Monitor Plugin loaded')
 
         self._testrun_result = ''
-        
         requestor = ''
+        device_group = ''
+
+        if kwargs.get('notify_list') and len(kwargs['notify_list']) > 0:
+            requestor = kwargs['notify_list'][0]
+
+        if kwargs.get('device'):
+            device_group = kwargs['device'].get('devicegroup')
 
         try:
-            if len(kwargs['notify_list']) > 0:
-                requestor = kwargs['notify_list'][0]
-
-            # Create a new testrun object to db
+            # Create a new testrun object to DB
+            # TODO: check which queue should be used in queue parameter
             self._testrun = Testrun(testrun_id=testrun_uuid,
-                                    device_group='', # from options
-                                    queue='', # maybe tom knows?
-                                    configuration='', # the whole configuration from event: Testrun options
+                                    device_group=device_group,
+                                    queue=testrun_queue_name(testrun_uuid),
+                                    configuration=kwargs.__str__(),
                                     host_worker_instances='',
                                     requestor=requestor,
                                     request_id=request_id)
@@ -102,31 +107,13 @@ class MonitorPlugin(PublisherPluginBase):
 
         try:
             LOG.debug("Monitor type: %s" % monitors.type)
-            if monitors.type == MonitorType.UNKNOWN:
-                pass
-            elif monitors.type == MonitorType.TESTRUN_REQUESTED:
-                pass
-            elif monitors.type == MonitorType.TASK_INQUEUE:
+            if monitors.type == MonitorType.TASK_INQUEUE:
                 self._update_testrun_state('0')
             elif monitors.type == MonitorType.TASK_ONGOING:
                 self._update_host_worker_instances(monitors.sender)
                 self._update_testrun_state('1')
             elif monitors.type == MonitorType.TASK_ENDED:
                 self._update_host_worker_instances(monitors.sender)
-            elif monitors.type == MonitorType.TESTRUN_ENDED:
-                self._update_testrun_state()
-            elif monitors.type == MonitorType.DEVICE_FLASH:
-                pass
-            elif monitors.type == MonitorType.DEVICE_BOOT:
-                pass
-            elif monitors.type == MonitorType.TEST_EXECUTION:
-                pass
-            elif monitors.type == MonitorType.TEST_PACKAGE_STARTED:
-                pass
-            elif monitors.type == MonitorType.TEST_PACKAGE_ENDED:
-                pass
-            else:
-                LOG.error("Erroneous monitor event received!")
         except (TypeError, AttributeError), error:
             LOG.error("Testrun object update failed: %s" % error)
 
@@ -148,6 +135,16 @@ class MonitorPlugin(PublisherPluginBase):
         Make sure that testrun state is set
         """
         self._update_testrun_state()
+
+    def set_exception(self, exception):
+        """
+        Set error value to DB
+        
+        @type: C{Exception}
+        @param: The Exception raised by the Testrun 
+        """
+        self._testrun.error = exception
+        self._testrun.save()
 
     ###########################################
     # Helpers
