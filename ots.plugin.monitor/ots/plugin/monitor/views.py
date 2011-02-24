@@ -71,24 +71,51 @@ def _handle_date_filter(request):
     """
     date_dict = dict()
     
+    default_start = datetime.datetime.fromtimestamp(time.time() - 24 * 3600)
+    default_end = datetime.datetime.fromtimestamp(time.time() + 2* 3600)
+    
+    start_time = None
+    end_time = None
+    follow = request.session.get('follow')
+    
+    print follow
+    
     if request.method == 'POST':
         post = request.POST
-        try:
-            date_dict['datefilter_start'] = datetime.datetime.strptime(post.get("startdate"), "%Y-%m-%d %H:%M")
-        except ValueError:
-            date_dict['datefilter_start'] = datetime.datetime(year=1900, month=1, day=1)
-        try:
-            date_dict['datefilter_end'] = datetime.datetime.strptime(post.get("enddate"), "%Y-%m-%d %H:%M")
-        except ValueError:
-            date_dict['datefilter_end'] = datetime.datetime.now()
+        if "submit_clear" in post:
+            start_time = default_start
+            end_time = default_end
+            follow = True
+        else:
+            follow = False
+            try:
+                start_time = datetime.datetime.strptime(post.get("startdate"), "%Y-%m-%d %H:%M")
+            except ValueError:
+                start_time = datetime.datetime(year=1900, month=1, day=1)
+            try:
+                end_time = datetime.datetime.strptime(post.get("enddate"), "%Y-%m-%d %H:%M")
+            except ValueError:
+                end_time = datetime.datetime.now()
     else:
-        date_dict['datefilter_start']  = request.session.get("datefilter_start", datetime.datetime.fromtimestamp(time.time()-24*3600))
-        date_dict['datefilter_end']  =  request.session.get("datefilter_end",datetime.datetime.now())
+        # By 
+        if follow is None:
+            follow = True
+        
+        if follow:
+            start_time = default_start
+            end_time = default_end
+        else:
+            start_time  = request.session.get("datefilter_start")
+            end_time  =  request.session.get("datefilter_end")
+    
+    date_dict['datefilter_start']  = start_time
+    date_dict['datefilter_end']  = end_time
+    date_dict['follow']  = follow
     
     request.session.update(date_dict)
     
-    date_dict['datefilter_start_str']  = date_dict['datefilter_start'].strftime("%Y-%m-%d %H:%M")
-    date_dict['datefilter_end_str']  = date_dict['datefilter_end'].strftime("%Y-%m-%d %H:%M")
+    date_dict['datefilter_start_str']  = start_time.strftime("%Y-%m-%d %H:%M")
+    date_dict['datefilter_end_str']  = end_time.strftime("%Y-%m-%d %H:%M")
     
     return date_dict
 
@@ -186,6 +213,7 @@ def _calculate_testrun_stats(testruns):
     if total_count > 0:
         retDict['inqueue_ration'] = (100.0*inqueue_count/total_count)
         retDict['ongoing_ration'] = (100.0*ongoing_count/total_count)
+    if finished_count >0:
         retDict['passed_ration'] = (100.0*passed_count/finished_count)
         retDict['failed_ration'] = (100.0*failed_count/finished_count)
         retDict['error_ration'] = (100.0*error_count/finished_count)
