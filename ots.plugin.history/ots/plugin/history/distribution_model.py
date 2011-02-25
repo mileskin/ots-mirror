@@ -97,26 +97,29 @@ def history_model(test_list, options):
         test_history = get_test_package_history(test_packages)
         LOG.debug(test_history)
         package_groups = group_packages(test_history, max_runtime, max_groups)
-        
+        LOG.debug(package_groups)
         for group in package_groups:
             options['test_packages'] = string.join(group, ",")
-            LOG.debug(group)
             cmd = conductor_command(options, host_testing = False)
-            LOG.debug(cmd)
             commands.append(cmd)
+        
+        # Rest groups are for host based packages
+        max_groups = max_groups - len(package_groups)
 
-    # TODO: how to handle these packages?!    
+    # If we have host based packages
+    # Lets use rest of the groups for them
     if 'host' in test_list:
         test_packages = test_list['host'].split(",")
         test_history = get_test_package_history(test_packages)
-        
+        LOG.debug(test_history)
+        if max_groups <= 0:
+            max_groups = 1
+        LOG.debug(max_groups)
         package_groups = group_packages(test_history, max_runtime, max_groups)
-        
+        LOG.debug(package_groups)
         for group in package_groups:
             options['test_packages'] = string.join(group, ",")
-            LOG.debug(group)
             cmd = conductor_command(options, host_testing = False)
-            LOG.debug(cmd)
             commands.append(cmd)
 
     return commands

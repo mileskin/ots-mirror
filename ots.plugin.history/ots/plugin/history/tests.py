@@ -182,6 +182,89 @@ class TestDistributionModel(unittest.TestCase):
         cmds = func(test_list, options)
         
         self.assertTrue(len(cmds) == 2)
+        
+    def testDistributionModelHost(self):
+        
+        options = dict()
+        options['image_url'] = "none"
+        options['testrun_id'] = "123123"
+        options['timeout'] = str(500)        
+        options['emmc_flash_parameter'] = ""
+        options['storage_address'] = ""
+        options['testfilter'] = ""
+        options['flasherurl'] = ""
+        
+        packages = "test-package1-tests,test-package2-tests,test-package4-tests"
+        
+        test_list = dict()
+        test_list["host"] = packages
+        
+        schedule_options = dict()
+        schedule_options["testrun_max"] = 180
+        schedule_options["testrun_groups"] = 2
+        
+        func = get_model(schedule_options)
+        cmds = func(test_list, options)
+        
+        self.assertTrue(len(cmds) == 2)
+        
+    def testDistributionModelHostDeviceMix(self):
+        
+        options = dict()
+        options['image_url'] = "none"
+        options['testrun_id'] = "123123"
+        options['timeout'] = str(500)        
+        options['emmc_flash_parameter'] = ""
+        options['storage_address'] = ""
+        options['testfilter'] = ""
+        options['flasherurl'] = ""
+        
+        packages = "test-package3-tests,test-package2-tests"
+        
+        test_list = dict()
+        test_list["device"] = packages
+        
+        packages = "test-package1-tests,test-package4-tests"
+        
+        test_list["host"] = packages
+        
+        schedule_options = dict()
+        schedule_options["testrun_max"] = 180
+        schedule_options["testrun_groups"] = 4
+        
+        func = get_model(schedule_options)
+        cmds = func(test_list, options)
+        
+        self.assertTrue(len(cmds) == 4)
+        
+    def testDistributionModelHostDeviceMixNoGroupsForHost(self):
+        
+        options = dict()
+        options['image_url'] = "none"
+        options['testrun_id'] = "123123"
+        options['timeout'] = str(500)        
+        options['emmc_flash_parameter'] = ""
+        options['storage_address'] = ""
+        options['testfilter'] = ""
+        options['flasherurl'] = ""
+        
+        packages = "test-package3-tests,test-package2-tests"
+        
+        test_list = dict()
+        test_list["device"] = packages
+        
+        packages = "test-package1-tests,test-package4-tests"
+        
+        test_list["host"] = packages
+        
+        schedule_options = dict()
+        schedule_options["testrun_max"] = 180
+        schedule_options["testrun_groups"] = 2
+        
+        func = get_model(schedule_options)
+        cmds = func(test_list, options)
+        
+        self.assertTrue(len(cmds) == 3)
 
 class TestSchedulerAlgorithm(unittest.TestCase):
     """

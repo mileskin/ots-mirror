@@ -266,7 +266,7 @@ def main_page(request):
     testruns = []
     start = time.time()
     device_groups = Testrun.objects.values_list('device_group',
-                                                flat=True).exclude(device_group = "").distinct()
+                                                flat=True).distinct()
 
     for device_group in device_groups:
         tr_view = TestrunView()
@@ -377,6 +377,7 @@ def view_group_details(request, devicegroup):
     
     context_dict.update(_handle_date_filter(request))
     start = time.time()
+    
     #fetch testruns
     testruns = Testrun.objects.filter(device_group=devicegroup,
                                       start_time__gte = context_dict["datefilter_start"],
