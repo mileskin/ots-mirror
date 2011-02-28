@@ -78,3 +78,19 @@ XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Email plugin to OTS server
  Email plugin to OTS server.
+ 
+Package: python-ots-plugin-history
+Architecture: all
+Depends: python (>= 2.5), python-ots-django, python-ots-server
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: History plugin to OTS server
+ Test package distribution model based on last execution time.
+
+Package: python-ots-plugin-monitor
+Architecture: all
+Depends: python (>= 2.5), python-ots-django, python-ots-server
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: Monitor plugin to OTS server
+ Statistical information from the OTS system.

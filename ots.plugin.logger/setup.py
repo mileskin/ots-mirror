@@ -34,7 +34,7 @@ setup(
       entry_points={"ots.publisher_plugin":
                     ["publisher_klass = "\
                      "ots.plugin.logger.logger_plugin:LoggerPlugin"]},
-      data_files=[('/usr/share/ots/plugin/logger/logger',\
+      data_files=[('/usr/share/ots/plugin/logger',\
                        ['ots/plugin/logger/templates/logger/index.html',
                         'ots/plugin/logger/templates/logger/workers_view.html',
                         'ots/plugin/logger/templates/logger/filter_message_view.html',

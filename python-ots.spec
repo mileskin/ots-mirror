@@ -87,6 +87,22 @@ Requires:               python-ots-server
 %description            plugin-email
 Email plugin to OTS server.
 
+%package                plugin-history
+Summary:                History plugin to OTS server
+Prefix:                 /usr
+Group:                  Development/Tools
+Requires:               python-ots-server, python-ots-django
+%description            plugin-history
+Test package distribution model based on last execution time.
+
+%package                plugin-monitor
+Summary:                Monitor plugin to OTS server
+Prefix:                 /usr
+Group:                  Development/Tools
+Requires:               python-ots-server, python-ots-django
+%description            plugin-monitor
+Statistical information from the OTS system.
+
 %prep
 %setup -n %{name}-%{version}
 
@@ -180,4 +196,15 @@ setsebool httpd_unified 1
 %defattr(-,root,root)
 /usr/lib/python*/site-packages/ots.plugin.email*
 /usr/lib/python*/site-packages/ots/plugin/email/*
+
+%files plugin-history
+%defattr(-,root,root)
+/usr/lib/python*/site-packages/ots.plugin.history-*
+/usr/lib/python*/site-packages/ots/plugin/history/*
+
+%files plugin-monitor
+%defattr(-,root,root)
+/usr/lib/python*/site-packages/ots.plugin.monitor-*
+/usr/lib/python*/site-packages/ots/plugin/monitor/*
+/usr/share/ots/plugin/monitor/*
 

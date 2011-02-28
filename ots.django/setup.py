@@ -32,7 +32,13 @@ setup(
       packages=find_packages(),
       install_requires=['django'],
       data_files=[('/usr/share/ots/django', ['ots/django/templates/ots.wsgi']),
-                  ('/usr/share/ots/django/media', ['ots/django/templates/media/logo.png']),
+                  ('/usr/share/ots/django/media', ['ots/django/templates/media/logo.png',
+                                                   'ots/django/templates/media/error.png',
+                                                   'ots/django/templates/media/failed.png',
+                                                   'ots/django/templates/media/inqueue.png',
+                                                   'ots/django/templates/media/ongoing.png',
+                                                   'ots/django/templates/media/passed.png',
+                                                   'ots/django/templates/media/Terms_Of_Use.txt',]),
                   ('/usr/share/ots/django/styles', ['ots/django/templates/styles/custom.css']),
                   ]
       )
