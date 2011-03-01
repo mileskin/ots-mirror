@@ -68,7 +68,7 @@ class MonitorPlugin(PublisherPluginBase):
             requestor = kwargs['notify_list'][0]
 
         if kwargs.get('device'):
-            device_group = kwargs['device'].get('devicegroup')
+            device_group = kwargs['device'].get('devicegroup', "invalid")
 
         try:
             # Create a new testrun object to DB
