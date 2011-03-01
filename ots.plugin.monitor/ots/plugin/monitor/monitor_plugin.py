@@ -33,7 +33,6 @@ import logging
 from ots.common.dto.monitor import Monitor, MonitorType
 from ots.common.framework.api import PublisherPluginBase
 from ots.plugin.monitor.models import Testrun, Event
-from ots.common.amqp.testrun_queue_name import testrun_queue_name
 
 
 LOG = logging.getLogger(__name__)
@@ -76,7 +75,7 @@ class MonitorPlugin(PublisherPluginBase):
             # TODO: check which queue should be used in queue parameter
             self._testrun = Testrun(testrun_id=testrun_uuid,
                                     device_group=device_group,
-                                    queue=testrun_queue_name(testrun_uuid),
+                                    queue="",
                                     configuration=kwargs.__str__(),
                                     host_worker_instances='',
                                     requestor=requestor,

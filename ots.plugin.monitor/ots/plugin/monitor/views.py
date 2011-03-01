@@ -312,8 +312,29 @@ def view_testrun_list(request, device_group = None):
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
     
-    if device_group:
-        testruns = testruns.filter(device_group = device_group)
+    state_filter = request.GET.get("state", "")
+    requestor_filter = request.GET.get("requestor", "")
+    device_group_filter = request.GET.get("group", "")
+    
+    context_dict["state"] = state_filter
+    context_dict["group"] = device_group_filter
+    context_dict["requestor"] = requestor_filter
+    
+    if state_filter != "":
+        state_filter = "%s" % state_filter
+        if state_filter == "finished":
+            testruns = testruns.filter(state__in = [2,3,4])
+        else:
+            state_filter = "%d" % int(state_filter)
+            testruns = testruns.filter(state__in = state_filter)
+    
+    if requestor_filter != "":
+        requestor_filter = "%s" % requestor_filter
+        testruns = testruns.filter(requestor = requestor_filter)
+        
+    if device_group_filter != "":
+        device_group_filter = "%s" % device_group_filter
+        testruns = testruns.filter(device_group = device_group_filter)
     
     testruns = testruns.order_by("state")
     
@@ -372,6 +393,12 @@ def view_group_details(request, devicegroup):
 
         @type devicegroup: L{string}
         @param devicegroup: name of device group
+        
+        @type state: L{string}
+        @param state: filter test runs with state
+        
+        @type requestor: L{string}
+        @param requestor: filter test runs with requestor
     """
     context_dict = {}
     
@@ -383,10 +410,29 @@ def view_group_details(request, devicegroup):
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
 
+
+    state_filter = request.GET.get("state", "")
+    requestor_filter = request.GET.get("requestor", "")
+    
+    context_dict["state"] = state_filter
+    context_dict["requestor"] = requestor_filter
+    
+    if state_filter != "":
+        state_filter = "%s" % state_filter
+        if state_filter == "finished":
+            testruns = testruns.filter(state__in = [2,3,4])
+        else:
+            state_filter = "%d" % int(state_filter)
+            testruns = testruns.filter(state__in = state_filter)
+    
+    if requestor_filter != "":
+        requestor_filter = "%s" % requestor_filter
+        testruns = testruns.filter(requestor = requestor_filter)
+
     testrun_stats = _calculate_testrun_stats(testruns)
     runs_finished = testrun_stats.get("finished")
     
-    context_dict['testruns'] = _paginate(request,testruns.order_by('state', 'start_time'))
+    context_dict['testruns'] = _paginate(request, testruns.order_by('state', 'start_time'))
     context_dict['devicegroup'] = devicegroup
     context_dict['runcount'] = testrun_stats.get("runs")
     context_dict['finishedcount'] = runs_finished

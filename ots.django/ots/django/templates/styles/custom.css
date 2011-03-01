@@ -206,29 +206,64 @@ td.state_4
     white-space: nowrap;
 }
 
-SPAN.INFO, SPAN.PASSED
+SPAN.INFO, SPAN.PASSED, SPAN.PASSED a
 {
   color:green;
+  text-decoration:none; 
 }
 
-SPAN.DEBUG
+SPAN.PASSED a:hover
+{
+  color:green;
+  text-decoration:underline; 
+}
+
+SPAN.DEBUG, SPAN.DEBUG a
 {
   color:blue;
+  text-decoration:none; 
 }
 
-SPAN.FAILED
+SPAN.DEBUG a:hover
+{
+  color:blue;
+  text-decoration:underline; 
+}
+
+SPAN.FAILED, SPAN.FAILED a
 {
   color:orange;
+  text-decoration:none;
 }
 
-SPAN.WARNING
+SPAN.FAILED a:hover
+{
+  color:orange;
+  text-decoration:underline; 
+}
+
+SPAN.WARNING, SPAN.WARNING a
 {
   color:adb73e;
+  text-decoration:none;
 }
 
-SPAN.ERROR
+SPAN.WARNING a:hover
+{
+  color:adb73e;
+  text-decoration:underline; 
+}
+
+SPAN.ERROR, SPAN.ERROR a
 {
   color:red;
+  text-decoration:none;
+}
+
+SPAN.ERROR a:hover
+{
+  color:red;
+  text-decoration:underline; 
 }
 
 #date_select

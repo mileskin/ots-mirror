@@ -30,7 +30,7 @@ setup(
       version=get_spec_version(),
       include_package_data=True,
       packages=find_packages(),
-      install_requires=['django'],
+      install_requires=['django', 'ots.server'],
       data_files=[('/usr/share/ots/django', ['ots/django/templates/ots.wsgi']),
                   ('/usr/share/ots/django/media', ['ots/django/templates/media/logo.png',
                                                    'ots/django/templates/media/error.png',

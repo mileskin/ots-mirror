@@ -35,19 +35,19 @@
             <th style="width:5%">Finished</th>
             <th style="width:5%">Waiting</th>
             <th style="width:5%">Ongoing</th>
-            <th style="width:5%">Error %</th>
+            <th style="width:5%">Error</th>
         </tr>
     </thead>
     <tbody>
         {% for tr in testruns %}
         <tr class="{% cycle 'odd' 'even' %}">
             <td><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=tr.device_group %}">{{ tr.device_group }}</a></td>
-            <td><a href="{% url ots.plugin.monitor.views.view_requestor_details requestor=tr.top_requestor %}">{{ tr.top_requestor|strip_email }}</a> ({{ tr.top_request_count }})</td>
+            <td><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=tr.device_group %}?requestor={{tr.top_requestor}}">{{ tr.top_requestor|strip_email }}</a> ({{ tr.top_request_count }})</td>
             <td>{{ tr.runs }}</td>
-            <td><span class="debug">{{ tr.finished }}</span></td>
-            <td><span class="failed">{{ tr.waiting }}</span></td>
-            <td><span class="info">{{ tr.ongoing }}</span></td>
-            <td><span class="error">{{ tr.error_ratio }}</span></td>
+            <td><span class="debug"><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=tr.device_group %}?state=finished">{{ tr.finished }}</a></span></td>
+            <td><span class="failed"><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=tr.device_group %}?state=0">{{ tr.waiting }}</a></span></td>
+            <td><span class="passed"><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=tr.device_group %}?state=1">{{ tr.ongoing }}</a></span></td>
+            <td><span class="error"><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=tr.device_group %}?state=4">{{tr.errors}} ({{tr.error_ratio }}%)</a></span></td>
         </tr>
         {% endfor %}
     </tbody>
