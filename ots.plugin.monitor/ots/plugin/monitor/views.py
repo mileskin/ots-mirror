@@ -486,3 +486,100 @@ def view_requestor_details(request, requestor):
     print "view_requestor_details",t
     template = loader.get_template('monitor/requestor_details.html')
     return HttpResponse(template.render(Context(context_dict)))
+
+
+###########################################
+# JSONRPC API FOR CHARTS 
+###########################################
+
+import datetime
+
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.contrib.sessions.models import Session
+
+from ots.plugin.monitor.jsonrpc_service import JSONRPCService, jsonremote 
+from ots.plugin.monitor.event_timedeltas import EventTimeDeltas, event_sequence
+from ots.plugin.monitor.models import Testrun, Event
+
+#FIXME
+def index(request):
+    request.session.set_expiry(datetime.datetime.now() + 
+                               datetime.timedelta(365))
+    request.session.save()
+    return render_to_response('DemoChart.html')
+
+
+service = JSONRPCService()
+
+
+@jsonremote(service)
+def get_timedeltas(request, start, stop, step, device_group):
+    """
+    Providing the time deltas for all the steps in a testrun 
+    associated with a testrun_id. 
+
+    The order of the testrun_ids are chronological 
+    (or reverse chrono for a -1 step)
+
+    @type start: C{int}
+    @param start: The start index of the iteration
+
+    @type stop: C{int}
+    @param stop: The stop index of the iteration
+
+    @type step: C{int}
+    @param step: The step of the iteration
+
+    @type device_group: C{str}
+    @param device_group: The name of the device group 
+                         None returns all device groups 
+   
+    @rtype: A list of [C{tuple} of (C{str}, 
+                         [C{list} of 
+                            [C{list} of C{float}]])]
+    @rparam: A tuple of the testrun_id and the time deltas
+                  for all the steps in the testrun 
+    """
+    ev_dt =  EventTimeDeltas(device_group)
+    return list(ev_dt.deltas_iter(start, stop, step))
+
+service.add_method('get_timedeltas', get_timedeltas)
+
+@jsonremote(service)
+def get_event_sequence(request):
+    return event_sequence()
+
+service.add_method('get_event_sequence', get_event_sequence)
+
+@jsonremote(service)
+def get_total_no_of_testruns(request, device_group):
+    """
+    @type device_group: C{str}
+    @param device_group: The name of the device group 
+                         None returns all device groups 
+   
+    @rtype: C{int},            
+    @rparam: The no of recorded runs of the device group  
+    """
+    ev_dt =  EventTimeDeltas(device_group)
+    return len(ev_dt.all_testrun_ids)
+
+service.add_method('get_total_no_of_testruns', get_total_no_of_testruns)
+
+@jsonremote(service) 
+def get_testrun_states(request, testrun_ids):
+    """
+    @type testrun_ids: C{list} of C{str}
+    @param testrun_ids: The testrun ids to query
+                        
+    @rtype: C{list} of C{str}           
+    @rparam: A corresponding list of states  
+    """
+    ret_val = []
+    for testrun_id in testrun_ids:
+        tr = Testrun.objects.get(id = testrun_id)
+        ret_val.append(tr.state)
+    return ret_val
+   
+service.add_method('get_testrun_states', get_testrun_states)

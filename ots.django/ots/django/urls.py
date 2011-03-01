@@ -28,7 +28,7 @@ Django main url file
 # pylint: disable=C0103
 
 from django.conf.urls.defaults import patterns, include, handler500, handler404
-
+from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -42,4 +42,8 @@ urlpatterns = patterns('',
 
     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
 
+    (r'^services/$', 'ots.plugin.monitor.views.service'),
+    (r'^$', 'ots.plugin.monitor.views.index'),
+    (r'^(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': settings.STATIC}),
 )

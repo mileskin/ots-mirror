@@ -90,21 +90,40 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'ots.django.urls'
+
+#################
+# STATICS HACK
+
+
+
+import os
+import ots.plugin.monitor
+STATIC = str(os.path.join(os.path.dirname(ots.plugin.monitor.__file__), 'media/output').replace('\\','/'))
+
+print "FIXME: Serving statics in dev mode needs fixing for production:"+STATIC
+
+#
+################
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '/var/www/',
+    STATIC
 )
 
 INSTALLED_APPS = (
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.admin',
 
     # Django_xmlrpc for serving the xmlrpc interface through django
     'django_xmlrpc',
