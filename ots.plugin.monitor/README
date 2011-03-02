@@ -20,6 +20,17 @@ e.g. export PATH=$PATH:/path/to/pyjamas/pyjamas-0.7/bin/
 
 [../ots/plugin/monitor/media]$ pyjsbuild DemoChart.py
 
+Fixtures
+========
+
+The data needed for unittests is created with: 
+
+python make_timedeltas_fixtures.py
+
+To run a demo change the name of 
+
+time_deltas_fixtures.json to initial_data.json
+
 Troubleshooting
 ===============
 
