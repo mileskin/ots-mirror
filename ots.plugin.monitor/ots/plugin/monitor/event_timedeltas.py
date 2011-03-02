@@ -129,7 +129,7 @@ class EventTimeDeltas(object):
         """
         
         if start is None: start = 0
-        if stop is None: stop = len(testrun_ids)
+        if stop is None: stop = len(self.all_testrun_ids)
         if step is None: step = 1
         return self.all_testrun_ids[start:stop][::step]
 
