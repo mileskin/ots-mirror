@@ -27,18 +27,29 @@
 
 import datetime
 import time
+import logging 
 
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.contrib.sessions.models import Session
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
 from django.db.models import Count
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
+from ots.common.dto.api import MonitorType
 from ots.plugin.monitor.models import Testrun
 from ots.plugin.monitor.models import Event
-from ots.common.dto.api import MonitorType
+from ots.plugin.monitor.jsonrpc_service import JSONRPCService, jsonremote 
+from ots.plugin.monitor.event_timedeltas import EventTimeDeltas, event_sequence
+from ots.plugin.monitor.models import Testrun, Event
+
 
 ROW_AMOUNT_IN_PAGE = 50
+
+LOG = logging.getLogger(__name__) 
 
 #
 # Helping classes and functions
@@ -492,20 +503,9 @@ def view_requestor_details(request, requestor):
 # JSONRPC API FOR CHARTS 
 ###########################################
 
-import datetime
-
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.contrib.sessions.models import Session
-
-from ots.plugin.monitor.jsonrpc_service import JSONRPCService, jsonremote 
-from ots.plugin.monitor.event_timedeltas import EventTimeDeltas, event_sequence
-from ots.plugin.monitor.models import Testrun, Event
-
-#FIXME
 def index(request):
     request.session.set_expiry(datetime.datetime.now() + 
-                               datetime.timedelta(365))
+                               datetime.timedelta(1))
     request.session.save()
     return render_to_response('DemoChart.html')
 
@@ -548,6 +548,10 @@ service.add_method('get_timedeltas', get_timedeltas)
 
 @jsonremote(service)
 def get_event_sequence(request):
+    """
+    @rtype: C{list} of C{str}            
+    @rparam: The sequence of interesting events  
+    """   
     return event_sequence()
 
 service.add_method('get_event_sequence', get_event_sequence)
@@ -573,13 +577,17 @@ def get_testrun_states(request, testrun_ids):
     @type testrun_ids: C{list} of C{str}
     @param testrun_ids: The testrun ids to query
                         
-    @rtype: C{list} of C{str}           
+    @rtype: C{list} of C{str} or None            
     @rparam: A corresponding list of states  
     """
     ret_val = []
     for testrun_id in testrun_ids:
-        tr = Testrun.objects.get(id = testrun_id)
-        ret_val.append(tr.state)
+        try:
+            testrun = Testrun.objects.get(id = testrun_id)
+            ret_val.append(testrun.state)
+        except ObjectDoesNotExist:
+            LOG.error("No Testrun for id: '%s'"%(testrun_id))
+            ret_val.append(None)
     return ret_val
    
 service.add_method('get_testrun_states', get_testrun_states)

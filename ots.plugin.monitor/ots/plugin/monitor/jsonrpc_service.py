@@ -22,23 +22,22 @@
 
 import sys
 
+import logging
+
 from django.utils import simplejson
 from django.http import HttpResponse
 
-
-##########################################################
-# http://trac.pyworks.org/pyjamas/wiki/DjangoWithPyJamas
-##########################################################
+LOG = logging.getLogger(__name__)
 
 class JSONRPCService: 
 
     def __init__(self, method_map={}):
-        print "Initialising JSONRPCService" 
+        LOG.debug("Initialising JSONRPCService") 
         self.method_map = method_map
 	
     def add_method(self, name, method):
         self.method_map[name] = method
-        print "Adding JSONRPCService method", method
+        LOG.debug("Adding JSONRPCService method %s"%(method))
 		
     def __call__(self, request, extra=None):
         data = simplejson.loads(request.raw_post_data)
@@ -46,6 +45,8 @@ class JSONRPCService:
         method = data["method"]
         params = [request,] + data["params"]
         if method in self.method_map:
+            LOG.debug("__call__ method '%s' with params '%s'"%(method, 
+                                                               data["params"]))
             result = self.method_map[method](*params)
             #This is the recommended pyjamas-django integration thru jsonrpc
             #But it doesn't appear to support connecting handlers to callers
@@ -53,6 +54,7 @@ class JSONRPCService:
             #Hacking for now
             response = simplejson.dumps({'id': id, 'result': (method, result)})
         else:
+            LOG.debug("No registered method '%s'"%(method))
             response = simplejson.dumps({'id': id, 
                                          'error': "No such method", 'code': -1})
         return HttpResponse(response)
@@ -63,6 +65,7 @@ def jsonremote(service):
     JSONRPC decorator
     """
     def remotify(func):
+        LOG.debug("jsonremote: '%s'"%(func.__name__))
         if isinstance(service, JSONRPCService):
             service.add_method(func.__name__, func)
         else:

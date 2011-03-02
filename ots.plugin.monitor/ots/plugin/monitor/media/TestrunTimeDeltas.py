@@ -58,7 +58,8 @@ class TestrunTimeDeltas(GChart):
     COLORS = ['#a5cee3', '#1f78b3', '#b2de89',
               '#fcbf6f','#fb9a99', '#693d9a']
 
-    STATE_COLORS = {'0' : '#FFA500',
+    STATE_COLORS = {None : '#FFFFFF',
+                    '0' : '#FFA500',
                     '1' : '#FFA500', 
                     '2' : '#008000', 
                     '3' : '#FF0000', 
