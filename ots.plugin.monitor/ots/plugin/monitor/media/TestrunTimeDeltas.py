@@ -26,6 +26,11 @@ This is pyjamas code that gets compiled to javascript
 See http://pyjs.org/controls_tutorial.html
 """
 
+DEBUG = False
+
+from pyjamas.ui.RootPanel import RootPanel
+from pyjamas.ui.HTML import HTML
+
 from pyjamas.chart.HovertextChunk import formatAsHovertext
 from pyjamas.chart.GChart import GChart
 from pyjamas.chart import AnnotationLocation
@@ -342,7 +347,10 @@ class TestrunTimeDeltas(GChart):
     ###################################
 
     def onRemoteError(self, code, message, request_info):
-        Window.alert("Error: %s"%(message))
+        if DEBUG:
+            RootPanel().add(HTML(message))
+        else: 
+            Window.alert("Remote Error.")
 
     def onRemoteResponse(self, response, request_info):
         """
