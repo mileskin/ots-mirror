@@ -282,17 +282,19 @@ class Hub(object):
                                      % distribution_model)
 
         if self._taskrunner is None:
-            self._taskrunner = primed_taskrunner(self.testrun_uuid, 
-                                              self.options.timeout,
-                                              self.options.distribution_model,
-                                              self.options.device_properties,
-                                              self.options.image,
-                                              self.options.hw_packages,
-                                              self.options.host_packages,
-                                              self.options.emmc,
-                                              self.options.testfilter,
-                                              self.options.flasher,
-                                              custom_distribution_model)
+            self._taskrunner = \
+                primed_taskrunner(self.testrun_uuid, 
+                                  self.options.timeout,
+                                  self.options.distribution_model,
+                                  self.options.device_properties,
+                                  self.options.image,
+                                  self.options.hw_packages,
+                                  self.options.host_packages,
+                                  self.options.emmc,
+                                  self.options.testfilter,
+                                  self.options.flasher,
+                                  custom_distribution_model,
+                                  self.extended_options_dict)
 
         return self._taskrunner
 
