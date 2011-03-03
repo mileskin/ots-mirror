@@ -43,7 +43,7 @@ urlpatterns = patterns('',
     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
 
     (r'^services/$', 'ots.plugin.monitor.views.service'),
-    (r'^$', 'ots.plugin.monitor.views.index'),
+    (r'^demo_chart$', 'ots.plugin.monitor.views.demo_chart'),
     (r'^(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': settings.STATIC}),
 )

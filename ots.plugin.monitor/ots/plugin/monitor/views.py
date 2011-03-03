@@ -561,7 +561,7 @@ def view_requestor_details(request, requestor):
 # JSONRPC API FOR CHARTS 
 ###########################################
 
-def index(request):
+def demo_chart(request):
     request.session.set_expiry(datetime.datetime.now() + 
                                datetime.timedelta(1))
     request.session.save()
