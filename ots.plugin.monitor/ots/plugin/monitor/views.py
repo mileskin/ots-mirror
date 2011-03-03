@@ -27,18 +27,29 @@
 
 import datetime
 import time
+import logging 
 
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.contrib.sessions.models import Session
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
 from django.db.models import Count
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
+from ots.common.dto.api import MonitorType
 from ots.plugin.monitor.models import Testrun
 from ots.plugin.monitor.models import Event
-from ots.common.dto.api import MonitorType
+from ots.plugin.monitor.jsonrpc_service import JSONRPCService, jsonremote 
+from ots.plugin.monitor.event_timedeltas import EventTimeDeltas, event_sequence
+from ots.plugin.monitor.models import Testrun, Event
+
 
 ROW_AMOUNT_IN_PAGE = 50
+
+LOG = logging.getLogger(__name__) 
 
 #
 # Helping classes and functions
@@ -544,3 +555,97 @@ def view_requestor_details(request, requestor):
     
     template = loader.get_template('monitor/requestor_details.html')
     return HttpResponse(template.render(Context(context_dict)))
+
+
+###########################################
+# JSONRPC API FOR CHARTS 
+###########################################
+
+def index(request):
+    request.session.set_expiry(datetime.datetime.now() + 
+                               datetime.timedelta(1))
+    request.session.save()
+    return render_to_response('DemoChart.html')
+
+
+service = JSONRPCService()
+
+
+@jsonremote(service)
+def get_timedeltas(request, start, stop, step, device_group):
+    """
+    Providing the time deltas for all the steps in a testrun 
+    associated with a testrun_id. 
+
+    The order of the testrun_ids are chronological 
+    (or reverse chrono for a -1 step)
+
+    @type start: C{int}
+    @param start: The start index of the iteration
+
+    @type stop: C{int}
+    @param stop: The stop index of the iteration
+
+    @type step: C{int}
+    @param step: The step of the iteration
+
+    @type device_group: C{str}
+    @param device_group: The name of the device group 
+                         None returns all device groups 
+   
+    @rtype: A list of [C{tuple} of (C{str}, 
+                         [C{list} of 
+                            [C{list} of C{float}]])]
+    @rparam: A tuple of the testrun_id and the time deltas
+                  for all the steps in the testrun 
+    """
+    ev_dt =  EventTimeDeltas(device_group)
+    return list(ev_dt.deltas_iter(start, stop, step))
+
+service.add_method('get_timedeltas', get_timedeltas)
+
+@jsonremote(service)
+def get_event_sequence(request):
+    """
+    @rtype: C{list} of C{str}            
+    @rparam: The sequence of interesting events  
+    """   
+    return event_sequence()
+
+service.add_method('get_event_sequence', get_event_sequence)
+
+@jsonremote(service)
+def get_total_no_of_testruns(request, device_group):
+    """
+    @type device_group: C{str}
+    @param device_group: The name of the device group 
+                         None returns all device groups 
+   
+    @rtype: C{int},            
+    @rparam: The no of recorded runs of the device group  
+    """
+    ev_dt =  EventTimeDeltas(device_group)
+    return len(ev_dt.all_testrun_ids)
+
+service.add_method('get_total_no_of_testruns', get_total_no_of_testruns)
+
+@jsonremote(service) 
+def get_testrun_states(request, testrun_ids):
+    """
+    @type testrun_ids: C{list} of C{str}
+    @param testrun_ids: The testrun ids to query
+                        
+    @rtype: C{list} of C{str} or None            
+    @rparam: A corresponding list of states  
+    """
+    ret_val = []
+    for testrun_id in testrun_ids:
+        try:
+            testrun = Testrun.objects.get(id = testrun_id)
+            ret_val.append(testrun.state)
+        except ObjectDoesNotExist:
+            LOG.error("No Testrun for id: '%s'"%(testrun_id))
+            ret_val.append(None)
+    return ret_val
+   
+service.add_method('get_testrun_states', get_testrun_states)

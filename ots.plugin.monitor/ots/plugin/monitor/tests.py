@@ -22,9 +22,15 @@
 
 import unittest
 
+from datetime import datetime, timedelta
+
+from django.test import TestCase
+
+from ots.common.dto.monitor import Monitor, MonitorType
 from ots.plugin.monitor.monitor_plugin import MonitorPlugin
 from ots.plugin.monitor.models import Testrun, Event
-from ots.common.dto.monitor import Monitor, MonitorType
+from ots.plugin.monitor.views import get_timedeltas
+from ots.plugin.monitor.event_timedeltas import EventTimeDeltas, event_sequence
 
 
 class TestMonitorPlugin(unittest.TestCase):
@@ -63,6 +69,79 @@ class TestMonitorPlugin(unittest.TestCase):
 
     def test_set_monitors(self):
         pass
+
+class TestEventSequence(unittest.TestCase):
+
+    def test_event_sequence(self):
+        expected = ['Testrun requested', 'Task in queue', 
+                    'Task is ongoing', 'Device flashing', 
+                    'Device booting', 'Test execution', 
+                    'Test package ended']
+        self.assertEquals(expected, event_sequence())
+
+class TestEventTimeDeltas(TestCase):
+
+    fixtures = ['time_deltas_fixtures.json']
+
+    def test_get_events(self):
+        ev_dt = EventTimeDeltas()
+        expected = 100*2 + 100*7 + 100*6
+        self.assertEquals(expected, len(ev_dt._events))
+        ev_dt = EventTimeDeltas("complete_run")
+        self.assertEquals(100*7, len(ev_dt._events))
+        
+    def test_get_events_query_sets(self):
+        ev_dt = EventTimeDeltas()
+        self.assertEquals(7, len(ev_dt._events_query_sets))
+    
+    def test_testrun_ids(self):
+        ev_dt = EventTimeDeltas()
+        self.assertEquals([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                          ev_dt._testrun_ids(0, 10, 1))
+        self.assertEquals([9, 7, 5, 3, 1],
+                          ev_dt._testrun_ids(0, 10, -2))
+        expected = [i for i in range(300)]
+        self.assertEquals(expected, ev_dt._testrun_ids(None, None, None))
+
+    def test_get_event_times(self):
+        ev_dt = EventTimeDeltas()
+        expected = "2011-02-01 00:01"
+        self.assertEquals(expected,
+              ev_dt._get_event_times(0, 0)[0].strftime("%Y-%m-%d %H:%M"))
+
+    def test_event_dts(self):
+        ev_dt = EventTimeDeltas()
+        t = datetime.strptime("2011-02-01","%Y-%m-%d")
+        t1s = [t + timedelta(minutes = i*i) for i in range(5)]
+        t2s = [t1s[-1] + timedelta(minutes = (i+1)*(i+1)) for i in range(5)]
+        self.assertEquals([60, 180, 300, 420, 540],
+                          ev_dt._event_dts(t1s, t2s))
+        self.assertEquals([], ev_dt._event_dts([], t1s))
+        self.assertEquals([], ev_dt._event_dts(t1s, []))
+  
+    def test_deltas_iter(self):
+        ev_dt = EventTimeDeltas()
+        dts = list(ev_dt.deltas_iter(0,10,1))
+        self.assertEquals(10, len(dts))
+        expected = (0, [[120], [240], [360], [480], [600], [720]])
+        self.assertEquals(expected, dts[0])
+        ev_dt = EventTimeDeltas("faulty_flasher")
+        dts = list(ev_dt.deltas_iter(0,4,2))
+        self.assertEquals(2, len(dts))
+        expected = (7, [[120], [240], [360, 480, 600], [], [], []])
+        self.assertEquals(expected, dts[1])
+
+class TestJSONRPC_API(TestCase):
+    
+    fixtures = ['time_deltas_fixtures.json']
+
+    def test_dts_iter(self):
+       
+        dts = get_timedeltas(None, 0, 10, 1, None)
+        self.assertEquals(10, len(dts))
+        expected = (0, [[120], [240], [360], [480], [600], [720]])
+        self.assertEquals(expected, dts[0])
+       
 
 if __name__ == "__main__":
     unittest.main()

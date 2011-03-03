@@ -1,0 +1,63 @@
+==================
+ots.plugin.monitor
+==================
+
+Prerequisits
+============
+
+- Django-1.2.5.tar.gz (http://www.djangoproject.com/download/)
+
+- Pyjamas 0.7 (http://sourceforge.net/projects/pyjamas/files/)
+
+Building the Javascript
+=======================
+
+1. Put Pyjamas on your Path
+
+e.g. export PATH=$PATH:/path/to/pyjamas/pyjamas-0.7/bin/
+
+2. Build the chart 
+
+[../ots/plugin/monitor/media]$ pyjsbuild DemoChart.py
+
+Fixtures
+========
+
+The data needed for unittests is created with: 
+
+python make_timedeltas_fixtures.py
+
+To run a demo change the name of 
+
+time_deltas_fixtures.json to initial_data.json
+
+Troubleshooting
+===============
+
+Enabling logging information in Development Mode
+------------------------------------------------
+
+1. Run from the console with DEBUG on
+    
+ots.django/ots/django/settings.py
+
+DEBUG = True
+
+2. Allow TestrunTimeDeltas.py to show full tracebacks
+
+ots.plugin.monitor/ots/plugin/monitor/media/TestrunTimeDeltas.py
+
+DEBUG = True
+
+3. Check the output in the Django console
+
+4. Check for any errors in the Browser
+
+Building javascript as debug
+----------------------------
+
+See the 
+
+http://pyjs.org/FAQ.html
+
+[../ots/plugin/monitor/media]$ pyjsbuild -d DemoChart.py
