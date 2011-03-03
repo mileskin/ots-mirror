@@ -12,13 +12,9 @@ Prerequisits
 Building the Javascript
 =======================
 
-1. Put Pyjamas on your Path
+To build the js you need Pyjamas on your Path
 
 e.g. export PATH=$PATH:/path/to/pyjamas/pyjamas-0.7/bin/
-
-2. Build the chart 
-
-[../ots/plugin/monitor/media]$ pyjsbuild DemoChart.py
 
 Fixtures
 ========
@@ -31,11 +27,9 @@ To run a demo change the name of
 
 time_deltas_fixtures.json to initial_data.json
 
-Troubleshooting
-===============
 
-Enabling logging information in Development Mode
-------------------------------------------------
+Development Mode
+================
 
 1. Run from the console with DEBUG on
     
@@ -49,15 +43,88 @@ ots.plugin.monitor/ots/plugin/monitor/media/TestrunTimeDeltas.py
 
 DEBUG = True
 
-3. Check the output in the Django console
+3. Building javascript
 
-4. Check for any errors in the Browser
+[../ots/plugin/monitor/media]$ pyjsbuild DemoChart.py
 
-Building javascript as debug
-----------------------------
-
-See the 
-
-http://pyjs.org/FAQ.html
+Or as debug
 
 [../ots/plugin/monitor/media]$ pyjsbuild -d DemoChart.py
+
+4. Run Django 
+
+[../ots.django/ots/django]$ django-admin.py runserver
+
+5. Check the output in the Django console
+
+
+6. Check for any errors in the Browser
+
+http://127.0.0.1:8000/demo_chart
+
+Production Mode
+===============
+
+This describes how to demonstrate the charts using 
+Django, Apache 2, mod_python
+
+1. Edit ots.django.urls using the clearly marked switch
+
+##################################################
+# Switch for serving js content in Dev/Production
+##################################################
+
+if False:
+
+2. Similarly for ots.django.settings
+
+###############################################
+# Switch for serving js content Dev/Production 
+###############################################
+
+if False:
+ 
+
+3. Allow TestrunTimeDeltas.py to show full tracebacks
+
+ots.plugin.monitor/ots/plugin/monitor/media/TestrunTimeDeltas.py
+
+DEBUG = True
+
+4. Edit the ROOT_URL in the DataService in TestrunTimeDeltas.py so that 
+   it points to the correct address
+
+
+#TODO: Add your root URL here
+ROOT_URL = 'http://127.0.0.1/services/'
+
+5. Create a directory for the Compiled Javascript
+
+/var/www/chart_demo
+
+And set the permissions
+
+6. Build the Pyjamas files
+
+[../ots/plugin/monitor/pyjs]$ ./build.sh 
+
+(This also sends the output to the dir created above)
+
+7. Adjust your apache2.conf settings 
+
+<Location "/chart_demo">
+    SetHandler None
+</Location> 
+
+And restart:
+
+sudo /etc/init.d/apache2 restart
+
+8. The charts should be served up here (or equivalent):
+
+http://127.0.0.1/chart_demo/
+
+See Also
+========
+
+http://pyjs.org/FAQ.html

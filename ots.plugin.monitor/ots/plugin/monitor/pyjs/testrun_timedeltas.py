@@ -26,7 +26,7 @@ This is pyjamas code that gets compiled to javascript
 See http://pyjs.org/controls_tutorial.html
 """
 
-DEBUG = False
+DEBUG = True
 
 from pyjamas.ui.RootPanel import RootPanel
 from pyjamas.ui.HTML import HTML
@@ -116,7 +116,6 @@ class TestrunTimeDeltas(GChart):
             testrun_time = sum([sum(step_dts) for step_dts in all_dts])
             longest_time = max(longest_time , testrun_time)
         return longest_time
-
 
     def _get_y_axis_size(self, longest_time):
         """
@@ -347,6 +346,7 @@ class TestrunTimeDeltas(GChart):
     ###################################
 
     def onRemoteError(self, code, message, request_info):
+        RootPanel().add(HTML(message))
         if DEBUG:
             RootPanel().add(HTML(message))
         else: 
@@ -447,6 +447,14 @@ class DataService(JSONProxy):
                'get_event_sequence',
                'get_total_no_of_testruns',
                'get_testrun_states']
+
+    #TODO: Add your root URL here
+    ROOT_URL = 'http://127.0.0.1/services/'
     
     def __init__(self):
-        JSONProxy.__init__(self, 'services/', DataService.methods)
+        if DEBUG == True :
+            services = 'services/'
+        else: 
+            services = self.ROOT_URL
+        JSONProxy.__init__(self, services, 
+                           DataService.methods)

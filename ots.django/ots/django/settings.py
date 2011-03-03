@@ -95,19 +95,20 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'ots.django.urls'
 
-#################
-# STATICS HACK
+STATIC = ''
 
+###############################################
+# Switch for serving js content Dev/Production 
+###############################################
 
+if True:
+    import os
+    import ots.plugin.monitor
+    STATIC = str(os.path.join(os.path.dirname(ots.plugin.monitor.__file__), 
+                            'pyjs/output').replace('\\','/'))
+    print "FIXME: Serving statics in dev mode from:" + STATIC
 
-import os
-import ots.plugin.monitor
-STATIC = str(os.path.join(os.path.dirname(ots.plugin.monitor.__file__), 'templates/monitor/output').replace('\\','/'))
-
-print "FIXME: Serving statics in dev mode needs fixing for production:"+STATIC
-
-#
-################
+###############################################
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
