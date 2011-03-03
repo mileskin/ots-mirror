@@ -41,7 +41,7 @@ Description: OTS worker
 
 Package: python-ots-django
 Architecture: all
-Depends: python (>= 2.5), python-django, libapache2-mod-wsgi, apache2-mpm-prefork
+Depends: python (>= 2.5), python-django, python-ots-server, libapache2-mod-wsgi, apache2-mpm-prefork
 Provides: ${python:Provides}
 XB-Python-Version: >=2.5
 Description: OTS django project

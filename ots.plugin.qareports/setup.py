@@ -34,7 +34,7 @@ else:
 setup(
       name="ots.plugin.qareports",
       author="teemu.vainio@ixonos.com",
-      namespace_packages=["ots", "ots.plugin", "ots.plugin.qareports"],
+      namespace_packages=["ots", "ots.plugin"],
       version=get_spec_version(),
       include_package_data=True,
       packages=find_packages(),

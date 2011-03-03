@@ -37,7 +37,7 @@ setup(
       author="teemu.vainio@ixonos.com",
       version=get_spec_version(),
       include_package_data=True,
-      namespace_packages=["ots", "ots.server"],
+      namespace_packages=["ots"],
       packages=find_packages(),
       install_requires=['ots.results'],
       entry_points={"console_scripts":

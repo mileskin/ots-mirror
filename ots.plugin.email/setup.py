@@ -26,7 +26,7 @@ from get_spec_version import get_spec_version
 setup(
       name = "ots.plugin.email",
       author="teemu.vainio@ixonos.com",
-      namespace_packages = ["ots", "ots.plugin","ots.plugin.email"],
+      namespace_packages = ["ots", "ots.plugin"],
       version=get_spec_version(),
       include_package_data = True,
       packages = find_packages(),

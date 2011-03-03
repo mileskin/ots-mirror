@@ -26,7 +26,7 @@ from get_spec_version import get_spec_version
 setup(
       name="ots.plugin.history",
       author="esa-pekka.miettinen@digia.com",
-      namespace_packages=["ots", "ots.plugin", "ots.plugin.history"],
+      namespace_packages=["ots", "ots.plugin"],
       version=get_spec_version(),
       include_package_data=True,
       packages=find_packages(),

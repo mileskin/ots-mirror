@@ -29,7 +29,7 @@ setup(
       version=get_spec_version(),
       include_package_data=True,
       install_requires=['minixsv'],
-      namespace_packages=['ots', 'ots.results'],
+      namespace_packages=['ots'],
       packages=find_packages(),
       zip_safe=False,
       )
