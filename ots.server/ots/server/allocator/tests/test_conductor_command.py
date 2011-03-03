@@ -90,7 +90,7 @@ class TestConductorCommands(unittest.TestCase):
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"",
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
-                   'timeout':"30", 'bootmode':"normal", 'coverage_symbol_file_locations':""}
+                   'timeout':"30", 'bootmode':"normal"}
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
