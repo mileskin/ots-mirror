@@ -29,7 +29,8 @@ from pyjamas.ui.RootPanel import RootPanel
 from pyjamas.chart import GChart
 
 from pyjamas.Canvas.GWTCanvas import GWTCanvas
-from TestrunTimeDeltas import TestrunTimeDeltas
+
+from testrun_timedeltas import TestrunTimeDeltas
 
 class AddOneChart:
     def __init__(self, gchart, needsUpdate=True):

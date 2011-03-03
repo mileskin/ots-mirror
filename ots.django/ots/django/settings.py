@@ -102,7 +102,7 @@ ROOT_URLCONF = 'ots.django.urls'
 
 import os
 import ots.plugin.monitor
-STATIC = str(os.path.join(os.path.dirname(ots.plugin.monitor.__file__), 'media/output').replace('\\','/'))
+STATIC = str(os.path.join(os.path.dirname(ots.plugin.monitor.__file__), 'templates/monitor/output').replace('\\','/'))
 
 print "FIXME: Serving statics in dev mode needs fixing for production:"+STATIC
 

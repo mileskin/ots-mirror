@@ -565,7 +565,7 @@ def index(request):
     request.session.set_expiry(datetime.datetime.now() + 
                                datetime.timedelta(1))
     request.session.save()
-    return render_to_response('DemoChart.html')
+    return render_to_response('demo_chart.html')
 
 
 service = JSONRPCService()
