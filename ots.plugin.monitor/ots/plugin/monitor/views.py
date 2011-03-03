@@ -177,7 +177,8 @@ def _generate_stats_from_events(event_list):
     
     event_category = {
                       "Queue time" : [MonitorType.TASK_INQUEUE, MonitorType.TASK_ONGOING],
-                      "Flash time" : [MonitorType.DEVICE_FLASH, MonitorType.DEVICE_BOOT],
+                      # BOOT event not supported yet
+                      "Flash time" : [MonitorType.DEVICE_FLASH, MonitorType.TEST_EXECUTION],
                       "Boot time" : [MonitorType.DEVICE_BOOT, MonitorType.TEST_EXECUTION],
                       "Execution time" : [MonitorType.TEST_EXECUTION, MonitorType.TESTRUN_ENDED],
                       "Total time" : [MonitorType.TESTRUN_REQUESTED, MonitorType.TESTRUN_ENDED],
