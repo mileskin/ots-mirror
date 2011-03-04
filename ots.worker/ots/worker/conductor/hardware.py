@@ -318,12 +318,12 @@ class Hardware(TestTarget):
             #Run flasher. Note: one of paths (image_path OR content_image_path)
             #may be None
             if self.testrun.bootmode:
-                flasher.flash(image = self.testrun.image_path, \
-                              content_image = self.testrun.content_image_path, \
+                flasher.flash(image_path = self.testrun.image_path, \
+                              content_image_path = self.testrun.content_image_path, \
                               boot_mode = self.testrun.bootmode)
             else:
-                flasher.flash(image = self.testrun.image_path, \
-                              content_image = self.testrun.content_image_path)
+                flasher.flash(image_path = self.testrun.image_path, \
+                              content_image_path = self.testrun.content_image_path)
 
         except flasher_module.ConnectionTestFailed:
             raise ConductorError("Error in preparing hardware: "\
