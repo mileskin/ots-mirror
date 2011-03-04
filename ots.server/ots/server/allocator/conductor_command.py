@@ -58,6 +58,8 @@ def conductor_command(options, host_testing):
     # Use global timeout as conductor testrun timeout
     if options['timeout']:
         cmd.extend( ["-m", str(options['timeout'])] )
+    if options['bootmode']:
+        cmd.extend( ["-b", options['bootmode']] )
 
     if host_testing == True:
         cmd.extend( ['-o'] )

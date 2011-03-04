@@ -130,6 +130,7 @@ class Options(object):
         self.verbose = False
         self.otsserver = None
         self.flasher_url = None
+        self.bootmode = None
 
 class Stub_Executor(object):
     def __init__(self, testrun, stand_alone, responseclient = None,
@@ -331,6 +332,7 @@ class TestConductor(unittest.TestCase):
         self.assertEquals(options.verbose, False)
         self.assertEquals(options.otsserver, None)
         self.assertEquals(options.flasher_url, None)
+        self.assertEquals(options.bootmode, None)
         parser.print_help() #check help text is set
 
 
@@ -792,6 +794,13 @@ class TestDefaultFlasher(unittest.TestCase):
         from ots.worker.conductor.defaultflasher import SoftwareUpdater
         sw_updater = SoftwareUpdater()
         sw_updater.flash("image1", "image2")
+
+    def test_softwareupdater_flash_with_bootmode(self):
+        from ots.worker.conductor.defaultflasher import SoftwareUpdater
+        sw_updater = SoftwareUpdater()
+        sw_updater.flash(image_path = "image1",
+                         content_image_path = "image2",
+                         boot_mode="normal")
 
 
 if __name__ == '__main__':

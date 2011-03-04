@@ -56,7 +56,8 @@ def _storage_address():
 def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model, 
                       device_properties,
                       image, hw_packages, host_packages,
-                      emmc, testfilter, flasher, custom_distribution_model): 
+                      emmc, testfilter, flasher, custom_distribution_model,
+                      extended_options): 
     """
     Get a Taskrunner loaded with Tasks and ready to Run
 
@@ -101,6 +102,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     @param custom_distribution_model: A callable matching the default models
                                       in default_distribution_models.py
 
+    @type extended_options : C{dict}
+    @param extended_options : A dictionary of extended ots testrun options
+
     rtype: L{Taskrunner}
     rparam: A loaded Taskrunner 
     """
@@ -126,7 +130,8 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
                         testfilter,
                         execution_timeout,
                         flasher,
-                        custom_distribution_model)
+                        custom_distribution_model,
+                        extended_options)
     for cmd in cmds:
         LOG.info("Added cmd '%s' to taskrunner" % (" ".join(cmd)))
         taskrunner.add_task(cmd)

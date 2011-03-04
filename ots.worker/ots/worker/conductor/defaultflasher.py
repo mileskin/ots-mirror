@@ -50,7 +50,7 @@ class SoftwareUpdater(object):
     def __init__(self, flasher=None):
         super(SoftwareUpdater, self).__init__()
 
-    def flash(self, image_path, content_image_path):
+    def flash(self, image_path, content_image_path, boot_mode=None):
         """
         Call this method to start flashing.
 
@@ -59,6 +59,9 @@ class SoftwareUpdater(object):
 
         @type content_image_path: C{string}
         @param content_image_path: Absolute path of Device content image file
+
+        @type boot_mode: C{string}
+        @param boot_mode: Boot mode parameter from ots input parameters.
         """
 
         log = logging.getLogger("conductor")

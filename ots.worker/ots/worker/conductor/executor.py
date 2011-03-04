@@ -76,6 +76,9 @@ class TestRunData(object):
         #content_image_path may later get overwritten.
         self.content_image_path = options.content_image_path
 
+        # Bootmode for flasher
+        self.bootmode = options.bootmode
+
         self.flasher_url = options.flasher_url
 
         self.test_packages = []
