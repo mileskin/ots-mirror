@@ -964,7 +964,7 @@ def has_message(testrun_id, string, times=None):
     """
     ret_val = False
     count = 0
-    file =  urllib2.urlopen(CONFIG["global_log"]+"testrun/%s" % testrun_id)
+    file =  urllib2.urlopen(CONFIG["global_log"]+"testrun/%s/" % testrun_id)
     soup = BeautifulSoup(file.read(),
                          convertEntities=BeautifulSoup.ALL_ENTITIES)
 
@@ -1000,7 +1000,7 @@ def has_errors(testrun_id):
     Checks if testrun has any error messages
     """
     ret_val = False
-    file =  urllib2.urlopen(CONFIG["global_log"]+"testrun/%s" % testrun_id)
+    file =  urllib2.urlopen(CONFIG["global_log"]+"testrun/%s/" % testrun_id)
     soup = BeautifulSoup(file.read(), 
                          convertEntities=BeautifulSoup.ALL_ENTITIES)
 
