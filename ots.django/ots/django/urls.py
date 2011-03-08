@@ -24,22 +24,27 @@
 Django main url file
 """
 
-# Ignoring naming pattern
-# pylint: disable=C0103
-
 from django.conf.urls.defaults import patterns, include, handler500, handler404
+from django.conf import settings
 
-
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
-
-urlpatterns = patterns('',
-
-    # Example:
+args = ['',
     (r'^logger/', include('ots.plugin.logger.urls')),
     (r'^monitor/', include('ots.plugin.monitor.urls')),
 
     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
 
-)
+    (r'^services/$', 'ots.plugin.monitor.views.service'),
+]
+
+##################################################
+# Switch for serving js content in Dev/Production
+##################################################
+
+if True:
+    args += [(r'^demo_chart$', 'ots.plugin.monitor.views.demo_chart'),
+             (r'^(?P<path>.*)$', 'django.views.static.serve',
+              {'document_root': settings.STATIC}),]
+
+##################################################
+
+urlpatterns = patterns(*args)
