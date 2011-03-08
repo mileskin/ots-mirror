@@ -31,5 +31,6 @@ setup(
       namespace_packages=["ots"],
       packages=find_packages(),
       zip_safe=False,
+      test_suite='ots.common.test.suite',
       install_requires=['amqplib']
       )
