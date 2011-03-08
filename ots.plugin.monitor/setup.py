@@ -25,21 +25,22 @@ from get_spec_version import get_spec_version
 
 setup(
       name="ots.plugin.monitor",
-      author="",
+      author="meego-qa@lists.meego.com",
       namespace_packages=["ots", "ots.plugin"],
       version=get_spec_version(),
       include_package_data=True,
       packages=find_packages(),
-      install_requires=['ots.server', 'ots.django'],
+      install_requires=['ots.django'],
       entry_points={"ots.publisher_plugin":
                     ["publisher_klass = "\
                      "ots.plugin.monitor.monitor_plugin:MonitorPlugin"]},
-      data_files=[('/usr/share/ots/plugin/monitor',\
-                       ['ots/plugin/monitor/templates/monitor/index.html',
-                        'ots/plugin/monitor/templates/monitor/group_details_view.html',
-                        'ots/plugin/monitor/templates/monitor/requestor_details.html',
-                        'ots/plugin/monitor/templates/monitor/testrun_details.html',
-                        'ots/plugin/monitor/templates/monitor/testrun_list.html',
-                        'ots/plugin/monitor/templates/monitor/monitor_base.html',]),
-                  ]
+      data_files=\
+        [('/usr/share/ots/plugin/monitor', \
+          ['ots/plugin/monitor/templates/monitor/index.html',
+           'ots/plugin/monitor/templates/monitor/group_details_view.html',
+           'ots/plugin/monitor/templates/monitor/requestor_details.html',
+           'ots/plugin/monitor/templates/monitor/testrun_details.html',
+           'ots/plugin/monitor/templates/monitor/testrun_list.html',
+           'ots/plugin/monitor/templates/monitor/monitor_base.html', ]),
+           ]
       )
