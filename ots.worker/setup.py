@@ -40,6 +40,7 @@ setup(
       namespace_packages=['ots'],
       packages=find_packages(),
       zip_safe=False,
+      test_suite='ots.worker.test.suite',
       entry_points={"console_scripts":
                     ["conductor = ots.worker.conductor.conductor:main",
                      "ots_worker = ots.worker.worker:main"]},
