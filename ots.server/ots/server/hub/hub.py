@@ -185,7 +185,7 @@ class Hub(object):
         @rtype C{str}
         @rparam Name of the sw product this testrun belongs to
         """
-        return str(self._sw_product).lower()
+        return str(self._sw_product)
        
     @property
     @sandbox(DEFAULT_REQUEST_ID)
