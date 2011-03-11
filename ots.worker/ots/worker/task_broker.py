@@ -293,13 +293,7 @@ class TaskBroker(object):
         """
         state = self._task_state.next()
         LOGGER.debug("Task in state: '%s'"%(state))
-        state_msg = StateChangeMessage(task_id, state)
-        amqp_message = pack_message(state_msg) 
-        self.channel.basic_publish(amqp_message,
-                                   mandatory = True,
-                                   exchange = response_queue,
-                                   routing_key = response_queue)
-        
+
         # Monitor event send
         event_type = MonitorType.TASK_ONGOING
         if state == TaskCondition.FINISH:
@@ -307,11 +301,20 @@ class TaskBroker(object):
         monitor_event = Monitor(event_type,
                                 gethostname(),
                                 task_id)
-        amqp_message = pack_message(monitor_event) 
+
+        amqp_message = pack_message(monitor_event)
         self.channel.basic_publish(amqp_message,
                                    mandatory = True,
                                    exchange = response_queue,
                                    routing_key = response_queue)
+
+        state_msg = StateChangeMessage(task_id, state)
+        amqp_message = pack_message(state_msg) 
+        self.channel.basic_publish(amqp_message,
+                                   mandatory = True,
+                                   exchange = response_queue,
+                                   routing_key = response_queue)
+        
         
     def _publish_exception(self, task_id, response_queue, exception):
         """
