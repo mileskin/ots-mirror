@@ -38,6 +38,7 @@ import unittest
 import urllib2
 from configobj import ConfigObj
 from BeautifulSoup import BeautifulSoup
+from urlparse import urlparse
 from ots.tools.trigger.ots_trigger import ots_trigger
 
 CONFIGFILE = "system_tests.conf"
@@ -516,10 +517,6 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
 class TestCustomDistributionModels(unittest.TestCase):
 
-    def assert_log_contains_string(self, testrun_id, string): 
-        self.assertTrue(has_message(testrun_id, string), 
-         "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
-
     def test_load_example_distribution_model(self):
         options = Options()
         options.distribution = "example_model"
@@ -541,11 +538,10 @@ class TestCustomDistributionModels(unittest.TestCase):
         self.assertTrue(has_errors(testrun_id))
 
         string = "Result set to ERROR"
-        self.assert_log_contains_string(testrun_id, string)
+        self.assertTrue(has_message(testrun_id, string, 1))
 
-        string = "Example distribution model not implemented."
-        self.assert_log_contains_string(testrun_id, string)
-
+        string = "Invalid distribution model: example_model"
+        self.assertTrue(has_message(testrun_id, string, 1))
 
 class TestErrorConditions(unittest.TestCase):
 
@@ -579,7 +575,9 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assertTrue(has_message(testrun_id, string))
 
-        string = "Error: Could not download file ots_system_test_image.tar.gzasdfasdfthiswontexistasdfasdf, Error code: 103"
+        path = urlparse(options.image).path[1:]
+        string = "Error: Could not download file " \
+            "%s, Error code: 103" % path
         self.assertTrue(has_message(testrun_id, string))
 
         # Check message from conductor
