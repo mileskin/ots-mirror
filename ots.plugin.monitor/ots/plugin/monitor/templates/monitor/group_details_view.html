@@ -83,18 +83,19 @@
 	</tr>
 </table>
 <p />
+<a href="?state={{state}}&requestor={{requestor}}&orderby={{orderby}}&export=csv">Export</a>
 <table id="testrun_list" >
     <thead>
         <tr>
             <th style="width:1%">S</th>
             <th style="width:1%">L</th>                       
-            <th style="width:15%">Id</th>
-            <th style="width:15%">Start time</th>
-            <th style="width:15%">Active time</th>
-            <th style="width:20%">Requestor</th>
-            <th style="width:5%">Req Id</th>
-            <th style="width:15%">Error</th>
-            <th style="width:15%">Workers</th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby=id">Id</a></th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby=start_time">Start time</a></th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby=start_time">Active time</a></th>
+            <th style="width:20%"><a href="?state={{state}}&requestor={{requestor}}&orderby=requestor">Requestor</a></th>
+            <th style="width:5%"><a href="?state={{state}}&requestor={{requestor}}&orderby=request_id">Req Id</a></th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby=error">Error</a></th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby=host_worker_instances">Workers</a></th>
             
         </tr>
     </thead>
@@ -118,7 +119,7 @@
 <div class="pagination">
     <span class="step-links">
         {% if testruns.has_previous %}
-            <a href="?page={{ testruns.previous_page_number }}&state={{state}}&requestor={{requestor}}">previous</a>
+            <a href="?page={{ testruns.previous_page_number }}&state={{state}}&requestor={{requestor}}&orderby={{orderby}}">previous</a>
         {% endif %}
         {% for page_num in testruns.paginator.page_range %}
             {% if page_num == testruns.number %}
@@ -126,11 +127,11 @@
                     {{ testruns.number }}
                 </span>
             {% else %}
-                <a href="?page= {{ page_num }}&state={{state}}&requestor={{requestor}}">{{ page_num }}</a>
+                <a href="?page= {{ page_num }}&state={{state}}&requestor={{requestor}}&orderby={{orderby}}">{{ page_num }}</a>
             {% endif %}
         {% endfor %}
         {% if testruns.has_next %}
-            <a href="?page={{ testruns.next_page_number }}&state={{state}}&requestor={{requestor}}">next</a>
+            <a href="?page={{ testruns.next_page_number }}&state={{state}}&requestor={{requestor}}&orderby={{orderby}}">next</a>
         {% endif %}
     </span>
 </div>

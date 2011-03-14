@@ -37,6 +37,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from ots.plugin.monitor.models import Testrun
 from ots.plugin.monitor.models import Event
 from ots.common.dto.api import MonitorType
+from ots.plugin.monitor.templatetags.monitor_template_tags import format_datetime,calculate_delta,strip_email
 
 ROW_AMOUNT_IN_PAGE = 50
 
@@ -435,9 +436,17 @@ def view_group_details(request, devicegroup):
 
     state_filter = request.GET.get("state", "")
     requestor_filter = request.GET.get("requestor", "")
+    orderby_filter = request.GET.get("orderby", "")
+    #export
+    export = request.GET.get("export", "")
+    if export != "":
+        export = True
+    else:
+        export = False
     
     context_dict["state"] = state_filter
     context_dict["requestor"] = requestor_filter
+    context_dict["orderby"] = orderby_filter
     
     if state_filter != "":
         state_filter = "%s" % state_filter
@@ -450,11 +459,20 @@ def view_group_details(request, devicegroup):
     if requestor_filter != "":
         requestor_filter = "%s" % requestor_filter
         testruns = testruns.filter(requestor = requestor_filter)
+    
+    if orderby_filter != "":
+        orderby_filter = "%s" % orderby_filter
+        if orderby_filter != "start_time":
+            testruns = testruns.order_by(orderby_filter, 'start_time')
+        else:
+            testruns = testruns.order_by('start_time')
 
     testrun_stats = _calculate_testrun_stats(testruns)
     runs_finished = testrun_stats.get("finished")
 
-    context_dict['testruns'] = _paginate(request, testruns.order_by('state', 'start_time'))
+    #context_dict['testruns'] = _paginate(request, testruns.order_by('state', 'start_time'))
+    context_dict['testruns'] = _paginate(request, testruns)
+        
     context_dict['devicegroup'] = devicegroup
     context_dict['runcount'] = testrun_stats.get("runs")
     context_dict['finishedcount'] = runs_finished
@@ -499,8 +517,87 @@ def view_group_details(request, devicegroup):
     context_dict['fail_rate'] = "%.1f" % testrun_stats.get("failed_ration")
         
     template = loader.get_template('monitor/group_details_view.html')
+    if export:
+        header_row = ['State','Id','Start time','Active time','Requestor','Req Id','Error','Workers']
+        data_row = ['state','testrun_id','format_datetime|start_time','calculate_delta|start_time','requestor','request_id','error','host_worker_instances']
+        return export_table_as_xml(testruns,data_row,header_row)
     return HttpResponse(template.render(Context(context_dict)))
 
+def export_table_as_xml(tabledata,itemdata,itemtitles=[],filename='ots_table.xml'):
+    from xml.dom.minidom import getDOMImplementation
+    response = HttpResponse(mimetype='text/xml')
+    response['Content-Disposition'] = 'attachment; filename=%s'%filename
+    
+    impl = getDOMImplementation()
+    newdoc = impl.createDocument(None,filename,None)
+    top_element = newdoc.documentElement
+    for data in tabledata:
+        row_element = newdoc.createElement('row')
+        for i, item in enumerate(itemdata):
+            func_end = item.find('|')
+            if func_end == -1:
+                attr_name = item
+                func_name = ''
+            else:
+                attr_name = item[func_end+1:]
+                func_name = item[:func_end]
+                
+            if len(itemtitles)>=i:
+                title = itemtitles[i]
+            else:
+                title = attr_name
+            
+            if hasattr(data,attr_name):
+                element = newdoc.createElement(title)
+                attr = getattr(data,attr_name)
+                if func_name in globals():
+                    func = globals()[func_name]
+                    node = newdoc.createTextNode(str(func(attr)))
+                    element.appendChild(node)
+                    row_element.appendChild(element)
+                    continue
+                node = newdoc.createTextNode(attr)
+                element.appendChild(node)
+                row_element.appendChild(element)
+                continue
+        top_element.appendChild(row_element)
+        
+    newdoc.writexml(response)
+    
+    return response 
+    
+    
+def export_table_as_csv(tabledata,rowdata,headerrow=[],filename='ots_table.csv',delimiter='|'):
+    import csv
+    
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=%s'%filename
+    print globals()
+    writer = csv.writer(response,delimiter=delimiter)
+    if len(headerrow):
+        writer.writerow(headerrow)
+    for data in tabledata:
+        rowout = []
+        for item in rowdata:
+            func_end = item.find('|')
+            if func_end == -1:
+                attr_name = item
+                func_name = ''
+            else:
+                attr_name = item[func_end+1:]
+                func_name = item[:func_end]
+            if hasattr(data,attr_name):
+                attr = getattr(data,attr_name)
+                if func_name in globals():
+                    func = globals()[func_name]
+                    rowout.append(func(attr))
+                    continue
+                rowout.append(attr)
+                continue
+            rowout.append('')
+        writer.writerow(rowout)
+    return response
+            
 def view_requestor_details(request, requestor):
     """ Shows testruns by requestor view
 
