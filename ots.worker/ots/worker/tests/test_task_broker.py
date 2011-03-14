@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -302,7 +302,7 @@ class TestTaskBroker(unittest.TestCase):
         # tasks in response queue
 
         self.assertEquals(_queue_size("test"), 0)
-        self.assertEquals(_queue_size(response_queue), 4)
+        self.assertEquals(_queue_size(response_queue), 8)
 
     def test_on_message_failing_commands(self):
 
@@ -335,7 +335,7 @@ class TestTaskBroker(unittest.TestCase):
 	# We should have 0 tasks in the queue and STARTED, Exception and
         # FINISHED for both tasks in response queue
         self.assertEquals(_queue_size("test"), 0)
-        self.assertEquals(_queue_size(response_queue), 6)
+        self.assertEquals(_queue_size(response_queue), 10)
 
     def test_on_message_not_version_compatible(self):
         """
@@ -355,7 +355,7 @@ class TestTaskBroker(unittest.TestCase):
         self.assertEquals(1, _queue_size("test"))
         task_broker._start_consume()
         channel.wait()
-        self.assertEquals(1, _queue_size("test"))
+        self.assertEquals(3, _queue_size("test"))
 
         #Check that the message can be pulled by another consumer
         connection = amqp.Connection(host = "localhost", 
@@ -409,7 +409,7 @@ class TestTaskBroker(unittest.TestCase):
         response_queue = 'test'
         self.assertEquals(0, _queue_size(response_queue))
         task_broker._publish_task_state_change(task_id, response_queue)
-        self.assertEquals(1, _queue_size(response_queue))
+        self.assertEquals(2, _queue_size(response_queue))
 
     def test_publish_exception(self):
         task_broker = _task_broker_factory()

@@ -62,7 +62,6 @@ class Stats(object):
         self.name = name
         self.delta = delta
 
-
 def _paginate(request,list_items):
     """paginates list of items
 
@@ -100,24 +99,51 @@ def _handle_date_filter(request):
     """
     date_dict = dict()
     
+    default_start = datetime.datetime.fromtimestamp(time.time() - 24 * 3600)
+    default_end = datetime.datetime.fromtimestamp(time.time() + 2* 3600)
+    
+    start_time = None
+    end_time = None
+    follow = request.session.get('follow')
+    
+    print follow
+    
     if request.method == 'POST':
         post = request.POST
-        try:
-            date_dict['datefilter_start'] = datetime.datetime.strptime(post.get("startdate"), "%Y-%m-%d %H:%M")
-        except ValueError:
-            date_dict['datefilter_start'] = datetime.datetime(year=1900, month=1, day=1)
-        try:
-            date_dict['datefilter_end'] = datetime.datetime.strptime(post.get("enddate"), "%Y-%m-%d %H:%M")
-        except ValueError:
-            date_dict['datefilter_end'] = datetime.datetime.now()
+        if "submit_clear" in post:
+            start_time = default_start
+            end_time = default_end
+            follow = True
+        else:
+            follow = False
+            try:
+                start_time = datetime.datetime.strptime(post.get("startdate"), "%Y-%m-%d %H:%M")
+            except ValueError:
+                start_time = datetime.datetime(year=1900, month=1, day=1)
+            try:
+                end_time = datetime.datetime.strptime(post.get("enddate"), "%Y-%m-%d %H:%M")
+            except ValueError:
+                end_time = datetime.datetime.now()
     else:
-        date_dict['datefilter_start']  = request.session.get("datefilter_start", datetime.datetime.fromtimestamp(time.time()-24*3600))
-        date_dict['datefilter_end']  =  request.session.get("datefilter_end",datetime.datetime.now())
+        # By 
+        if follow is None:
+            follow = True
+        
+        if follow:
+            start_time = default_start
+            end_time = default_end
+        else:
+            start_time  = request.session.get("datefilter_start")
+            end_time  =  request.session.get("datefilter_end")
+    
+    date_dict['datefilter_start']  = start_time
+    date_dict['datefilter_end']  = end_time
+    date_dict['follow']  = follow
     
     request.session.update(date_dict)
     
-    date_dict['datefilter_start_str']  = date_dict['datefilter_start'].strftime("%Y-%m-%d %H:%M")
-    date_dict['datefilter_end_str']  = date_dict['datefilter_end'].strftime("%Y-%m-%d %H:%M")
+    date_dict['datefilter_start_str']  = start_time.strftime("%Y-%m-%d %H:%M")
+    date_dict['datefilter_end_str']  = end_time.strftime("%Y-%m-%d %H:%M")
     
     return date_dict
 
@@ -243,7 +269,7 @@ def _calculate_testrun_stats(testruns):
     failed_count = testruns.filter(state = 3).count()
     error_count = testruns.filter(state = 4).count()
     finished_count = passed_count + failed_count + error_count
-    
+
     retDict["runs"] = total_count
     retDict["inqueue"] = inqueue_count
     retDict["ongoing"] = ongoing_count
@@ -255,6 +281,7 @@ def _calculate_testrun_stats(testruns):
     if total_count > 0:
         retDict['inqueue_ration'] = (100.0*inqueue_count/total_count)
         retDict['ongoing_ration'] = (100.0*ongoing_count/total_count)
+    if finished_count >0:
         retDict['passed_ration'] = (100.0*passed_count/finished_count)
         retDict['failed_ration'] = (100.0*failed_count/finished_count)
         retDict['error_ration'] = (100.0*error_count/finished_count)
@@ -285,7 +312,7 @@ def main_page(request):
         dg_data = Testrun.objects.filter(device_group=device_group,
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
-    
+
         tr_view.device_group = device_group
         tr_view.top_requestor,tr_view.top_request_count = _top_requestor(dg_data)
         testrun_stats = _calculate_testrun_stats(dg_data)
@@ -321,13 +348,35 @@ def view_testrun_list(request, device_group = None):
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
     
-    if device_group:
-        testruns = testruns.filter(device_group = device_group)
+    state_filter = request.GET.get("state", "")
+    requestor_filter = request.GET.get("requestor", "")
+    device_group_filter = request.GET.get("group", "")
+    
+    context_dict["state"] = state_filter
+    context_dict["group"] = device_group_filter
+    context_dict["requestor"] = requestor_filter
+    
+    if state_filter != "":
+        state_filter = "%s" % state_filter
+        if state_filter == "finished":
+            testruns = testruns.filter(state__in = [2,3,4])
+        else:
+            state_filter = "%d" % int(state_filter)
+            testruns = testruns.filter(state__in = state_filter)
+    
+    if requestor_filter != "":
+        requestor_filter = "%s" % requestor_filter
+        testruns = testruns.filter(requestor = requestor_filter)
+        
+    if device_group_filter != "":
+        device_group_filter = "%s" % device_group_filter
+        testruns = testruns.filter(device_group = device_group_filter)
     
     testruns = testruns.order_by("state")
     
     testrun_stats = _calculate_testrun_stats(testruns)
     
+
     context_dict['testruns'] = _paginate(request,testruns)
     context_dict['total_count'] = testrun_stats.get("runs")
     
@@ -366,6 +415,7 @@ def view_testrun_details(request, testrun_id):
     template = loader.get_template('monitor/testrun_details.html')
     return HttpResponse(template.render(Context(context_dict)))
 
+
 def view_group_details(request, devicegroup):
     """ Shows testruns and details of device group view
 
@@ -382,11 +432,29 @@ def view_group_details(request, devicegroup):
     testruns = Testrun.objects.filter(device_group=devicegroup,
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
+
+    state_filter = request.GET.get("state", "")
+    requestor_filter = request.GET.get("requestor", "")
     
+    context_dict["state"] = state_filter
+    context_dict["requestor"] = requestor_filter
+    
+    if state_filter != "":
+        state_filter = "%s" % state_filter
+        if state_filter == "finished":
+            testruns = testruns.filter(state__in = [2,3,4])
+        else:
+            state_filter = "%d" % int(state_filter)
+            testruns = testruns.filter(state__in = state_filter)
+    
+    if requestor_filter != "":
+        requestor_filter = "%s" % requestor_filter
+        testruns = testruns.filter(requestor = requestor_filter)
+
     testrun_stats = _calculate_testrun_stats(testruns)
-    
     runs_finished = testrun_stats.get("finished")
-    context_dict['testruns'] = _paginate(request,testruns.order_by('state', 'start_time'))
+
+    context_dict['testruns'] = _paginate(request, testruns.order_by('state', 'start_time'))
     context_dict['devicegroup'] = devicegroup
     context_dict['runcount'] = testrun_stats.get("runs")
     context_dict['finishedcount'] = runs_finished
@@ -445,9 +513,7 @@ def view_requestor_details(request, requestor):
         @rtype: L{HttpResponse}
         @return: Returns HttpResponse containing the view.
     """
-    context_dict = {
-    'MEDIA_URL' : settings.MEDIA_URL,
-    }
+    context_dict = dict()
     
     context_dict.update(_handle_date_filter(request))
     #Fetch testruns
@@ -455,12 +521,18 @@ def view_requestor_details(request, requestor):
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
 
+    testruns = testruns.order_by("state")
+    testrun_stats = _calculate_testrun_stats(testruns)
+    
     context_dict['requestor'] = requestor
-    context_dict['testruns'] = _paginate(request,testruns)
-    context_dict['total_count'] = testruns.count()
-    context_dict['onqueue_count'] = testruns.filter(state = 0).count()
-    context_dict['execution_count'] = testruns.filter(state = 1).count()
+    context_dict['testruns'] = _paginate(request, testruns)
+    context_dict['total_count'] = testrun_stats.get("runs")
+    
+    context_dict['inqueue_count'] = "%d (%.1f %%)" % (testrun_stats.get("inqueue"), testrun_stats.get("inqueue_ration"))
+    context_dict['ongoing_count'] = "%d (%.1f %%)" % (testrun_stats.get("ongoing"), testrun_stats.get("ongoing_ration"))
+    context_dict['passed_count'] = "%d (%.1f %%)" % (testrun_stats.get("passed"), testrun_stats.get("passed_ration"))
+    context_dict['failed_count'] = "%d (%.1f %%)" % (testrun_stats.get("failed"), testrun_stats.get("failed_ration"))
+    context_dict['error_count'] = "%d (%.1f %%)" % (testrun_stats.get("error"), testrun_stats.get("error_ration"))
     
     template = loader.get_template('monitor/requestor_details.html')
     return HttpResponse(template.render(Context(context_dict)))
-

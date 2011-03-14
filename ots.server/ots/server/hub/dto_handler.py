@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -120,12 +120,6 @@ class DTOHandler(object):
         elif isinstance(dto, Packages):
             self._packages(dto)
         elif isinstance(dto, Monitor):
-            LOG.debug("DTO: %s" % dto)
-            LOG.debug("\t%s" % dto.type)
-            LOG.debug("\t%s" % dto.sender)
-            LOG.debug("\t%s" % dto.description)
-            LOG.debug("\t%s" % str(dto.emitted))
-            LOG.debug("\t%s" % str(dto.received))
-            self.monitors.append(dto)
+            pass
         else:
             LOG.debug("Unknown DTO: '%s'"%(dto))

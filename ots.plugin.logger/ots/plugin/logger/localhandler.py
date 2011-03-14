@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -27,7 +27,7 @@ apache or http.
 
 import logging
 from django.http import HttpRequest
-from ots.django.logger.views import create_message
+from ots.plugin.logger.views import create_message
 from socket import gethostname
 
 class LocalHttpHandler(logging.Handler):

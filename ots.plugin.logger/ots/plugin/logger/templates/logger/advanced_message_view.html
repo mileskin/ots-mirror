@@ -1,0 +1,50 @@
+<!--
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: meego-qa@lists.meego.com
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+-->
+{% extends "logger/logger_base.html" %}
+{% block pagetitle %}Worker '{{ remote_host }}' testruns{% endblock pagetitle %}
+{% block content %}
+{% load logger_template_tags %}
+<table id="testrun_list">
+	<thead>
+		<tr>
+			<th style="width:5%">Run id</th>
+			<th style="width:15%">Created</th>
+			<th style="width:15%">Module</th>
+			<th style="width:10%">Level</th>
+			<th style="width:55%">Message</th>
+		</tr>
+	</thead>
+	<tbody>
+	    {% for message in messages %}
+    	<tr class="{% cycle 'odd' 'even' %}">
+			<td><a href="{% url ots.plugin.logger.views.basic_testrun_viewer run_id=message.run_id %}">{{ message.run_id }}</a></td>
+			<td>{{ message.date|format_datetime }}</td>
+			<td>{{ message.module }}</td>
+			<td>{% autoescape off %}<span class="{{ message.levelname }}">{{ message.levelname }}</span>{% endautoescape %}</td>
+			<td>{{ message.msg }}{% if message.exc_text %} <pre>{{message.exc_text}}</pre>{% endif %}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock content %}

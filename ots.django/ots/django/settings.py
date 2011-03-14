@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -110,8 +110,9 @@ INSTALLED_APPS = (
     'django_xmlrpc',
 
     # OTS components:
-    'ots.django.logger',
+    'ots.plugin.logger',
     'ots.plugin.monitor',
+    'ots.plugin.history'
 )
 
 XMLRPC_METHODS = (

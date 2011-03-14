@@ -34,4 +34,12 @@ setup(
       entry_points={"ots.publisher_plugin":
                     ["publisher_klass = "\
                      "ots.plugin.monitor.monitor_plugin:MonitorPlugin"]},
+      data_files=[('/usr/share/ots/plugin/monitor',\
+                       ['ots/plugin/monitor/templates/monitor/index.html',
+                        'ots/plugin/monitor/templates/monitor/group_details_view.html',
+                        'ots/plugin/monitor/templates/monitor/requestor_details.html',
+                        'ots/plugin/monitor/templates/monitor/testrun_details.html',
+                        'ots/plugin/monitor/templates/monitor/testrun_list.html',
+                        'ots/plugin/monitor/templates/monitor/monitor_base.html',]),
+                  ]
       )

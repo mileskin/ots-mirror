@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -45,7 +45,7 @@ class PublisherPluginBase(object):
         
     def set_testrun_result(self, testrun_result):
         """
-        @type packages : C{ots.results.testrun_result
+        @type packages : C{ots.results.testrun_result}
         @param packages: The result of the Testrun
         """
         #FIXME move testrun result to common? 

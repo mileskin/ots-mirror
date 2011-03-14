@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -37,7 +37,7 @@ from django.conf.urls.defaults import patterns, include, handler500, handler404
 urlpatterns = patterns('',
 
     # Example:
-    (r'^logger/', include('ots.django.logger.urls')),
+    (r'^logger/', include('ots.plugin.logger.urls')),
     (r'^monitor/', include('ots.plugin.monitor.urls')),
 
     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),

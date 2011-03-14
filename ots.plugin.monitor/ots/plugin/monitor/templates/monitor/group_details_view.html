@@ -27,43 +27,43 @@
 {% block content %}
 {% load monitor_template_tags %}
 <table id="testrun_details" >
-	{% if devicegroup %}
-	<tr>
-		<td class="title">Device group:</td>
-		<td>{{ devicegroup }}</td>
-	</tr>
-	{% endif %}
-	<tr>
-		<td class="title">Total testruns:</td>
-		<td>{{ runcount }}</td>
-	</tr>
-	<tr>
-		<td class="title">Finished testruns:</td>
-		<td>{{ finishedcount }}</td>
-	</tr>
+    {% if devicegroup %}
+    <tr>
+        <td class="title">Device group:</td>
+        <td><a href="?state=&requestor=">{{ devicegroup }}</a></td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td class="title">Total testruns:</td>
+        <td><a href="?state=&requestor={{requestor}}">{{ runcount }}</a></td>
+    </tr>
+    <tr>
+        <td class="title">Finished testruns:</td>
+        <td><a href="?state=finished&requestor={{requestor}}">{{ finishedcount }}</a></td>
+    </tr>
     <tr>
         <td class="title">In queue:</td>
-        <td class="state_0">{{ inqueue_runs }}</td>
+        <td class="state_0"><a href="?state=0&requestor={{requestor}}">{{ inqueue_runs }}</a></td>
     </tr>
-	<tr>
-		<td class="title">Ongoing:</td>
-		<td class="state_1">{{ ongoing_runs }}</td>
-	</tr>
-	<tr> 
-		<td class="title">Passed:</td>
-		<td class="state_2"><span class="passed">{{ passed_runs }} ({{ pass_rate }} %)</span></td>
-	</tr>
-	<tr>
-		<td class="title">Failed:</td>
-		<td class="state_3"><span class="failed">{{ failed_runs }} ({{ fail_rate }} %)</span></td>
-	</tr>
+    <tr>
+        <td class="title">Ongoing:</td>
+        <td class="state_1"><a href="?state=1&requestor={{requestor}}">{{ ongoing_runs }}</a></td>
+    </tr>
+    <tr> 
+        <td class="title">Passed:</td>
+        <td class="state_2"><span class="passed"><a href="?state=2&requestor={{requestor}}">{{ passed_runs }} ({{ pass_rate }} %)</a></span></td>
+    </tr>
+    <tr>
+        <td class="title">Failed:</td>
+        <td class="state_3"><span class="failed"><a href="?state=3&requestor={{requestor}}">{{ failed_runs }} ({{ fail_rate }} %)</a></span></td>
+    </tr>
     <tr>
         <td class="title">Errors:</td>
-        <td class="state_4"><span class="error">{{ error_runs }} ({{ error_rate }} %)</span></td>
+        <td class="state_4"><span class="error"><a href="?state=4&requestor={{requestor}}">{{ error_runs }} ({{ error_rate }} %)</a></span></td>
     </tr>
 	<tr>
 		<td class="title">Top requestor:</td>
-		<td><a href="{% url ots.plugin.monitor.views.view_requestor_details requestor=top_requestor %}">{{ top_requestor|strip_email }}</a> ({{ top_requests }})</td>
+		<td><a href="?state={{state}}&requestor={{top_requestor}}">{{ top_requestor|strip_email }}</a> ({{ top_requests }})</td>
 	</tr>
 	<tr>
 		<td class="title">Average queue time:</td>
@@ -84,53 +84,54 @@
 </table>
 <p />
 <table id="testrun_list" >
-	<thead>
-		<tr>
+    <thead>
+        <tr>
             <th style="width:1%">S</th>
-            <th style="width:1%">L</th>            		      
-		    <th style="width:15%">Id</th>
-			<th style="width:15%">Start time</th>
+            <th style="width:1%">L</th>                       
+            <th style="width:15%">Id</th>
+            <th style="width:15%">Start time</th>
             <th style="width:15%">Active time</th>
-			<th style="width:20%">Requestor</th>
-			<th style="width:5%">Req Id</th>
-			<th style="width:15%">Error</th>
+            <th style="width:20%">Requestor</th>
+            <th style="width:5%">Req Id</th>
+            <th style="width:15%">Error</th>
             <th style="width:15%">Workers</th>
-			
-		</tr>
-	</thead>
-	<tbody>
-	    {% for testrun in testruns.object_list %}
-    	<tr class="{% cycle 'odd' 'even' %}">
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for testrun in testruns.object_list %}
+        <tr class="{% cycle 'odd' 'even' %}">
            <td class="state_{{testrun.state}}"></td>
            <td><a href="{{ testrun.testrun_id|logger_url }}"><img class="log" src="/media/log.png" alt="Show logs" border="0" /></a></td>
            <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_details testrun_id=testrun.testrun_id %}">{{ testrun.testrun_id }}</a></td>
 		   <td>{{ testrun.start_time|format_datetime }}</td>
            <td>{{ testrun.start_time|calculate_delta }}</td>
-		   <td><a href="{% url ots.plugin.monitor.views.view_requestor_details requestor=testrun.requestor %}">{{ testrun.requestor|strip_email }}</a></td>
+		   <td><a href="?state={{state}}&requestor={{testrun.requestor}}">{{ testrun.requestor|strip_email }}</a></td>
 		   <td>{{ testrun.request_id }}</td>
 		   <td>{{ testrun.error }}</td>
            <td>{{ testrun.host_worker_instances }}</td>
-		</tr>
-		{% endfor %}
-	</tbody>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
+</p>
 <div class="pagination">
-	<span class="step-links">
-		{% if testruns.has_previous %}
-			<a href="?page={{ testruns.previous_page_number }}">previous</a>
-		{% endif %}
-		{% for page_num in testruns.paginator.page_range %}
-			{% if page_num == testruns.number %}
-				<span class="current">
-					{{ testruns.number }}
-				</span>
-			{% else %}
-				<a href="?page= {{ page_num }}">{{ page_num }}</a>
-			{% endif %}
-		{% endfor %}
-		{% if testruns.has_next %}
-			<a href="?page={{ testruns.next_page_number }}">next</a>
-		{% endif %}
-	</span>
+    <span class="step-links">
+        {% if testruns.has_previous %}
+            <a href="?page={{ testruns.previous_page_number }}&state={{state}}&requestor={{requestor}}">previous</a>
+        {% endif %}
+        {% for page_num in testruns.paginator.page_range %}
+            {% if page_num == testruns.number %}
+                <span class="current">
+                    {{ testruns.number }}
+                </span>
+            {% else %}
+                <a href="?page= {{ page_num }}&state={{state}}&requestor={{requestor}}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if testruns.has_next %}
+            <a href="?page={{ testruns.next_page_number }}&state={{state}}&requestor={{requestor}}">next</a>
+        {% endif %}
+    </span>
 </div>
 {% endblock content %}

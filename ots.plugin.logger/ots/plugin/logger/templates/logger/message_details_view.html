@@ -1,0 +1,132 @@
+<!--
+# ***** BEGIN LICENCE BLOCK *****
+# This file is part of OTS
+#
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+#
+# Contact: meego-qa@lists.meego.com
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# version 2.1 as published by the Free Software Foundation.
+#
+# This library is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# ***** END LICENCE BLOCK *****
+-->
+
+{% extends "logger/logger_base.html" %}
+{% block content %}
+{% load logger_template_tags %}
+{% block pagetitle %}Message details{% endblock pagetitle %}
+<table id="testrun_info">
+	<thead>
+		<tr>
+			<th style="width:10%">Title</th>
+			<th style="width:90%">Data</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% if message %}
+    	<tr>
+		    <td>Run id:</td>
+			<td>{{ message.run_id }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Created:</td>
+		    <td>{{ message.created|convert_epoch_to_string }}</td>
+		</tr>
+		<tr>
+		    <td>Message:</td>
+		    <td>{{ message.msg }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Level number:</td>
+		    <td>{{ message.levelno }}</td>
+		</tr>
+		<tr>
+		    <td>Level:</td>
+		    <td>{{ message.levelname }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Remote ip:</td>
+		    <td>{{ message.remote_ip }}</td>
+		</tr>
+		<tr>
+		    <td>Remote host:</td>
+		    <td>{{ message.remote_host }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Name:</td>
+		    <td>{{ message.name }}</td>
+		</tr>
+		<tr>
+		    <td>Module:</td>
+		    <td>{{ message.module }}</td>
+		</tr>
+		<tr class="even">
+		    <td>File name:</td>
+		    <td>{{ message.filename }}</td>
+		</tr>
+		<tr>
+		    <td>Path name:</td>
+		    <td>{{ message.pathname }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Function name:</td>
+		    <td>{{ message.funcName }}</td>
+		</tr>
+		<tr>
+		    <td>Line number:</td>
+		    <td>{{ message.lineno }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Exception info:</td>
+		    <td>{{ message.exc_info }}</td>
+		</tr>
+		<tr>
+		    <td>Exception text:</td>
+		    <td>{{ message.exc_text|safe }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Arguments:</td>
+		    <td>{{ message.args }}</td>
+		</tr>
+		<tr>
+		    <td>Thread:</td>
+		    <td>{{ message.thread }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Thread name:</td>
+		    <td>{{ message.threadName }}</td>
+		</tr>
+		<tr>
+		    <td>Process:</td>
+		    <td>{{ message.process }}</td>
+		</tr>
+		
+		<tr class="even">
+		    <td>Relative created:</td>
+		    <td>{{ message.relativeCreated }}</td>
+		</tr>
+		<tr>
+		    <td>Milliseconds:</td>
+		    <td>{{ message.msecs }}</td>
+		</tr>
+		<tr class="even">
+		    <td>Date:</td>
+		    <td>{{ message.date }}</td>
+		</tr>
+		
+		{% endif %}
+	</tbody>
+</table>
+{% endblock content %}
+

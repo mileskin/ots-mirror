@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -69,12 +69,6 @@ class TestDTOHandler(unittest.TestCase):
         dto_handler._packages(pkgs)
         self.assertEquals(["pkg1", "pkg2", "pkg3", "pkg4"],
                            dto_handler.expected_packages.packages("env"))
-
-    def test_monitors(self):
-        dto_handler = DTOHandler()
-        monitor = Monitor()
-        dto_handler._callback(None, monitor) 
-        self.assertEquals(monitor, dto_handler.monitors[0])
 
     def test_callback_exception(self):
         dto_handler = DTOHandler()

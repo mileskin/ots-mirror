@@ -40,7 +40,6 @@ urlpatterns = patterns('',
     (r'^view/$', main_page),
     (r'^view/group/(?P<devicegroup>[^/]+)/$',view_group_details),
     (r'^view/testruns/$', view_testrun_list),
-    (r'^view/testruns/(?P<device_group>\w+)/$', view_testrun_list),
     (r'^view/testrun/(?P<testrun_id>\w+)/$', view_testrun_details),
     (r'^view/testruns/(?P<requestor>[^/]+)/$',view_requestor_details),
 )

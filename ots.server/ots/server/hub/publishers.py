@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Mikko Makinen <mikko.al.makinen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -57,8 +57,12 @@ class Publishers(PublisherPluginBase):
     #The policy for handling exceptions of the Publisher Plugins
     SWALLOW_EXCEPTIONS = True
 
-    def __init__(self, request_id, testrun_uuid, 
-                       sw_product, image, **kwargs):
+    def __init__(self,
+                 request_id,
+                 testrun_uuid,
+                 sw_product = None,
+                 image = None,
+                 **kwargs):
 
         """
         @type request_id: C{str}
