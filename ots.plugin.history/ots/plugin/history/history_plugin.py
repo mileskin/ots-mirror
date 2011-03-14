@@ -1,9 +1,9 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -25,7 +25,7 @@
 # pylint: disable-msg=R0903
 
 """
-The Monitor Plugin for OTS
+Plug-in for saving test package execution times to database
 """
 
 import logging
@@ -40,7 +40,7 @@ LOG = logging.getLogger(__name__)
 
 class HistoryPlugin(PublisherPluginBase):
     """
-    Distribution history plug-in  
+    Plug-in for saving test package execution times to database
     """
     
     def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
@@ -56,10 +56,14 @@ class HistoryPlugin(PublisherPluginBase):
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
 
-        @type image : C{str}
-        @param image : The URL of the image
+        @type image: C{str}
+        @param image: The URL of the image
+        
+        @type kwargs: C{dict}
+        @param kwargs: Keyword dictionary
+        
         """
-        LOG.info('Distribution history plug-in loaded')
+        LOG.info('History plug-in loaded')
         
         self._testrun_id = testrun_uuid
         self._request_id = request_id
