@@ -67,7 +67,7 @@ class TestMonitorPlugin(unittest.TestCase):
         self.assertTrue(tr.values()[0].get('requestor') == 'elias.luttinen@digia.com')
         self.assertTrue(tr.values()[0].get('request_id') == 'request_id')
 
-    def test_set_monitors(self):
+    def test_add_monitor_event(self):
         pass
 
 class TestEventSequence(unittest.TestCase):

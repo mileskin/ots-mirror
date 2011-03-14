@@ -79,7 +79,7 @@ class HistoryPlugin(PublisherPluginBase):
                 if not self._test_packages.has_key(tested_package):
                     LOG.warning("%s package has no duration!" % tested_package)
     
-    def set_monitors(self, monitors):
+    def add_monitor_event(self, monitors):
         """
         @type monitors: C{ots.common.dto.monitor}
         @param monitors: Monitor class

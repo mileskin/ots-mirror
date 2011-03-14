@@ -74,12 +74,12 @@ class TestHistoryPublisherPlugin(unittest.TestCase):
         event_package1 = Monitor(event_type = MonitorType.TEST_PACKAGE_STARTED,
                                  sender = "ots-worker1",
                                  description = "test-newpackage-tests")
-        plugin.set_monitors(event_package1)
+        plugin.add_monitor_event(event_package1)
         time.sleep(1)
         event_package1 = Monitor(event_type = MonitorType.TEST_PACKAGE_ENDED,
                                  sender = "ots-worker1",
                                  description = "test-newpackage-tests")
-        plugin.set_monitors(event_package1)
+        plugin.add_monitor_event(event_package1)
         plugin.set_tested_packages({"env" : ["test-newpackage-tests"]})
         plugin.publish()
         db_package = Package.objects.filter(package_name = "test-newpackage-tests")
@@ -95,11 +95,11 @@ class TestHistoryPublisherPlugin(unittest.TestCase):
         event_package1 = Monitor(event_type = MonitorType.TEST_PACKAGE_STARTED,
                                  sender = "ots-worker1",
                                  description = "test-package1-tests")
-        plugin.set_monitors(event_package1)
+        plugin.add_monitor_event(event_package1)
         event_package1 = Monitor(event_type = MonitorType.TEST_PACKAGE_ENDED,
                                  sender = "ots-worker1",
                                  description = "test-package1-tests")
-        plugin.set_monitors(event_package1)
+        plugin.add_monitor_event(event_package1)
         plugin.set_tested_packages({"env" : ["test-package1-tests"]})
         plugin.publish()
 
@@ -116,7 +116,7 @@ class TestHistoryPublisherPlugin(unittest.TestCase):
         event_package1 = Monitor(event_type = MonitorType.TEST_PACKAGE_STARTED,
                                  sender = "ots-worker1",
                                  description = "test-noenddata-tests")
-        plugin.set_monitors(event_package1)
+        plugin.add_monitor_event(event_package1)
         plugin.set_tested_packages({"env" : ["test-noenddata-tests"]})
         plugin.publish()
 
