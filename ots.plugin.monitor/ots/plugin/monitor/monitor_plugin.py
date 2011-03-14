@@ -84,7 +84,7 @@ class MonitorPlugin(PublisherPluginBase):
         except (TypeError, AttributeError), error:
             LOG.error("Testrun object creation failed: %s" % error)
 
-    def set_monitors(self, monitors):
+    def add_monitor_event(self, monitors):
         """
         Monitor information catch
         Event information parameters hide different information depending of

@@ -150,7 +150,7 @@ class Publishers(PublisherPluginBase):
             # earlier
             if dto.received is None:
                 dto.set_received()
-            self.set_monitors(dto)
+            self.add_monitor_event(dto)
 
     #############################################
     # Setters
@@ -191,12 +191,12 @@ class Publishers(PublisherPluginBase):
         """
         list(self._delegator_iter("set_results", results))
         
-    def set_monitors(self, monitor):
+    def add_monitor_event(self, monitor):
         """
         @type monitors : C{ots.common.dto.monitor}
         @param monitors : Monitor events for plugins
         """
-        list(self._delegator_iter("set_monitors", monitor))
+        list(self._delegator_iter("add_monitor_event", monitor))
         
     ###########################################
     # Getters

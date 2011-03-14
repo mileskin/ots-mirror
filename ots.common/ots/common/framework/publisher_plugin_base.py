@@ -73,7 +73,7 @@ class PublisherPluginBase(object):
         """
         pass
 
-    def set_monitors(self, monitors):
+    def add_monitor_event(self, monitors):
         """
         @type monitors : C(list} of C{ots.common.dto.monitor}
         @param monitors : The Monitors
