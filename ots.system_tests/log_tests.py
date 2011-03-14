@@ -38,7 +38,6 @@ import unittest
 import urllib2
 from configobj import ConfigObj
 from BeautifulSoup import BeautifulSoup
-from urlparse import urlparse
 from ots.tools.trigger.ots_trigger import ots_trigger
 
 CONFIGFILE = "system_tests.conf"
@@ -579,7 +578,7 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assertTrue(has_message(testrun_id, string))
 
-        path = urlparse(options.image).path[1:]
+        path = options.image.split("/")[-1]
         string = "Error: Could not download file " \
             "%s, Error code: 103" % path
         self.assertTrue(has_message(testrun_id, string))
