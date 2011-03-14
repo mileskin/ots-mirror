@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -144,6 +144,20 @@ class TestDistributionModel(unittest.TestCase):
         # Deleting all data
         Package.objects.all().delete()
         History.objects.all().delete()
+
+    def _default_options(self):
+        
+        options = dict()
+        options['image_url'] = "none"
+        options['testrun_id'] = "123123"
+        options['timeout'] = str(500)        
+        options['emmc_flash_parameter'] = ""
+        options['storage_address'] = ""
+        options['testfilter'] = ""
+        options['flasherurl'] = ""
+        options['bootmode'] = ""
+        
+        return options
     
     def testPackagaHistoryTime(self):
         
@@ -160,14 +174,7 @@ class TestDistributionModel(unittest.TestCase):
     
     def testDistributionModelDevice(self):
         
-        options = dict()
-        options['image_url'] = "none"
-        options['testrun_id'] = "123123"
-        options['timeout'] = str(500)        
-        options['emmc_flash_parameter'] = ""
-        options['storage_address'] = ""
-        options['testfilter'] = ""
-        options['flasherurl'] = ""
+        options = self._default_options()
         
         packages = "test-package1-tests,test-package2-tests,test-package4-tests"
         
@@ -175,8 +182,8 @@ class TestDistributionModel(unittest.TestCase):
         test_list["device"] = packages
         
         schedule_options = dict()
-        schedule_options["testrun_max"] = 180
-        schedule_options["testrun_groups"] = 2
+        schedule_options["target_execution_time"] = 180
+        schedule_options["max_worker_amount"] = 2
         
         func = get_model(schedule_options)
         cmds = func(test_list, options)
@@ -185,14 +192,7 @@ class TestDistributionModel(unittest.TestCase):
         
     def testDistributionModelHost(self):
         
-        options = dict()
-        options['image_url'] = "none"
-        options['testrun_id'] = "123123"
-        options['timeout'] = str(500)        
-        options['emmc_flash_parameter'] = ""
-        options['storage_address'] = ""
-        options['testfilter'] = ""
-        options['flasherurl'] = ""
+        options = self._default_options()
         
         packages = "test-package1-tests,test-package2-tests,test-package4-tests"
         
@@ -200,8 +200,8 @@ class TestDistributionModel(unittest.TestCase):
         test_list["host"] = packages
         
         schedule_options = dict()
-        schedule_options["testrun_max"] = 180
-        schedule_options["testrun_groups"] = 2
+        schedule_options["target_execution_time"] = 180
+        schedule_options["max_worker_amount"] = 2
         
         func = get_model(schedule_options)
         cmds = func(test_list, options)
@@ -210,14 +210,7 @@ class TestDistributionModel(unittest.TestCase):
         
     def testDistributionModelHostDeviceMix(self):
         
-        options = dict()
-        options['image_url'] = "none"
-        options['testrun_id'] = "123123"
-        options['timeout'] = str(500)        
-        options['emmc_flash_parameter'] = ""
-        options['storage_address'] = ""
-        options['testfilter'] = ""
-        options['flasherurl'] = ""
+        options = self._default_options()
         
         packages = "test-package3-tests,test-package2-tests"
         
@@ -229,8 +222,8 @@ class TestDistributionModel(unittest.TestCase):
         test_list["host"] = packages
         
         schedule_options = dict()
-        schedule_options["testrun_max"] = 180
-        schedule_options["testrun_groups"] = 4
+        schedule_options["target_execution_time"] = 180
+        schedule_options["max_worker_amount"] = 4
         
         func = get_model(schedule_options)
         cmds = func(test_list, options)
@@ -239,14 +232,7 @@ class TestDistributionModel(unittest.TestCase):
         
     def testDistributionModelHostDeviceMixNoGroupsForHost(self):
         
-        options = dict()
-        options['image_url'] = "none"
-        options['testrun_id'] = "123123"
-        options['timeout'] = str(500)        
-        options['emmc_flash_parameter'] = ""
-        options['storage_address'] = ""
-        options['testfilter'] = ""
-        options['flasherurl'] = ""
+        options = self._default_options()
         
         packages = "test-package3-tests,test-package2-tests"
         
@@ -258,8 +244,8 @@ class TestDistributionModel(unittest.TestCase):
         test_list["host"] = packages
         
         schedule_options = dict()
-        schedule_options["testrun_max"] = 180
-        schedule_options["testrun_groups"] = 2
+        schedule_options["target_execution_time"] = 180
+        schedule_options["max_worker_amount"] = 2
         
         func = get_model(schedule_options)
         cmds = func(test_list, options)
