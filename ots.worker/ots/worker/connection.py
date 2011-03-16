@@ -97,7 +97,7 @@ class Connection(object):
         except:
             LOG.exception("clean_up() failed")
 
-        #FIXME: Fix Memory leaks
+        # Fix Memory leaks
         if hasattr(self.channel, "callbacks"):
             del self.channel.callbacks
         if hasattr(self.connection, "channels"):

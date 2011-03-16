@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -86,8 +86,8 @@ def history_model(test_list, options):
     
     req_options = REQUEST_OPTIONS
     
-    max_runtime = int(req_options.get("testrun_max", DEFAULT_RUNTIME))
-    max_groups = int(req_options.get("testrun_groups", DEFAULT_GROUPS))
+    max_runtime = int(req_options.get("target_execution_time", DEFAULT_RUNTIME))
+    max_groups = int(req_options.get("max_worker_amount", DEFAULT_GROUPS))
     
     if not test_list:
         raise ValueError("test_list not defined for distribution model")

@@ -516,10 +516,10 @@ class TestSuccessfulTestruns(unittest.TestCase):
 
 class TestCustomDistributionModels(unittest.TestCase):
 
-    def assert_log_contains_string(self, testrun_id, string): 
-        self.assertTrue(has_message(testrun_id, string), 
-         "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
-
+    def assert_log_contains_string(self, testrun_id, string):
+        self.assertTrue(has_message(testrun_id, string),
+          "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
+    
     def test_load_example_distribution_model(self):
         options = Options()
         options.distribution = "example_model"
@@ -545,7 +545,6 @@ class TestCustomDistributionModels(unittest.TestCase):
 
         string = "Example distribution model not implemented."
         self.assert_log_contains_string(testrun_id, string)
-
 
 class TestErrorConditions(unittest.TestCase):
 
@@ -579,7 +578,9 @@ class TestErrorConditions(unittest.TestCase):
         string = "Result set to ERROR"
         self.assertTrue(has_message(testrun_id, string))
 
-        string = "Error: Could not download file ots_system_test_image.tar.gzasdfasdfthiswontexistasdfasdf, Error code: 103"
+        path = options.image.split("/")[-1]
+        string = "Error: Could not download file " \
+            "%s, Error code: 103" % path
         self.assertTrue(has_message(testrun_id, string))
 
         # Check message from conductor

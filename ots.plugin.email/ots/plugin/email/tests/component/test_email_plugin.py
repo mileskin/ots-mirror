@@ -92,7 +92,7 @@ class TestEmailPlugin(unittest.TestCase):
         email_plugin.set_expected_packages(Packages("env", ["foo", "bar", "baz"]))
         email_plugin.set_tested_packages(Packages("env", ["foo", "bar", "baz"]))
         email_plugin.set_results(results_list)
-        email_plugin.set_monitors(Monitor())
+        email_plugin.add_monitor_event(Monitor())
         email_plugin.set_testrun_result("PASS")
         email_plugin.publish()
         time.sleep(2)
