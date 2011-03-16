@@ -27,6 +27,8 @@
 
 import datetime
 import time
+import csv
+from xml.dom.minidom import getDOMImplementation
 
 from django.http import HttpResponse
 from django.conf import settings
@@ -62,6 +64,105 @@ class Stats(object):
     def __init__(self, name, delta):
         self.name = name
         self.delta = delta
+
+class table_writer(object):
+    def __init__(self,filename=None,delimiter='|'):
+        self.filename = filename
+        self.delimiter = delimiter
+        self.response = None
+        self.writer = None
+        self.row = None
+        self.item = None
+        self.top = None
+    def create_header(self,row):
+        pass
+    def new_row(self,name='row'):
+        pass
+    def new_item(self,title=''):
+        pass
+    def add_data(self,data):
+        pass
+    def finalize_row(self):
+        pass
+    def finalize(self):
+        return self.response
+
+class csv_table_writer(table_writer):
+    def __init__(self,filename=None,delimiter='|'):
+        self.filename = filename
+        if filename == None:
+            self.filename = 'ots_table.csv'
+        self.delimiter = delimiter
+        self.response = HttpResponse(mimetype='text/csv')
+        self.response['Content-Disposition'] = 'attachment; filename=%s'%self.filename
+        self.writer = csv.writer(self.response,delimiter = self.delimiter)
+    def create_header(self,row):
+        if len(row):
+            self.writer.writerow(row)
+    def new_row(self,name='row'):
+        self.row = []
+    def add_data(self,data):
+        self.row.append(data)
+    def finalize_row(self):
+        self.writer.writerow(self.row)
+
+class xml_table_writer(table_writer):
+    def __init__(self,filename=None,delimiter='|'):
+        self.filename = filename
+        if filename == None:
+            self.filename = 'ote_table.xml'
+        self.response = HttpResponse(mimetype='text/xml')
+        self.response['Content-Disposition'] = 'attachment; filename=%s'%self.filename
+        impl = getDOMImplementation()
+        self.writer = impl.createDocument(None,self.filename,None)
+        self.top = self.writer.documentElement
+    def new_row(self,name='row'):
+        self.row = self.writer.createElement(name)
+    def new_item(self,title=''):
+        self.item = self.writer.createElement(title)
+    def add_data(self,data):
+        if data != '':
+            node = self.writer.createTextNode(data)
+            self.item.appendChild(node)
+            self.row.appendChild(self.item)
+    def finalize_row(self):
+        self.top.appendChild(self.row)
+    def finalize(self):
+        self.writer.writexml(self.response)
+        return self.response
+
+def export_table(tabledata,rowdata,titledata=[],type='csv',filename=None,csv_delimiter='|',data_unit_name='row'):
+    if type == 'csv':
+        writer = csv_table_writer(filename,csv_delimiter)
+    else:
+        writer = xml_table_writer(filename)
+    writer.create_header(titledata)
+    for data in tabledata:
+        writer.new_row(data_unit_name)
+        for i, item in enumerate(rowdata):
+            func_end = item.find('|')
+            if func_end == -1:
+                attr_name = item
+                func_name = ''
+            else:
+                attr_name = item[func_end+1:]
+                func_name = item[:func_end]
+            if len(titledata)>=i:
+                title = titledata[i]
+            else:
+                title = attr_name
+            if hasattr(data,attr_name):
+                writer.new_item(title)
+                attr = getattr(data,attr_name)
+                if func_name in globals():
+                    func = globals()[func_name]
+                    writer.add_data(str(func(attr)))
+                    continue
+                writer.add_data(attr)
+                continue
+            writer.add_data('')
+        writer.finalize_row()
+    return writer.finalize()
 
 def _paginate(request,list_items):
     """paginates list of items
@@ -520,83 +621,8 @@ def view_group_details(request, devicegroup):
     if export:
         header_row = ['State','Id','Start time','Active time','Requestor','Req Id','Error','Workers']
         data_row = ['state','testrun_id','format_datetime|start_time','calculate_delta|start_time','requestor','request_id','error','host_worker_instances']
-        return export_table_as_xml(testruns,data_row,header_row)
+        return export_table(testruns,data_row,header_row,type='xml',data_unit_name='testrun')
     return HttpResponse(template.render(Context(context_dict)))
-
-def export_table_as_xml(tabledata,itemdata,itemtitles=[],filename='ots_table.xml'):
-    from xml.dom.minidom import getDOMImplementation
-    response = HttpResponse(mimetype='text/xml')
-    response['Content-Disposition'] = 'attachment; filename=%s'%filename
-    
-    impl = getDOMImplementation()
-    newdoc = impl.createDocument(None,filename,None)
-    top_element = newdoc.documentElement
-    for data in tabledata:
-        row_element = newdoc.createElement('row')
-        for i, item in enumerate(itemdata):
-            func_end = item.find('|')
-            if func_end == -1:
-                attr_name = item
-                func_name = ''
-            else:
-                attr_name = item[func_end+1:]
-                func_name = item[:func_end]
-                
-            if len(itemtitles)>=i:
-                title = itemtitles[i]
-            else:
-                title = attr_name
-            
-            if hasattr(data,attr_name):
-                element = newdoc.createElement(title)
-                attr = getattr(data,attr_name)
-                if func_name in globals():
-                    func = globals()[func_name]
-                    node = newdoc.createTextNode(str(func(attr)))
-                    element.appendChild(node)
-                    row_element.appendChild(element)
-                    continue
-                node = newdoc.createTextNode(attr)
-                element.appendChild(node)
-                row_element.appendChild(element)
-                continue
-        top_element.appendChild(row_element)
-        
-    newdoc.writexml(response)
-    
-    return response 
-    
-    
-def export_table_as_csv(tabledata,rowdata,headerrow=[],filename='ots_table.csv',delimiter='|'):
-    import csv
-    
-    response = HttpResponse(mimetype='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s'%filename
-    print globals()
-    writer = csv.writer(response,delimiter=delimiter)
-    if len(headerrow):
-        writer.writerow(headerrow)
-    for data in tabledata:
-        rowout = []
-        for item in rowdata:
-            func_end = item.find('|')
-            if func_end == -1:
-                attr_name = item
-                func_name = ''
-            else:
-                attr_name = item[func_end+1:]
-                func_name = item[:func_end]
-            if hasattr(data,attr_name):
-                attr = getattr(data,attr_name)
-                if func_name in globals():
-                    func = globals()[func_name]
-                    rowout.append(func(attr))
-                    continue
-                rowout.append(attr)
-                continue
-            rowout.append('')
-        writer.writerow(rowout)
-    return response
             
 def view_requestor_details(request, requestor):
     """ Shows testruns by requestor view
