@@ -149,6 +149,7 @@ fi
 %defattr(-,root,root)
 %config /etc/ots.ini
 %config /etc/conductor.conf
+%config /etc/init.d/ots-worker
 /etc/conductor/
 /usr/bin/ots_worker
 /usr/bin/conductor

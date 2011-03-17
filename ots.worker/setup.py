@@ -45,5 +45,7 @@ setup(
                      "ots_worker = ots.worker.worker:main"]},
       data_files=[(os.path.join(DATA_PREFIX, 'etc'),
                    ['ots.ini', 'ots/worker/conductor/conductor.conf']),
+                   (os.path.join(DATA_PREFIX, 'etc/init.d/'),
+                    ['ots-worker']),
                    (os.path.join(DATA_PREFIX, 'etc/conductor'), [])]
       )

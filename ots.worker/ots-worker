@@ -1,0 +1,39 @@
+#!/bin/sh
+# Start/stop ots-worker
+#
+### BEGIN INIT INFO
+# Provides:          ots-worker
+# Required-Start:
+# Required-Stop:     
+# Default-Start:     2 
+# Default-Stop:      1
+# Short-Description: Connector to test automation server
+### END INIT INFO
+
+OTSWORKER=`which ots_worker`
+
+. /lib/lsb/init-functions
+
+case "$1" in
+start)	log_daemon_msg "Starting automated test environment" "ots-worker"
+        start-stop-daemon --start --quiet --name ots_worker --startas $OTSWORKER -b
+        log_end_msg $?
+	;;
+stop)	log_daemon_msg "Stopping automated test environment" "ots-worker"
+        start-stop-daemon --stop --quiet --name ots_worker
+        log_end_msg $?
+        ;;
+stopwhenready)	log_daemon_msg "Asking ots-worker to stop after run has finished" "ots-worker"
+	touch /tmp/stop_ots_worker
+        log_end_msg $?
+        ;;
+restart) log_daemon_msg "Restarting automated test environment" "ots-worker" 
+        start-stop-daemon --stop --retry 5 --quiet --name ots_worker
+        start-stop-daemon --start --quiet --name STAFProc --startas $OTSWORKER -b
+        log_end_msg $?
+        ;;
+*)	log_action_msg "Usage: /etc/init.d/ots-worker {start|stop|stopwhenready|restart}"
+        exit 2
+        ;;
+esac
+exit 0
