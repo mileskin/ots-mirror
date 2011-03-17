@@ -33,342 +33,224 @@ Please check that system_tests.conf is up to date!
 
 """
 
-import configobj
 import unittest
-import urllib2
+
+import configobj
 from configobj import ConfigObj
-from BeautifulSoup import BeautifulSoup
+
 from ots.tools.trigger.ots_trigger import ots_trigger
+from log_scraper import has_message, has_errors
+from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
+
+
+##############################
+# CONFIG
+##############################
 
 CONFIGFILE = "system_tests.conf"
 CONFIG = ConfigObj(CONFIGFILE).get("log_tests")
 
+###############################
+# DEFAULT OPTIONS
+###############################
+
 class Options(object):
-    """A mock for ots_trigger options"""
+    """
+    A mock for ots_trigger options
+    """
 
     def __init__(self):
-
-
-        # Default call options
         self.id = 0
+        self.sw_product = CONFIG["sw_product"]
         self.image = CONFIG["image_url"]
         self.testpackages = ""
         self.hosttest = ""
         self.distribution = "default"
         self.filter = ""
         self.input_plugin = ""
-        self.device = ""
-        self.sw_product = "ots-system-tests"
+        self.device = CONFIG["device"]
         self.email = CONFIG["email"]
         self.timeout = 30
         self.server = CONFIG["server"]
 
-    pass
+##################################
+#  BASE
+##################################
 
-class TestSuccessfulTestruns(unittest.TestCase):
+class SystemSingleRunTestCaseBase(unittest.TestCase):
+    """
+    Base class for a single run 
+    where log of the last testrun are scraped
+    and compared against the expected strings
+
+    Helpers add descriptive error formatting
+    """
+    @staticmethod
+    def _print_options(options):
+        print "************************"
+        print "Triggering Testrun with Options:"
+        print "SW Product: %s"%(options.sw_product)
+        print "Image: %s"%(options.image)
+        print "Hosttest: %s"%(options.hosttest)
+        print "Testpackages: %s"%(options.testpackages)
+        print "Device: %s" %(options.device)
+        if options.filter:
+            print "Filters: %s" % options.filter
+
+    @property
+    def testrun_id(self):
+        return get_latest_testrun_id(CONFIG["global_log"])
+
+    def _has_errors(self):
+        return has_errors(CONFIG["global_log"], self.testrun_id)
+
+    def _has_message(self, string):
+        return has_message(CONFIG["global_log"],
+                           self.testrun_id, 
+                           string)
+
+    def assert_log_contains_string(self, string): 
+        self.assertTrue(self._has_message(string), 
+                        "'%s' not found on log for testrun_id: '%s'" \
+                        % (string, self.testrun_id))
+
+    def assert_log_doesnt_contain_string(self, string):
+        self.assertFalse(self._has_message(string), 
+                        "'%s' not found on log for testrun_id: '%s'" \
+                        % (string, self.testrun_id))
+
+    def assert_log_contains_strings(self, strings):
+        for string in strings:
+            self.assert_log_contains_string(string)
+
+    def assert_log_doesnt_contain_strings(self, strings):
+        for string in strings:
+            self.assert_log_doesnt_contain_string(string)
+
+    def assert_true_log_has_errors(self):
+        self.assertTrue(self._has_errors(),
+                        "Error messages no found for testrun_id: '%s'" \
+                        % (self.testrun_id))
+
+    def assert_false_log_has_errors(self):
+        self.assertFalse(self._has_errors(),
+                        "Error messages no found for testrun_id: '%s'" \
+                        % (self.testrun_id))
+
+    def assert_result_is_pass(self, result):
+        self.assert_log_contains_string("Testrun finished with result: PASS")
+        self.assertEquals(result, 
+                          "PASS",
+                          "Assertion error: result fails testrun_id: '%s'"\
+                         % (self.testrun_id))
+        
+    def assert_result_is_error(self, result):
+        self.assert_log_contains_string("Result set to ERROR")
+        self.assertEquals(result, 
+                          "ERROR",
+                          "Assertion error: result fails testrun_id: '%s'"\
+                         % (self.testrun_id))
+
+    def trigger_testrun_expect_pass(self, options, strings):
+        self._print_options(options)
+        result = ots_trigger(options)
+        self.assert_result_is_pass(result)
+        self.assert_false_log_has_errors()
+        self.assert_log_contains_strings(strings)
+
+    def trigger_testrun_expect_error(self, options, strings):
+        self._print_options(options)
+        result = ots_trigger(options)
+        self.assert_result_is_error(result)
+        self.assert_true_log_has_errors()
+        self.assert_log_contains_strings(strings)
+    
+##################################
+# TestSuccessfulTestruns
+##################################
+
+class TestSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_hw_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.testpackages = "test-definition-tests"
-        options.sw_product = "ots-system-tests"
         options.timeout = 30
-
-        print "****************************"
-        print "Triggering a HW based test run with test-definition-tests\n"
-        print "System requirements:"
-        print "Image with test-definition-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check environment
-        string = "Environment: Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        string = "Environment: Host_Hardware"
-        self.assertFalse(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check a message from testrunner-lite
-        string = """Finished running tests."""
-        self.assertTrue(has_message(testrun_id, string))
-
+        expected = ["Environment: Hardware",
+                    "Starting conductor at",
+                    """Finished running tests."""]
+        self.trigger_testrun_expect_pass(options, expected)
+    
     def test_host_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.hosttest = "test-definition-tests"
         options.testpackages = ""
-        options.sw_product = "ots-system-tests"
         options.timeout = 30
-
-        print "****************************"
-        print "Triggering a testrun with test-definition-tests\n"
-        print "System requirements:"
-        print "Image with test-definition-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check environment
-        string = "Environment: Hardware"
-        self.assertFalse(has_message(testrun_id, string))
-
-        string = "Environment: Host_Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check a message from testrunner-lite
-        string = """Finished running tests."""
-        self.assertTrue(has_message(testrun_id, string))
-
+        expected = ["Testrun finished with result: PASS",
+                    "Environment: Host_Hardware",
+                    "Starting conductor at",
+                    """Finished running tests."""]
+        self.trigger_testrun_expect_pass(options, expected)
+        self.assert_log_doesnt_contain_string("Environment: Hardware")
+      
     def test_hw_and_host_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.hosttest = "test-definition-tests"
         options.testpackages = "test-definition-tests"
-        options.sw_product = "ots-system-tests"
         options.timeout = 60
-
-        print "****************************"
-        print "Triggering a testrun with test-definition-tests on host and hardware\n"
-        print "System requirements:"
-        print "Image with test-definition-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker capable of running test-definition-"\
-            "tests configured to sw_product %s." % options.sw_product
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check environment
-        string = "Environment: Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        string = "Environment: Host_Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check that both environments get executed
-        string = "Environment: Host_Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        string = "Environment: Hardware"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check a message from testrunner-lite
-        string = """Finished running tests."""
-        self.assertTrue(has_message(testrun_id, string))
-
+        expected = ["Environment: Hardware",
+                    "Environment: Host_Hardware",
+                    "Starting conductor at",
+                    """Finished running tests."""]
+        self.trigger_testrun_expect_pass(options, expected)
+       
     def test_testrun_with_filter(self):
         options = Options()
         options.testpackages = "testrunner-lite-regression-tests"
-        options.sw_product = "ots-system-tests"
         options.timeout = 30
         options.filter = "testcase=trlitereg01,trlitereg02"
-
-        print "****************************"
-        print "Triggering a test run with testrunner-lite-regression-tests and"\
-            " filter\n"
-        print "System requirements:"
-        print "Image with testrunner-lite-regression-tests available in %s"\
-             % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-        print "Test filter with two cases enabled: %s"\
-            % options.filter
-
+        #
+        self._print_options(options)
         result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check test case filtering
-        # trlitereg01 should not be filtered
-        string = "Test case trlitereg01 is filtered"
-        self.assertFalse(has_message(testrun_id, string))
-        
-        # trlitereg02 should not be filtered
-        string = "Test case trlitereg02 is filtered"
-        self.assertFalse(has_message(testrun_id, string))
-        
-        # trlitereg03 should be filtered
-        string = "Test case quoting_01 is filtered"
-        self.assertTrue(has_message(testrun_id, string))
-        
-        # quoting_01 should be filtered
-        string = "Test case quoting_01 is filtered"
-        self.assertTrue(has_message(testrun_id, string))
-        
-        # two cases should be executed and passed
-        string = "Executed 2 cases. Passed 2 Failed 0"
-        self.assertTrue(has_message(testrun_id, string))
+        self.assert_result_is_pass(result)
+        self.assert_false_log_has_errors()
+        self.assert_log_contains_string("Testrun finished with result: PASS")
+        expected = ["Test case quoting_01 is filtered",
+                    "Test case quoting_01 is filtered",
+                    "Executed 2 cases. Passed 2 Failed 0"]
+        self.assert_log_contains_strings(expected)
+        expected = ["Test case trlitereg01 is filtered",
+                    "Test case trlitereg02 is filtered"]
+        self.assert_log_doesnt_contain_strings(expected)           
 
     def test_hw_based_testrun_split_into_multiple_tasks(self):
         options = Options()
         options.distribution = "perpackage"
         options.testpackages = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.sw_product = "ots-system-tests"
         options.filter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
-
-        print "****************************"
-        print "Triggering two test runs with per package distribution"
-        print "System requirements:"
-        print "Image with test-definition-tests and testrunner-lite-" \
-            "regression-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-        print "A fully functional worker capable of running test-definition-"\
-            "tests and testrunner-lite-regression-tests configured to "\
-            "sw_product %s." % options.sw_product
-        print "Filter set to run only one case from both packages: %s" \
-            % options.filter
+        expected = ["Starting conductor at",
+          "Finished running tests.",
+          "Testrun ID: %s  Environment: Hardware" % self.testrun_id,
+          "Beginning to execute test package: test-definition-tests",
+          "Beginning to execute test package: testrunner-lite-regression-test",
+          "Executed 1 cases. Passed 1 Failed 0"]
+        self.trigger_testrun_expect_pass(options, expected)
         
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string, 2))
-
-        # Check a message from testrunner-lite
-        string = "Finished running tests."
-        self.assertTrue(has_message(testrun_id, string, 2))
-        
-        # Check two messages from two separate tests on HW
-        string = "Testrun ID: %s  Environment: Hardware" % testrun_id
-        self.assertTrue(has_message(testrun_id, string, 2))
-        
-        # Check correct test package executions
-        string = "Beginning to execute test package: test-definition-tests"
-        self.assertTrue(has_message(testrun_id, string, 1))
-        string = "Beginning to execute test package: testrunner-lite-regression-test"
-        self.assertTrue(has_message(testrun_id, string, 1))
-        
-        string = "Executed 1 cases. Passed 1 Failed 0"
-        self.assertTrue(has_message(testrun_id, string, 2))
-
     def test_host_based_testrun_split_into_multiple_tasks(self):
         options = Options()
         options.distribution = "perpackage"
         options.hosttest = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.sw_product = "ots-system-tests"
         options.filter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
-
-        print "****************************"
-        print "Triggering two host based test runs with per package "\
-            "distribution"
-        print "System requirements:"
-        print "Image with test-definition-tests and testrunner-lite-" \
-            "regression-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-        print "A fully functional worker capable of running test-definition-"\
-            "tests and testrunner-lite-regression-tests configured to "\
-            "sw_product %s." % options.sw_product
-        print "Filter set to run only one case from both packages: %s" \
-            % options.filter
-        
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string, 2))
-
-        # Check a message from testrunner-lite
-        string = "Finished running tests."
-        self.assertTrue(has_message(testrun_id, string, 2))
-        
-        # Check two messages from two separate tests on host
-        string = "Testrun ID: %s  Environment: Host_Hardware" % testrun_id
-        self.assertTrue(has_message(testrun_id, string, 2))
-        
-        # Check correct test package executions
-        string = "Beginning to execute test package: test-definition-tests"
-        self.assertTrue(has_message(testrun_id, string, 1))
-        string = "Beginning to execute test package: testrunner-lite-regression-test"
-        self.assertTrue(has_message(testrun_id, string, 1))
-        
-        string = "Executed 1 cases. Passed 1 Failed 0"
-        self.assertTrue(has_message(testrun_id, string, 2))
+        expected = ["Starting conductor at",
+          "Finished running tests.",
+          "Testrun ID: %s  Environment: Host_Hardware" % self.testrun_id,
+          "Beginning to execute test package: test-definition-tests",
+          "Beginning to execute test package: testrunner-lite-regression-test",
+          "Executed 1 cases. Passed 1 Failed 0"]
+        self.trigger_testrun_expect_pass(options, expected)
 
     def test_hw_and_host_based_testrun_split_into_multiple_tasks(self):
         options = Options()
@@ -377,46 +259,13 @@ class TestSuccessfulTestruns(unittest.TestCase):
             "test-definition-tests testrunner-lite-regression-tests"
         options.testpackages = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.sw_product = "ots-system-tests"
         options.filter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 120
-
-        print "****************************"
-        print "Triggering a test run with test-definition-tests on "\
-            "host and hardware\n"
-        print "System requirements:"
-        print "Image with test-definition-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker capable of running test-definition-"\
-            "tests configured to sw_product %s." % options.sw_product
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string, 4))
-
-        # Check that both environments get executed, two test on host side
-        # and two tests on HW side
-        string = "Environment: Host_Hardware"
-        self.assertTrue(has_message(testrun_id, string, 2))
-        string = "Environment: Hardware"
-        self.assertTrue(has_message(testrun_id, string, 2))
-        
-        # Check that test finished four times (2 x HW and 2 x host).
-        string = "Finished running tests."
-        self.assertTrue(has_message(testrun_id, string, 4))
+        expected = ["Starting conductor at",
+          "Environment: Host_Hardware",
+          "Environment: Hardware",
+          "Finished running tests."]
+        self.trigger_testrun_expect_pass(options, expected)
 
     def test_hw_based_testrun_with_multiple_tests(self):
         options = Options()
@@ -424,378 +273,120 @@ class TestSuccessfulTestruns(unittest.TestCase):
         options.testpackages = \
             "test-definition-tests testrunner-lite-regression-tests"
         options.filter = "testcase=trlitereg01,Check-basic-schema"
-        options.sw_product = "ots-system-tests"
+        options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-
-        print "****************************"
-        print "Triggering two HW based test runs with multiple test packages"
-        print "System requirements:"
-        print "Image with test-definition-tests and testrunner-lite-regression"\
-            "-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-        print "A fully functional worker capable of running test-definition-"\
-            "tests and testrunner-lite-regression-tests configured to "\
-            "sw_product %s." % options.sw_product
-        print "Filter set to run one case from each package: %s" \
-            % options.filter
-        
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string, 1))
-
-        # Check a message from testrunner-lite
-        string = "Finished running tests."
-        self.assertTrue(has_message(testrun_id, string, 2))
-        
-        # Check two messages from two separate tests on HW
-        string = "Environment: Hardware"
-        self.assertTrue(has_message(testrun_id, string, 1))
-    
+        expected = ["Testrun finished with result: PASS",
+                    "Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Hardware"]
+        self.trigger_testrun_expect_pass(options, expected)
+      
     def test_host_based_testrun_with_multiple_tests(self):
         options = Options()
         options.distribution = "default"
         options.hosttest = \
             "test-definition-tests testrunner-lite-regression-tests"
         options.filter = "testcase=trlitereg01,Check-basic-schema"
-        options.sw_product = "ots-system-tests"
         options.timeout = 60
+        expected = ["Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Host_Hardware"]
+        self.trigger_testrun_expect_pass(options, expected)
 
-        print "****************************"
-        print "Triggering two host based test runs with multiple test packages"
-        print "System requirements:"
-        print "Image with test-definition-tests and testrunner-lite-regression"\
-            "-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-        print "A fully functional worker capable of running test-definition-"\
-            "tests and testrunner-lite-regression-tests configured to "\
-            "sw_product %s." % options.sw_product
-        print "Filter set to run one case from each package: %s" \
-            % options.filter
-        
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "PASS")
-
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertFalse(has_errors(testrun_id))
-
-        string = "Testrun finished with result: PASS"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string, 1))
-
-        # Check a message from testrunner-lite
-        string = "Finished running tests."
-        self.assertTrue(has_message(testrun_id, string, 2))
-        
-        # Check two messages from two separate tests on host
-        string = "Environment: Host_Hardware"
-        self.assertTrue(has_message(testrun_id, string, 1))
-
-class TestCustomDistributionModels(unittest.TestCase):
-
-    def assert_log_contains_string(self, testrun_id, string): 
-        self.assertTrue(has_message(testrun_id, string), 
-         "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
+############################################
+# TestCustomDistributionModels
+############################################
+    
+class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
 
     def test_load_example_distribution_model(self):
         options = Options()
         options.distribution = "example_model"
         options.timeout = 1
-        print "****************************"
-        print "Triggering a testrun with test package distribution schema '%s'"\
-            % options.distribution
-        print "This test requires that ots.plugin.example_distribution_model "\
-            +"from examples/ is installed."
+        self.trigger_testrun_expect_error(options, 
+                        ["ValueError: Invalid distribution model"])
 
-        result = ots_trigger(options)
+##########################################
+# TestErrorConditions
+##########################################
 
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertTrue(has_errors(testrun_id))
-
-        string = "Result set to ERROR"
-        self.assert_log_contains_string(testrun_id, string)
-
-        string = "Example distribution model not implemented."
-        self.assert_log_contains_string(testrun_id, string)
-
-
-class TestErrorConditions(unittest.TestCase):
-
-    def assert_log_contains_string(self, testrun_id, string): 
-        self.assertTrue(has_message(testrun_id, string), 
-         "'%s' not found on log for testrun_id: '%s'" % (string, testrun_id))
+class TestErrorConditions(SystemSingleRunTestCaseBase):
 
     def test_bad_image_url(self):
-        # Trigger a testrun with non existing image url. Check correct result
-        # and error message
         options = Options()
         options.image = options.image+"asdfasdfthiswontexistasdfasdf"
         options.testpackages = "testrunner-lite-regression-tests"
-        options.sw_product = "ots-system-tests"
         options.timeout = 30
-
-        print "****************************"
-        print "Triggering a testrun with bad image url\n"
-
-        result = ots_trigger(options)
-
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-
-        self.assertTrue(has_errors(testrun_id))
-
-        string = "Result set to ERROR"
-        self.assertTrue(has_message(testrun_id, string))
-
-        string = "Error: Could not download file ots_system_test_image.tar.gzasdfasdfthiswontexistasdfasdf, Error code: 103"
-        self.assertTrue(has_message(testrun_id, string))
-
-        # Check message from conductor
-        string = "Starting conductor at"
-        self.assertTrue(has_message(testrun_id, string))
-
-
+        expected = ["Error: Could not download file ots_system_test_image.tar.gzasdfasdfthiswontexistasdfasdf, Error code: 103",
+                    "Starting conductor at"]
+        self.trigger_testrun_expect_error(options, expected)
+    
     def test_timeout(self):
-        # Trigger long testrun with short timeout value. Make sure result is
-        # fail and correct error message is generated
-
         options = Options()
         options.testpackages = "testrunner-lite-regression-tests"
-        options.sw_product = "ots-system-tests"
         options.timeout = 1
-
-        print "****************************"
-        print "Triggering a testrun with testrunner-lite-regression-tests, 1 minute timeout\n"
-        print "System requirements:"
-        print "Image with testrunner-lite-regression-tests available in %s" % options.image
-        print "SW Product %s defined" % options.sw_product
-        print "A fully functional worker configured to %s."\
-            % options.sw_product
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-
-        self.assertTrue(has_errors(testrun_id))
-
-        string = "Result set to ERROR"
-
-
-        # Check error message
-
-        string = "Error: Timeout while executing test package testrunner-lite-regression-tests, Error code: 1091"
-        self.assert_log_contains_string(testrun_id, string)
-
-        # Check message from conductor        
-        string = 'Test execution error: Timeout while executing test package testrunner-lite-regression-tests'
-        self.assert_log_contains_string(testrun_id, string)
-
-
+        expected = ["Error: Timeout while executing test package testrunner-lite-regression-tests, Error code: 1091",
+                    'Test execution error: Timeout while executing test package testrunner-lite-regression-tests',]
+        self.trigger_testrun_expect_error(options, expected)
 
     def test_non_existing_devicegroup(self):
         options = Options()
         options.device = "devicegroup:this_should_not_exist"
         options.timeout = 1
-        print "****************************"
-        print "Triggering a testrun with non existing devicegroup '%s'"\
-            % options.device
-        print "Please make sure the system does not have that devicegroup."
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertTrue(has_errors(testrun_id))
-
-        string = "Testrun finished with result: ERROR"
-        self.assert_log_contains_string(testrun_id, string)
-
-        string = """No queue for this_should_not_exist"""
-        self.assert_log_contains_string(testrun_id, string)
-
-        string = """Incoming request: program: ots-system-tests, request: 0, notify_list: ['%s'], options: {"""  % (CONFIG["email"])
-        self.assert_log_contains_string(testrun_id, string)
-        string = """'image': '%s'""" % CONFIG["image_url"]
-        self.assert_log_contains_string(testrun_id, string)
-        string = """'distribution_model': 'default'"""
-        self.assert_log_contains_string(testrun_id, string)
-        string = """'timeout': 1"""
-        self.assert_log_contains_string(testrun_id, string)
-        string = """'device': 'devicegroup:this_should_not_exist'"""
-        self.assert_log_contains_string(testrun_id, string)
+        expected = [
+          "No queue for this_should_not_exist",
+          "Incoming request: program: ots-system-tests, request: 0, notify_list: ['%s'], options: {"  % (CONFIG["email"]),
+          "'image': '%s'" % (CONFIG["image_url"]),
+          "'distribution_model': 'default'",
+          "'timeout': 1",
+          "'device': 'devicegroup:this_should_not_exist'"
+                    ]
+        self.trigger_testrun_expect_error(options, expected)
 
     def test_non_existing_sw_product(self):
         options = Options()
         options.sw_product = "this_should_not_exist"
         options.timeout = 1
-        print "****************************"
-        print "Triggering a testrun with non existing sw_product '%s'"\
-            % options.sw_product
-        print "Please make sure the system does not have that sw_product."
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertTrue(has_errors(testrun_id))
-        string = """'this_should_not_exist' not found"""
-        self.assert_log_contains_string(testrun_id, string)
-
-        string = """Incoming request: program: this_should_not_exist, request: 0, notify_list: ['%s'], options: {"""  % (CONFIG["email"])
-        self.assert_log_contains_string(testrun_id, string)
-
-
-        string = """'image': '%s'""" % CONFIG["image_url"]
-        self.assert_log_contains_string(testrun_id, string)
-        string = """'distribution_model': 'default'"""
-        self.assert_log_contains_string(testrun_id, string)
-        string = """'timeout': 1"""
-        self.assert_log_contains_string(testrun_id, string)
-
-
+        expected = [
+           "'this_should_not_exist' not found",
+           "Incoming request: program: this_should_not_exist, request: 0, notify_list: ['%s'], options: {"  % (CONFIG["email"]),
+           "'image': '%s'" % (CONFIG["image_url"]),
+           "'distribution_model': 'default'",
+           "'timeout': 1"]
+        self.trigger_testrun_expect_error(options, expected)
 
     def test_bad_testpackage_names(self):
         options = Options()
         options.testpackages = "test-definition-tests thisisnotatestpackage"
         options.timeout = 1
-        print "****************************"
-        print "Triggering a testrun with invalid test package names '%s'"\
-            % options.testpackages
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertTrue(has_errors(testrun_id))
-
-        string = "Result set to ERROR"
-        self.assert_log_contains_string(testrun_id, string)
-
-        string = "Invalid testpackage(s): thisisnotatestpackage"
-        self.assert_log_contains_string(testrun_id, string)
-
+        self.trigger_testrun_expect_error(options, 
+                            ["Invalid testpackage(s): thisisnotatestpackage"])
 
     def test_no_image_url(self):
         options = Options()
         options.timeout = 1
         options.image = ""
-        print "****************************"
-        print "Triggering a testrun with empty image url"
-
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertTrue(has_errors(testrun_id))
-
-        string = "Result set to ERROR"
-        self.assert_log_contains_string(testrun_id, string)
-
-        string = "Missing `image` parameter"
-        self.assert_log_contains_string(testrun_id, string)
+        self.trigger_testrun_expect_error(options, 
+                            ["Missing `image` parameter"])
 
     def test_bad_distribution_model(self):
         options = Options()
         options.distribution = "sendalltestrunstowastebin"
         options.timeout = 1
-        print "****************************"
-        print "Triggering a testrun with invalid test package distribution schema '%s'"\
-            % options.distribution
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-        
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertTrue(has_errors(testrun_id))
-
-        string = "Result set to ERROR"
-        self.assert_log_contains_string(testrun_id, string)
-
-        string = "Invalid distribution model: sendalltestrunstowastebin"
-        self.assert_log_contains_string(testrun_id, string)
+        self.trigger_testrun_expect_error(options,
+                      ["Invalid distribution model: sendalltestrunstowastebin"])
 
     def test_perpackage_distribution_no_packages(self):
         options = Options()
         options.distribution = "perpackage"
         options.timeout = 1
-        print "****************************"
-        print "Triggering a testrun with perpackage distribution without any testpackages defined"
-
-        result = ots_trigger(options)
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
         
-        # Log checks:
-        testrun_id = get_latest_testrun_id()
-        print "testrun_id: %s" %testrun_id
-        self.assertTrue(has_errors(testrun_id))
+        self.trigger_testrun_expect_error(options, 
+                    ["Test packages must be defined for specified distribution model 'perpackage'"])
 
-        string = "Result set to ERROR"
-        self.assert_log_contains_string(testrun_id, string)
-
-        string = "Test packages must be defined for specified distribution model 'perpackage'"
-        self.assert_log_contains_string(testrun_id, string)
-
-
+########################################
+# TestDeviceProperties
+########################################
 
 class TestDeviceProperties(unittest.TestCase):
 
@@ -808,35 +399,45 @@ class TestDeviceProperties(unittest.TestCase):
             % options.device
         print "Please make sure the system does not have these devicegroups."
         print "Checking that a separate testrun gets created for all devicegroups."
-        
-        old_testrun = get_latest_testrun_id()
+
+        old_testrun = get_latest_testrun_id(CONFIG["global_log"])
         print "latest testrun_id before test: %s" % old_testrun
         result = ots_trigger(options)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
 
-        testrun_id1 = get_second_latest_testrun_id()
-        testrun_id2 = get_latest_testrun_id()
+        testrun_id1 = get_second_latest_testrun_id(CONFIG["global_log"])
+        testrun_id2 = get_latest_testrun_id(CONFIG["global_log"])
         print "testrun_id1: %s" %testrun_id1
         print "testrun_id2: %s" %testrun_id2
 
         # Make sure we are not reading logs from previous runs
         self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
 
-        self.assertTrue(has_errors(testrun_id1))
-        self.assertTrue(has_errors(testrun_id2))
+        self.assertTrue(has_errors(CONFIG["global_log"],
+                                   testrun_id1))
+        self.assertTrue(has_errors(CONFIG["global_log"],
+                                   testrun_id2))
 
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
         string1 = """No queue for this_should_not_exist_1"""
         string2 = """No queue for this_should_not_exist_either"""
         
-        if (has_message(testrun_id1, string1)):
-            self.assertTrue(has_message(testrun_id2, string2))
+        if (has_message(CONFIG["global_log"], 
+                        testrun_id1, 
+                        string1)):
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id2, 
+                                        string2))
         else:
-            self.assertTrue(has_message(testrun_id2, string1))
-            self.assertTrue(has_message(testrun_id1, string2))
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id2, 
+                                        string1))
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id1, 
+                                        string2))
 
     def test_one_devicegroup_multiple_devicenames(self):
         options = Options()
@@ -848,14 +449,14 @@ class TestDeviceProperties(unittest.TestCase):
         print "Please make sure the system does not have the devicegroup."
         print "Checking that a separate testrun gets created for all devicenames."
         
-        old_testrun = get_latest_testrun_id()
+        old_testrun = get_latest_testrun_id(CONFIG["global_log"])
         result = ots_trigger(options)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
 
-        testrun_id1 = get_second_latest_testrun_id()        
-        testrun_id2 = get_latest_testrun_id()
+        testrun_id1 = get_second_latest_testrun_id(CONFIG["global_log"])        
+        testrun_id2 = get_latest_testrun_id(CONFIG["global_log"])
 
         print "latest testrun_id before test: %s" % old_testrun
         print "testrun_id1: %s" %testrun_id1
@@ -864,8 +465,8 @@ class TestDeviceProperties(unittest.TestCase):
         # Make sure we are not reading logs from previous runs
         self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
 
-        self.assertTrue(has_errors(testrun_id1))
-        self.assertTrue(has_errors(testrun_id2))
+        self.assertTrue(has_errors(CONFIG["global_log"], testrun_id1))
+        self.assertTrue(has_errors(CONFIG["global_log"], testrun_id2))
 
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
@@ -873,11 +474,17 @@ class TestDeviceProperties(unittest.TestCase):
         string1 = """No queue for this_should_not_exist.device1"""
         string2 = """No queue for this_should_not_exist.device2"""
         
-        if (has_message(testrun_id1, string1)):
-            self.assertTrue(has_message(testrun_id2, string2))
+        if (has_message(CONFIG["global_log"], testrun_id1, string1)):
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id2, 
+                                        string2))
         else:
-            self.assertTrue(has_message(testrun_id2, string1))
-            self.assertTrue(has_message(testrun_id1, string2))
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id2, 
+                                        string1))
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id1, 
+                                        string2))
 
 
     def test_one_devicegroup_one_devicename_multiple_device_ids(self):
@@ -890,14 +497,14 @@ class TestDeviceProperties(unittest.TestCase):
         print "Please make sure the system does not have the devicegroup."
         print "Checking that a separate testrun gets created for all devicenames."
         
-        old_testrun = get_latest_testrun_id()
+        old_testrun = get_latest_testrun_id(CONFIG["global_log"])
         result = ots_trigger(options)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
 
-        testrun_id1 = get_second_latest_testrun_id()        
-        testrun_id2 = get_latest_testrun_id()
+        testrun_id1 = get_second_latest_testrun_id(CONFIG["global_log"])        
+        testrun_id2 = get_latest_testrun_id(CONFIG["global_log"])
 
         print "latest testrun_id before test: %s" % old_testrun
         print "testrun_id1: %s" %testrun_id1
@@ -907,118 +514,27 @@ class TestDeviceProperties(unittest.TestCase):
         # Make sure we are not reading logs from previous runs
         self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
 
-        self.assertTrue(has_errors(testrun_id1))
-        self.assertTrue(has_errors(testrun_id2))
+        self.assertTrue(has_errors(CONFIG["global_log"], testrun_id1))
+        self.assertTrue(has_errors(CONFIG["global_log"], testrun_id2))
         
 
         # Make sure correct routing keys are used
         string1 = """No queue for this_should_not_exist.device1.id1"""
         string2 = """No queue for this_should_not_exist.device1.id2"""
         
-        if (has_message(testrun_id1, string1)):
-            self.assertTrue(has_message(testrun_id2, string2))
+        if (has_message(CONFIG["global_log"],
+                        testrun_id1, 
+                        string1)):
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id2, 
+                                        string2))
         else:
-            self.assertTrue(has_message(testrun_id2, string1))
-            self.assertTrue(has_message(testrun_id1, string2))
-
-
-##################################
-# Helper functions for log parsing
-#
-
-def get_latest_testrun_id():
-    """
-    Scrape the latest testrun id from the global log
-    """
-    file =  urllib2.urlopen(CONFIG["global_log"])
-    soup = BeautifulSoup(file.read())
-    table =  soup.findAll("table")[1]
-    row1 = table.findAll("tr")[1]
-    td = row1.findAll("td")[0]
-    a = td.findAll("a")[0].string
-    return a
-
-def get_second_latest_testrun_id():
-    """
-    Scrape the second latest testrun id from the global log
-    """
-    latest = get_latest_testrun_id()
-    file =  urllib2.urlopen(CONFIG["global_log"])
-    soup = BeautifulSoup(file.read())
-    table =  soup.findAll("table")[1]
-    rows = table.findAll("tr")
-    for row in rows:
-        if row.findAll("td"):
-            td = row.findAll("td")[0]
-            a = td.findAll("a")[0].string
-            if a != latest:
-                return a
-    return None
-
-def has_message(testrun_id, string, times=None):
-    """
-    Tries to find a message in the log for the given testrun.
-    Returns True if message was found.
-    If times parameter given returns True if string is found as many times
-    as defined by count.
-    """
-    ret_val = False
-    count = 0
-    file =  urllib2.urlopen(CONFIG["global_log"]+"testrun/%s/" % testrun_id)
-    soup = BeautifulSoup(file.read(),
-                         convertEntities=BeautifulSoup.ALL_ENTITIES)
-
-    table =  soup.findAll("table")[1]
-    rows = table.findAll("tr")
-    for tr in rows:
-        td = tr.findAll("td")
-        if td:
-            if td[5].string and td[5].string.count(string):
-                if times == None:
-                    ret_val = True
-                    break
-                else:
-                    count += 1
-            elif td[5].string == None: # Check also <pre> messages </pre>
-                if td[5].findAll("pre")[0].string.count(string):
-                    if times == None:
-                        ret_val = True
-                        break
-                    else:
-                        count += 1
-    
-    if times == None:
-        return ret_val
-    else:
-        if times == count:
-            return True
-        else:
-            return False
-
-def has_errors(testrun_id):
-    """
-    Checks if testrun has any error messages
-    """
-    ret_val = False
-    file =  urllib2.urlopen(CONFIG["global_log"]+"testrun/%s/" % testrun_id)
-    soup = BeautifulSoup(file.read(), 
-                         convertEntities=BeautifulSoup.ALL_ENTITIES)
-
-    table =  soup.findAll("table")[1]
-    rows = table.findAll("tr")
-    for tr in rows:
-        td = tr.findAll("td")
-        if td:
-            try:
-                error = td[4].findAll("span")[0].string
-                if error == "ERROR":
-                    ret_val = True
-                    break
-            except IndexError:
-                pass
-
-    return ret_val
-
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id2, 
+                                        string1))
+            self.assertTrue(has_message(CONFIG["global_log"],
+                                        testrun_id1, 
+                                        string2))
 
 if __name__ == "__main__":
     unittest.main()
