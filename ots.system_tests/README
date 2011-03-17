@@ -1,5 +1,16 @@
+============
+System Tests 
+============
+
+There are two automated system tests
+
+Soak Test
 =========
-Log Tests 
+
+This is a long running Performance Test designed to simulate load on an 
+OTS system. 
+
+Log Tests
 =========
 
 Automated Test of the entire OTS system in a number of scenarios.

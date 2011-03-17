@@ -47,7 +47,7 @@ from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
 # CONFIG
 ##############################
 
-CONFIGFILE = "system_tests.conf"
+CONFIGFILE = "log_tests.conf"
 CONFIG = ConfigObj(CONFIGFILE).get("log_tests")
 
 ###############################
