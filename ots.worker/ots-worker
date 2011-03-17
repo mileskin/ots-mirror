@@ -10,7 +10,7 @@
 # Short-Description: Connector to test automation server
 ### END INIT INFO
 
-OTSWORKER=which ots_worker
+OTSWORKER=`which ots_worker`
 
 . /lib/lsb/init-functions
 
