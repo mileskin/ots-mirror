@@ -42,7 +42,7 @@
     </tr>
     <tr>
         <td class="title">Start time:</td>
-        <td>{{ testrun.start_time }}</td>
+        <td>{{ testrun.start_time|format_datetime }}</td>
     </tr>
     <tr>
         <td class="title">Configuration:</td>
@@ -111,8 +111,8 @@
 	    {% for event in events %}
     	<tr class="{% cycle 'odd' 'even' %}">
 		   <td>{{ event.event_name }}</td>
-		   <td>{{ event.event_emit }}</td>
-		   <td>{{ event.event_receive }}</td>
+		   <td>{{ event.event_emit|format_datetime }}</td>
+		   <td>{{ event.event_receive|format_datetime }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
