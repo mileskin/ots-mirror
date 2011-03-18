@@ -31,44 +31,105 @@ from ots.plugin.monitor.monitor_plugin import MonitorPlugin
 from ots.plugin.monitor.models import Testrun, Event
 from ots.plugin.monitor.views import get_timedeltas
 from ots.plugin.monitor.event_timedeltas import EventTimeDeltas, event_sequence
+from ots.common.dto.monitor import Monitor, MonitorType
+
+def _create_monitor_plugin(request_id):
+    """
+    Create monitor plugin instance
+    """
+    kwargs = {'notify_list': ['ots@localhost'],
+              'emmc': '',
+              'email_attachments': 'off',
+              'distribution_model': 'default',
+              'timeout': '60',
+              'device': {'devicegroup': 'examplegroup'},
+              'packages': 'test-definition-tests',
+              'email': 'on'}
+
+    return MonitorPlugin(request_id,
+                         "testrun_uuid",
+                         "sw_product",
+                         "image",
+                         **kwargs)
 
 
 class TestMonitorPlugin(unittest.TestCase):
     """
     Unit tests for monitor plugin
     """
-    def testInit(self):
-        kwargs = {'notify_list': ['elias.luttinen@digia.com'],
-                  'emmc': '',
-                  'email_attachments': 'off',
-                  'distribution_model': 'default',
-                  'timeout': '60',
-                  'device': {'devicegroup': 'examplegroup'},
-                  'packages': 'test-definition-tests',
-                  'email': 'on'}
-        
-        kwargs_str = "{'notify_list': ['elias.luttinen@digia.com'], " \
+    _kwargs_str = "{'notify_list': ['ots@localhost'], " \
         "'emmc': '', 'email_attachments': 'off', 'distribution_model': " \
         "'default', 'timeout': '60', 'device': {'devicegroup': " \
         "'examplegroup'}, 'packages': 'test-definition-tests', 'email': 'on'}"
 
-        mp = MonitorPlugin("request_id",
-                           "testrun_uuid",
-                           "sw_product",
-                           "image",
-                           **kwargs)
-
-        tr = Testrun.objects.filter(request_id="request_id")
+    def test_init(self):
+        request_id = 'test_init'
+        _create_monitor_plugin(request_id)
+        tr = Testrun.objects.filter(request_id=request_id)
 
         self.assertTrue(tr.values()[0].get('testrun_id') == 'testrun_uuid')
         self.assertTrue(tr.values()[0].get('device_group') == 'examplegroup')
-        self.assertTrue(str(tr.values()[0].get('configuration')) == kwargs_str)
+        self.assertTrue(str(tr.values()[0].get('configuration')) == self._kwargs_str)
         self.assertTrue(tr.values()[0].get('host_worker_instances') == '')
-        self.assertTrue(tr.values()[0].get('requestor') == 'elias.luttinen@digia.com')
-        self.assertTrue(tr.values()[0].get('request_id') == 'request_id')
+        self.assertTrue(tr.values()[0].get('requestor') == 'ots@localhost')
+        self.assertTrue(tr.values()[0].get('request_id') == request_id)
 
-    def test_add_monitor_event(self):
-        pass
+    def test_add_monitor_event_ongoing(self):
+        """
+        Test add_monitor_event when event name is TASK_ONGOING
+        """
+        request_id = 'test_add_monitor_event_ongoing'
+        mp = _create_monitor_plugin(request_id)
+        monitor = Monitor(MonitorType.TASK_ONGOING,
+                          "sender",
+                          "description")
+        mp.add_monitor_event(monitor)
+        event = Event.objects.values()
+
+        tr = Testrun.objects.filter(request_id=request_id)
+        self.assertTrue(event.values()[len(event)-1].get('testrun_id_id') \
+                            == tr.values()[0].get('id'))
+        self.assertTrue(event.values()[len(event)-1].get('event_name') \
+                            == MonitorType.TASK_ONGOING)
+        self.assertTrue(tr.values()[len(tr)-1].get('state') == '1')
+
+    def test_add_monitor_event_inqueue(self):
+        """
+        Test add_monitor_event when event name is TASK_INQUEUE
+        """
+        request_id = 'test_add_monitor_event_inqueue'
+        mp = _create_monitor_plugin(request_id)
+        monitor = Monitor(MonitorType.TASK_INQUEUE,
+                          "sender",
+                          "description")
+        mp.add_monitor_event(monitor)
+        event = Event.objects.values()
+
+        tr = Testrun.objects.filter(request_id=request_id)
+        self.assertTrue(event.values()[len(event)-1].get('testrun_id_id') \
+                            == tr.values()[0].get('id'))
+        self.assertTrue(event.values()[len(event)-1].get('event_name') \
+                            == MonitorType.TASK_INQUEUE)
+        self.assertTrue(tr.values()[len(tr)-1].get('state') == '0')
+
+    def test_add_monitor_event_ended(self):
+        """
+        Test add_monitor_event when event name is TASK_ENDED
+        """
+        request_id = 'test_add_monitor_event_ended'
+        mp = _create_monitor_plugin(request_id)
+        monitor = Monitor(MonitorType.TASK_ENDED,
+                          "sender",
+                          "description")
+        mp.add_monitor_event(monitor)
+        event = Event.objects.values()
+
+        tr = Testrun.objects.filter(request_id=request_id)
+        self.assertTrue(event.values()[len(event)-1].get('testrun_id_id') \
+                            == tr.values()[0].get('id'))
+        self.assertTrue(event.values()[len(event)-1].get('event_name') \
+                            == MonitorType.TASK_ENDED)
+
 
 class TestEventSequence(unittest.TestCase):
 
