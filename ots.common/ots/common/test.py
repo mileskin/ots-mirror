@@ -25,19 +25,14 @@ import glob
 import unittest
 import pkg_resources
 
-NAMESPACES = ["ots.server.hub", 
-              "ots.server.allocator",
-              "ots.server.distributor",
-              "ots.server.xmlrpc"]
+NAMESPACES = ["ots.common.amqp", 
+              "ots.common.dto",
+              "ots.common.framework",
+              "ots.common.routing"]
 
 TESTS_DIRNAME = "tests"
 
 FNAME_PATTERN = 'test_*.py'
-
-def _remove_multiprocessing_atexit_handlers():
-    #Multiprocessing cause TypeError atexit so remove them                      
-    import atexit
-    atexit._exithandlers = [atexit._exithandlers[0]]
 
 def suite():
     s = unittest.TestSuite()
@@ -50,5 +45,4 @@ def suite():
             __import__(name)
             suite = unittest.defaultTestLoader.loadTestsFromName(name)
             s.addTest(suite)
-    _remove_multiprocessing_atexit_handlers()
     return s
