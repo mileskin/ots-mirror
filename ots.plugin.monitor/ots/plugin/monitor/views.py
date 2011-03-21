@@ -384,7 +384,7 @@ def view_testrun_list(request, device_group = None):
         device_group_filter = "%s" % device_group_filter
         testruns = testruns.filter(device_group = device_group_filter)
     
-    testruns = testruns.order_by("state")
+    testruns = testruns.order_by("state", "-start_time")
     
     testrun_stats = _calculate_testrun_stats(testruns)
     
@@ -472,7 +472,7 @@ def view_group_details(request, devicegroup):
 
     testrun_stats = _calculate_testrun_stats(testruns)
 
-    context_dict['testruns'] = _paginate(request, testruns.order_by('state', 'start_time'))
+    context_dict['testruns'] = _paginate(request, testruns.order_by('state', '-start_time'))
     runs_finished = testrun_stats.get("finished")
     context_dict['devicegroup'] = devicegroup
     context_dict['runcount'] = testrun_stats.get("runs")
@@ -540,7 +540,7 @@ def view_requestor_details(request, requestor):
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
 
-    testruns = testruns.order_by("state")
+    testruns = testruns.order_by("state", "-start_time")
     testrun_stats = _calculate_testrun_stats(testruns)
     
     context_dict['requestor'] = requestor
