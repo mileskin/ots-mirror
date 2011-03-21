@@ -42,7 +42,10 @@ class MonitorPlugin(PublisherPluginBase):
     """
     Monitor Plugin  
     """
-    def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
+    def __init__(self, request_id, testrun_uuid, sw_product, image,
+                 notify_list = None,
+                 device = None,
+                 **kwargs):
         """
         Initialization
         
@@ -64,11 +67,12 @@ class MonitorPlugin(PublisherPluginBase):
         requestor = ''
         device_group = ''
 
-        if kwargs.get('notify_list') and len(kwargs['notify_list']) > 0:
-            requestor = kwargs['notify_list'][0]
+        if notify_list and len(notify_list) > 0:
+            requestor = notify_list[0]
 
-        if kwargs.get('device'):
-            device_group = kwargs['device'].get('devicegroup', "invalid")
+        if device:
+            if device is dict:
+                device_group = device.get('devicegroup', "invalid")
         
         if device_group == '':
             device_group = "invalid"
