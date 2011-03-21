@@ -112,6 +112,24 @@ class TestMonitorPlugin(unittest.TestCase):
                             == MonitorType.TASK_INQUEUE)
         self.assertTrue(tr.values()[len(tr)-1].get('state') == '0')
 
+    def test_add_monitor_event_ended(self):
+        """
+        Test add_monitor_event when event name is TASK_ENDED
+        """
+        request_id = 'test_add_monitor_event_ended'
+        mp = _create_monitor_plugin(request_id)
+        monitor = Monitor(MonitorType.TASK_ENDED,
+                          "sender",
+                          "description")
+        mp.add_monitor_event(monitor)
+        event = Event.objects.values()
+
+        tr = Testrun.objects.filter(request_id=request_id)
+        self.assertTrue(event.values()[len(event)-1].get('testrun_id_id') \
+                            == tr.values()[0].get('id'))
+        self.assertTrue(event.values()[len(event)-1].get('event_name') \
+                            == MonitorType.TASK_ENDED)
+
 
 class TestEventSequence(unittest.TestCase):
 

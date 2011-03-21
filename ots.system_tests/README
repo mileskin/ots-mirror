@@ -1,0 +1,77 @@
+============
+System Tests 
+============
+
+There are two automated system tests
+
+Soak Test
+=========
+
+This is a long running Performance Test designed to simulate load on an 
+OTS system. 
+
+Log Tests
+=========
+
+Automated Test of the entire OTS system in a number of scenarios.
+They employ scraping of the logs.
+
+The steps to get these running are as follows.
+
+1. Get Suitable Image
+---------------------
+
+Suitable in that it contains the following tests. For efficiency it is 
+beneficial that the running of the tests is as quick as possible
+
+- "test-definition-tests"
+
+- "testrunner-lite-regression-tests"
+
+- "testcase=trlitereg01,trlitereg02"
+
+This needs to be put in your public_html directory.
+
+2. Check Flashing
+-----------------
+
+Run the meego-ai-flasher manually. This puts a suitable image on the device and allows the most fragile part of the process to be checked manually prior to a prolonged automated process
+
+::
+
+  sudo meego-ai-flasher -f /path/to/public_html/ots_system_tust_imagedo meego-ai-flasher -f /path/to/your/image 
+
+3. Edit the meego-ai-flasher.conf
+---------------------------------
+
+On ubuntu this is the file /etc/meego_ai_flasher.conf
+
+Dummy up the following parameters to avoid running through the flash cycle 
+on each test:
+
+pre_flash_command: echo "pre flash"
+pre_flash_conn_test_command: echo "preflash_test"
+flash_command: echo "flash %s"
+
+4. Start a Worker
+-----------------
+
+Start a worker from the the OTS under test
+
+FIXME: This needs to be from ots worker init script
+
+5. Edit the system_tests.conf
+-----------------------------
+
+Check that the image_url is correct.
+
+Check that the device and sw_product correspond to 
+the rest of the OTS system
+
+self.device = "devicegroup:foo"
+self.sw_product = "example_sw_product"
+
+6. Put django in 'production' mode
+----------------------------------
+
+Switch to `False` in ots.django.settings and ots.django.urls 

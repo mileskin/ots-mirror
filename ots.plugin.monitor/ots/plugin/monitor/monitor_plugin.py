@@ -69,6 +69,9 @@ class MonitorPlugin(PublisherPluginBase):
 
         if kwargs.get('device'):
             device_group = kwargs['device'].get('devicegroup', "invalid")
+        
+        if device_group == '':
+            device_group = "invalid"
 
         try:
             # Create a new testrun object to DB

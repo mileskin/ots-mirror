@@ -1,7 +1,7 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
 # Contact: meego-qa@lists.meego.com
 #
@@ -20,17 +20,26 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
-from get_spec_version import get_spec_version
+import os 
+import glob 
+import unittest
+import pkg_resources
 
-setup(
-      name="ots.results",
-      author="meego-dev@meego.com",
-      version=get_spec_version(),
-      include_package_data=True,
-      install_requires=['minixsv'],
-      namespace_packages=['ots'],
-      packages=find_packages(),
-      test_suite='ots.results.test.suite',
-      zip_safe=False,
-      )
+NAMESPACES = ["ots.worker", "ots.worker.conductor"]
+
+TESTS_DIRNAME = "tests"
+
+FNAME_PATTERN = 'test_*.py'
+
+def suite():
+    s = unittest.TestSuite()
+    for namespace in NAMESPACES:
+        dirname = pkg_resources.resource_filename(namespace, TESTS_DIRNAME)
+        fqnames = glob.glob(os.path.join(dirname,FNAME_PATTERN))
+        for fqname in fqnames:
+            ns = os.path.splitext(os.path.split(fqname)[1])[0]
+            name = "%s.%s.%s"%(namespace, TESTS_DIRNAME, ns)
+            __import__(name)
+            suite = unittest.defaultTestLoader.loadTestsFromName(name)
+            s.addTest(suite)
+    return s
