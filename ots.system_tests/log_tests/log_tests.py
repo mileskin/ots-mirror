@@ -37,6 +37,7 @@ import unittest
 
 import configobj
 from configobj import ConfigObj
+from urlparse import urlparse
 
 from ots.tools.trigger.ots_trigger import ots_trigger
 from log_scraper import has_message, has_errors
@@ -109,6 +110,12 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
                            self.testrun_id, 
                            string)
 
+    def _replace_keywords(self, strings):
+        new_string = []
+        for string in strings:
+            new_string.append(string.replace("__TESTRUN_ID__", self.testrun_id))
+        return new_string
+
     def assert_log_contains_string(self, string): 
         self.assertTrue(self._has_message(string), 
                         "'%s' not found on log for testrun_id: '%s'" \
@@ -156,14 +163,14 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
         result = ots_trigger(options)
         self.assert_result_is_pass(result)
         self.assert_false_log_has_errors()
-        self.assert_log_contains_strings(strings)
+        self.assert_log_contains_strings(self._replace_keywords(strings))
 
     def trigger_testrun_expect_error(self, options, strings):
         self._print_options(options)
         result = ots_trigger(options)
         self.assert_result_is_error(result)
         self.assert_true_log_has_errors()
-        self.assert_log_contains_strings(strings)
+        self.assert_log_contains_strings(self._replace_keywords(strings))
     
 ##################################
 # TestSuccessfulTestruns
@@ -231,7 +238,7 @@ class TestSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.timeout = 60
         expected = ["Starting conductor at",
           "Finished running tests.",
-          "Testrun ID: %s  Environment: Hardware" % self.testrun_id,
+          "Testrun ID: __TESTRUN_ID__  Environment: Hardware",
           "Beginning to execute test package: test-definition-tests",
           "Beginning to execute test package: testrunner-lite-regression-test",
           "Executed 1 cases. Passed 1 Failed 0"]
@@ -246,7 +253,7 @@ class TestSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.timeout = 60
         expected = ["Starting conductor at",
           "Finished running tests.",
-          "Testrun ID: %s  Environment: Host_Hardware" % self.testrun_id,
+          "Testrun ID: __TESTRUN_ID__  Environment: Host_Hardware",
           "Beginning to execute test package: test-definition-tests",
           "Beginning to execute test package: testrunner-lite-regression-test",
           "Executed 1 cases. Passed 1 Failed 0"]
@@ -300,11 +307,25 @@ class TestSuccessfulTestruns(SystemSingleRunTestCaseBase):
 class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
 
     def test_load_example_distribution_model(self):
+        """
+        test_load_example_distribution_model
+
+        To make this case pass example distribution model needs to be
+        installed. It can be found from examples directory.
+        """
         options = Options()
         options.distribution = "example_model"
         options.timeout = 1
         self.trigger_testrun_expect_error(options, 
+                        ["Example distribution model not implemented"])
+
+    def test_load_invalid_distribution_model(self):
+        options = Options()
+        options.distribution = "invalid_distribution_model"
+        options.timeout = 1
+        self.trigger_testrun_expect_error(options,
                         ["ValueError: Invalid distribution model"])
+
 
 ##########################################
 # TestErrorConditions
@@ -317,7 +338,8 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options.image = options.image+"asdfasdfthiswontexistasdfasdf"
         options.testpackages = "testrunner-lite-regression-tests"
         options.timeout = 30
-        expected = ["Error: Could not download file ots_system_test_image.tar.gzasdfasdfthiswontexistasdfasdf, Error code: 103",
+        path = urlparse(options.image).path[1:]
+        expected = ["Error: Could not download file %s, Error code: 103" % path,
                     "Starting conductor at"]
         self.trigger_testrun_expect_error(options, expected)
     
