@@ -320,14 +320,8 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
                         ["Example distribution model not implemented"])
 
     def test_load_invalid_distribution_model(self):
-        """
-        test_load_invalid_distribution_model
-
-        To make this case pass example distribution model plugin cannot be
-        installed.
-        """
         options = Options()
-        options.distribution = "example_model"
+        options.distribution = "invalid_distribution_model"
         options.timeout = 1
         self.trigger_testrun_expect_error(options,
                         ["ValueError: Invalid distribution model"])
