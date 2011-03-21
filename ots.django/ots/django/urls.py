@@ -40,7 +40,7 @@ args = ['',
 # Switch for serving js content in Dev/Production
 ##################################################
 
-if True:
+if False:
     args += [(r'^demo_chart$', 'ots.plugin.monitor.views.demo_chart'),
              (r'^(?P<path>.*)$', 'django.views.static.serve',
               {'document_root': settings.STATIC}),]

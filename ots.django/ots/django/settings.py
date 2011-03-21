@@ -101,7 +101,7 @@ STATIC = ''
 # Switch for serving js content Dev/Production 
 ###############################################
 
-if True:
+if False:
     import os
     import ots.plugin.monitor
     STATIC = str(os.path.join(os.path.dirname(ots.plugin.monitor.__file__), 
