@@ -60,6 +60,13 @@ class MonitorPlugin(PublisherPluginBase):
 
         @type image : C{str}
         @param image : The URL of the image
+        
+        @type notify_list : C{list}
+        @param notify_list : Request email list, first one is the requestor
+        
+        @type device : C{dict}
+        @param device : Device options as dictionary
+        
         """
         LOG.info('Monitor Plugin loaded')
 
