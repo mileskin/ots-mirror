@@ -1,8 +1,12 @@
-* Fri Feb 04 2011 Teemu Vainio <teemu.vainio@ixonos.com> 0.8.2
+
+* Mon Mar 21 2011 Esa-Pekka Miettinen <esa-pekka.miettinen@digia.com 0.8.2
+ - Added new publisher plugin, monitor, BMC#13258
+ - Added new publisher plugin, history, BMC#9036
+ - Added new distribution plugin, optimized, BMC#9036
+ - Added init-script for ots-worker, BMC#14376
  - Created own package for django project
  - Removed django project from plugin.logger
- - Added new distribution plugin, history
- - Added new publisher plugin, monitor
+ - Changed core logging behavior
 
 * Fri Feb 04 2011 Teemu Vainio <teemu.vainio@ixonos.com> 0.8.1
  - Changed plug-in namespaces BMC#13135
