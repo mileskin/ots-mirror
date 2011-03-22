@@ -25,6 +25,8 @@ Default test package distribution models
 """
 
 from ots.server.allocator.conductor_command import conductor_command
+from ots.server.distributor.task import Task
+from StringIO import StringIO
 
 def perpackage_distribution(test_list, options):
     """Creates a separate task (conductor command) for each test package"""
@@ -38,13 +40,13 @@ def perpackage_distribution(test_list, options):
         for test_package in test_list['device'].split(","):
             options['test_packages'] = test_package
             cmd = conductor_command(options, host_testing = False)
-            commands.append(cmd)
+            commands.append(Task(cmd))
 
     if 'host' in test_list:
         for test_package in test_list['host'].split(","):
             options['test_packages'] = test_package
             cmd = conductor_command(options, host_testing = True)
-            commands.append(cmd)
+            commands.append(Task(cmd))
 
     return commands
 
@@ -53,6 +55,7 @@ def single_task_distribution(test_list, options):
     """Creates a single task (one command line) for all test packages"""
 
     single_cmd = []
+    tasks = []
 
     if not test_list:
         options['test_packages'] = ""
@@ -74,6 +77,21 @@ def single_task_distribution(test_list, options):
         if single_cmd:
             single_cmd.append(';')
         single_cmd.extend(cmd)
+    
+    if len(single_cmd) > 0:
+        tasks.append(Task(single_cmd))
+    
+    if 'hw_testplans' in test_list:
+        options['test_packages'] = ""
+        task_test_plan = StringIO()
+        test_plans = test_list.get("hw_testplans")
+        for test_plan in test_plans:
+            task_test_plan.write(test_plan.read(-1))
+        cmd = conductor_command(options, host_testing = False)
+        task_test_plan.name = "hw_single_plan.xml"
+        task = Task(cmd)
+        task.set_test_plan(task_test_plan)
+        tasks.append(task)
 
-    return [single_cmd]
+    return tasks
 

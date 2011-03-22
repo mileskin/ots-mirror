@@ -53,7 +53,6 @@ def get_commands(distribution_model,
     if custom_distribution_model:
         return custom_distribution_model(test_list, options)
 
-
     # Or use defaults
     if distribution_model == "perpackage":
         cmds = perpackage_distribution(test_list,

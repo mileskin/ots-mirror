@@ -62,6 +62,7 @@ from unittest import TestResult
 from copy import deepcopy
 import pkg_resources
 import ots.server
+import StringIO
 
 from ots.server.allocator.api import primed_taskrunner
 
@@ -294,6 +295,8 @@ class Hub(object):
                                   self.options.image,
                                   self.options.hw_packages,
                                   self.options.host_packages,
+                                  self.options.hw_testplans,
+                                  self.options.host_testplans,
                                   self.options.emmc,
                                   self.options.testfilter,
                                   self.options.flasher,

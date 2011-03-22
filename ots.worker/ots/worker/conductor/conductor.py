@@ -125,10 +125,16 @@ def _parse_command_line(args):
                       type="string",
                       help="Bootmode for flasher",
                       metavar="BOOTMODE")
+    
+    parser.add_option("-p", "--testplan", dest="testplan", action="store",
+                      type="string",
+                      help="Test plan file",
+                      metavar="TESTPLAN")
 
     parser.add_option("--flasherurl", dest="flasher_url", action="store", 
                     type="string",
                     help="URL to Flasher tool",
+                    default=None,
                     metavar="FLASHERURL")
 
     (options, args) = parser.parse_args(args)
@@ -204,7 +210,7 @@ def _check_command_line_options(options):
     if options.image_url is None:
         sys.stderr.write("Missing mandatory argument (url)\n")
         return False
-    if options.host and not options.packages:
+    if options.host and not options.packages and not options.testplan:
         sys.stderr.write("Missing test packages. "\
               "Host-based testing requires specifying test packages!\n")
         return False
