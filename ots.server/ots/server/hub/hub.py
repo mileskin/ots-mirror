@@ -227,7 +227,7 @@ class Hub(object):
         """        
         hw_packages = self.options.hw_packages
         return bool(len(hw_packages))
-     
+
     @property 
     def is_host_enabled(self):
         """
@@ -236,7 +236,16 @@ class Hub(object):
         """
         host_packages = self.options.host_packages
         return  bool(len(host_packages))
-      
+
+    @property 
+    def is_chroot_enabled(self):
+        """
+        @type is_chroot_enabled: C{bool}
+        @param is_chroot_enabled: Is chroot testing enabled
+        """
+        chroot_packages = self.options.chroot_packages
+        return  bool(len(chroot_packages))
+
     @property
     def testrun_uuid(self):
         """
@@ -245,7 +254,7 @@ class Hub(object):
         """
         if self._testrun_uuid is None:
             self._testrun_uuid = uuid.uuid1().hex
-            LOG.info("Testrun ID: '%s'"%(self._testrun_uuid))
+            LOG.info("Testrun ID: '%s'" % (self._testrun_uuid))
         return self._testrun_uuid
 
     @property
@@ -294,9 +303,11 @@ class Hub(object):
                                   self.options.image,
                                   self.options.hw_packages,
                                   self.options.host_packages,
+                                  self.options.chroot_packages,
                                   self.options.emmc,
                                   self.options.testfilter,
                                   self.options.flasher,
+                                  self.options.rootstrap,
                                   custom_distribution_model,
                                   self.extended_options_dict)
 
@@ -348,7 +359,8 @@ class Hub(object):
         try:
             publishers = self._publishers
             testrun = Testrun(self.is_hw_enabled,
-                              self.is_host_enabled)
+                              self.is_host_enabled,
+                              self.is_chroot_enabled)
             taskrunner = self.taskrunner
 
             #FIXME: Cheap hack to make testable

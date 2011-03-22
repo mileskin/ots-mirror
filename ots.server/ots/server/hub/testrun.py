@@ -51,6 +51,7 @@ class Testrun(object):
 
     def __init__(self, is_hw_enabled = True,
                        is_host_enabled = False,
+                       is_chroot_enabled = False,
                        insignificant_tests_matter = True):
         """"
         @type is_hw_enabled: C{bool} 
@@ -58,6 +59,9 @@ class Testrun(object):
 
         @type is_host_enabled: C{bool}
         @param is_host_enabled: Flag
+
+        @type is_chroot_enabled: C{bool}
+        @param is_chroot_enabled: Flag
 
         @type insignificant_tests_matter: C{bool} 
         @param insignificant_tests_matter: Flag
@@ -69,6 +73,7 @@ class Testrun(object):
         #
         self.is_hw_enabled = is_hw_enabled
         self.is_host_enabled = is_host_enabled
+        self.is_chroot_enabled = is_chroot_enabled
         self.insignificant_tests_matter = insignificant_tests_matter
         self.results = []
 
@@ -129,14 +134,16 @@ class Testrun(object):
         if self.run_test is not None:
             self.run_test()
 
-            # At this point distributor has already finished so it's safe to re-raise the exceptions from worker side
+            # At this point distributor has already finished so it's safe to
+            # re-raise the exceptions from worker side
             if self.exceptions:
                 raise self.exceptions[0]
 
             is_valid_run(self.expected_packages,
                          self.tested_packages,
                          self.is_hw_enabled,
-                         self.is_host_enabled)
+                         self.is_host_enabled,
+                         self.is_chroot_enabled)
             self.results = self._dto_handler.results
             result_xmls = list(self._results_xmls_iter())
             ret_val = go_nogo_gauge(result_xmls,

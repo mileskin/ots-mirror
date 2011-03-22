@@ -124,7 +124,6 @@ class TestGetCommands(unittest.TestCase):
     def test_host_tests(self):
         """Check conductor command with test packages for host"""
 
-
         expected_cmds = [['conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
@@ -152,7 +151,36 @@ class TestGetCommands(unittest.TestCase):
         
         self.assertEquals(cmds, expected_cmds)
 
-        
+    def test_chroot_tests(self):
+        """Check conductor command with test packages for chroot"""
+
+        expected_cmds = [['conductor',
+                          '-u', 'http://image/url/image.bin', 
+                          '-f', '-testsuite=testrunner-tests',
+                          '-t', "foo,bar,baz", '-m', '20',
+                          '--chrooted', "--rootstrapurl=url_to_rootstrap"]]
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_list = {'chroot':"foo,bar,baz"}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "20"
+        rootstrap = "url_to_rootstrap"
+
+        cmds = get_commands(distribution_model, 
+                            image_url, 
+                            test_list,
+                            emmc_flash_parameter,
+                            testrun_id,
+                            storage_address,
+                            test_filter,
+                            timeout,
+                            rootstrap = rootstrap)
+
+        self.assertEquals(cmds, expected_cmds)
 
     def test_device_and_host_tests_no_flasher(self):
         """Check conductor command with packages for device and host, without flasherurl."""

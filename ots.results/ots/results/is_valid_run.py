@@ -78,7 +78,24 @@ def _check_host_testing(is_host_enabled, expected_packages_dict):
         if not any([env.is_host for env in expected_packages_dict.keys()]):
             msg = "Host testing enabled but no host packages found "
             raise PackageException(msg)
+
+def _check_chroot_testing(is_chroot_enabled, expected_packages_dict):
+    """
+    @type is_chroot_enabled: C{bool}
+    @param is_chroot_enabled: Is chroot testing enabled
     
+    @type expected_packages_dict: C{dict} 
+                            - keys C{ots.common.Environment}
+                            - values C{list} of C{string}
+    @param expected_packages_dict:  The packages that should have been tested
+
+    If chroot testing specified are there chroot packages?
+    """
+    if is_chroot_enabled:
+        if not any([env.is_chroot for env in expected_packages_dict.keys()]):
+            msg = "Chroot testing enabled but no chroot packages found"
+            raise PackageException(msg)
+
 def _check_complete(expected_packages_dict,
                     tested_packages_dict):
 
@@ -112,7 +129,8 @@ def _check_complete(expected_packages_dict,
 def is_valid_run(expected_packages_dict,
                  tested_packages_dict,
                  is_hw_enabled,
-                 is_host_enabled):
+                 is_host_enabled,
+                 is_chroot_enabled):
     """
     @type is_hw_enabled: C{bool}
     @param is_hw_enabled: Is hardware testing enabled
@@ -123,6 +141,8 @@ def is_valid_run(expected_packages_dict,
     _check_packages(expected_packages_dict)
     _check_hw_testing(is_hw_enabled, 
                       expected_packages_dict)
+    _check_chroot_testing(is_chroot_enabled, 
+                          expected_packages_dict)
     _check_host_testing(is_host_enabled, 
                         expected_packages_dict)
     _check_complete(expected_packages_dict,

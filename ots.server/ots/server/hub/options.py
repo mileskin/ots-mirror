@@ -55,14 +55,46 @@ class Options(object):
     Interface for the options available to the client
     """
 
-    def __init__(self, image, packages = None, plan = None, hosttest = None,
-                 device = {}, emmc = None, distribution_model = None,
-                 flasher = None, testfilter = None, timeout = None):
+    def __init__(self, image, rootstrap = None, packages = None, plan = None,
+                 hosttest = None, chroottest = None, device = {}, emmc = None,
+                 distribution_model = None, flasher = None, testfilter = None,
+                 timeout = None):
         """
         @type: C{image}
-        @param: The image url
-
-
+        @param: The image URL
+        
+        @type rootstrap: C{str}
+        @param rootstrap: The rootstrap URL
+        
+        @type packages: C{str}
+        @param packages: Test packages
+        
+        @type plan: C{str}
+        @param plan: Test plan id
+        
+        @type hosttest: C{str}
+        @param hosttest: Host test cases
+        
+        @type chroottest: C{str}
+        @param chroottest: Chroot test cases
+        
+        @type device: C{dict}
+        @param device: Device properties
+        
+        @type emmc: C{str}
+        @param emmc: Url to the additional content image
+        
+        @type distribution_model: C{str}
+        @param distribution_model: The name of ditribution model
+        
+        @type flasher: C{str}
+        @param flasher: URL of the flasher
+        
+        @type testfilter: C{str}
+        @param testfilter: The test filter string for testrunner-lite
+        
+        @type timeout: C{str}
+        @param timeout: Test execution timeout in minutes
         """
         self._image = image
         if packages is None:
@@ -72,16 +104,22 @@ class Options(object):
         if hosttest is None:
             hosttest = []
         self._hosttest = hosttest
-        self._device = device#string_2_dict(device)
+        self._chroottest = chroottest
+        self._rootstrap = rootstrap
+        self._device = device
         self._emmc = emmc
         self._distribution_model = distribution_model
         self._flasher = flasher
         self._testfilter = testfilter
         self._timeout = timeout
+
         self._validate_packages(self.hw_packages)
+        self._validate_packages(self.host_packages)
+        self._validate_packages(self.chroot_packages)
         self._validate_distribution_models(distribution_model,
                                            self.hw_packages \
-                                               + self.host_packages)
+                                               + self.host_packages \
+                                               + self.chroot_packages)
 
 
     ##################################
@@ -95,6 +133,14 @@ class Options(object):
         @return: The URL of the image
         """
         return self._image
+
+    @property
+    def rootstrap(self):
+        """
+        @rtype: C{str}
+        @return: The URL of the chroot rootstrap file
+        """
+        return self._rootstrap
 
     @property
     def hw_packages(self):
@@ -111,6 +157,14 @@ class Options(object):
         @return: Packages for host testing
         """
         return string_2_list(self._hosttest)
+
+    @property
+    def chroot_packages(self):
+        """
+        @rtype: C{list} of C{str}
+        @return: Packages for chroot testing
+        """
+        return string_2_list(self._chroottest)
 
     @property
     def testplan_id(self):

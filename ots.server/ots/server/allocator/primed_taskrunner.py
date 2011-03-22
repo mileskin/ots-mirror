@@ -45,7 +45,7 @@ def _storage_address():
     if not storage_host:
         storage_host = gethostname()
     storage_port = "1982" # TODO: DEPRECATED REMOVE AFTER CONDUCTOR IS CHANGED
-    return "%s:%s"%(storage_host, storage_port)     
+    return "%s:%s"%(storage_host, storage_port)
 
 
 
@@ -55,9 +55,9 @@ def _storage_address():
 
 def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model, 
                       device_properties,
-                      image, hw_packages, host_packages,
+                      image, hw_packages, host_packages, chroot_packages,
                       emmc, testfilter, flasher, custom_distribution_model,
-                      extended_options): 
+                      extended_options, rootstrap=""): 
     """
     Get a Taskrunner loaded with Tasks and ready to Run
 
@@ -72,8 +72,8 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
 
     @type device_properties : C{dict}
     @param device_properties : A dictionary of device properties 
-                                              this testrun requires
-       
+                               this testrun requires
+
     @type image: C{str}
     @param image: The URL of the image
         
@@ -105,6 +105,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     @type extended_options : C{dict}
     @param extended_options : A dictionary of extended ots testrun options
 
+    @type rootstrap : C{str}
+    @param rootstrap: Url to the chroot rootstrap
+
     rtype: L{Taskrunner}
     rparam: A loaded Taskrunner 
     """
@@ -117,12 +120,15 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
         test_list['device'] = ",".join(hw_packages)
     if host_packages:
         test_list['host'] = ",".join(host_packages)
+    if chroot_packages:
+        test_list['chroot'] = ",".join(chroot_packages)
 
     # Server deals with minutes, conductor uses seconds, 
     execution_timeout = int(execution_timeout)*60
 
     cmds = get_commands(distribution_model,
                         image,
+                        rootstrap,
                         test_list,
                         emmc,
                         testrun_uuid,

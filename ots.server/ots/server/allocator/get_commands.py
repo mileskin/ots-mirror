@@ -36,6 +36,7 @@ def get_commands(distribution_model,
                  timeout,
                  flasher="",
                  custom_distribution_model = None,
+                 rootstrap = "",
                  extended_options = {}):
     """Returns a list of conductor commands based on the options"""
     options = dict()
@@ -47,6 +48,7 @@ def get_commands(distribution_model,
     options['flasherurl'] = flasher
     options['timeout'] = str(timeout)
     options['bootmode'] = extended_options.get("bootmode", None)
+    options['rootstrap'] = rootstrap
     cmds = []
 
     # Try custom distribution model first

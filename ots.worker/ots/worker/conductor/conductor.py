@@ -132,8 +132,8 @@ def _parse_command_line(args):
 
     parser.add_option("--dontflash", dest="dontflash", action="store_true", 
                     default=False,
-                    help="Do not set up target. Skips image/rootstrap "\
-                         "downloading, flasher and Scratchbox setup.")
+                    help="Do not set up target. Skips image downloading "\
+                         "and flashing.")
 
     parser.add_option("--configfile", dest="config_file", action="store", 
                     type="string", 
