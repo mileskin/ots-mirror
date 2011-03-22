@@ -1,13 +1,14 @@
 ots (0.8.2-1) unstable; urgency=low
 
+  * Added new publisher plugin, monitor, BMC#13258
+  * Added new publisher plugin, history, BMC#9036
+  * Added new distribution plugin, optimized, BMC#9036
+  * Added init-script for ots-worker, BMC#14376
   * Created own package for django project
   * Removed django project from plugin.logger
-  * Created own package for django project
-  * Removed django project from plugin.logger
-  * Added new distribution plugin, history
-  * Added new publisher plugin, monitor
+  * Changed core logging behavior
     
- -- Teemu Vainio <teemu.vainio@ixonos.com>  Fri, 04 Feb 2011 11:47:04 +0200
+ -- Esa-Pekka Miettinen <esa-pekka.miettinen@digia.com>  Mon, 21 Mar 2011 10:05:02 +0200
  
 ots (0.8.1-1) unstable; urgency=low
 

@@ -101,7 +101,7 @@ STATIC = ''
 # Switch for serving js content Dev/Production 
 ###############################################
 
-if True:
+if False:
     import os
     import ots.plugin.monitor
     STATIC = str(os.path.join(os.path.dirname(ots.plugin.monitor.__file__), 
@@ -119,12 +119,12 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
+#    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.admin',
+#    'django.contrib.messages',
+#    'django.contrib.admin',
 
     # Django_xmlrpc for serving the xmlrpc interface through django
     'django_xmlrpc',

@@ -42,7 +42,10 @@ class MonitorPlugin(PublisherPluginBase):
     """
     Monitor Plugin  
     """
-    def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
+    def __init__(self, request_id, testrun_uuid, sw_product, image,
+                 notify_list = None,
+                 device = None,
+                 **kwargs):
         """
         Initialization
         
@@ -57,6 +60,13 @@ class MonitorPlugin(PublisherPluginBase):
 
         @type image : C{str}
         @param image : The URL of the image
+        
+        @type notify_list : C{list}
+        @param notify_list : Request email list, first one is the requestor
+        
+        @type device : C{dict}
+        @param device : Device options as dictionary
+        
         """
         LOG.info('Monitor Plugin loaded')
 
@@ -64,11 +74,12 @@ class MonitorPlugin(PublisherPluginBase):
         requestor = ''
         device_group = ''
 
-        if kwargs.get('notify_list') and len(kwargs['notify_list']) > 0:
-            requestor = kwargs['notify_list'][0]
+        if notify_list and len(notify_list) > 0:
+            requestor = notify_list[0]
 
-        if kwargs.get('device'):
-            device_group = kwargs['device'].get('devicegroup', "invalid")
+        if device:
+            if device is dict:
+                device_group = device.get('devicegroup', "invalid")
         
         if device_group == '':
             device_group = "invalid"
