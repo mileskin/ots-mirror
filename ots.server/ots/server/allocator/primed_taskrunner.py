@@ -120,7 +120,7 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     taskrunner = taskrunner_factory(routing_key, execution_timeout, 
                                     testrun_uuid)
     test_list = dict()
-    LOG.warning(hw_testplans)
+
     if hw_packages:
         test_list['device'] = ",".join(hw_packages)
     if host_packages:

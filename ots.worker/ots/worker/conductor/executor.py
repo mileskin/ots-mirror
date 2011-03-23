@@ -341,12 +341,6 @@ class Executor(object):
                 "/root/testrunner_results", test_package)
 
         #common paths
-        if self.testrun.xml_file:
-            self.testrun.testdef_src = self.testrun.xml_file
-        else:    
-            self.testrun.testdef_src = "/usr/share/%s/%s" \
-                                % (test_package, TEST_DEFINITION_FILE_NAME)
-
         self.testrun.results_src = os.path.join(\
                 self.testrun.src_result_folder, "*")
 
@@ -355,8 +349,16 @@ class Executor(object):
         self.testrun.results_target_dir = os.path.join(\
                 self.testrun.base_dir, test_package, "results")
 
-        self.testrun.dst_testdef_file_path = os.path.join(\
-                self.testrun.testdef_target_dir, TEST_DEFINITION_FILE_NAME)
+        if self.testrun.xml_file:
+            self.testrun.testdef_src = self.testrun.xml_file
+            self.testrun.dst_testdef_file_path = os.path.join(\
+                    self.testrun.testdef_target_dir, self.testrun.xml_file)
+        else:    
+            self.testrun.testdef_src = "/usr/share/%s/%s" \
+                                % (test_package, TEST_DEFINITION_FILE_NAME)
+            self.testrun.dst_testdef_file_path = os.path.join(\
+                    self.testrun.testdef_target_dir, TEST_DEFINITION_FILE_NAME)
+
         self.testrun.result_file_path = os.path.join(\
             self.testrun.results_target_dir, 
             self._testrunner_result_file(test_package)) #This is src and dst
