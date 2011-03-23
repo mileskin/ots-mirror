@@ -109,7 +109,7 @@ def parse_commandline_arguments():
 
     parser.add_option("-t", "--testpackages", dest="testpackages",
                       action="store", type="string",
-                      help="List of test packages separated with space",
+                      help="List of test packages separated with comma",
                       metavar="TESTPACKAGES", default="")
 
 
