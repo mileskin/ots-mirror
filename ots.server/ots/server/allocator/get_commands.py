@@ -47,8 +47,13 @@ def get_commands(distribution_model,
     options['testfilter'] = test_filter
     options['flasherurl'] = flasher
     options['timeout'] = str(timeout)
-    options['bootmode'] = extended_options.get("bootmode", None)
     options['rootstrap'] = rootstrap
+
+    if extended_options:
+        options['bootmode'] = extended_options.get("bootmode", None)
+    else:
+        options['bootmode'] = None
+
     cmds = []
 
     # Try custom distribution model first
