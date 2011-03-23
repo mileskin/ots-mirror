@@ -60,7 +60,7 @@ class Options(object):
     def __init__(self, image, packages = None, plan = None, hosttest = None,
                  device = {}, emmc = None, distribution_model = None,
                  flasher = None, testfilter = None, hw_testplans = None,
-                 host_testplan = None, timeout = None):
+                 host_testplans = None, timeout = None):
         """
         @type: C{image}
         @param: The image url
@@ -77,9 +77,9 @@ class Options(object):
         if hw_testplans is None:
             hw_testplans = []
         self._hw_testplans = hw_testplans
-        if host_testplan is None:
-            host_testplan = []
-        self._host_testplan = host_testplan
+        if host_testplans is None:
+            host_testplans = []
+        self._host_testplans = host_testplans
         self._hosttest = hosttest
         self._device = device#string_2_dict(device)
         self._emmc = emmc
@@ -140,10 +140,10 @@ class Options(object):
         @rtype: C{list} of C{str}
         @return: Test plans for host testing
         """
-        if len(self._host_testplan) > 0:
-            if not isinstance(self._host_testplan[0], StringIO):
-                self._host_testplan = self._convert_testplans(self._host_testplan)
-        return self._host_testplan
+        if len(self._host_testplans) > 0:
+            if not isinstance(self._host_testplans[0], StringIO):
+                self._host_testplans = self._convert_testplans(self._host_testplans)
+        return self._host_testplans
 
     @property
     def testplan_id(self):
@@ -292,16 +292,16 @@ class Options(object):
         """
         
         format_options = deepcopy(options_dict)
-        if "host_testplan" in format_options:
-            test_plans_data = format_options.get("host_testplan")
+        if "host_testplans" in format_options:
+            test_plans_data = format_options.get("host_testplans")
             test_plans = []
             for plan_name, plan_data in test_plans_data:
                 test_plans.append(plan_name)
-            format_options["host_testplan"] = test_plans
-        if "hw_testplan" in format_options:
-            test_plans_data = format_options.get("hw_testplan")
+            format_options["host_testplans"] = test_plans
+        if "hw_testplans" in format_options:
+            test_plans_data = format_options.get("hw_testplans")
             test_plans = []
             for plan_name, plan_data in test_plans_data:
                 test_plans.append(plan_name)
-            format_options["hw_testplan"] = test_plans
+            format_options["hw_testplans"] = test_plans
         return format_options            

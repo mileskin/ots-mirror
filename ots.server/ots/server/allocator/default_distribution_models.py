@@ -103,31 +103,26 @@ def single_task_distribution(test_list, options):
     
     # For test plan based executions
     # hw and host are in own tasks.
+    # Test plan merging is not working.
     if 'hw_testplans' in test_list:
-        task_test_plan = StringIO()
         test_plans = test_list.get("hw_testplans")
-        for test_plan in test_plans:
-            task_test_plan.write(test_plan.read(-1))
-        task_test_plan.name = "hw_single_plan.xml"
         options['test_packages'] = ""
-        options['testplan_name'] = task_test_plan.name
-        cmd = conductor_command(options, host_testing = False)
-        task = Task(cmd)
-        task.set_test_plan(task_test_plan)
-        tasks.append(task)
+        for test_plan in test_plans:
+            options['testplan_name'] = test_plan.name
+            cmd = conductor_command(options, host_testing = False)
+            task = Task(cmd)
+            task.set_test_plan(test_plan)
+            tasks.append(task)
         
     if 'host_testplans' in test_list:
-        task_test_plan = StringIO()
         test_plans = test_list.get("host_testplans")
-        for test_plan in test_plans:
-            task_test_plan.write(test_plan.read(-1))
-        task_test_plan.name = "host_single_plan.xml"
         options['test_packages'] = ""
-        options['testplan_name'] = task_test_plan.name
-        cmd = conductor_command(options, host_testing = True)
-        task = Task(cmd)
-        task.set_test_plan(task_test_plan)
-        tasks.append(task)
+        for test_plan in test_plans:
+            options['testplan_name'] = test_plan.name
+            cmd = conductor_command(options, host_testing = True)
+            task = Task(cmd)
+            task.set_test_plan(test_plan)
+            tasks.append(task)
 
     return tasks
 

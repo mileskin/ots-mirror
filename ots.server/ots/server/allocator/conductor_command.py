@@ -60,7 +60,7 @@ def conductor_command(options, host_testing):
         cmd.extend( ["-m", str(options['timeout'])] )
     if options['bootmode']:
         cmd.extend( ["-b", options['bootmode']] )
-    if options['testplan_name']:
+    if options.has_key('testplan_name'):
         cmd.extend( ["-p", options['testplan_name']] )
 
     if host_testing == True:

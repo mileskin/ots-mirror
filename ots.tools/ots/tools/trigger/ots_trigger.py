@@ -86,7 +86,7 @@ def ots_trigger(options):
         for testplan in options.hostplan:
             testplan_data = read_test_plan(testplan)
             testplans.append((os.path.basename(testplan), testplan_data))
-        ots_options['host_testplan'] = testplans
+        ots_options['host_testplans'] = testplans
 
     ots_interface = xmlrpclib.Server("http://%s/" % options.server)
     return ots_interface.request_sync(sw_product,

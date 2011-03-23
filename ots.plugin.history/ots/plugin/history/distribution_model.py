@@ -22,6 +22,7 @@
 
 from ots.server.allocator.conductor_command import conductor_command
 from ots.plugin.history.models import Package, History
+from ots.server.distributor.task import Task
 from schedule_algo import group_packages
 import logging
 import string
@@ -101,7 +102,7 @@ def history_model(test_list, options):
         for group in package_groups:
             options['test_packages'] = string.join(group, ",")
             cmd = conductor_command(options, host_testing = False)
-            commands.append(cmd)
+            commands.append(Task(cmd))
         
         # Rest groups are for host based packages
         max_groups = max_groups - len(package_groups)
@@ -120,7 +121,7 @@ def history_model(test_list, options):
         for group in package_groups:
             options['test_packages'] = string.join(group, ",")
             cmd = conductor_command(options, host_testing = False)
-            commands.append(cmd)
+            commands.append(Task(cmd))
 
     return commands
     
