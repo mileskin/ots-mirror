@@ -31,6 +31,12 @@ class TestOptions(unittest.TestCase):
         options = Options(**{"image" :"www.nokia.com", "distribution_model": "default"})
         self.assertEquals("www.nokia.com", options.image)
 
+    def test_rootstrap(self):
+        options = Options(**{"image" : "www.nokia.com",
+                             "distribution_model" : "default",
+                             "rootstrap" : "www.meego.com"})
+        self.assertEquals("www.meego.com", options.rootstrap)
+
     def test_hw_packages(self):
         kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
                  "packages": "pkg_1 pkg_2 pkg_3"}
@@ -50,6 +56,16 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
                           options.host_packages)
+
+    def test_chroot_packages(self):
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default"}
+        options = Options(**kwargs)
+        self.assertEquals([], options.host_packages)
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
+                 "chroottest": "pkg_1-tests pkg_2-tests pkg_3-tests"}
+        options = Options(**kwargs)
+        self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
+                          options.chroot_packages)
 
     def test_emmc(self):
         kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
