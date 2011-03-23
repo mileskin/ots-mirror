@@ -89,7 +89,9 @@ class Options(object):
         self._validate_packages(self.hw_packages)
         self._validate_distribution_models(distribution_model,
                                            self.hw_packages \
-                                               + self.host_packages)
+                                               + self.host_packages \
+                                               + self.hw_testplans \
+                                               + self.host_testplans)
 
 
     ##################################

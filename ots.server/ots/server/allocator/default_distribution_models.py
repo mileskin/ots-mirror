@@ -47,6 +47,26 @@ def perpackage_distribution(test_list, options):
             options['test_packages'] = test_package
             cmd = conductor_command(options, host_testing = True)
             commands.append(Task(cmd))
+    
+    if 'hw_testplans' in test_list:
+        test_plans = test_list.get("hw_testplans")
+        options['test_packages'] = ""
+        for test_plan in test_plans:
+            options['testplan_name'] = test_plan.name
+            cmd = conductor_command(options, host_testing = False)
+            task = Task(cmd)
+            task.set_test_plan(test_plan)
+            commands.append(task)
+        
+    if 'host_testplans' in test_list:
+        test_plans = test_list.get("host_testplans")
+        options['test_packages'] = ""
+        for test_plan in test_plans:
+            options['testplan_name'] = test_plan.name
+            cmd = conductor_command(options, host_testing = True)
+            task = Task(cmd)
+            task.set_test_plan(test_plan)
+            commands.append(task)
 
     return commands
 
@@ -81,14 +101,30 @@ def single_task_distribution(test_list, options):
     if len(single_cmd) > 0:
         tasks.append(Task(single_cmd))
     
+    # For test plan based executions
+    # hw and host are in own tasks.
     if 'hw_testplans' in test_list:
-        options['test_packages'] = ""
         task_test_plan = StringIO()
         test_plans = test_list.get("hw_testplans")
         for test_plan in test_plans:
             task_test_plan.write(test_plan.read(-1))
-        cmd = conductor_command(options, host_testing = False)
         task_test_plan.name = "hw_single_plan.xml"
+        options['test_packages'] = ""
+        options['testplan_name'] = task_test_plan.name
+        cmd = conductor_command(options, host_testing = False)
+        task = Task(cmd)
+        task.set_test_plan(task_test_plan)
+        tasks.append(task)
+        
+    if 'host_testplans' in test_list:
+        task_test_plan = StringIO()
+        test_plans = test_list.get("host_testplans")
+        for test_plan in test_plans:
+            task_test_plan.write(test_plan.read(-1))
+        task_test_plan.name = "host_single_plan.xml"
+        options['test_packages'] = ""
+        options['testplan_name'] = task_test_plan.name
+        cmd = conductor_command(options, host_testing = True)
         task = Task(cmd)
         task.set_test_plan(task_test_plan)
         tasks.append(task)

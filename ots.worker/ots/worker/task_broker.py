@@ -281,7 +281,6 @@ class TaskBroker(object):
             
             if cmd_msg.xml_file is not None:
                 self._save_xml_file(cmd_msg.xml_file)
-                command += " -p " + self._xml_file
             
             LOGGER.debug("Running command: '%s'"%(command))
             _start_process(command = command)
@@ -435,11 +434,15 @@ class TaskBroker(object):
     
     def _save_xml_file(self, xml_io):
         """
+        Store the xml file to the system
+        @type xml_io: C{StringIO} 
+        @param xml_io: XML file
         """
+        
         self._xml_file = None
         
         if xml_io is not None:
-            self._xml_file = "/tmp/" + xml_io.name
+            self._xml_file = xml_io.name
             xml_fb = open(self._xml_file, 'w')
             xml_fb.write(xml_io.getvalue())
             xml_fb.close()
