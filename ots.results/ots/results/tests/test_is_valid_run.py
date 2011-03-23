@@ -33,21 +33,21 @@ class TestIsValidRun(unittest.TestCase):
         tp = {"tp" : []}
         self.assertRaises(PackageException,
                           is_valid_run,
-                          ep, tp, True, True)
+                          ep, tp, True, True, True)
 
     def test_hw_testing_enabled(self):
         ep = {Environment("host.foo") : ["pkg1", "pkg2"]}
         tp = {Environment("host.foo") : ["pkg1", "pkg2"]}
         self.assertRaises(PackageException,
                           is_valid_run,
-                          ep, tp, True, False)
+                          ep, tp, True, False, False)
 
     def test_host_testing_enabled(self):
         ep = {Environment("hardware") : ["pkg1", "pkg2"]}
         tp = {Environment("host.foo") : ["pkg1", "pkg2"]}
         self.assertRaises(PackageException,
                           is_valid_run,
-                          ep, tp, False, True)
+                          ep, tp, False, True, False)
 
     def test_chroot_testing_enabled(self):
         ep = {Environment("hardware") : ["pkg1", "pkg2"]}
