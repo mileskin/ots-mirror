@@ -78,7 +78,7 @@ class MonitorPlugin(PublisherPluginBase):
             requestor = notify_list[0]
 
         if device:
-            if device is dict:
+            if not isinstance(device, str):
                 device_group = device.get('devicegroup', "invalid")
         
         if device_group == '':
