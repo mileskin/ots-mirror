@@ -28,6 +28,7 @@ as provided by OTS clients.
 
 from ots.server.hub.parameters_parser import string_2_list, string_2_dict
 from StringIO import StringIO
+from copy import deepcopy
 
 ############################
 # FLAGS
@@ -276,3 +277,31 @@ class Options(object):
             data.name = plan_name
             ret_list.append(data)
         return ret_list
+    
+    @staticmethod
+    def format_dict(options_dict):
+        """
+        Makes options dictionary to look nice. Replaces
+        test plans from the options.
+        
+        @type options_dict: D{dict}
+        @param options_dict: Dictionary of options
+        
+        @rtype : D{dict}
+        @return: Returns nice dictionary
+        """
+        
+        format_options = deepcopy(options_dict)
+        if "host_testplan" in format_options:
+            test_plans_data = format_options.get("host_testplan")
+            test_plans = []
+            for plan_name, plan_data in test_plans_data:
+                test_plans.append(plan_name)
+            format_options["host_testplan"] = test_plans
+        if "hw_testplan" in format_options:
+            test_plans_data = format_options.get("hw_testplan")
+            test_plans = []
+            for plan_name, plan_data in test_plans_data:
+                test_plans.append(plan_name)
+            format_options["hw_testplan"] = test_plans
+        return format_options            
