@@ -47,7 +47,7 @@ class CantStringify(object):
         raise ValueError
 
 
-options_dict = {"image" : "www.nokia.com" ,
+options_dict = {"image" : "www.nokia.com",
                 "rootstrap" : "www.meego.com",
                 "packages" : "hw_pkg1-test pkg2-test pkg3-test",
                 "plan" : "111",

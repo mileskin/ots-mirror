@@ -150,7 +150,7 @@ class TestDistributionModel(unittest.TestCase):
         options = dict()
         options['image_url'] = "none"
         options['testrun_id'] = "123123"
-        options['timeout'] = str(500)        
+        options['timeout'] = str(500)
         options['emmc_flash_parameter'] = ""
         options['storage_address'] = ""
         options['testfilter'] = ""
