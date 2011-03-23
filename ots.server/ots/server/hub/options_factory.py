@@ -249,6 +249,7 @@ class OptionsFactory(object):
         config_file_options_dict = self.config_file_options_dict
         
         config_file_options_dict.update(sanitised_options_dict)
+        config_file_options_dict.update(self.processed_core_options_dict)
         return config_file_options_dict
 
     @property 

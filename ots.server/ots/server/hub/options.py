@@ -81,7 +81,7 @@ class Options(object):
             host_testplans = []
         self._host_testplans = host_testplans
         self._hosttest = hosttest
-        self._device = device#string_2_dict(device)
+        self._device = device
         self._emmc = emmc
         self._distribution_model = distribution_model
         self._flasher = flasher

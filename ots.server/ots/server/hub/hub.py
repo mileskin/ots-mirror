@@ -140,6 +140,7 @@ class Hub(object):
         self._filehandler = None
         self._initialize_logger()
 
+        LOG.debug(Options.format_dict(self._options_factory.all_options_dict))
         self._publishers = Publishers(self.request_id, 
                                       self.testrun_uuid, 
                                       self.sw_product,
