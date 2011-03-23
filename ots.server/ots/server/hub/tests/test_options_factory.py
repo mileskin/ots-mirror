@@ -34,9 +34,9 @@ class TestOptionsFactory(unittest.TestCase):
 
     def test_core_options_names(self):
         names = OptionsFactory("example_sw_product", {}).core_options_names
-        expected = ('self', 'image', 'packages', 'plan', 'hosttest', 
-                    'device', 'emmc', 'distribution_model', 'flasher', 
-                    'testfilter', 'timeout', 'chroottest', 'rootstrap')
+        expected = ('self', 'image', 'rootstrap', 'packages', 'plan',
+                    'hosttest', 'chroottest', 'device', 'emmc',
+                    'distribution_model', 'flasher', 'testfilter', 'timeout')
         self.assertEquals(expected, names)
 
     def test_extended_options_dict(self):
@@ -54,16 +54,6 @@ class TestOptionsFactory(unittest.TestCase):
                     'email': 'on'
                     }
         self.assertEquals(ext_opts, expected)
-
-    def test_chroot_parameters(self):
-        d = {'image' : 'image', 'packages' : 'packages-tests', 
-             'plan' : 'plan', 'hosttest' : 'hosttest-tests', 
-             'device' : 'device', 'emmc' : 'emmc', 
-             'distribution_model' : 'distribution_model', 
-             'flasher' : 'flasher', 'testfilter' : 'testfilter',
-             'foo' : 'foo', 'bar' : 'bar', 'baz' : 'baz',
-             "chroottest": "some-tests"}
-        self.assertRaises(ValueError, OptionsFactory("example_sw_product", d))
 
     def test_extended_options_dict_overridden(self):
         d = {'image' : 'image', 'packages' : 'packages', 
