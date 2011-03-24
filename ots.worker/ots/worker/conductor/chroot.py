@@ -27,7 +27,6 @@ import os
 import urllib
 import urlparse
 import tempfile
-import re
 import stat
 import tarfile
 import shutil
@@ -35,10 +34,13 @@ import logging
 
 from ots.worker.conductor.conductorerror import ConductorError
 
+LOG = logging.getLogger(__name__)
+
+
 class Chroot(object):
+    """ Class for rootstrap handling """
 
     def __init__(self, testrun):
-        self.log = logging.getLogger("conductor")
         self.testrun = testrun
         self.path = None
         self._rootstrap = None
@@ -70,7 +72,7 @@ class Chroot(object):
         if self.testrun.rootstrap_url:
             tmpfile = None
             resource = None
-            self.log.debug("Downloading rootstrap from '%s'" %
+            LOG.debug("Downloading rootstrap from '%s'" %
                 self.testrun.rootstrap_url)
 
             try:
@@ -93,7 +95,8 @@ class Chroot(object):
                     tmpfile.write(buf)
 
                 self._rootstrap = tmpfile.name
-            except Exception, e:
+            except Exception, error:
+                LOG.error("Error while downloading rootstrap: %s" % error)
                 if os.path.isfile(self._rootstrap):
                     os.unlink(self._rootstrap)
                 self._rootstrap = None
@@ -106,7 +109,7 @@ class Chroot(object):
         # fallback to local copy
         if not self._rootstrap and self.testrun.rootstrap_path:
             self.testrun.rootstrap_url = None
-            self.log.debug("Using local rootstrap at '%s'" %
+            LOG.debug("Using local rootstrap at '%s'" %
                 self.testrun.rootstrap_path)
             self._rootstrap = self.testrun.rootstrap_path
 
@@ -131,11 +134,12 @@ class Chroot(object):
                 compr_flag = ''
             rootstrap = tarfile.open(self._rootstrap, "r:%s" % compr_flag)
             tmpdir = tempfile.mkdtemp(prefix='rootstrap-')
-            self.log.debug("Unpacking rootstrap to '%s'" % tmpdir)
+            LOG.debug("Unpacking rootstrap to '%s'" % tmpdir)
             rootstrap.extractall(tmpdir)
             self.path = tmpdir
-        except Exception, e:
-            msg = "Failed to unpack rootstrap: '%s'" % str(e)
+        except Exception, error:
+            msg = "Failed to unpack rootstrap: '%s'" % str(error)
+            LOG.error(msg)
             raise ConductorError(msg, "311")
 
     def _prepare_chroot(self):
@@ -149,7 +153,7 @@ class Chroot(object):
         ]
 
         try:
-            self.log.debug("Preparing chroot environment.")
+            LOG.debug("Preparing chroot environment.")
             # create basic device nodes
             dev_path = self.path + os.sep + 'dev'
             if not os.path.exists(dev_path):
@@ -158,14 +162,16 @@ class Chroot(object):
             if os.geteuid() == 0:
                 umask = os.umask(0)
                 for name, mode, major, minor in device_nodes:
-                    os.mknod(dev_path + os.sep + name, mode, os.makedev(major, minor))
+                    os.mknod(dev_path + os.sep + name,
+                             mode, os.makedev(major, minor))
                 os.umask(umask)
 
             # create user home
             home_path = '/root'
             try:
                 home_path = os.environ['HOME']
-            except KeyError: pass
+            except KeyError:
+                pass
             if not os.path.isdir(self.path + os.sep + home_path):
                 os.makedirs(self.path + os.sep + home_path)
 
@@ -179,20 +185,21 @@ class Chroot(object):
             hosts.write("%s       testdevice.localdomain  testdevice\n" \
                 % self.testrun.target_ip_address)
             hosts.close()
-        except Exception, e:
-            msg = "Failed to setup chroot: '%s'" % str(e)
+        except Exception, error:
+            msg = "Failed to setup chroot: '%s'" % str(error)
+            LOG.error(msg)
             raise ConductorError(msg, "312")
 
     def _delete_rootstrap(self):
         """Remove the packed and unpacked rootstrap."""
         if self.testrun.rootstrap_url and self._rootstrap and \
                 os.path.isfile(self._rootstrap):
-            self.log.debug("Deleting rootstrap file '%s'." % self._rootstrap)
+            LOG.debug("Deleting rootstrap file '%s'." % self._rootstrap)
             os.unlink(self._rootstrap)
             self._rootstrap = None
 
         if self.path and os.path.isdir(self.path):
-            self.log.debug("Deleting chroot environment below '%s'." %
+            LOG.debug("Deleting chroot environment below '%s'." %
                 self.path)
             shutil.rmtree(self.path)
             self.path = None
