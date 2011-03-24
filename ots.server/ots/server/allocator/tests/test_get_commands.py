@@ -41,10 +41,10 @@ class TestGetCommands(unittest.TestCase):
         timeout = "30"
 
 
-        expected_cmds = [['conductor', 
+        expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
-                          '-t', "foo,bar,baz", '-m', '30']]
+                          '-t', "foo,bar,baz", '-m', '30']
         
         cmds = get_commands(distribution_model, 
                             image_url, 
@@ -55,7 +55,7 @@ class TestGetCommands(unittest.TestCase):
                             test_filter,
                             timeout)
         
-        self.assertEquals(cmds, expected_cmds)
+        self.assertEquals(cmds[0].command, expected_cmds)
 
 
     def test_custom_distribution_models(self):
@@ -105,9 +105,9 @@ class TestGetCommands(unittest.TestCase):
         timeout = "20"
 
 
-        expected_cmds = [['conductor', 
+        expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin', 
-                          '-f', '-testsuite=testrunner-tests', '-m', '20']]
+                          '-f', '-testsuite=testrunner-tests', '-m', '20']
         
         cmds = get_commands(distribution_model, 
                             image_url, 
@@ -118,18 +118,18 @@ class TestGetCommands(unittest.TestCase):
                             test_filter,
                             timeout)
         
-        self.assertEquals(cmds, expected_cmds)
+        self.assertEquals(cmds[0].command, expected_cmds)
 
 
     def test_host_tests(self):
         """Check conductor command with test packages for host"""
 
 
-        expected_cmds = [['conductor',
+        expected_cmds = ['conductor',
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz", '-m', '20',
-                          '-o']]
+                          '-o']
 
 
         distribution_model = "default"
@@ -150,14 +150,14 @@ class TestGetCommands(unittest.TestCase):
                             test_filter,
                             timeout)
         
-        self.assertEquals(cmds, expected_cmds)
+        self.assertEquals(cmds[0].command, expected_cmds)
 
         
 
     def test_device_and_host_tests_no_flasher(self):
         """Check conductor command with packages for device and host, without flasherurl."""
 
-        expected_cmds = [['conductor', 
+        expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz", '-m', '20',
@@ -166,7 +166,7 @@ class TestGetCommands(unittest.TestCase):
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests',
                           '-t', "foo,bar,baz", '-m', '20',
-                          '-o']]
+                          '-o']
 
 
         distribution_model = "default"
@@ -187,14 +187,14 @@ class TestGetCommands(unittest.TestCase):
                             test_filter,
                             timeout)
         
-        self.assertEquals(cmds, expected_cmds)
+        self.assertEquals(cmds[0].command, expected_cmds)
 
         
 
     def test_device_and_host_tests_with_flasher(self):
         """Check conductor command with packages for device and host, with flasherurl."""
 
-        expected_cmds = [['conductor', 
+        expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin',
                           '-f', '-testsuite=testrunner-tests',
                           '--flasherurl', "asdfasdf/asdf",
@@ -205,7 +205,7 @@ class TestGetCommands(unittest.TestCase):
                           '-f', '-testsuite=testrunner-tests',
                           '--flasherurl', "asdfasdf/asdf",
                           '-t', "foo,bar,baz", '-m', '60',
-                          '-o']]
+                          '-o']
 
 
         distribution_model = "default"
@@ -228,7 +228,7 @@ class TestGetCommands(unittest.TestCase):
                             timeout,
                             flasher)
         
-        self.assertEquals(cmds, expected_cmds)
+        self.assertEquals(cmds[0].command, expected_cmds)
 
 
 
@@ -265,8 +265,8 @@ class TestGetCommands(unittest.TestCase):
 
 
         self.assertEquals(len(commands), 2)
-        self.assertEquals(commands[0], expected_cmd_1)
-        self.assertEquals(commands[1], expected_cmd_2)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
 
 
 
@@ -300,7 +300,7 @@ class TestGetCommands(unittest.TestCase):
 
 
         self.assertEquals(len(commands), 1)
-        self.assertEquals(commands[0], expected_cmd_1)
+        self.assertEquals(commands[0].command, expected_cmd_1)
 
 
     def test_host_tests_with_packages_in_distribution_perpackage(self):
@@ -335,8 +335,8 @@ class TestGetCommands(unittest.TestCase):
                                 timeout)
         
         self.assertEquals(len(commands), 2)
-        self.assertEquals(commands[0], expected_cmd_1)
-        self.assertEquals(commands[1], expected_cmd_2)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
 
 
     def test_device_and_host_tests_in_distribution_perpackage(self):
@@ -379,10 +379,10 @@ class TestGetCommands(unittest.TestCase):
                                 timeout)
 
         self.assertEquals(len(commands), 4)
-        self.assertEquals(commands[0], expected_cmd_1)
-        self.assertEquals(commands[1], expected_cmd_2)
-        self.assertEquals(commands[2], expected_cmd_3)
-        self.assertEquals(commands[3], expected_cmd_4)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        self.assertEquals(commands[2].command, expected_cmd_3)
+        self.assertEquals(commands[3].command, expected_cmd_4)
 
 
     def test_device_tests_with_no_packages_in_distribution_perpackage(self):

@@ -131,6 +131,7 @@ class Options(object):
         self.otsserver = None
         self.flasher_url = None
         self.bootmode = None
+        self.testplan = None
 
 class Stub_Executor(object):
     def __init__(self, testrun, stand_alone, responseclient = None,
