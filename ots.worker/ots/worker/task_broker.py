@@ -279,6 +279,8 @@ class TaskBroker(object):
             
             command = cmd_msg.command
             
+            self._xml_file = None
+            
             if cmd_msg.xml_file is not None:
                 self._save_xml_file(cmd_msg.xml_file)
             
@@ -438,8 +440,6 @@ class TaskBroker(object):
         @type xml_io: C{StringIO} 
         @param xml_io: XML file
         """
-        
-        self._xml_file = None
         
         if xml_io is not None:
             self._xml_file = xml_io.name
