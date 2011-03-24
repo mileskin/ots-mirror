@@ -27,6 +27,7 @@ import os
 
 from ots.worker.conductor.chroot import Chroot
 from ots.worker.conductor.executor import TestRunData
+from ots.worker.conductor.conductorerror import ConductorError
 
 FAKE_ROOTSTRAP_PATH = "testdata/fake-rootstrap.tar.gz"
 
@@ -93,6 +94,14 @@ class TestChroot(unittest.TestCase):
 
         self.chroot.cleanup()
         self.assertFalse(os.path.isdir(chroot_path))
+
+    def test_rootstrap_not_found(self):
+        try:
+            self.testrun.rootstrap_path = "does_not_exists"
+            self.chroot.prepare()
+        except ConductorError, error:
+            self.assertTrue(error.error_code == '310')
+            self.assertTrue('No rootstrap found at' in error.error_info)
 
 
 def _conductor_config_simple(config_file = "", default_file = ""):
