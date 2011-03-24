@@ -68,33 +68,44 @@ class Chroot(object):
         self._rootstrap = None
 
         if self.testrun.rootstrap_url:
+            tmpfile = None
+            resource = None
             self.log.debug("Downloading rootstrap from '%s'" %
                 self.testrun.rootstrap_url)
+
             try:
                 # strap file extension from url
                 extension = '.' + '.'.join(
                     urlparse.urlparse(self.testrun.rootstrap_url)[2] \
-                        .split('/')[-1].split('.')[1:]
-                )
+                        .split('/')[-1].split('.')[1:])
+
                 tmpfile = \
                     tempfile.NamedTemporaryFile(prefix='rootstrap-',
                         suffix=extension, delete=False)
+                self._rootstrap = tmpfile.name
+
                 resource = urllib.urlopen(self.testrun.rootstrap_url)
+
                 while True:
                     buf = resource.read(1024)
                     if not buf:
                         break
                     tmpfile.write(buf)
-                resource.close()
-                tmpfile.close()
+
                 self._rootstrap = tmpfile.name
             except Exception, e:
                 if os.path.isfile(self._rootstrap):
                     os.unlink(self._rootstrap)
                 self._rootstrap = None
+            finally:
+                if resource: 
+                    resource.close()
+                if tmpfile:    
+                    tmpfile.close()
 
         # fallback to local copy
         if not self._rootstrap and self.testrun.rootstrap_path:
+            self.testrun.rootstrap_url = None
             self.log.debug("Using local rootstrap at '%s'" %
                 self.testrun.rootstrap_path)
             self._rootstrap = self.testrun.rootstrap_path
@@ -143,10 +154,20 @@ class Chroot(object):
             dev_path = self.path + os.sep + 'dev'
             if not os.path.exists(dev_path):
                 os.mkdir(dev_path)
-            umask = os.umask(0)
-            for name, mode, major, minor in device_nodes:
-                os.mknod(dev_path + os.sep + name, mode, os.makedev(major, minor))
-            os.umask(umask)
+
+            if os.geteuid() == 0:
+                umask = os.umask(0)
+                for name, mode, major, minor in device_nodes:
+                    os.mknod(dev_path + os.sep + name, mode, os.makedev(major, minor))
+                os.umask(umask)
+
+            # create user home
+            home_path = '/root'
+            try:
+                home_path = os.environ['HOME']
+            except KeyError: pass
+            if not os.path.isdir(self.path + os.sep + home_path):
+                os.makedirs(self.path + os.sep + home_path)
 
             # copy resolv.conf from host
             etc_path = self.path + os.sep + 'etc'
@@ -164,7 +185,8 @@ class Chroot(object):
 
     def _delete_rootstrap(self):
         """Remove the packed and unpacked rootstrap."""
-        if self._rootstrap and os.path.isfile(self._rootstrap):
+        if self.testrun.rootstrap_url and self._rootstrap and \
+                os.path.isfile(self._rootstrap):
             self.log.debug("Deleting rootstrap file '%s'." % self._rootstrap)
             os.unlink(self._rootstrap)
             self._rootstrap = None
