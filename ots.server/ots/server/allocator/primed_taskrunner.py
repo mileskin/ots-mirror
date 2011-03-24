@@ -33,6 +33,10 @@ from ots.server.allocator.get_commands import get_commands
 
 LOG = logging.getLogger(__name__)
 
+class AllocatorException(Exception):
+    """AllocatorExceptionNoCommands"""
+    pass
+
 def _storage_address():
     """
     rtype: C{str}
@@ -144,6 +148,10 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
                         flasher,
                         custom_distribution_model,
                         extended_options)
+    
+    if len(cmds) == 0:
+        raise AllocatorException("No commands created!")
+    
     for cmd in cmds:
         LOG.info("Added cmd '%s' to taskrunner" % (" ".join(cmd.command)))
         taskrunner.add_task(cmd)
