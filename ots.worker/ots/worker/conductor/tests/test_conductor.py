@@ -334,6 +334,7 @@ class TestConductor(unittest.TestCase):
         self.assertEquals(options.otsserver, None)
         self.assertEquals(options.flasher_url, None)
         self.assertEquals(options.bootmode, None)
+        self.assertEquals(options.testplan, None)
         parser.print_help() #check help text is set
 
 

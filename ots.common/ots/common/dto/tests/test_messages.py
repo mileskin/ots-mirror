@@ -39,6 +39,7 @@ class TestMessages(unittest.TestCase):
         self.assertEquals("echo hello world", rec_msg.command)
         self.assertEquals("response_queue", rec_msg.response_queue)
         self.assertEquals("task_id", rec_msg.task_id)
+        self.assertTrue(isinstance(rec_msg.xml_file, StringIO))
         self.assertEquals(ots.common.__VERSION__, rec_msg.__version__)
 
     def test_state_change_message_start(self):

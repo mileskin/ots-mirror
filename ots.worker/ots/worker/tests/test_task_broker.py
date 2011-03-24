@@ -38,6 +38,7 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 
+from StringIO import StringIO
 
 ##########################################
 # Utility Functions
@@ -298,7 +299,7 @@ class TestTaskBroker(unittest.TestCase):
         time.sleep(1)
         channel.wait()
         time.sleep(1)
-	# We should have 0 tasks in the queue and STARTED and FINISHED for both
+	    # We should have 0 tasks in the queue and STARTED and FINISHED for both
         # tasks in response queue
 
         self.assertEquals(_queue_size("test"), 0)
@@ -332,7 +333,7 @@ class TestTaskBroker(unittest.TestCase):
         time.sleep(1)
 
 
-	# We should have 0 tasks in the queue and STARTED, Exception and
+	    # We should have 0 tasks in the queue and STARTED, Exception and
         # FINISHED for both tasks in response queue
         self.assertEquals(_queue_size("test"), 0)
         self.assertEquals(_queue_size(response_queue), 10)
@@ -388,6 +389,13 @@ class TestTaskBroker(unittest.TestCase):
         self.assertFalse(task_broker._dispatch(cmd_quit))
         cmd_ls = CommandMessage(["ls -la"], "test", 1, timeout = 1) 
         self.assertFalse(task_broker._dispatch(cmd_ls))
+        xml_file = StringIO("foo bar")
+        xml_file.name = "test_xml.xml"
+        cmd_with_file = CommandMessage(["cat test_xml.xml"], 
+                                       "test", 1, 
+                                       timeout = 1, 
+                                       xml_file = xml_file) 
+        self.assertFalse(task_broker._dispatch(cmd_with_file))
 
     def test_dispatch_failing_command(self):
         task_broker = _task_broker_factory()
