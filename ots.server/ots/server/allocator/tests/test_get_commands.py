@@ -25,6 +25,7 @@
 import unittest
 
 from ots.server.allocator.get_commands import get_commands
+from StringIO import StringIO
 
 class TestGetCommands(unittest.TestCase):
     """Tests for get_commands"""
@@ -407,7 +408,438 @@ class TestGetCommands(unittest.TestCase):
                           test_filter,
                           timeout)
 
+    def test_device_tests_with_one_testplan(self):
+        """Test device test plan based - one test plan"""
 
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_list = {'hw_testplans': [test_plan]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmds = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml']
+
+
+        self.assertEquals(len(commands), 1)
+        self.assertEquals(commands[0].command, expected_cmds)
+
+    def test_device_tests_with_multiple_testplans(self):
+        """Test device test plan based - one test plan"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_plan2 = StringIO("hulapaloo2")
+        test_plan2.name = "testplan2.xml"
+        test_list = {'hw_testplans': [test_plan, test_plan2]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmd_1 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml']
+        expected_cmd_2 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan2.xml']
+
+
+        self.assertEquals(len(commands), 2)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        
+    def test_host_tests_with_one_testplan(self):
+        """Test host test plan based - one test plan"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_list = {'host_testplans': [test_plan]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmds = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml', '-o']
+
+
+        self.assertEquals(len(commands), 1)
+        self.assertEquals(commands[0].command, expected_cmds)
+
+    def test_host_tests_with_multiple_testplans(self):
+        """Test host test plan based - one test plan"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_plan2 = StringIO("hulapaloo2")
+        test_plan2.name = "testplan2.xml"
+        test_list = {'host_testplans': [test_plan, test_plan2]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmd_1 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml', '-o']
+        expected_cmd_2 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan2.xml', '-o']
+
+
+        self.assertEquals(len(commands), 2)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        
+    def test_mixed_tests_with_multiple_testplans(self):
+        """Test host test plan based - one test plan"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_plan2 = StringIO("hulapaloo2")
+        test_plan2.name = "testplan2.xml"
+        test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmd_1 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan2.xml']
+        expected_cmd_2 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml', '-o']
+
+
+        self.assertEquals(len(commands), 2)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        
+    def test_mixed_tests_with_multiple_testplans_and_pkgs(self):
+        """Test host test plan based - one test plan"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_plan2 = StringIO("hulapaloo2")
+        test_plan2.name = "testplan2.xml"
+        test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2],
+                     'device':"foo,bar",'host':"baz,yaz"}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmd_1 = ['conductor', 
+                          '-u', 'http://image/url/image.bin',
+                          '-t', "foo,bar", '-m', '30',
+                          ';',
+                          'conductor',
+                          '-u', 'http://image/url/image.bin',
+                          '-t', "baz,yaz", '-m', '30',
+                          '-o']
+
+        expected_cmd_2 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan2.xml']
+        expected_cmd_3 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml', '-o']
+
+
+        self.assertEquals(len(commands), 3)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        self.assertEquals(commands[2].command, expected_cmd_3)
+
+
+    def test_device_tests_with_one_testplan_perpackage(self):
+        """Test device test plan based - one test plan"""
+
+        distribution_model = "perpackage"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_list = {'hw_testplans': [test_plan]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmds = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml']
+
+
+        self.assertEquals(len(commands), 1)
+        self.assertEquals(commands[0].command, expected_cmds)
+
+    def test_device_tests_with_multiple_testplans_perpackage(self):
+        """Test device test plan based - one test plan"""
+
+        distribution_model = "perpackage"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_plan2 = StringIO("hulapaloo2")
+        test_plan2.name = "testplan2.xml"
+        test_list = {'hw_testplans': [test_plan, test_plan2]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmd_1 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml']
+        expected_cmd_2 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan2.xml']
+
+
+        self.assertEquals(len(commands), 2)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        
+    def test_host_tests_with_one_testplan_perpackage(self):
+        """Test host test plan based - one test plan"""
+
+        distribution_model = "perpackage"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_list = {'host_testplans': [test_plan]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmds = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml', '-o']
+
+
+        self.assertEquals(len(commands), 1)
+        self.assertEquals(commands[0].command, expected_cmds)
+
+    def test_host_tests_with_multiple_testplans_perpackage(self):
+        """Test host test plan based - one test plan"""
+
+        distribution_model = "perpackage"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_plan2 = StringIO("hulapaloo2")
+        test_plan2.name = "testplan2.xml"
+        test_list = {'host_testplans': [test_plan, test_plan2]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmd_1 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml', '-o']
+        expected_cmd_2 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan2.xml', '-o']
+
+
+        self.assertEquals(len(commands), 2)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        
+    def test_mixed_tests_with_multiple_testplans(self):
+        """Test host test plan based - one test plan"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_plan2 = StringIO("hulapaloo2")
+        test_plan2.name = "testplan2.xml"
+        test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2]}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmd_1 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan2.xml']
+        expected_cmd_2 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml', '-o']
+
+
+        self.assertEquals(len(commands), 2)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        
+    def test_mixed_tests_with_multiple_testplans_and_pkgs_perpackage(self):
+        """Test host test plan based - one test plan"""
+
+        distribution_model = "perpackage"
+        image_url = 'http://image/url/image.bin'
+        test_plan = StringIO("hulapaloo")
+        test_plan.name = "testplan.xml"
+        test_plan2 = StringIO("hulapaloo2")
+        test_plan2.name = "testplan2.xml"
+        test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2],
+                     'device':"foo",'host':"baz"}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = ""  
+        timeout = "30"
+        commands = get_commands(distribution_model, 
+                                image_url, 
+                                test_list,
+                                emmc_flash_parameter,
+                                testrun_id,
+                                storage_address,
+                                test_filter,
+                                timeout)
+
+        expected_cmd_1 = ['conductor', 
+                          '-u', 'http://image/url/image.bin',
+                          '-t', "foo", '-m', '30',
+                          ]
+        expected_cmd_2 = [
+                          'conductor',
+                          '-u', 'http://image/url/image.bin',
+                          '-t', "baz", '-m', '30',
+                          '-o']
+
+        expected_cmd_3 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan2.xml']
+        expected_cmd_4 = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-m', '30', '-p', 'testplan.xml', '-o']
+
+
+        self.assertEquals(len(commands), 4)
+        self.assertEquals(commands[0].command, expected_cmd_1)
+        self.assertEquals(commands[1].command, expected_cmd_2)
+        self.assertEquals(commands[2].command, expected_cmd_3)
+        self.assertEquals(commands[3].command, expected_cmd_4)
 
 #######################################################################
 

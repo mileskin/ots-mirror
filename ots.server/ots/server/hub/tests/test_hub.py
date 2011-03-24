@@ -173,6 +173,24 @@ class TestHubProperties(unittest.TestCase):
         hub = Hub("example_sw_product", 111, **options_dict)
         taskrunner = hub.taskrunner
         self.assertTrue(isinstance(taskrunner, TaskRunner))
+        
+    def test_device_properties(self):
+        hub = Hub("example_sw_product", 111, image="foo",
+                  device = "devicegroup:examplegroup")
+        taskrunner = hub.taskrunner
+        self.assertTrue(isinstance(taskrunner, TaskRunner))
+        
+    def test_host_test_plan(self):
+        hub = Hub("example_sw_product", 111, image="foo",
+                  host_testplans = [["name", "bar"]])
+        taskrunner = hub.taskrunner
+        self.assertTrue(isinstance(taskrunner, TaskRunner))
+        
+    def test_device_test_plan(self):
+        hub = Hub("example_sw_product", 111, image="foo",
+                  hw_testplans = [["name", "bar"]])
+        taskrunner = hub.taskrunner
+        self.assertTrue(isinstance(taskrunner, TaskRunner))
 
 class TestHubFailSafePublishing(unittest.TestCase):
 

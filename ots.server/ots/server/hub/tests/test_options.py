@@ -23,7 +23,7 @@
 import unittest
 
 from ots.server.hub.options import Options, string_2_dict, string_2_list
-
+from StringIO import StringIO
 
 class TestOptions(unittest.TestCase):
 
@@ -50,6 +50,20 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals(["pkg_1-tests", "pkg_2-tests", "pkg_3-tests"],
                           options.host_packages)
+        
+    def test_hw_testplans(self):
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
+                 "hw_testplans": [["plan1", "foo"], ["plan2", "bar"]]}
+        options = Options(**kwargs)
+        self.assertEquals(len(options.hw_testplans), 2)
+        self.assertTrue(isinstance(options.hw_testplans[0], StringIO))
+
+    def test_host_testplans(self):
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
+                 "host_testplans": [["plan1", "foo"], ["plan2", "bar"]]}
+        options = Options(**kwargs)
+        self.assertEquals(len(options.host_testplans), 2)
+        self.assertTrue(isinstance(options.host_testplans[0], StringIO))
 
     def test_emmc(self):
         kwargs = {"image" : "www.nokia.com", "distribution_model": "default",

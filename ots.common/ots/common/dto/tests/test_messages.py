@@ -26,12 +26,14 @@ import ots.common
 
 from ots.common.dto.messages import CommandMessage, StateChangeMessage
 from ots.common.amqp.codec import pack_message, unpack_message
+from StringIO import StringIO
 
 class TestMessages(unittest.TestCase):
 
     def test_command_message(self):
         cmd_msg = CommandMessage(["echo", "hello world"], 
-                                  "response_queue", "task_id") 
+                                  "response_queue", "task_id", 
+                                  xml_file = StringIO("foo bar")) 
         packed_msg = pack_message(cmd_msg)
         rec_msg = unpack_message(packed_msg)
         self.assertEquals("echo hello world", rec_msg.command)
