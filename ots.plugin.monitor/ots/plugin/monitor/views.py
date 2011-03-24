@@ -335,6 +335,10 @@ def main_page(request):
         tr_view.finished = testrun_stats.get("finished")
         tr_view.error_ratio = "%.1f" % testrun_stats.get("error_ration")
         
+        if tr_view.waiting == 0 and tr_view.ongoing == 0 \
+           and tr_view.errors == 0 and tr_view.finished == 0:
+            continue
+        
         testruns.append(tr_view)
     
     context_dict['testruns'] = testruns
