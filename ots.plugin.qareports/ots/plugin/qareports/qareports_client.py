@@ -78,7 +78,8 @@ def send_files(result_xmls,
         json_response = json.loads(response)
         
         if json_response.get("ok") == "1":
-            LOG.info("Results uploaded successfully")
+            url = json_response.get("url", "")
+            LOG.info("Results uploaded successfully %s" % url)
         else:
             LOG.error("Upload failed. Server returned: %s" % response)
             
