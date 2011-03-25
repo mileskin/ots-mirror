@@ -66,7 +66,7 @@ class Environment(object):
         return hash(self.environment)
 
     def __str__(self):
-        return "<%s.Environment (%s) at %s>"%(__name__, 
+        return "<%s.Environment (%s) at %s>" % (__name__, 
                                               self.environment, 
                                               hex(id(self)))
 

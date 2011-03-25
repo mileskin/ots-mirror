@@ -29,8 +29,6 @@ from pickle import dumps, loads
 
 from amqplib import client_0_8 as amqp
 
-import ots.common
-
 DELIVERY_MODE = 2
 
 #########################

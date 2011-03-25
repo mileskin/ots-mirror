@@ -83,4 +83,4 @@ class Packages(dict):
                 self[env] = pkgs
             
     def __str__(self):
-        return str(dict([(str(k),v) for k, v in self.items()]))
+        return str(dict([(str(k), v) for k, v in self.items()]))

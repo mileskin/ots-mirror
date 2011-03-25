@@ -38,24 +38,22 @@ the following assumptions holding true:
 
 #Disable spurious pylint warnings
 
-#pylint: disable-msg=E0611
-#pylint: disable-msg=F0401
+#pylint: disable=E0611
+#pylint: disable=F0401
 
 import os
-import sys
 from time import sleep
 import logging
 from socket import gethostname
 from itertools import cycle
 
 from ots.common.amqp.api import unpack_message, pack_message
-from ots.common.dto.api import StateChangeMessage, TaskCondition, Monitor, MonitorType
+from ots.common.dto.api import StateChangeMessage, TaskCondition, Monitor
+from ots.common.dto.api import MonitorType
 from ots.common.routing.api import get_queues
 
-import ots.worker
 from ots.worker.version import __VERSION__
 from ots.worker.command import Command
-from ots.worker.command import SoftTimeoutException,  HardTimeoutException
 from ots.worker.command import CommandFailed
 from ots.common.dto.ots_exception import OTSException
 
@@ -114,6 +112,7 @@ class TaskBroker(object):
 
         self._task_state = cycle(TASK_CONDITION_RESPONSES)
         self._amqp_log_handler = None
+        self._xml_file = None
 
     ############################################
     # LOG HANDLER
@@ -203,7 +202,6 @@ class TaskBroker(object):
                     self._keep_looping = False
             except Exception:
                 LOGGER.exception("_loop() failed")
-                #FIXME Check logs to see what exceptions are raised here
                 self._try_reconnect()
         self._clean_up()
     
@@ -389,7 +387,6 @@ class TaskBroker(object):
         """
         A poorly implemented reconnect to AMQP
         """
-        #FIXME: Move out into own connection module.
         #Implement with a exponential backoff with max retries.
         LOGGER.exception("Error. Waiting 5s then retrying")
         sleep(5)

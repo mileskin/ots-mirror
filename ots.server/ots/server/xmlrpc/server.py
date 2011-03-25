@@ -33,22 +33,12 @@ from SocketServer import ForkingMixIn
 from ots.server.server_config_filename import server_config_filename
 from ots.server.xmlrpc.public import request_sync
 
-
-################################
-# HACKISH TESTING CAPABILITIES
-################################
-
-DEBUG = False
-
-if DEBUG:
-    from ots.server.hub.tests.component.mock_taskrunner import \
-                                       MockTaskRunnerResultsPass
-
 ###########################
 # OTS FORKING SERVER
 ###########################
 
 class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
+    """ Fork class for XMLRPC server """
     pass
 
 def _config():
@@ -85,7 +75,7 @@ def main(is_logging = False):
     server.serve_forever()
 
 if __name__ == "__main__":
-    is_logging = False
+    show_logging = False
     if len(sys.argv) > 1 and sys.argv[1] == "log":
-        is_logging = True
-    main(is_logging)
+        show_logging = True
+    main(show_logging)

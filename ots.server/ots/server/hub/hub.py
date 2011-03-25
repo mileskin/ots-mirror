@@ -55,14 +55,11 @@ import logging.config
 import uuid
 import datetime
 import configobj
-from traceback import format_exception
 
 from unittest import TestCase
 from unittest import TestResult
 from copy import deepcopy
 import pkg_resources
-import ots.server
-import StringIO
 
 from ots.server.allocator.api import primed_taskrunner
 
@@ -145,7 +142,7 @@ class Hub(object):
                                       self.testrun_uuid, 
                                       self.sw_product,
                                       **self._options_factory.all_options_dict)
-        sandbox_is_on = False
+        
         LOG.debug("Publishers initilialised... sandbox switched off...")
         LOG.info("OTS Server. version '%s'" % (__VERSION__))
 
@@ -165,7 +162,7 @@ class Hub(object):
                             notify_list,
                             incoming_options))
             # Send first monitor event
-            send_monitor_event(MonitorType.TESTRUN_REQUESTED,__name__)
+            send_monitor_event(MonitorType.TESTRUN_REQUESTED, __name__)
         except ValueError:
             pass
     
@@ -281,7 +278,8 @@ class Hub(object):
                     group = "ots_distribution_model",
                     name = distribution_model).next()
 
-                custom_distribution_model = entry_point.load()(self._options_factory.all_options_dict)
+                custom_distribution_model = \
+                     entry_point.load()(self._options_factory.all_options_dict)
                 LOG.info("Loaded custom distribution model '%s'"%
                          (entry_point.module_name))
             except StopIteration:
@@ -327,15 +325,16 @@ class Hub(object):
             config = configobj.ConfigObj(config_file).get("ots.server")
             log_dir = config.get('log_dir', LOG_DIR)
             # File handler for maintainers/developers
-            log_id_string = _generate_log_id_string(self._request_id, self.testrun_uuid)
-            format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
+            log_id_string = _generate_log_id_string(self._request_id, 
+                                                    self.testrun_uuid)
+            l_format = '%(asctime)s  %(module)-12s %(levelname)-8s %(message)s'
             os.system("mkdir -p %s" % log_dir)
             log_file = os.path.join(log_dir, log_id_string)
             self._filehandler = logging.FileHandler(log_file)
-            self._filehandler.setLevel(logging.DEBUG) # All messages to the files
-            self._filehandler.setFormatter(logging.Formatter(format))
+            self._filehandler.setLevel(logging.DEBUG)
+            self._filehandler.setFormatter(logging.Formatter(l_format))
             root_logger.addHandler(self._filehandler)
-        except IOError, ioerror:
+        except IOError:
             root_logger.error("IOError, no permission to write %s?" % log_dir,
                               exc_info=True)
         except:
@@ -361,10 +360,10 @@ class Hub(object):
             testrun_result.addSuccess(TestCase)if testrun.run() else \
                   testrun_result.addFailure(TestCase, (None, None, None))
         except Exception, err:
-            type, value, traceback = sys.exc_info()
+            er_type, value, traceback = sys.exc_info()
             LOG.error(str(value) or "Testrun Error", exc_info=err)
             publishers.set_exception(value)
-            testrun_result.addError(TestCase, (type, value, traceback))
+            testrun_result.addError(TestCase, (er_type, value, traceback))
             if DEBUG:
                 raise
 
@@ -403,7 +402,6 @@ class Hub(object):
         else:
             testrun_result = self._testrun()
         result_string = result_to_string(testrun_result)
-        # TODO: Whats the result format in publisher interface???????
         LOG.info("Result set to %s"%(result_string))
         self._publishers.set_testrun_result(result_string)
         self._publishers.publish()

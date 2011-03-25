@@ -31,5 +31,8 @@ class ElementProcessorBase(object):
     ABC
     """
 
-    def proces_element(self, element):
+    def process_element(self, element):
+        """
+        Interface function
+        """
         raise NotImplementedError

@@ -27,7 +27,6 @@ beween the sub-systems
 """
 
 import ots.common
-import StringIO
 
 ############################
 # TASK CONDITIONS
@@ -47,7 +46,7 @@ class TaskCondition(object):
 ###########################
 
 class MessageBase(object):
-    
+    """ Base class for messages """
     __version__ = ots.common.__VERSION__
 
 

@@ -20,4 +20,9 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Allocator API functionality """
+
+# API file, ignoring Unused import unpack_message 
+# pylint: disable=W0611
+
 from ots.server.allocator.primed_taskrunner import primed_taskrunner

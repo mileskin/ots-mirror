@@ -20,5 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Common AMQP API functions """
+
+# API file, ignoring Unused import unpack_message 
+# pylint: disable=W0611
+
 from ots.common.amqp.codec import pack_message, unpack_message
 from ots.common.amqp.testrun_queue_name import testrun_queue_name

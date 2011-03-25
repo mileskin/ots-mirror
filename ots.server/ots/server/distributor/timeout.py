@@ -32,7 +32,7 @@ import signal
 
 #Disable spurious pylint warnings
 
-#pylint: disable-msg=E0611
+#pylint: disable=E0611
 #pylint: disable-msg=F0401
 
 

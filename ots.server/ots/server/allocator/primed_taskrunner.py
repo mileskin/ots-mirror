@@ -20,7 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import os
+""" Creates tasks for taskrunner """
+
 import logging
 from socket import gethostname
 import configobj
@@ -42,14 +43,15 @@ def _storage_address():
     rtype: C{str}
     rparam: The storage address 
     """
-    server_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+    
     conf = server_config_filename()
     config = configobj.ConfigObj(conf).get('ots.server.allocator')
     storage_host = config['storage_host']
     if not storage_host:
         storage_host = gethostname()
-    storage_port = "1982" # TODO: DEPRECATED REMOVE AFTER CONDUCTOR IS CHANGED
-    return "%s:%s"%(storage_host, storage_port)     
+    # TODO: DEPRECATED REMOVE AFTER CONDUCTOR IS CHANGED
+    storage_port = "1982" 
+    return "%s:%s" % (storage_host, storage_port)     
 
 
 

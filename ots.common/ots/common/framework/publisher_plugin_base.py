@@ -20,7 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Interface class for Publisher plug-ins """
+
 class PublisherPluginBase(object):
+    """ Base class for Publisher plug-ins """
 
     def __init__(self, request_id, testrun_uuid, sw_product, image, **kwargs):
         pass
@@ -48,7 +51,6 @@ class PublisherPluginBase(object):
         @type packages : C{ots.results.testrun_result}
         @param packages: The result of the Testrun
         """
-        #FIXME move testrun result to common? 
         pass
     
     def set_exception(self, exception):

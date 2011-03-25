@@ -60,6 +60,11 @@ class Results(object):
 
     @property
     def name(self):
+        """
+        Name of the result file
+        @rtype: C{str}
+        @return: Name of the result file
+        """
         return self.data.name
 
     @property
