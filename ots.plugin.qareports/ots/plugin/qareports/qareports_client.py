@@ -25,10 +25,11 @@ Client for sending files to qa-reports
 import logging
 import configobj
 import os
+import json
+from urllib2 import HTTPError
 from ots.plugin.qareports.post_multipart import post_multipart
 
 DEFAULT_CONFIG_FILE = "/etc/ots_plugin_qareports.conf"
-RESPONSE_OK = """{"ok":"1"}"""
 LOG = logging.getLogger(__name__)
 
 def send_files(result_xmls,
@@ -70,11 +71,24 @@ def send_files(result_xmls,
               ("hwproduct", hwproduct or config["hwproduct"])]
     files = _generate_form_data(result_xmls, attachments)
     LOG.info("Uploading results to Meego QA-reports tool: %s" % host)
-    response = post_multipart(host, selector, fields, files)
-    if response == RESPONSE_OK:
-        LOG.info("Results uploaded successfully")
-    else:
-        LOG.error("Upload failed. Server returned: %s" % response)
+    
+    try:
+        response = post_multipart(host, selector, fields, files,
+                       config.get("protocol", ""), config.get("user", ""), 
+                       config.get("password",""), config.get("realm", ""))
+        json_response = json.loads(response)
+        
+        if json_response.get("ok") == "1":
+            url = json_response.get("url", "")
+            LOG.info("Results uploaded successfully %s" % url)
+        else:
+            LOG.error("Upload failed. Server returned: %s" % response)
+
+    except urllib2.HTTPError:
+        LOG.error("Invalid url or authentication failed", exc_info = True)
+            
+    except ValueError:
+        LOG.error("Invalid JSON response:\n%s" % response, exc_info = True)
 
 
 def _generate_form_data(result_xmls, attachments = None):
@@ -96,20 +110,19 @@ def _generate_form_data(result_xmls, attachments = None):
         files.append(("attachment.%s" % index, attachment[0], attachment[1]))
     return files
 
-
 def _config_filename():
     """
     Returns the config file path.
 
-    Tries /etc/ots_plugin_qareports.conf first. If that does not work, tries
-    from ots.plugin.qareports directory
+    Tries /etc/ots_qareports_plugin.conf first. If that does not work, tries
+    from ots.qareports_plugin directory
     """
     if os.path.exists(DEFAULT_CONFIG_FILE):
         return DEFAULT_CONFIG_FILE
 
     distributor_dirname = os.path.dirname(os.path.abspath(__file__))
     distributor_config_filename = os.path.join(distributor_dirname,
-                                               "ots_plugin_qareports.conf")
+                                               "ots_qareports_plugin.conf")
     if not os.path.exists(distributor_config_filename):
         raise Exception("%s not found"%(distributor_config_filename))
     return distributor_config_filename

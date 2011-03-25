@@ -8,7 +8,7 @@ Standards-Version: 3.8.4
 
 Package: python-ots-common
 Architecture: all
-Depends: python (>= 2.5) 
+Depends: python (>= 2.5), python-setuptools
 XB-Python-Version: >=2.5
 Description: Common libraries for OTS
  Common libraries for OTS.

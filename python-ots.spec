@@ -17,7 +17,7 @@ Open Test System for automatic testing.
 Summary:                Common libraries for OTS
 Prefix:                 /usr
 Group:                  Development/Tools
-Requires:               python
+Requires:               python, python-setuptools
 %description            common
 Common libraries for OTS.
 
