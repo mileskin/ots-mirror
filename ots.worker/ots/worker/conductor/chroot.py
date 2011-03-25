@@ -162,8 +162,9 @@ class Chroot(object):
             if os.geteuid() == 0:
                 umask = os.umask(0)
                 for name, mode, major, minor in device_nodes:
-                    os.mknod(dev_path + os.sep + name,
-                             mode, os.makedev(major, minor))
+                    dev_node_path = dev_path + os.sep + name
+                    if not os.path.exists(dev_node_path):
+                        os.mknod(dev_node_path, mode, os.makedev(major, minor))
                 os.umask(umask)
 
             # create user home
@@ -181,8 +182,8 @@ class Chroot(object):
 
             # write /etc/hosts
             hosts = file(etc_path + os.sep + 'hosts', 'wb+')
-            hosts.write("127.0.0.1       localhost.localdomain   localhost \n")
-            hosts.write("%s       testdevice.localdomain  testdevice\n" \
+            hosts.write("127.0.0.1\tlocalhost.localdomain\tlocalhost \n")
+            hosts.write("%s\ttestdevice.localdomain\ttestdevice\n" \
                 % self.testrun.target_ip_address)
             hosts.close()
         except Exception, error:
@@ -206,4 +207,5 @@ class Chroot(object):
 
 
 class RPMChroot(Chroot):
+    """ Class for RPM based chroot """
     pass
