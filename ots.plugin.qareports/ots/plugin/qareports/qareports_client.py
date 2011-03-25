@@ -26,6 +26,7 @@ import logging
 import configobj
 import os
 import json
+from urllib2 import HTTPError
 from ots.plugin.qareports.post_multipart import post_multipart
 
 DEFAULT_CONFIG_FILE = "/etc/ots_plugin_qareports.conf"
@@ -70,11 +71,11 @@ def send_files(result_xmls,
               ("hwproduct", hwproduct or config["hwproduct"])]
     files = _generate_form_data(result_xmls, attachments)
     LOG.info("Uploading results to Meego QA-reports tool: %s" % host)
-    response = post_multipart(host, selector, fields, files,
-                   config.get("protocol", ""), config.get("user", ""), config.get("password",""),
-                              config.get("realm", ""))
     
     try:
+        response = post_multipart(host, selector, fields, files,
+                       config.get("protocol", ""), config.get("user", ""), 
+                       config.get("password",""), config.get("realm", ""))
         json_response = json.loads(response)
         
         if json_response.get("ok") == "1":
@@ -82,9 +83,12 @@ def send_files(result_xmls,
             LOG.info("Results uploaded successfully %s" % url)
         else:
             LOG.error("Upload failed. Server returned: %s" % response)
+
+    except urllib2.HTTPError:
+        LOG.error("Invalid url or authentication failed", exc_info = True)
             
     except ValueError:
-        LOG.error("Invalid JSON response %s" % response, exc_info = True)
+        LOG.error("Invalid JSON response:\n%s" % response, exc_info = True)
 
 
 def _generate_form_data(result_xmls, attachments = None):

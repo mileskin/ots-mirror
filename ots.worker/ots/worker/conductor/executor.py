@@ -88,6 +88,7 @@ class TestRunData(object):
 
         self.is_host_based = options.host
         self.dontflash = options.dontflash
+        self.dontflash = True
 
         self.filter_string = \
                 options.filter_options.replace('"', '\\"').replace("'", '\\"')
