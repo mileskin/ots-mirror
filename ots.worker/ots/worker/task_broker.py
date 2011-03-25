@@ -276,9 +276,18 @@ class TaskBroker(object):
             LOGGER.debug("Received QUIT command")
             self._keep_looping = False
         elif not cmd_msg.is_ignore:
-            LOGGER.debug("Running command: '%s'"%(cmd_msg.command))
-            _start_process(command = cmd_msg.command)
             
+            command = cmd_msg.command
+            
+            self._xml_file = None
+            
+            if cmd_msg.xml_file is not None:
+                self._save_xml_file(cmd_msg.xml_file)
+            
+            LOGGER.debug("Running command: '%s'"%(command))
+            _start_process(command = command)
+            self._remove_xml_file()
+    
     ########################################
     # MESSAGE PUBLISHING
     ########################################
@@ -424,6 +433,33 @@ class TaskBroker(object):
             LOGGER.info("Worker was asked to stop after testrun ready.")
             stop = True
         return stop
+    
+    def _save_xml_file(self, xml_io):
+        """
+        Store the xml file to the system
+        @type xml_io: C{StringIO} 
+        @param xml_io: XML file
+        """
+        
+        if xml_io is not None:
+            self._xml_file = xml_io.name
+            xml_fb = open(self._xml_file, 'w')
+            xml_fb.write(xml_io.getvalue())
+            xml_fb.close()
+            
+            return self._xml_file
+            
+    
+    def _remove_xml_file(self):
+        """
+        Remove stored xml file from the system
+        """
+        
+        try:
+            if self._xml_file is not None:
+                os.remove(self._xml_file)
+        except:
+            LOGGER.warning("failed to remove test plan", exc_info = True)
       
     ################################
     # PUBLIC METHODS

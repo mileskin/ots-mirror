@@ -27,6 +27,7 @@ beween the sub-systems
 """
 
 import ots.common
+import StringIO
 
 ############################
 # TASK CONDITIONS
@@ -63,7 +64,7 @@ class CommandMessage(MessageBase):
     IGNORE = 'ignore'
 
     def __init__(self, command, response_queue, task_id, 
-                 timeout = 60, min_worker_version = None):
+                 timeout = 60, xml_file = None, min_worker_version = None):
         """
         @type command: C{list}
         @param command: The CL params
@@ -76,6 +77,9 @@ class CommandMessage(MessageBase):
 
         @type task_id : C{int}
         @param task_id : The Task ID
+        
+        @type xml_file : C{StringIO}
+        @param xml_file : XML test plan
 
         @type min_worker_version: C{str}
         @type min_worker_version: The minimum acceptable worker version 
@@ -83,7 +87,8 @@ class CommandMessage(MessageBase):
         self.command = " ".join(command)
         self.response_queue = response_queue
         self.task_id = task_id 
-        self.timeout = timeout 
+        self.timeout = timeout
+        self.xml_file = xml_file
         self.min_worker_version = min_worker_version
 
     @property    

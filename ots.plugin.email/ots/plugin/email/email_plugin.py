@@ -256,6 +256,7 @@ class EmailPlugin(PublisherPluginBase):
                                                         self.mail_message)
                 LOG.info( "Email sent" )
             except smtplib.SMTPRecipientsRefused:
+                LOG.error("SMTP refused error", exc_info=True)
                 failed_addresses = self._notify_list
             except socket.gaierror:
                 LOG.warning("Invalid or unknown SMTP host")

@@ -102,6 +102,40 @@ class TestConductorCommands(unittest.TestCase):
                                    host_testing = False)
         self.assertEquals(result, expected)
 
+    def test_conductor_command_with_testplan(self):
+
+        options = {'bootmode': None, 'image_url':"www.nokia.com", 'emmc_flash_parameter':"",
+                   'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
+                   'flasherurl':"asdfasdf/asdf", 'testplan_name' : "testplan.xml",
+                   'timeout':"30", 'test_packages':''}
+        expected = ['conductor',
+                    "-u", 'www.nokia.com',
+                    '-i', '1',
+                    '-c', 'foo',
+                    '--flasherurl', "asdfasdf/asdf",
+                    '-m', '30', '-p', 'testplan.xml']
+
+        result = conductor_command(options,
+                                   host_testing = False)
+        self.assertEquals(result, expected)
+
+    def test_conductor_command_with_testplan_host(self):
+
+        options = {'bootmode': None, 'image_url':"www.nokia.com", 'emmc_flash_parameter':"",
+                   'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
+                   'flasherurl':"asdfasdf/asdf", 'testplan_name' : "testplan.xml",
+                   'timeout':"30", 'test_packages':''}
+        expected = ['conductor',
+                    "-u", 'www.nokia.com',
+                    '-i', '1',
+                    '-c', 'foo',
+                    '--flasherurl', "asdfasdf/asdf",
+                    '-m', '30', '-p', 'testplan.xml', '-o']
+
+        result = conductor_command(options,
+                                   host_testing = True)
+        self.assertEquals(result, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

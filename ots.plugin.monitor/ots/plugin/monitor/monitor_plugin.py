@@ -82,6 +82,7 @@ class MonitorPlugin(PublisherPluginBase):
                 device_group = device.get('devicegroup', "invalid")
         
         if device_group == '':
+            LOG.warning("Empty devicegroup defined!")
             device_group = "invalid"
 
         try:

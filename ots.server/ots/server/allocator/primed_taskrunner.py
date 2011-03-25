@@ -33,6 +33,10 @@ from ots.server.allocator.get_commands import get_commands
 
 LOG = logging.getLogger(__name__)
 
+class AllocatorException(Exception):
+    """AllocatorExceptionNoCommands"""
+    pass
+
 def _storage_address():
     """
     rtype: C{str}
@@ -56,6 +60,7 @@ def _storage_address():
 def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model, 
                       device_properties,
                       image, hw_packages, host_packages,
+                      hw_testplans, host_testplans,
                       emmc, testfilter, flasher, custom_distribution_model,
                       extended_options): 
     """
@@ -82,6 +87,12 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
 
     @type host_packages : C{list} of C{str}
     @param host_packages: The host packages
+    
+    @type hw_testplans : C{list} of C{str}
+    @param hw_testplans: The hardware test plans
+
+    @type host_testplans : C{list} of C{str}
+    @param host_testplans: The host test plans
 
     @type emmc : C{str}
     @param emmc: Url to the additional content image (memory card image)
@@ -113,10 +124,15 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     taskrunner = taskrunner_factory(routing_key, execution_timeout, 
                                     testrun_uuid)
     test_list = dict()
+
     if hw_packages:
         test_list['device'] = ",".join(hw_packages)
     if host_packages:
         test_list['host'] = ",".join(host_packages)
+    if hw_testplans:
+        test_list['hw_testplans'] = hw_testplans
+    if host_testplans:
+        test_list['host_testplans'] = host_testplans
 
     # Server deals with minutes, conductor uses seconds, 
     execution_timeout = int(execution_timeout)*60
@@ -132,7 +148,11 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
                         flasher,
                         custom_distribution_model,
                         extended_options)
+    
+    if len(cmds) == 0:
+        raise AllocatorException("No commands created!")
+    
     for cmd in cmds:
-        LOG.info("Added cmd '%s' to taskrunner" % (" ".join(cmd)))
+        LOG.info("Added cmd '%s' to taskrunner" % (" ".join(cmd.command)))
         taskrunner.add_task(cmd)
     return taskrunner

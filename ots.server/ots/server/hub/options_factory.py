@@ -287,5 +287,6 @@ class OptionsFactory(object):
         """
         if not self.core_options_dict.has_key("image"):
             raise ValueError("Missing `image` parameter")
-        LOG.debug("Calling options with kwarg: %s"%(self.core_options_dict))
+        LOG.debug("Calling options with kwarg: %s" % 
+                  (Options.format_dict(self.core_options_dict)))
         return Options(**self.processed_core_options_dict)

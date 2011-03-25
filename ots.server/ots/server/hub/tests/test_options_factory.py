@@ -36,7 +36,7 @@ class TestOptionsFactory(unittest.TestCase):
         names = OptionsFactory("example_sw_product", {}).core_options_names
         expected = ('self', 'image', 'packages', 'plan', 'hosttest', 
                     'device', 'emmc', 'distribution_model', 'flasher', 
-                    'testfilter', 'timeout')
+                    'testfilter', 'hw_testplans', 'host_testplans', 'timeout')
         self.assertEquals(expected, names)
 
     def test_extended_options_dict(self):

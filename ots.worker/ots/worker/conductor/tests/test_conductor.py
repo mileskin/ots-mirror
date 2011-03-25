@@ -131,6 +131,7 @@ class Options(object):
         self.otsserver = None
         self.flasher_url = None
         self.bootmode = None
+        self.testplan = None
 
 class Stub_Executor(object):
     def __init__(self, testrun, stand_alone, responseclient = None,
@@ -333,6 +334,7 @@ class TestConductor(unittest.TestCase):
         self.assertEquals(options.otsserver, None)
         self.assertEquals(options.flasher_url, None)
         self.assertEquals(options.bootmode, None)
+        self.assertEquals(options.testplan, None)
         parser.print_help() #check help text is set
 
 

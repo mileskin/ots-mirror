@@ -62,17 +62,21 @@ class Task(object):
 
     current_state = "WAITING"
 
-    def __init__(self, command, timeout):
+    def __init__(self, command, timeout = None, xml_file = None):
         """
         @type command: C{list} 
         @param command: The CL params as a list
  
         @type timeout C{int} 
         @param timeout: The timeout for the command
+        
+        @type xml_file C{StringIO} 
+        @param xml_file: Is task includes a test plan
 
         """
         self.command = command 
         self._timeout = timeout
+        self.xml_file = None
         self.task_id = uuid.uuid1().hex
 
     def transition(self, condition):
@@ -102,3 +106,19 @@ class Task(object):
         @param is_finished: Is the Task in the finished state 
         """
         return self.current_state == self._FINISHED
+    
+    def set_timeout(self, timeout):
+        """
+        Set the task timeout.
+        @type timeout C{int} 
+        @param timeout: The timeout for the command
+        """
+        self._timeout = timeout
+        
+    def set_test_plan(self, xml_file):
+        """
+        Set test plan to task.
+        @type xml_file C{StringIO} 
+        @param xml_file: Test plan as StringIO
+        """
+        self.xml_file = xml_file

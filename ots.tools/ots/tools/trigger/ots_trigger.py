@@ -28,6 +28,20 @@ from optparse import OptionParser
 import logging
 import xmlrpclib
 import sys
+import os
+
+def read_test_plan(filepath):
+    """
+    Reads given test plan and returns the file data.
+    """
+    
+    testplan_data = None
+    if os.path.exists(filepath):
+        testplan_fb = open(filepath, 'r')
+        testplan_data = testplan_fb.read(-1)
+        testplan_fb.close()
+
+    return testplan_data
 
 def ots_trigger(options):
     """
@@ -61,6 +75,18 @@ def ots_trigger(options):
         ots_options['timeout'] = options.timeout
     if options.distribution:
         ots_options['distribution_model'] = options.distribution
+    if options.deviceplan:
+        testplans = list()
+        for testplan in options.deviceplan:
+            testplan_data = read_test_plan(testplan)
+            testplans.append((os.path.basename(testplan), testplan_data))
+        ots_options['hw_testplans'] = testplans
+    if options.hostplan:
+        testplans = list()
+        for testplan in options.hostplan:
+            testplan_data = read_test_plan(testplan)
+            testplans.append((os.path.basename(testplan), testplan_data))
+        ots_options['host_testplans'] = testplans
 
     ots_interface = xmlrpclib.Server("http://%s/" % options.server)
     return ots_interface.request_sync(sw_product,
@@ -144,6 +170,20 @@ def parse_commandline_arguments():
                       action="store",
                       type="string",
                       help="Options in form 'key:value key:value'",
+                      metavar="OPTIONS")
+    
+    parser.add_option("-T", "--deviceplan",
+                      dest="deviceplan",
+                      action="append",
+                      type="string",
+                      help="Test plan for device based execution",
+                      metavar="OPTIONS")
+    
+    parser.add_option("-O", "--hostplan",
+                      dest="hostplan",
+                      action="append",
+                      type="string",
+                      help="Test plan for host based execution",
                       metavar="OPTIONS")
 
     # parser returns options and args even though we only need options

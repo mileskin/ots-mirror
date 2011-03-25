@@ -62,6 +62,7 @@ from unittest import TestResult
 from copy import deepcopy
 import pkg_resources
 import ots.server
+import StringIO
 
 from ots.server.allocator.api import primed_taskrunner
 
@@ -70,6 +71,7 @@ from ots.server.hub.sandbox import sandbox
 from ots.server.hub.testrun import Testrun
 from ots.server.hub.publishers import Publishers
 from ots.server.hub.options_factory import OptionsFactory
+from ots.server.hub.options import Options
 from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.dto_signal import send_monitor_event
 from ots.common.dto.api import MonitorType
@@ -138,7 +140,7 @@ class Hub(object):
         self._filehandler = None
         self._initialize_logger()
 
-        LOG.debug(self._options_factory.all_options_dict)
+        LOG.debug(Options.format_dict(self._options_factory.all_options_dict))
         self._publishers = Publishers(self.request_id, 
                                       self.testrun_uuid, 
                                       self.sw_product,
@@ -155,6 +157,7 @@ class Hub(object):
             if "notify_list" in incoming_options.keys():
                 notify_list = incoming_options["notify_list"]
                 del incoming_options["notify_list"]
+            incoming_options = Options.format_dict(incoming_options)
             LOG.info(("Incoming request: program: %s, request: %s, " \
                           "notify_list: %s, options: %s")\
                          % (sw_product,
@@ -294,6 +297,8 @@ class Hub(object):
                                   self.options.image,
                                   self.options.hw_packages,
                                   self.options.host_packages,
+                                  self.options.hw_testplans,
+                                  self.options.host_testplans,
                                   self.options.emmc,
                                   self.options.testfilter,
                                   self.options.flasher,

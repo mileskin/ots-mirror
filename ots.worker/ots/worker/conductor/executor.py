@@ -80,6 +80,9 @@ class TestRunData(object):
         self.bootmode = options.bootmode
 
         self.flasher_url = options.flasher_url
+        
+        # XML file
+        self.xml_file = options.testplan
 
         self.test_packages = []
         self.requested_test_packages = []
@@ -338,9 +341,6 @@ class Executor(object):
                 "/root/testrunner_results", test_package)
 
         #common paths
-        self.testrun.testdef_src = "/usr/share/%s/%s" \
-                                % (test_package, TEST_DEFINITION_FILE_NAME)
-
         self.testrun.results_src = os.path.join(\
                 self.testrun.src_result_folder, "*")
 
@@ -349,8 +349,16 @@ class Executor(object):
         self.testrun.results_target_dir = os.path.join(\
                 self.testrun.base_dir, test_package, "results")
 
-        self.testrun.dst_testdef_file_path = os.path.join(\
-                self.testrun.testdef_target_dir, TEST_DEFINITION_FILE_NAME)
+        if self.testrun.xml_file:
+            self.testrun.testdef_src = self.testrun.xml_file
+            self.testrun.dst_testdef_file_path = os.path.join(\
+                    self.testrun.testdef_target_dir, self.testrun.xml_file)
+        else:    
+            self.testrun.testdef_src = "/usr/share/%s/%s" \
+                                % (test_package, TEST_DEFINITION_FILE_NAME)
+            self.testrun.dst_testdef_file_path = os.path.join(\
+                    self.testrun.testdef_target_dir, TEST_DEFINITION_FILE_NAME)
+
         self.testrun.result_file_path = os.path.join(\
             self.testrun.results_target_dir, 
             self._testrunner_result_file(test_package)) #This is src and dst
@@ -382,6 +390,9 @@ class Executor(object):
 
         if not self.testrun.is_host_based:
             return
+        
+        if self.testrun.xml_file:
+            return
 
         self.log.info("Updating available packages")
         cmdstr = "apt-get update"
@@ -405,6 +416,9 @@ class Executor(object):
         if not self.testrun.is_host_based:
             return
 
+        if self.testrun.xml_file:
+            return
+        
         self.log.info("Removing test package %s" % test_package)
         cmdstr = "apt-get remove %s --yes --force-yes" % test_package
         self.log.debug(cmdstr)
@@ -678,28 +692,33 @@ class Executor(object):
         """
 
         requested = self.testrun.requested_test_packages
+        xml_test_plan = self.testrun.xml_file
 
-        if self.testrun.is_host_based:
-            if not requested:
-                raise Exception("Test packages not defined for host-based "\
-                                "testing")
-            self.testrun.test_packages = requested
+        # Check if test plan is delivered
+        if not xml_test_plan:
 
-        else:
-            all_pkgs = self._scan_for_test_packages()
-
-            if not all_pkgs:
-                raise ConductorError("No test packages found in image!", "1081")
-
-            if requested:
-                missing = items_missing_from_all_items(requested, all_pkgs)
-                if missing:
-                    raise ConductorError("Test package(s) missing in image: %s"\
-                                         % ",".join(missing), "1082")
+            if self.testrun.is_host_based:
+                if not requested :
+                    raise Exception("Test packages not defined for host-based "\
+                                    "testing")
                 self.testrun.test_packages = requested
+    
             else:
-                self.testrun.test_packages = all_pkgs
-
+                all_pkgs = self._scan_for_test_packages()
+    
+                if not all_pkgs:
+                    raise ConductorError("No test packages found in image!", "1081")
+    
+                if requested:
+                    missing = items_missing_from_all_items(requested, all_pkgs)
+                    if missing:
+                        raise ConductorError("Test package(s) missing in image: %s"\
+                                             % ",".join(missing), "1082")
+                    self.testrun.test_packages = requested
+                else:
+                    self.testrun.test_packages = all_pkgs
+        else:
+            self.testrun.test_packages = [os.path.basename(xml_test_plan)]
 
         self.log.info("Test packages to be executed: %s" \
                       % ",".join(self.testrun.test_packages))
@@ -833,7 +852,7 @@ class Executor(object):
 
     def _get_command_to_copy_testdef(self):
         """Command used to copy test definition to testrun data folder."""
-        if self.testrun.is_host_based:
+        if self.testrun.is_host_based or self.testrun.xml_file:
             return LOCAL_COMMAND_TO_COPY_FILE % \
                     (self.testrun.testdef_src, self.testrun.testdef_target_dir)
 

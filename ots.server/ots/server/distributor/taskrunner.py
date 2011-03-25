@@ -275,6 +275,7 @@ class TaskRunner(object):
                                      self._testrun_queue,
                                      task.task_id,
                                      timeout = self._execution_timeout,
+                                     xml_file = task.xml_file,
                                      min_worker_version = 
                                        self._min_worker_version)
             message = pack_message(cmd_msg)
@@ -327,7 +328,11 @@ class TaskRunner(object):
         """ 
         if self._is_run:
             raise TaskRunnerException("This TaskRunner has already been run")
-        self._tasks.append(Task(command, self._execution_timeout))
+        if isinstance(command, Task):
+            command.set_timeout(self._execution_timeout)
+            self._tasks.append(command)
+        else:
+            self._tasks.append(Task(command, self._execution_timeout))
         
     def run(self):
         """

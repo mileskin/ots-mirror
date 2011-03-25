@@ -27,6 +27,8 @@ as provided by OTS clients.
 """
 
 from ots.server.hub.parameters_parser import string_2_list, string_2_dict
+from StringIO import StringIO
+from copy import deepcopy
 
 ############################
 # FLAGS
@@ -57,7 +59,8 @@ class Options(object):
 
     def __init__(self, image, packages = None, plan = None, hosttest = None,
                  device = {}, emmc = None, distribution_model = None,
-                 flasher = None, testfilter = None, timeout = None):
+                 flasher = None, testfilter = None, hw_testplans = None,
+                 host_testplans = None, timeout = None):
         """
         @type: C{image}
         @param: The image url
@@ -71,8 +74,14 @@ class Options(object):
         self._plan = plan
         if hosttest is None:
             hosttest = []
+        if hw_testplans is None:
+            hw_testplans = []
+        self._hw_testplans = hw_testplans
+        if host_testplans is None:
+            host_testplans = []
+        self._host_testplans = host_testplans
         self._hosttest = hosttest
-        self._device = device#string_2_dict(device)
+        self._device = device
         self._emmc = emmc
         self._distribution_model = distribution_model
         self._flasher = flasher
@@ -81,7 +90,9 @@ class Options(object):
         self._validate_packages(self.hw_packages)
         self._validate_distribution_models(distribution_model,
                                            self.hw_packages \
-                                               + self.host_packages)
+                                               + self.host_packages \
+                                               + self.hw_testplans \
+                                               + self.host_testplans)
 
 
     ##################################
@@ -111,6 +122,28 @@ class Options(object):
         @return: Packages for host testing
         """
         return string_2_list(self._hosttest)
+    
+    @property
+    def hw_testplans(self):
+        """
+        @rtype: C{list} of C{str}
+        @return: Test plans for hardware testing
+        """
+        if len(self._hw_testplans) > 0:
+            if not isinstance(self._hw_testplans[0], StringIO):
+                self._hw_testplans = self._convert_testplans(self._hw_testplans)
+        return self._hw_testplans
+
+    @property
+    def host_testplans(self):
+        """
+        @rtype: C{list} of C{str}
+        @return: Test plans for host testing
+        """
+        if len(self._host_testplans) > 0:
+            if not isinstance(self._host_testplans[0], StringIO):
+                self._host_testplans = self._convert_testplans(self._host_testplans)
+        return self._host_testplans
 
     @property
     def testplan_id(self):
@@ -226,3 +259,49 @@ class Options(object):
             pretty_packages =  ', '.join(invalid_packages)
             error_msg = "Invalid testpackage(s): %s" % pretty_packages
             raise ValueError(error_msg)
+    
+    def _convert_testplans(self, test_plans):
+        """
+        Converts list of test plans to StringIO.
+        
+        @type test_plans: D{list} of D{tuple}
+        @param test_plans: List of test plans
+        
+        @rtype : D{List} of D{StringIO}
+        @return: List of test plans as StringIO
+        
+        """
+        ret_list = []
+        for (plan_name, plan_data) in test_plans:
+            data = StringIO(plan_data)
+            data.name = plan_name
+            ret_list.append(data)
+        return ret_list
+    
+    @staticmethod
+    def format_dict(options_dict):
+        """
+        Makes options dictionary to look nice. Replaces
+        test plans from the options.
+        
+        @type options_dict: D{dict}
+        @param options_dict: Dictionary of options
+        
+        @rtype : D{dict}
+        @return: Returns nice dictionary
+        """
+        
+        format_options = deepcopy(options_dict)
+        if "host_testplans" in format_options:
+            test_plans_data = format_options.get("host_testplans")
+            test_plans = []
+            for plan_name, plan_data in test_plans_data:
+                test_plans.append(plan_name)
+            format_options["host_testplans"] = test_plans
+        if "hw_testplans" in format_options:
+            test_plans_data = format_options.get("hw_testplans")
+            test_plans = []
+            for plan_name, plan_data in test_plans_data:
+                test_plans.append(plan_name)
+            format_options["hw_testplans"] = test_plans
+        return format_options            

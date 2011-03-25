@@ -25,6 +25,8 @@ Default test package distribution models
 """
 
 from ots.server.allocator.conductor_command import conductor_command
+from ots.server.distributor.task import Task
+from StringIO import StringIO
 
 def perpackage_distribution(test_list, options):
     """Creates a separate task (conductor command) for each test package"""
@@ -38,13 +40,33 @@ def perpackage_distribution(test_list, options):
         for test_package in test_list['device'].split(","):
             options['test_packages'] = test_package
             cmd = conductor_command(options, host_testing = False)
-            commands.append(cmd)
+            commands.append(Task(cmd))
 
     if 'host' in test_list:
         for test_package in test_list['host'].split(","):
             options['test_packages'] = test_package
             cmd = conductor_command(options, host_testing = True)
-            commands.append(cmd)
+            commands.append(Task(cmd))
+    
+    if 'hw_testplans' in test_list:
+        test_plans = test_list.get("hw_testplans")
+        options['test_packages'] = ""
+        for test_plan in test_plans:
+            options['testplan_name'] = test_plan.name
+            cmd = conductor_command(options, host_testing = False)
+            task = Task(cmd)
+            task.set_test_plan(test_plan)
+            commands.append(task)
+        
+    if 'host_testplans' in test_list:
+        test_plans = test_list.get("host_testplans")
+        options['test_packages'] = ""
+        for test_plan in test_plans:
+            options['testplan_name'] = test_plan.name
+            cmd = conductor_command(options, host_testing = True)
+            task = Task(cmd)
+            task.set_test_plan(test_plan)
+            commands.append(task)
 
     return commands
 
@@ -53,6 +75,7 @@ def single_task_distribution(test_list, options):
     """Creates a single task (one command line) for all test packages"""
 
     single_cmd = []
+    tasks = []
 
     if not test_list:
         options['test_packages'] = ""
@@ -74,6 +97,32 @@ def single_task_distribution(test_list, options):
         if single_cmd:
             single_cmd.append(';')
         single_cmd.extend(cmd)
+    
+    if len(single_cmd) > 0:
+        tasks.append(Task(single_cmd))
+    
+    # For test plan based executions
+    # hw and host are in own tasks.
+    # Test plan merging is not working.
+    if 'hw_testplans' in test_list:
+        test_plans = test_list.get("hw_testplans")
+        options['test_packages'] = ""
+        for test_plan in test_plans:
+            options['testplan_name'] = test_plan.name
+            cmd = conductor_command(options, host_testing = False)
+            task = Task(cmd)
+            task.set_test_plan(test_plan)
+            tasks.append(task)
+        
+    if 'host_testplans' in test_list:
+        test_plans = test_list.get("host_testplans")
+        options['test_packages'] = ""
+        for test_plan in test_plans:
+            options['testplan_name'] = test_plan.name
+            cmd = conductor_command(options, host_testing = True)
+            task = Task(cmd)
+            task.set_test_plan(test_plan)
+            tasks.append(task)
 
-    return [single_cmd]
+    return tasks
 
