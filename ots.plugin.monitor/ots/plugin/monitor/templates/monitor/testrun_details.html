@@ -34,7 +34,7 @@
     </tr>
     <tr>
         <td class="title">Device Group:</td>
-        <td>{{ testrun.device_group }}</td>
+        <td><a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=testrun.device_group %}">{{ testrun.device_group }}</a></td>
     </tr>
     <tr>
         <td class="title">Queue:</td>

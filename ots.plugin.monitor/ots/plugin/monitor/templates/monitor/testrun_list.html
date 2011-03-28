@@ -30,43 +30,50 @@
 <table id="testrun_details">
 <tr>
   <td class="title">Total:</td>
-  <td><a href="?state=&requestor={{requestor}}&group={{group}}">{{total_count}}</a></td>
+  <td><a href="?state=&requestor={{requestor}}&group={{group}}&orderby={{orderby}}">{{total_count}}</a></td>
 </tr>
 <tr>
   <td class="title">In queue:</td>
-  <td class="state_0"><a href="?state=0&requestor={{requestor}}&group={{group}}">{{inqueue_count}}</a></td>
+  <td class="state_0"><a href="?state=0&requestor={{requestor}}&group={{group}}&orderby={{orderby}}">{{inqueue_count}}</a></td>
 </tr>
 <tr>
   <td class="title">Ongoing:</td>
-  <td class="state_1"><a href="?state=1&requestor={{requestor}}&group={{group}}">{{ongoing_count}}</a></td>
+  <td class="state_1"><a href="?state=1&requestor={{requestor}}&group={{group}}&orderby={{orderby}}">{{ongoing_count}}</a></td>
 </tr>
 <tr>
   <td class="title">Passed:</td>
-  <td class="state_2"><span class="passed"><a href="?state=2&requestor={{requestor}}&group={{group}}">{{passed_count}}</a></span></td>
+  <td class="state_2"><span class="passed"><a href="?state=2&requestor={{requestor}}&group={{group}}&orderby={{orderby}}">{{passed_count}}</a></span></td>
 </tr>
 <tr>
   <td class="title">Failed:</td>
-  <td class="state_3"><span class="failed"><a href="?state=3&requestor={{requestor}}&group={{group}}">{{failed_count}}</a></span></td>
+  <td class="state_3"><span class="failed"><a href="?state=3&requestor={{requestor}}&group={{group}}&orderby={{orderby}}">{{failed_count}}</a></span></td>
 </tr>
 <tr>
   <td class="title">Error:</td>
-  <td class="state_4"> <span class="error"><a href="?state=4&requestor={{requestor}}&group={{group}}">{{error_count}}</a></span></td>
+  <td class="state_4"><span class="error"><a href="?state=4&requestor={{requestor}}&group={{group}}&orderby={{orderby}}">{{error_count}}</a></span></td>
 </tr>
 </table>
 
 </p>
-
+Export table:
+<a href="?state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{orderby}}&export=csv">csv</a> /
+<a href="?state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{orderby}}&export=xml">xml</a>
 <table id="testrun_list" >
     <thead>
         <tr>
             <th style="width:1%">S</th>
             <th style="width:1%">L</th>
-            <th style="width:10%">Run ID</th>
-            <th style="width:15%">Start time</th>
-            <th style="width:15%">Active time</th>
-            <th style="width:20%">Device group</th>
-            <th style="width:20%">Requestor</th>
-            <th style="width:15%">Workers</th>
+            <th style="width:10%"><a href="?state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'testrun_id' }}">Run ID
+                <img class="order" src="/media/{{ orderby|order_dir:'testrun_id' }}.png" alt="{{ orderby|order_dir:'testrun_id' }}" border="0"/></a></th>
+            <th style="width:15%"><a href="?state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'start_time' }}">Start time
+                <img class="order" src="/media/{{ orderby|order_dir:'start_time' }}.png" alt="{{ orderby|order_dir:'start_time' }}" border="0"/></a></th>
+            <th style="width:15%"><a href="?state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'start_time' }}">Active time</a></th>
+            <th style="width:20%"><a href="?state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'device_group' }}">Device group
+                <img class="order" src="/media/{{ orderby|order_dir:'device_group' }}.png" alt="{{ orderby|order_dir:'device_group' }}" border="0"/></a></th>
+            <th style="width:20%"><a href="?state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'requestor' }}">Requestor
+                <img class="order" src="/media/{{ orderby|order_dir:'requestor' }}.png" alt="{{ orderby|order_dir:'requestor' }}" border="0"/></a></th>
+            <th style="width:15%"><a href="?state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'host_worker_instances' }}">Workers
+                <img class="order" src="/media/{{ orderby|order_dir:'host_worker_instances' }}.png" alt="{{ orderby|order_dir:'host_worker_instances' }}" border="0"/></a></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -77,8 +84,8 @@
 		   <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_details testrun_id=testrun.testrun_id %}">{{ testrun.testrun_id }}</a></td>
 		   <td>{{ testrun.start_time|format_datetime }}</td>
            <td>{{ testrun.start_time|calculate_delta }}</td>
-		   <td><a class="date" href="?state={{state}}&group={{testrun.device_group}}&requestor={{requestor}}">{{ testrun.device_group }}</a></td>
-           <td><a href="?state={{state}}&group={{group}}&requestor={{testrun.requestor}}">{{ testrun.requestor|strip_email }}</a></td>
+		   <td><a class="date" href="?state={{state}}&group={{testrun.device_group}}&requestor={{requestor}}&orderby={{orderby}}">{{ testrun.device_group }}</a></td>
+           <td><a href="?state={{state}}&group={{group}}&requestor={{testrun.requestor}}&orderby={{orderby}}">{{ testrun.requestor|strip_email }}</a></td>
            <td>{{ testrun.host_worker_instances }}</td>
         </tr>
         {% endfor %}
@@ -87,7 +94,7 @@
 <div class="pagination">
     <span class="step-links">
         {% if testruns.has_previous %}
-            <a href="?page={{ testruns.previous_page_number }}&state={{state}}&group={{group}}&requestor={{requestor}}">previous</a>
+            <a href="?page={{ testruns.previous_page_number }}&state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{orderby}}">previous</a>
         {% endif %}
         {% for page_num in testruns.paginator.page_range %}
             {% if page_num == testruns.number %}
@@ -95,11 +102,11 @@
                     {{ testruns.number }}
                 </span>
             {% else %}
-                <a href="?page= {{ page_num }}&state={{state}}&group={{group}}&requestor={{requestor}}">{{ page_num }}</a>
+                <a href="?page= {{ page_num }}&state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{orderby}}">{{ page_num }}</a>
             {% endif %}
         {% endfor %}
         {% if testruns.has_next %}
-            <a href="?page={{ testruns.next_page_number }}&state={{state}}&group={{group}}&requestor={{requestor}}">next</a>
+            <a href="?page={{ testruns.next_page_number }}&state={{state}}&group={{group}}&requestor={{requestor}}&orderby={{orderby}}">next</a>
         {% endif %}
     </span>
 </div>

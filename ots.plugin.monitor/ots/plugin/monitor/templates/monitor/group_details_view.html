@@ -92,13 +92,19 @@ Export table:
         <tr>
             <th style="width:1%">S</th>
             <th style="width:1%">L</th>                       
-            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'id' }}">Id</a></th>
-            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'start_time' }}">Start time</a></th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'id' }}">Id
+                <img class="order" src="/media/{{ orderby|order_dir:'id' }}.png" alt="{{ orderby|order_dir:'id' }}" border="0"/></a></th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'start_time' }}">Start time
+                <img class="order" src="/media/{{ orderby|order_dir:'start_time' }}.png" alt="{{ orderby|order_dir:'start_time' }}" border="0"/></a></th>
             <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'start_time' }}">Active time</a></th>
-            <th style="width:20%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'requestor' }}">Requestor</a></th>
-            <th style="width:5%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'request_id' }}">Req Id</a></th>
-            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'error' }}">Error</a></th>
-            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'host_worker_instances' }}">Workers</a></th>
+            <th style="width:20%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'requestor' }}">Requestor
+                <img class="order" src="/media/{{ orderby|order_dir:'requestor' }}.png" alt="{{ orderby|order_dir:'requestor' }}" border="0"/></a></th>
+            <th style="width:5%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'request_id' }}">Req Id
+                <img class="order" src="/media/{{ orderby|order_dir:'request_id' }}.png" alt="{{ orderby|order_dir:'request_id' }}" border="0"/></a></th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'error' }}">Error
+                <img class="order" src="/media/{{ orderby|order_dir:'error' }}.png" alt="{{ orderby|order_dir:'error' }}" border="0"/></a></th>
+            <th style="width:15%"><a href="?state={{state}}&requestor={{requestor}}&orderby={{ orderby|format_orderby:'host_worker_instances' }}">Workers
+                <img class="order" src="/media/{{ orderby|order_dir:'host_worker_instances' }}.png" alt="{{ orderby|order_dir:'host_worker_instances' }}" border="0"/></a></th>
             
         </tr>
     </thead>
