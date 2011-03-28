@@ -22,6 +22,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK ***** 
 
+""" Common routing API functions """
+
+# API file, ignoring Unused import unpack_message 
+# pylint: disable=W0611
+
 from ots.common.routing.routing import DEVICE_GROUP, DEVICE_NAME, DEVICE_ID
 from ots.common.routing.routing import VALID_PROPERTIES
 from ots.common.routing.routing import get_routing_key

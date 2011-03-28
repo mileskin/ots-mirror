@@ -23,8 +23,8 @@
 
 #Disable spurious pylint warnings
 
-#pylint: disable-msg=E0611
-#pylint: disable-msg=F0401
+#pylint: disable=E0611
+#pylint: disable=F0401
 
 
 """
@@ -32,14 +32,12 @@ Top level script starts an Worker
 """
 
 import sys
-import os
 import logging 
 import logging.handlers
-import subprocess
 
 import ConfigParser
 
-import ots.worker
+import os
 
 from ots.worker.amqp_log_handler import AMQPLogHandler
 from ots.worker.connection import Connection
@@ -138,6 +136,9 @@ def _init_logging(config_filename = None):
     root_logger.addHandler(output_handler)
 
 def create_amqp_log_handler():
+    """
+    Create AMQP log handler
+    """
     root_logger = logging.getLogger('')
     handler = AMQPLogHandler()
     handler.setLevel(logging.DEBUG)
@@ -198,7 +199,6 @@ def main():
 
 #    AMQP log handler disabled because of problems in error situations
 #    (See test_worker_alive_after_server_timeout in distributor component tests)
-#    TODO: Fix in 0.9
 #
 #    amqp_log_handler = create_amqp_log_handler() 
 #    worker.amqp_log_handler = amqp_log_handler 

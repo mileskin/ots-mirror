@@ -20,4 +20,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+# API file, ignoring Unused import unpack_message 
+# pylint: disable=W0611
+
 from ots.plugin.email.email_plugin import EmailPlugin

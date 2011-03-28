@@ -24,6 +24,7 @@
 #           (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
 # register should be written lowercase letters
 # pylint: disable=C0103
+
 """
 Template tags for monitor
 """
@@ -86,6 +87,9 @@ def strip_email(email):
 
 @register.filter
 def state_as_string(state):
+    """
+    Change state (integer) to string
+    """
     retStr = "In queue"
     if state == "1":
         retStr = "Ongoing"
@@ -99,12 +103,15 @@ def state_as_string(state):
 
 @register.filter
 def logger_url(runid):
+    """
+    Reverse django python path to url
+    """
     
     url = "http://logger_plugin_not_installed/%s" % (runid)
     try:
         from ots.plugin.logger.views import basic_testrun_viewer
         from django.core.urlresolvers import reverse
-        url = reverse(basic_testrun_viewer,args=[runid])
+        url = reverse(basic_testrun_viewer, args=[runid])
     finally:
         return url
 

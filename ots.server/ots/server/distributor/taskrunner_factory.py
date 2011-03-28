@@ -25,11 +25,9 @@ Factory method to create TaskRunner from a config file
 """
 
 import configobj
-import os
 
 from ots.server.server_config_filename import server_config_filename
 from ots.server.distributor.taskrunner import TaskRunner
-import ots.server
 
 def taskrunner_factory(routing_key,
                        execution_timeout,
@@ -57,8 +55,7 @@ def taskrunner_factory(routing_key,
         config_file = server_config_filename()
 
     config = configobj.ConfigObj(config_file).get("ots.server.distributor")
-    #FIXME: The role of timeouts has changed over time 
-    #the legacy naming is supported in the config 
+
     taskrunner = TaskRunner(username = config["username"],
                             password = config["password"],
                             host = config["host"],

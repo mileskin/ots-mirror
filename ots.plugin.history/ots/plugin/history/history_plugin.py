@@ -21,8 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 # Ignoring warnings because this is plugin
-# pylint: disable-msg=W0613
-# pylint: disable-msg=R0903
+# pylint: disable=W0613
+# pylint: disable=R0903
 
 """
 Plug-in for saving test package execution times to database
@@ -31,9 +31,10 @@ Plug-in for saving test package execution times to database
 import logging
 import time
 import datetime
+from django.db import IntegrityError
 
 from ots.common.framework.api import PublisherPluginBase
-from ots.common.dto.monitor import Monitor, MonitorType
+from ots.common.dto.monitor import MonitorType
 from ots.plugin.history.models import Package, History
 LOG = logging.getLogger(__name__)
 
@@ -90,7 +91,8 @@ class HistoryPlugin(PublisherPluginBase):
             start_time = time.time()
             
             self._test_packages[test_package] = (start_time, None)
-            LOG.debug("Test package started %s : %d" % (test_package, start_time))
+            LOG.debug("Test package started %s : %d" % \
+                      (test_package, start_time))
             
         elif monitors.type == MonitorType.TEST_PACKAGE_ENDED:
             test_package = monitors.description
@@ -99,7 +101,8 @@ class HistoryPlugin(PublisherPluginBase):
                 (start_time, duration) = self._test_packages.get(test_package)
                 duration = end_time - start_time
                 self._test_packages[test_package] = (start_time, duration)
-                LOG.debug("Test package ended %s : %d" % (test_package, end_time))
+                LOG.debug("Test package ended %s : %d" %\
+                          (test_package, end_time))
             else:
                 LOG.warning("Test package (%s) ended without starting?!" % 
                             test_package)

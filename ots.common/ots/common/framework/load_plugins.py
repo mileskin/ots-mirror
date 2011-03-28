@@ -20,6 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Functionality for loading OTS plugins """
+
 import logging
 
 from pkg_resources import Environment, working_set
@@ -37,10 +39,10 @@ def plugins_iter(plugin_dir, ep_name):
     @ytype : C{obj}
     @yparam : The loaded Entry Point 
     """
-    #TODO review this code
+
     working_set.add_entry(plugin_dir)
     pkg_env = Environment([plugin_dir])
-    plugins={}
+    
     for env_name in pkg_env:
         egg = pkg_env[env_name][0]
         LOG.debug("Activating egg: %s"%(egg))

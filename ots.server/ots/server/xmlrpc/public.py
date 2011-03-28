@@ -43,8 +43,7 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
 
     @type notify_list: C{list}
     @param notify_list: Email addresses for notifications
-
-    #FIXME legacy interface 
+ 
     @type options_dict: C{dict}
     @param options_dict: A dictionary of options
     """

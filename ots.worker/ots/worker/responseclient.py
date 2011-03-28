@@ -30,16 +30,12 @@ import warnings
 from amqplib import client_0_8 as amqp
 from socket import gethostname
 
-from ots.common.amqp.api import pack_message, unpack_message
+from ots.common.amqp.api import pack_message
 from ots.common.amqp.api import testrun_queue_name
-from ots.common.dto.api import Environment, Results, Packages, Monitor
+from ots.common.dto.api import Results, Packages, Monitor
 from ots.common.dto.ots_exception import OTSException
 
 LOG = logging.getLogger(__file__)
-
-warnings.warn("All AMQP traffic to be handled by TaskBroker",
-              DeprecationWarning)
-
 
 class ResponseClient(object):
     """
@@ -101,7 +97,7 @@ class ResponseClient(object):
 
     def set_error(self, error_info, error_code):
         """Calls OTSMessageIO to cerate testrun error message"""
-        #FIXME hopefully setting exceptions will come to an end in 0.9
+        
         exception = OTSException(error_code, error_info)
         self._send_message(pack_message(exception))
 

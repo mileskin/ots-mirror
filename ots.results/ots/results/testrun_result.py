@@ -24,8 +24,8 @@
 Possible Testrun outcomes
 """ 
 
-class TestrunResult:
-
+class TestrunResult(object):
+    """ OTS test results """
     NO_CASES = None
     PASS = True
     FAIL = False
@@ -38,5 +38,5 @@ def result_2_string(testrun_result):
     @rtype : C {str}
     @rparam : A string representation of the Result
     """
-    d = {None: "No Cases", True : "Pass", False : "Fail"}
-    return d[testrun_result]
+    ret_dict = {None: "No Cases", True : "Pass", False : "Fail"}
+    return ret_dict[testrun_result]

@@ -188,7 +188,7 @@ def parse_commandline_arguments():
 
     # parser returns options and args even though we only need options
     # Disabling pylint complain about unused variable
-    # pylint: disable-msg=W0612
+    # pylint: disable=W0612
     (options, args) = parser.parse_args()
         
     

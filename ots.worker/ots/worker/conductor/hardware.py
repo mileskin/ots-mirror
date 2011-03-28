@@ -252,9 +252,9 @@ class Hardware(TestTarget):
 
     def _md5_digest(self, content):
         """Read the file in given path and return its MD5 digest."""
-        m = hashlib.md5()
-        m.update(content)
-        return m.digest()
+        md5hash = hashlib.md5()
+        md5hash.update(content)
+        return md5hash.digest()
 
     def _delete_file(self, path):
         """Delete file. Do not raise exception if deleting fails."""

@@ -33,7 +33,6 @@ SWALLOW_EXCEPTIONS
 from __future__ import with_statement
 
 import os
-import traceback
 import logging
 
 from ots.common.framework.api import PublisherPluginBase

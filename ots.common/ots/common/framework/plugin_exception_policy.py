@@ -24,8 +24,7 @@
 Simple Context Manager 
 """
 
-import traceback
-import logging 
+import logging
 
 LOG = logging.getLogger(__name__)
 
@@ -40,9 +39,10 @@ class plugin_exception_policy:
     def __enter__(self):
         pass
 
-    def __exit__(self, exception_type, value, tb):
+    def __exit__(self, exception_type, value, traceback):
         if exception_type is not None:
-            LOG.warning("Error in plugin", exc_info=(exception_type, value, tb))
+            LOG.warning("Error in plugin", 
+                        exc_info = (exception_type, value, traceback))
             if self.swallow:
                 LOG.debug("Ignoring plugin error")
         return self.swallow 

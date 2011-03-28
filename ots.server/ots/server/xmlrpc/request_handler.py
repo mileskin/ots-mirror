@@ -28,7 +28,6 @@ import copy
 from multiprocessing import Queue
 
 from ots.server.hub.api import Hub
-from ots.server.hub.parameters_parser import string_2_dict
 from ots.server.xmlrpc.process_handler import ProcessHandler
 
 

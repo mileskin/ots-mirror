@@ -135,7 +135,6 @@ class OptionsFactory(object):
         """
         rtype : C{dict}
         rparam : The `device` as taken from the config file
-                 TODO: defaults to empty dict
         """
         default_dict = self._default_options_dict(self._sw_product)
         return default_dict.get(DEVICE, {})
@@ -145,7 +144,6 @@ class OptionsFactory(object):
         """
         rtype : C{dict}
         rparam : The `device` as taken from the core_options file
-                 TODO: defaults to empty dict
         """
         ret_val = {}
         device = self.core_options_dict.get(DEVICE, None)

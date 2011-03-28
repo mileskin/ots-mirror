@@ -20,6 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" OTS worker implementation """
+
 #This shouldn't be necessary 
 #http://bugs.python.org/setuptools/issue36
 

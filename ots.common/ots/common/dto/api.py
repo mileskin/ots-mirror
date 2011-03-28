@@ -20,6 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" DTO API functions """
+
+# API file, ignoring Unused import unpack_message 
+# pylint: disable=W0611
+
 from ots.common.dto.environment import Environment 
 from ots.common.dto.packages import Packages
 from ots.common.dto.results import Results

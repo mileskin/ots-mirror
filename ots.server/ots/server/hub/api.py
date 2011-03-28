@@ -20,6 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Hub API functionality """
+
+# API file, ignoring Unused import unpack_message 
+# pylint: disable=W0611
+
 from ots.server.hub.hub import Hub, result_to_string
 from ots.server.hub.application_id import get_application_id
 from ots.server.hub.options_factory import OptionsFactory

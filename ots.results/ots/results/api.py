@@ -24,6 +24,10 @@
 Import all ots.server.results modules through here
 """
 
+# API file, ignoring Unused import unpack_message 
+# pylint: disable=W0611
+
+
 from ots.results.parse_results import parse_results
 from ots.results.is_valid_run import is_valid_run, PackageException
 from ots.results.go_nogo_gauge import go_nogo_gauge

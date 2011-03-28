@@ -58,7 +58,7 @@ class Options(object):
     """
 
     def __init__(self, image, packages = None, plan = None, hosttest = None,
-                 device = {}, emmc = None, distribution_model = None,
+                 device = None, emmc = None, distribution_model = None,
                  flasher = None, testfilter = None, hw_testplans = None,
                  host_testplans = None, timeout = None):
         """
@@ -81,6 +81,8 @@ class Options(object):
             host_testplans = []
         self._host_testplans = host_testplans
         self._hosttest = hosttest
+        if device is None:
+            device = dict()
         self._device = device
         self._emmc = emmc
         self._distribution_model = distribution_model
@@ -142,7 +144,8 @@ class Options(object):
         """
         if len(self._host_testplans) > 0:
             if not isinstance(self._host_testplans[0], StringIO):
-                self._host_testplans = self._convert_testplans(self._host_testplans)
+                self._host_testplans = \
+                    self._convert_testplans(self._host_testplans)
         return self._host_testplans
 
     @property

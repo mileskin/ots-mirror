@@ -25,6 +25,9 @@
 This module includes simple reference implementation of SoftwareUpdater
 """
 
+# Example flasher, disable pylint warnings 
+# pylint: disable=W0613
+
 import logging
 
 class FlashFailed(Exception):

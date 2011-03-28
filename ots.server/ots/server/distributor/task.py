@@ -23,8 +23,8 @@
 
 #Disable spurious pylint warnings
 
-#pylint: disable-msg=E0611
-#pylint: disable-msg=F0401
+#pylint: disable=E0611
+#pylint: disable=F0401
 
 
 """
@@ -76,7 +76,7 @@ class Task(object):
         """
         self.command = command 
         self._timeout = timeout
-        self.xml_file = None
+        self.xml_file = xml_file
         self.task_id = uuid.uuid1().hex
 
     def transition(self, condition):

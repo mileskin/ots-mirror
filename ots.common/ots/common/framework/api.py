@@ -20,6 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Common OTS framework API functions """
+
+# API file, ignoring Unused import unpack_message 
+# pylint: disable=W0611
+
 from ots.common.framework.load_plugins import plugins_iter
 from ots.common.framework.publisher_plugin_base import PublisherPluginBase
 from ots.common.framework.plugin_exception_policy import plugin_exception_policy

@@ -257,11 +257,17 @@ class Executor(object):
 
 
     def _testrun_error_handler(self, errors, error_info, error_code):
+        """
+        Handle test run error and increase error count
+        """
         self._test_execution_error_handler(error_info, error_code)
         return errors + 1   
 
 
     def _include_testrun_log_file(self):
+        """
+        Create Testrun log
+        """
         # Include /var/log/testrun.log file
         try:
             os.stat(TESTRUN_LOG_FILE)
@@ -612,14 +618,15 @@ class Executor(object):
             if not self.testrun_timeout:
                 cmd = Command(cmdstr)
             else:                  
-                cmd = Command(cmdstr, soft_timeout=current_timeout, hard_timeout=\
-                              current_timeout + WAIT_SIGKILL)
+                cmd = Command(cmdstr, soft_timeout=current_timeout, 
+                              hard_timeout= current_timeout + WAIT_SIGKILL)
             try:
                 cmd.execute()
-            except (SoftTimeoutException, HardTimeoutException), e:
+            except (SoftTimeoutException, HardTimeoutException), error:
                 # testrunner-lite killed by timeout, we need to collect
                 # files, so we don't want to raise ConductorError
-                self.log.error("Testrunner timed out during execution of %s" % e)
+                self.log.error("Testrunner timed out during execution of %s" \
+                               % error)
                 ret_value = False
             except CommandFailed:
                 self._testrunner_lite_error_handler(cmdstr, cmd.return_value)
@@ -707,7 +714,8 @@ class Executor(object):
                 all_pkgs = self._scan_for_test_packages()
     
                 if not all_pkgs:
-                    raise ConductorError("No test packages found in image!", "1081")
+                    raise ConductorError("No test packages found in image!", 
+                                         "1081")
     
                 if requested:
                     missing = items_missing_from_all_items(requested, all_pkgs)

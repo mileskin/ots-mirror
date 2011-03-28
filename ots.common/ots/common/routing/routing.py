@@ -37,9 +37,6 @@ use a  Name Spaced approach.
 import logging
 LOGGER = logging.getLogger(__name__)
 
-import warnings
-warnings.warn("AMQP 0.8 implementation.")
-
 
 ####################################
 # RULES 
@@ -88,11 +85,13 @@ def _check_input(device_properties):
     extra values are found
     """
     if not VALID_PROPERTIES[0] in device_properties.keys():
-        raise Exception("Mandatory device property '%s' missing "% VALID_PROPERTIES[0])
+        raise Exception("Mandatory device property '%s' missing " % 
+                        VALID_PROPERTIES[0])
 
     if VALID_PROPERTIES[1] not in device_properties and\
            VALID_PROPERTIES[2] in device_properties:
-        raise Exception("Device property '%s' needs to be defined if '%s' is defined"% \
+        raise Exception("Device property '%s' needs to be defined " \
+                        "if '%s' is defined" % \
                         (VALID_PROPERTIES[1], VALID_PROPERTIES[2]))
 
 

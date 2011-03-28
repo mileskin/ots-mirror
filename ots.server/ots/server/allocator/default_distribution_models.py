@@ -26,7 +26,6 @@ Default test package distribution models
 
 from ots.server.allocator.conductor_command import conductor_command
 from ots.server.distributor.task import Task
-from StringIO import StringIO
 
 def perpackage_distribution(test_list, options):
     """Creates a separate task (conductor command) for each test package"""

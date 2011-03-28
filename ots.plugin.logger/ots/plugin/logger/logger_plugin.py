@@ -21,8 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 # Ignoring warnings because this is plugin
-# pylint: disable-msg=W0613
-# pylint: disable-msg=R0903
+# pylint: disable=W0613
+# pylint: disable=R0903
 
 """
 The LoggerPlugin is a Publisher 
@@ -34,6 +34,8 @@ import logging
 from socket import gethostname
 from ots.common.framework.publisher_plugin_base import PublisherPluginBase
 from ots.plugin.logger.localhandler import LocalHttpHandler
+from ots.plugin.logger.views import basic_testrun_viewer
+from django.core.urlresolvers import reverse
 
 class LoggerPlugin(PublisherPluginBase):
     """
@@ -79,9 +81,9 @@ class LoggerPlugin(PublisherPluginBase):
         @rparam: A Dictionary of uris for the published data 
                  for *this* Publisher in {name : uri} 
         """
-        # TODO: use django url mechanism to get the url instead of hardcoding
-        url = "http://%s/logger/view/testrun/%s/" % (gethostname(),
-                                                     self._testrun_uuid)
+
+        url = reverse(basic_testrun_viewer, args=[self._testrun_uuid])
+        url = "http://%s%s" % (gethostname(), url)
         return {"Testrun log": url}
 
 

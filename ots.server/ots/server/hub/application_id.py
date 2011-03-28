@@ -20,6 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Global name of the application """
+
 def get_application_id():
     """
     @rtype: C{str}

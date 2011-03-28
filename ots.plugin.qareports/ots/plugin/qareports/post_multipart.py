@@ -55,5 +55,8 @@ def encode_multipart_formdata(fields, files):
     return content_type, body
 
 def get_content_type(filename):
+    """
+    Get content type
+    """
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 

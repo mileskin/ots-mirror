@@ -20,6 +20,7 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" DTO messages for Monitoring """
 
 import time
 

@@ -20,10 +20,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" OTS distribution model : optimized """
+
 from ots.server.allocator.conductor_command import conductor_command
 from ots.plugin.history.models import Package, History
+from ots.plugin.history.schedule_algo import group_packages
 from ots.server.distributor.task import Task
-from schedule_algo import group_packages
 import logging
 import string
 

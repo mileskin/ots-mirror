@@ -23,6 +23,7 @@
 """
 The Signal for a DTO
 """
+
 import sys
 from ots.common.dto.monitor import Monitor
 ###################
@@ -34,7 +35,6 @@ from ots.common.dto.monitor import Monitor
 
 try:
     from django.conf import settings
-    settings.DEBUG
 except ImportError:
     import types
     class SettingsStub(object):

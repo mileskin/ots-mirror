@@ -20,8 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Common OTS functionality """
+
 #This shouldn't be necessary 
 #http://bugs.python.org/setuptools/issue36
+
 
 import warnings
 warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")

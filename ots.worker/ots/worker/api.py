@@ -25,7 +25,7 @@ The ots.worker API
 """
 
 # Disabling "unused import" warning because this is an API file.
-# pylint: disable-msg=W0611
+# pylint: disable=W0611
 
 from ots.worker.worker import worker_factory 
 from ots.worker.responseclient import ResponseClient

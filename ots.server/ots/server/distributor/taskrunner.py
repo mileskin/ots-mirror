@@ -27,20 +27,19 @@ Distribution of Tasks to Workers
 
 #Disable spurious pylint warnings
 
-#pylint: disable-msg=E0611
-#pylint: disable-msg=F0401
+#pylint: disable=E0611
+#pylint: disable=F0401
 
 
 import logging
 import sys
-import pickle
 import socket
 import errno
 
 from amqplib import client_0_8 as amqp
 
-from ots.common.dto.api import TaskCondition
-from ots.common.dto.api import CommandMessage, StateChangeMessage, Monitor, MonitorType
+from ots.common.dto.api import CommandMessage, StateChangeMessage, Monitor
+from ots.common.dto.api import MonitorType
 from ots.common.amqp.api import pack_message, unpack_message
 from ots.common.amqp.api import testrun_queue_name
 
@@ -228,7 +227,7 @@ class TaskRunner(object):
         """
         # Disabling "Attribute defined outside __init__" because this method is
         # called from the __init__
-        #pylint: disable-msg=W0201
+        #pylint: disable=W0201
 
         self._testrun_queue = testrun_queue_name(self._testrun_id)
         self._connection = amqp.Connection(host = self._host, 
@@ -269,7 +268,9 @@ class TaskRunner(object):
             LOGGER.debug(log_msg)
             
             #Send task in queue event with task id
-            send_monitor_event(MonitorType.TASK_INQUEUE ,__name__, task.task_id)
+            send_monitor_event(MonitorType.TASK_INQUEUE,
+                               __name__,
+                               task.task_id)
             
             cmd_msg = CommandMessage(task.command, 
                                      self._testrun_queue,
@@ -290,10 +291,10 @@ class TaskRunner(object):
         while 1:
             try:
                 self._channel.wait()
-            except socket.error, e:
+            except socket.error, error:
                 # interrupted system call exception need to be ignored so that
                 # testruns don't fail on apache graceful restart
-                if e[0] == errno.EINTR:
+                if error[0] == errno.EINTR:
                     LOGGER.debug("Interrupted system call. Ignoring...")
                 else:
                     raise
@@ -357,7 +358,7 @@ class TaskRunner(object):
             self._wait_for_all_tasks()
             LOGGER.info("All Tasks completed")
         finally:
-            send_monitor_event(MonitorType.TESTRUN_ENDED ,__name__)
+            send_monitor_event(MonitorType.TESTRUN_ENDED, __name__)
             LOGGER.debug("stopping...")
             self.timeout_handler.stop()
             self._close()

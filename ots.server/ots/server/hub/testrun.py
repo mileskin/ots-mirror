@@ -64,7 +64,7 @@ class Testrun(object):
         """
        
         self._dto_handler = DTOHandler()
-        #FIXME. Callable 
+        #
         self.run_test = None
         #
         self.is_hw_enabled = is_hw_enabled
@@ -73,6 +73,9 @@ class Testrun(object):
         self.results = []
 
     def _results_xmls_iter(self):
+        """
+        Iterates all results xmls
+        """
         for result in self.results:
             if result.is_result_xml:
                 yield result.data
@@ -129,7 +132,8 @@ class Testrun(object):
         if self.run_test is not None:
             self.run_test()
 
-            # At this point distributor has already finished so it's safe to re-raise the exceptions from worker side
+            # At this point distributor has already finished so it's safe to
+            # re-raise the exceptions from worker side
             if self.exceptions:
                 raise self.exceptions[0]
 

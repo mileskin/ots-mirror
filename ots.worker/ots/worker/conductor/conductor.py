@@ -254,8 +254,6 @@ def _read_configuration_files(config_file):
     files.
     """
 
-    log = logging.getLogger("conductor")
-
     if not (config_file and os.path.exists(config_file)):
         config_file = DEFAULT_CONFIG
 
@@ -278,8 +276,8 @@ def _read_optional_config_files(custom_folder, config_dict):
 
     try:
         contents = os.listdir(custom_folder)
-    except (OSError, IOError), e:
-        log.warning("Error listing directory %s: %s" % (custom_folder, e))
+    except (OSError, IOError), error:
+        log.warning("Error listing directory %s: %s" % (custom_folder, error))
     else:
         for custom_config_file in contents:
             if len(custom_config_file) > len(OPT_CONF_SUFFIX) \

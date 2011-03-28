@@ -13,7 +13,7 @@ profile=no
 # Add <file or directory> to the black list. It should be a base name, not a
 # path. You may set this option multiple times.
 ignore=.git
-ignore=tests.py, models.py, admin.py, setup.py, urls.py, tests
+ignore=tests.py, models.py, admin.py, setup.py, urls.py, tests, test.py, manage.py, settings.py, views.py
 
 # Pickle collected data for later comparisons.
 persistent=yes
