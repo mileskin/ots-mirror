@@ -37,10 +37,6 @@ from ots.common.dto.ots_exception import OTSException
 
 LOG = logging.getLogger(__file__)
 
-warnings.warn("All AMQP traffic to be handled by TaskBroker",
-              DeprecationWarning)
-
-
 class ResponseClient(object):
     """
     Client that sends response messages back to server over amqp

@@ -20,6 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Schedule algorithm """
+
 def group_packages(packages, max_runtime=60, max_groups=1000):
     """
     packages: dict of (packages: estimated runtime)
@@ -40,12 +42,12 @@ def group_packages(packages, max_runtime=60, max_groups=1000):
     # if not all tasks fit under runtime group limit
     i = 0
     while sorted_tasks:
-        next = (i + 1) % len(tgroups)
+        next_task = (i + 1) % len(tgroups)
         # find a group which runtime is shorter than next groups runtime
-        while _group_runtime(tgroups[i]) <= _group_runtime(tgroups[next]) and \
+        while _group_runtime(tgroups[i]) <= _group_runtime(tgroups[next_task]) and \
                 sorted_tasks:
             tgroups[i].append(sorted_tasks.pop())
-        i = next
+        i = next_task
 
     # flatten groups
     groups = [[t[0] for t in g] for g in tgroups]
@@ -56,10 +58,16 @@ def group_packages(packages, max_runtime=60, max_groups=1000):
     
 
 def _group_runtime(group):
+    """
+    Total runtime for group
+    """
     return sum(t[1] for t in group)
 
 
 def _find_task(sorted_tasks, max_time):
+    """
+    Find task
+    """
     matching_tasks = filter(lambda t: t[1] <= max_time, sorted_tasks)
     if matching_tasks:
         # filter() on sorted list returns sorted
@@ -89,6 +97,9 @@ def _create_group(sorted_tasks, max_runtime):
 
 
 def _sort_tasks(tasks):
+    """
+    Sort tasks
+    """
     estimated = [(t, tasks[t]) for t in tasks if tasks[t] != None]
     not_estimated = [t for t in tasks if tasks[t] == None]
     estimated.sort(lambda t1, t2: cmp(t1[1], t2[1]))

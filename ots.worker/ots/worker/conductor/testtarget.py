@@ -23,6 +23,9 @@
 
 """General test target"""
 
+# Example test target, disable pylint warnings 
+# pylint: disable=W0613
+
 import logging
 
 class TestTarget(object):

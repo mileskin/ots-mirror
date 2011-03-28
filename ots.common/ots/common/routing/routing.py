@@ -37,9 +37,6 @@ use a  Name Spaced approach.
 import logging
 LOGGER = logging.getLogger(__name__)
 
-import warnings
-warnings.warn("AMQP 0.8 implementation.")
-
 
 ####################################
 # RULES 

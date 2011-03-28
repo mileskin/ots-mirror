@@ -37,7 +37,7 @@ import logging.handlers
 
 import ConfigParser
 
-import ots.worker
+import os
 
 from ots.worker.amqp_log_handler import AMQPLogHandler
 from ots.worker.connection import Connection

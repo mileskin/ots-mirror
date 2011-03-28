@@ -33,7 +33,7 @@ import signal
 #Disable spurious pylint warnings
 
 #pylint: disable=E0611
-#pylint: disable-msg=F0401
+#pylint: disable=F0401
 
 
 from ots.server.distributor.exceptions import OtsExecutionTimeoutError
@@ -84,7 +84,7 @@ class Timeout(object):
             # Disabling "unused argument" warning. Arguments are defined
             # by the signal module
             #
-            #pylint: disable-msg=W0613
+            #pylint: disable=W0613
 
             raise OtsQueueTimeoutError(self.queue_timeout)
 
@@ -102,7 +102,7 @@ class Timeout(object):
             # Disabling "unused argument" warning. Arguments are defined
             # by the signal module
             #
-            #pylint: disable-msg=W0613
+            #pylint: disable=W0613
 
             raise OtsExecutionTimeoutError
 

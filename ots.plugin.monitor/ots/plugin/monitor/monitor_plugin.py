@@ -21,8 +21,8 @@
 # ***** END LICENCE BLOCK *****
 
 # Ignoring warnings because this is plugin
-# pylint: disable-msg=W0613
-# pylint: disable-msg=R0903
+# pylint: disable=W0613
+# pylint: disable=R0903
 
 """
 The Monitor Plugin for OTS
@@ -30,7 +30,7 @@ The Monitor Plugin for OTS
 
 import logging
 
-from ots.common.dto.monitor import Monitor, MonitorType
+from ots.common.dto.monitor import MonitorType
 from ots.common.framework.api import PublisherPluginBase
 from ots.plugin.monitor.models import Testrun, Event
 
