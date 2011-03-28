@@ -38,10 +38,10 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'ots'             # Or path to database file if using sqlite3.
-DATABASE_USER = 'ots'             # Not used with sqlite3.
-DATABASE_PASSWORD = 'otsrules'         # Not used with sqlite3.
+DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = '/opt/ots/ots.sqlite'             # Or path to database file if using sqlite3.
+DATABASE_USER = ''             # Not used with sqlite3.
+DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
@@ -90,59 +90,41 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'ots.django.urls'
-
-STATIC = ''
-
-###############################################
-# Switch for serving js content Dev/Production 
-###############################################
-
-if False:
-    import os
-    import ots.plugin.monitor
-    STATIC = str(os.path.join(os.path.dirname(ots.plugin.monitor.__file__), 
-                            'pyjs/output').replace('\\','/'))
-    print "FIXME: Serving statics in dev mode from:" + STATIC
-
-###############################################
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '/var/www/',
-    STATIC
 )
 
-INSTALLED_APPS = (
-#    'django.contrib.auth',
+def _append_installed_app(applst,app):
+    try:
+        mod = __import__(app)
+    except ImportError:
+        return
+    applst.append(app)
+
+INSTALLED_APPSlst = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-#    'django.contrib.messages',
-#    'django.contrib.admin',
 
     # Django_xmlrpc for serving the xmlrpc interface through django
-    'django_xmlrpc',
+    'django_xmlrpc'
+]
 
-    # OTS components:
-    'ots.plugin.logger',
-    'ots.plugin.monitor',
-    'ots.plugin.history'
-)
+#add installed ots plugins (django)
+_append_installed_app(INSTALLED_APPSlst,'ots.plugin.logger')
+_append_installed_app(INSTALLED_APPSlst,'ots.plugin.monitor')
+_append_installed_app(INSTALLED_APPSlst,'ots.plugin.history')
+
+INSTALLED_APPS = tuple(INSTALLED_APPSlst)
 
 XMLRPC_METHODS = (
     # Methods available in xmlrpc interface (<method path>, <xml-rpc name>,)
     ('ots.server.xmlrpc.public.request_sync', 'request_sync'),
-    )
-
-if DEBUG:
-    import logging
-    logging.basicConfig(
-        level = logging.DEBUG,
-        format = '%(asctime)s %(levelname)s %(message)s',
     )
