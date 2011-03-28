@@ -107,3 +107,32 @@ def logger_url(runid):
         url = reverse(basic_testrun_viewer,args=[runid])
     finally:
         return url
+
+@register.filter
+def format_orderby(current, order):
+    if current is None or current == '':
+        return order
+    base = current
+    if current[0] == '-':
+        base = current[1:]
+
+    if base == order:
+        if current[0]=='-':
+            return order
+        else:
+            return '-%s'%order
+    return order
+
+@register.filter
+def order_dir(current, order):
+    if current is None or current == '':
+        return ''
+    base = current
+    if current[0] == '-':
+        base = current[1:]
+    if base == order:
+        if current[0]=='-':
+            return 'desc'
+        else:
+            return 'asc'
+    return ''

@@ -28,6 +28,9 @@
 import datetime
 import time
 import logging 
+import csv
+
+from xml.dom.minidom import getDOMImplementation
 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -45,6 +48,7 @@ from ots.plugin.monitor.models import Event
 from ots.plugin.monitor.jsonrpc_service import JSONRPCService, jsonremote 
 from ots.plugin.monitor.event_timedeltas import EventTimeDeltas, event_sequence
 from ots.plugin.monitor.models import Testrun, Event
+from ots.plugin.monitor.templatetags.monitor_template_tags import format_datetime,calculate_delta,strip_email
 
 
 ROW_AMOUNT_IN_PAGE = 50
@@ -72,6 +76,141 @@ class Stats(object):
     def __init__(self, name, delta):
         self.name = name
         self.delta = delta
+
+class table_writer(object):
+    def __init__(self,filename=None,delimiter='|'):
+        self.filename = filename
+        self.delimiter = delimiter
+        self.response = None
+        self.writer = None
+        self.row = None
+        self.item = None
+        self.top = None
+    def create_filename(self,filename='',extension=''):
+        if filename == None or filename == '':
+            filename = 'ots_table'
+        if extension == '':
+            return filename
+        dot = filename.find('.')
+        if dot != -1:
+            if filename[dot+1:] == extension:
+                return filename
+        return "%s.%s"%(filename,extension)
+            
+            
+    def create_header(self,row):
+        pass
+    def new_row(self,name='row'):
+        pass
+    def new_item(self,title=''):
+        pass
+    def add_data(self,data):
+        pass
+    def finalize_row(self):
+        pass
+    def finalize(self):
+        return self.response
+
+class csv_table_writer(table_writer):
+    def __init__(self,filename=None,delimiter='|'):
+        self.filename = self.create_filename(filename,'csv')
+        self.delimiter = delimiter
+        self.response = HttpResponse(mimetype='text/csv')
+        self.response['Content-Disposition'] = 'attachment; filename=%s'%self.filename
+        self.writer = csv.writer(self.response,delimiter = self.delimiter)
+    def create_header(self,row):
+        if len(row):
+            self.writer.writerow(row)
+    def new_row(self,name='row'):
+        self.row = []
+    def add_data(self,data):
+        self.row.append(data)
+    def finalize_row(self):
+        self.writer.writerow(self.row)
+
+class xml_table_writer(table_writer):
+    def __init__(self,filename=None,delimiter='|'):
+        self.filename = self.create_filename(filename,'xml')
+        self.response = HttpResponse(mimetype='text/xml')
+        self.response['Content-Disposition'] = 'attachment; filename=%s'%self.filename
+        impl = getDOMImplementation()
+        self.writer = impl.createDocument(None,self.filename,None)
+        self.top = self.writer.documentElement
+    def new_row(self,name='row'):
+        self.row = self.writer.createElement(name)
+    def new_item(self,title=''):
+        self.item = self.writer.createElement(title)
+    def add_data(self,data):
+        if data != '':
+            node = self.writer.createTextNode(str(data))
+            self.item.appendChild(node)
+            self.row.appendChild(self.item)
+    def finalize_row(self):
+        self.top.appendChild(self.row)
+    def finalize(self):
+        self.writer.writexml(self.response)
+        return self.response
+
+def export_table(tabledata,rowdata,titledata=[],type='csv',filename=None,csv_delimiter='|',data_unit_name='row'):
+    """export list of items in given format
+
+        @type tabledata: C{list} or C{QuerySet}
+        @param tabledata: list of items to be exported
+
+        @type rowdata: C{list}
+        @param rowdata: list of item variables to be exported and how to handle them
+        
+        @type titledata: C{list}
+        @param titledata: list of 'column' names to be used otherwise rowdata variable names is used
+        
+        @type type: C{str}
+        @param type: type of export writer to be used (csv/xml)
+        
+        @type filename: C{str}
+        @param filename: filename for the exported data
+        
+        @type csv_delimiter: C{str}
+        @param csv_delimiter: delimiter to be used in csv format
+        
+        @type data_unit_name: C{str}
+        @param data_unit_name: name of row item to be used in xml format
+
+        @rtype: L{HttpResponse}
+        @return: Returns items on table in attacment and formated to given format
+    
+    """
+
+    if type == 'csv':
+        writer = csv_table_writer(filename,csv_delimiter)
+    else:
+        writer = xml_table_writer(filename)
+    writer.create_header(titledata)
+    for data in tabledata:
+        writer.new_row(data_unit_name)
+        for i, item in enumerate(rowdata):
+            func_end = item.find('|')
+            if func_end == -1:
+                attr_name = item
+                func_name = ''
+            else:
+                attr_name = item[func_end+1:]
+                func_name = item[:func_end]
+            if len(titledata)>=i:
+                title = titledata[i]
+            else:
+                title = attr_name
+            if hasattr(data,attr_name):
+                writer.new_item(title)
+                attr = getattr(data,attr_name)
+                if func_name in globals():
+                    func = globals()[func_name]
+                    writer.add_data(str(func(attr)))
+                    continue
+                writer.add_data(attr)
+                continue
+            writer.add_data('')
+        writer.finalize_row()
+    return writer.finalize()
 
 def _paginate(request,list_items):
     """paginates list of items
@@ -281,7 +420,7 @@ def _calculate_testrun_stats(testruns):
     failed_count = testruns.filter(state = 3).count()
     error_count = testruns.filter(state = 4).count()
     finished_count = passed_count + failed_count + error_count
-    
+
     retDict["runs"] = total_count
     retDict["inqueue"] = inqueue_count
     retDict["ongoing"] = ongoing_count
@@ -318,13 +457,17 @@ def main_page(request):
     testruns = []
     device_groups = Testrun.objects.values_list('device_group',
                                                 flat=True).distinct()
-
+    
+    export = request.GET.get("export", "")
+    orderby_filter = request.GET.get("orderby", "")
+    context_dict["orderby"] = orderby_filter
+    
     for device_group in device_groups:
         tr_view = TestrunView()
         dg_data = Testrun.objects.filter(device_group=device_group,
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
-    
+
         tr_view.device_group = device_group
         tr_view.top_requestor,tr_view.top_request_count = _top_requestor(dg_data)
         testrun_stats = _calculate_testrun_stats(dg_data)
@@ -341,8 +484,22 @@ def main_page(request):
         
         testruns.append(tr_view)
     
+    if orderby_filter != None and orderby_filter != '':
+        reverse=False
+        if orderby_filter[0] == '-':
+            reverse=True
+            orderby_filter = orderby_filter[1:]
+        if hasattr(TestrunView(),orderby_filter):
+            testruns.sort(key=lambda testrunview: getattr(testrunview,orderby_filter),reverse=reverse)
+        
+    
     context_dict['testruns'] = testruns
+    if export != '':
+        header_row = ['Device group','Top Requestor','Top Requestor runs','Runs','Finished','Waiting','Ongoing','Error','Error Rate']
+        data_row = ['device_group','strip_email|top_requestor','top_request_count','runs','finished','waiting','ongoing','errors','error_ratio']
+        return export_table(testruns,data_row,header_row,type=export,data_unit_name='testrun',filename='ots_mainpage')
     template = loader.get_template('monitor/index.html')
+    
     return HttpResponse(template.render(Context(context_dict)))
 
 
@@ -367,10 +524,13 @@ def view_testrun_list(request, device_group = None):
     state_filter = request.GET.get("state", "")
     requestor_filter = request.GET.get("requestor", "")
     device_group_filter = request.GET.get("group", "")
+    orderby_filter = request.GET.get("orderby", "")
+    export = request.GET.get("export", "")
     
     context_dict["state"] = state_filter
     context_dict["group"] = device_group_filter
     context_dict["requestor"] = requestor_filter
+    context_dict["orderby"] = orderby_filter
     
     if state_filter != "":
         state_filter = "%s" % state_filter
@@ -383,12 +543,19 @@ def view_testrun_list(request, device_group = None):
     if requestor_filter != "":
         requestor_filter = "%s" % requestor_filter
         testruns = testruns.filter(requestor = requestor_filter)
-        
+    
     if device_group_filter != "":
         device_group_filter = "%s" % device_group_filter
         testruns = testruns.filter(device_group = device_group_filter)
     
-    testruns = testruns.order_by("state", "-start_time")
+    if orderby_filter != "":
+        orderby_filter = "%s" % orderby_filter
+        if orderby_filter == "start_time" or orderby_filter == "-start_time":
+            testruns = testruns.order_by(orderby_filter)
+        else:
+            testruns = testruns.order_by(orderby_filter, "-start_time")
+    else:
+        testruns = testruns.order_by("state", "-start_time")
     
     testrun_stats = _calculate_testrun_stats(testruns)
     
@@ -403,6 +570,10 @@ def view_testrun_list(request, device_group = None):
     context_dict['error_count'] = "%d (%.1f %%)" % (testrun_stats.get("error"), testrun_stats.get("error_ration"))
     
     template = loader.get_template('monitor/testrun_list.html')
+    if export != '':
+        header_row = ['State','Run ID','Start time','Active time','Device group','Requestor','Workers']
+        data_row = ['state','testrun_id','format_datetime|start_time','calculate_delta|start_time','device_group','strip_email|requestor','host_worker_instances']
+        return export_table(testruns,data_row,header_row,type=export,data_unit_name='testrun',filename='testrun_list')
     return HttpResponse(template.render(Context(context_dict)))
 
 def view_testrun_details(request, testrun_id):
@@ -440,12 +611,6 @@ def view_group_details(request, devicegroup):
 
         @type devicegroup: L{string}
         @param devicegroup: name of device group
-        
-        @type state: L{string}
-        @param state: filter test runs with state
-        
-        @type requestor: L{string}
-        @param requestor: filter test runs with requestor
     """
     context_dict = {}
     
@@ -458,9 +623,12 @@ def view_group_details(request, devicegroup):
 
     state_filter = request.GET.get("state", "")
     requestor_filter = request.GET.get("requestor", "")
+    orderby_filter = request.GET.get("orderby", "")
+    export = request.GET.get("export", "")
     
     context_dict["state"] = state_filter
     context_dict["requestor"] = requestor_filter
+    context_dict["orderby"] = orderby_filter
     
     if state_filter != "":
         state_filter = "%s" % state_filter
@@ -473,11 +641,21 @@ def view_group_details(request, devicegroup):
     if requestor_filter != "":
         requestor_filter = "%s" % requestor_filter
         testruns = testruns.filter(requestor = requestor_filter)
+    
+    if orderby_filter != "":
+        orderby_filter = "%s" % orderby_filter
+        if orderby_filter == "start_time" or orderby_filter == "-start_time":
+            testruns = testruns.order_by(orderby_filter)
+        else:
+            testruns = testruns.order_by(orderby_filter, '-start_time')
+    else:
+        testruns = testruns.order_by('state', '-start_time')
 
     testrun_stats = _calculate_testrun_stats(testruns)
-
-    context_dict['testruns'] = _paginate(request, testruns.order_by('state', '-start_time'))
     runs_finished = testrun_stats.get("finished")
+
+    context_dict['testruns'] = _paginate(request, testruns)
+
     context_dict['devicegroup'] = devicegroup
     context_dict['runcount'] = testrun_stats.get("runs")
     context_dict['finishedcount'] = runs_finished
@@ -522,6 +700,10 @@ def view_group_details(request, devicegroup):
     context_dict['fail_rate'] = "%.1f" % testrun_stats.get("failed_ration")
         
     template = loader.get_template('monitor/group_details_view.html')
+    if export != '':
+        header_row = ['State','Id','Start time','Active time','Requestor','Req Id','Error','Workers']
+        data_row = ['state','testrun_id','format_datetime|start_time','calculate_delta|start_time','requestor','request_id','error','host_worker_instances']
+        return export_table(testruns,data_row,header_row,type=export,data_unit_name='testrun',filename='group_details')
     return HttpResponse(template.render(Context(context_dict)))
 
 def view_requestor_details(request, requestor):
@@ -543,9 +725,40 @@ def view_requestor_details(request, requestor):
     testruns = Testrun.objects.filter(requestor=requestor,
                                       start_time__gte = context_dict["datefilter_start"],
                                       start_time__lte = context_dict["datefilter_end"])
-
-    testruns = testruns.order_by("state", "-start_time")
+    
+    context_dict['groups'] = testruns.values_list('device_group',flat=True).distinct()
     testrun_stats = _calculate_testrun_stats(testruns)
+
+    state_filter = request.GET.get("state", "")
+    orderby_filter = request.GET.get("orderby", "")
+    device_group_filter = request.GET.get("group", "")
+    export = request.GET.get("export", "")
+    
+    context_dict["state"] = state_filter
+    context_dict["group"] = device_group_filter
+    context_dict["orderby"] = orderby_filter
+    
+    if state_filter != "":
+        state_filter = "%s" % state_filter
+        if state_filter == "finished":
+            testruns = testruns.filter(state__in = [2,3,4])
+        else:
+            state_filter = "%d" % int(state_filter)
+            testruns = testruns.filter(state__in = state_filter)
+    
+    if device_group_filter != "":
+        device_group_filter = "%s" % device_group_filter
+        testruns = testruns.filter(device_group = device_group_filter)
+        
+    if orderby_filter != "":
+        orderby_filter = "%s" % orderby_filter
+        if orderby_filter == "start_time" or orderby_filter == "-start_time":
+            testruns = testruns.order_by(orderby_filter)
+        else:
+            testruns = testruns.order_by(orderby_filter, '-start_time')
+    else:
+        testruns = testruns.order_by('state', '-start_time')
+
     
     context_dict['requestor'] = requestor
     context_dict['testruns'] = _paginate(request, testruns)
@@ -558,6 +771,10 @@ def view_requestor_details(request, requestor):
     context_dict['error_count'] = "%d (%.1f %%)" % (testrun_stats.get("error"), testrun_stats.get("error_ration"))
     
     template = loader.get_template('monitor/requestor_details.html')
+    if export != '':
+        header_row = ['State','Run ID','Start time','Active time','Device group','Workers']
+        data_row = ['state','testrun_id','format_datetime|start_time','calculate_delta|start_time','device_group','host_worker_instances']
+        return export_table(testruns,data_row,header_row,type=export,data_unit_name='testrun',filename='requestor_details')
     return HttpResponse(template.render(Context(context_dict)))
 
 

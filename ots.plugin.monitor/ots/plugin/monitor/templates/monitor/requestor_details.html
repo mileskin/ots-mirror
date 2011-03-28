@@ -28,27 +28,38 @@
 {% block content %}
 
 <table id="testrun_details">
-<tr><td class="title">Total:</td><td>{{total_count}}</td>
-<tr><td class="title">In queue:</td><td class="state_0">{{inqueue_count}}</td>
-<tr><td class="title">Ongoing:</td><td class="state_1">{{ongoing_count}}</td>
-<tr><td class="title">Passed:</td><td class="state_2">{{passed_count}}</td>
-<tr><td class="title">Failed:</td><td class="state_3">{{failed_count}}</td>
-<tr><td class="title">Error:</td><td class="state_4">{{error_count}}</td>
+<tr><td class="title">Total:</td><td><a href="?state=&group=&orderby=">{{total_count}}</a></td>
+<tr><td class="title">In queue:</td><td class="state_0"><a href="?state=0&group={{group}}&orderby={{orderby}}">{{inqueue_count}}</a></td>
+<tr><td class="title">Ongoing:</td><td class="state_1"><a href="?state=1&group={{group}}&orderby={{orderby}}">{{ongoing_count}}</a></td>
+<tr><td class="title">Passed:</td><td class="state_2"><span class="passed"><a href="?state=2&group={{group}}&orderby={{orderby}}">{{passed_count}}</a></span></td>
+<tr><td class="title">Failed:</td><td class="state_3"><span class="failed"><a href="?state=3&group={{group}}&orderby={{orderby}}">{{failed_count}}</a></span></td>
+<tr><td class="title">Error:</td><td class="state_4"><span class="error"><a href="?state=4&group={{group}}&orderby={{orderby}}">{{error_count}}</a></span></td>
+<tr><td class="title">Groups:</td>
+<td>
+{% for group in groups %}
+    <a href="{% url ots.plugin.monitor.views.view_group_details devicegroup=group %}">{{group}}</a><br>
+{% endfor %}
+</td>
 </table>
 
 </p>
-
+Export table:
+<a href="?state={{state}}&group={{group}}&orderby={{orderby}}&export=csv">csv</a> /
+<a href="?state={{state}}&group={{group}}&orderby={{orderby}}&export=xml">xml</a>
 <table id="testrun_list" >
     <thead>
         <tr>
             <th style="width:1%">S</th>
             <th style="width:1%">L</th>
-            <th style="width:10%">Run ID</th>
-            <th style="width:15%">Start time</th>
-            <th style="width:15%">Active time</th>
-            <th style="width:20%">Device group</th>
-            <th style="width:20%">Requestor</th>
-            <th style="width:15%">Workers</th>
+            <th style="width:10%"><a href="?state={{state}}&group={{group}}&orderby={{ orderby|format_orderby:'testrun_id' }}">Run ID
+            <img class="order" src="/media/{{ orderby|order_dir:'testrun_id' }}.png" alt="{{ orderby|order_dir:'testrun_id' }}" border="0"/></a></th>
+            <th style="width:15%"><a href="?state={{state}}&group={{group}}&orderby={{ orderby|format_orderby:'start_time' }}">Start time
+            <img class="order" src="/media/{{ orderby|order_dir:'start_time' }}.png" alt="{{ orderby|order_dir:'start_time' }}" border="0"/></a></th>
+            <th style="width:15%"><a href="?state={{state}}&group={{group}}&orderby={{ orderby|format_orderby:'start_time' }}">Active time</a></th>
+            <th style="width:20%"><a href="?state={{state}}&group={{group}}&orderby={{ orderby|format_orderby:'device_group' }}">Device group
+            <img class="order" src="/media/{{ orderby|order_dir:'device_group' }}.png" alt="{{ orderby|order_dir:'device_group' }}" border="0"/></a></th>
+            <th style="width:25%"><a href="?state={{state}}&group={{group}}&orderby={{ orderby|format_orderby:'host_worker_instances' }}">Workers
+            <img class="order" src="/media/{{ orderby|order_dir:'host_worker_instances' }}.png" alt="{{ orderby|order_dir:'host_worker_instances' }}" border="0"/></a></th>
         </tr>
     </thead>
     <tbody>
@@ -59,8 +70,7 @@
            <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_details testrun_id=testrun.testrun_id %}">{{ testrun.testrun_id }}</a></td>
            <td>{{ testrun.start_time|format_datetime }}</td>
            <td>{{ testrun.start_time|calculate_delta }}</td>
-           <td><a class="date" href="{% url ots.plugin.monitor.views.view_testrun_list device_group=testrun.device_group %}">{{ testrun.device_group }}</a></td>
-           <td><a href="{% url ots.plugin.monitor.views.view_requestor_details requestor=testrun.requestor %}">{{ testrun.requestor|strip_email }}</a></td>
+           <td><a class="date" href="?state={{state}}&group={{testrun.device_group}}&orderby={{orderby}}">{{ testrun.device_group }}</a></td>
            <td>{{ testrun.host_worker_instances }}</td>
         </tr>
         {% endfor %}
