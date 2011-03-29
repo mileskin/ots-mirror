@@ -104,6 +104,8 @@ class Options(object):
         if hosttest is None:
             hosttest = []
         self._hosttest = hosttest
+        if chroottest is None:
+            chroottest = []
         self._chroottest = chroottest
         self._rootstrap = rootstrap
         self._device = device
