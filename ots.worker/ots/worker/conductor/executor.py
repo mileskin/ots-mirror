@@ -914,10 +914,10 @@ class Executor(object):
                                     % self.testrun.filter_string
 
         remote_option = ""
-        if not self.testrun.is_host_based:
-            remote_option = TESTRUNNER_SSH_OPTION
-        elif self.testrun.is_chrooted:
+        if self.testrun.is_chrooted:
             remote_option = TESTRUNNER_CHROOT_OPTION % self.chroot.path
+        elif not self.testrun.is_host_based:
+            remote_option = TESTRUNNER_SSH_OPTION
 
         workdir = os.path.expanduser(TESTRUNNER_WORKDIR)
 
