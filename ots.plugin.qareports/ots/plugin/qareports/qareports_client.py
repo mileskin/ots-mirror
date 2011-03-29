@@ -26,7 +26,7 @@ import logging
 import configobj
 import os
 import json
-from urllib2 import HTTPError
+import urllib2
 from ots.plugin.qareports.post_multipart import post_multipart
 
 DEFAULT_CONFIG_FILE = "/etc/ots_plugin_qareports.conf"
