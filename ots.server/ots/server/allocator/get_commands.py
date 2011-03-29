@@ -23,11 +23,13 @@
 """
 A module for generating conductor commands based on testrun options
 """
-from ots.server.allocator.default_distribution_models\
+from ots.server.allocator.default_distribution_models \
     import single_task_distribution, perpackage_distribution
+
 
 def get_commands(distribution_model,
                  image_url,
+                 rootstrap,
                  test_list,
                  emmc_flash_parameter,
                  testrun_id,
@@ -36,7 +38,6 @@ def get_commands(distribution_model,
                  timeout,
                  flasher="",
                  custom_distribution_model = None,
-                 rootstrap = "",
                  extended_options = {}):
     """Returns a list of conductor commands based on the options"""
     options = dict()
@@ -59,7 +60,6 @@ def get_commands(distribution_model,
     # Try custom distribution model first
     if custom_distribution_model:
         return custom_distribution_model(test_list, options)
-
 
     # Or use defaults
     if distribution_model == "perpackage":
