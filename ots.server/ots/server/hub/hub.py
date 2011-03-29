@@ -139,8 +139,8 @@ class Hub(object):
         self._initialize_logger()
 
         LOG.debug(self._options_factory.all_options_dict)
-        self._publishers = Publishers(self.request_id, 
-                                      self.testrun_uuid, 
+        self._publishers = Publishers(self.request_id,
+                                      self.testrun_uuid,
                                       self.sw_product,
                                       **self._options_factory.all_options_dict)
         sandbox_is_on = False
@@ -270,8 +270,7 @@ class Hub(object):
     @property 
     def taskrunner(self):
         """
-        A Taskrunner loaded with Tasks as 
-        allocated by preferences
+        A Taskrunner loaded with Tasks as allocated by preferences
 
         @rtype : L{ots.server.distributor.taskrunner}
         @rparam : A Taskrunner loaded with Tasks
@@ -301,13 +300,13 @@ class Hub(object):
                                   self.options.distribution_model,
                                   self.options.device_properties,
                                   self.options.image,
+                                  self.options.rootstrap,
                                   self.options.hw_packages,
                                   self.options.host_packages,
                                   self.options.chroot_packages,
                                   self.options.emmc,
                                   self.options.testfilter,
                                   self.options.flasher,
-                                  self.options.rootstrap,
                                   custom_distribution_model,
                                   self.extended_options_dict)
 
