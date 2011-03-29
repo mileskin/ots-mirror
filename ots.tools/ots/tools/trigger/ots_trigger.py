@@ -126,7 +126,7 @@ def parse_commandline_arguments():
     parser.add_option("-C", "--chrootpackages", dest="chroottest",
                       action="store", type="string",
                       help="list of test packages separated with space",
-                      metavar="TESTPACKAGES", default="")
+                      metavar="CHROOTTEST", default="")
 
     parser.add_option("-m", "--timeout", dest="timeout", action="store",
                       type="int", help="global timeout (minutes)",
@@ -172,6 +172,11 @@ def parse_commandline_arguments():
                  options.email and options.image):
         parser.print_help()
         print "\nError: Some of mandatory parameters were missing!"
+        sys.exit(-1)
+    elif not bool(options.rootstrap) == bool(options.chroottest):
+        parser.print_help()
+        print "\nError: Both rootstrap and chrootpackages needs to be defined" \
+            " if using one of them."
         sys.exit(-1)
 
     return options
