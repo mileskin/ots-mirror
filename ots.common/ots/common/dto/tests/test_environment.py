@@ -38,6 +38,12 @@ class TestEnvironment(unittest.TestCase):
         env = Environment("hardware")
         self.assertTrue(env.is_hw)
 
+    def test_is_chroot(self):
+        env = Environment("environment")
+        self.assertFalse(env.is_chroot)
+        env = Environment("chroot")
+        self.assertTrue(env.is_chroot)
+
     def test_is_equals(self):
         env_1 = Environment("environment1")
         env_2 = Environment("environment1")

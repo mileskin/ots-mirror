@@ -36,7 +36,8 @@ class TestConductorCommands(unittest.TestCase):
                     "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '30']
 
         result = conductor_command(options,
-                                   host_testing = False)
+                                   host_testing = False,
+                                   chroot_testing = False)
         self.assertEquals(expected, result) 
 
 
@@ -49,7 +50,8 @@ class TestConductorCommands(unittest.TestCase):
                     '-i', '1', '-c', 'foo', '-m', '30']
 
         result = conductor_command(options, 
-                                   host_testing = False)
+                                   host_testing = False,
+                                   chroot_testing = False)
         self.assertEquals(expected, result)
 
     def test_conductor_command_with_flasher_no_pkgs(self):
@@ -65,7 +67,8 @@ class TestConductorCommands(unittest.TestCase):
                     '--flasherurl', "asdfasdf/asdf", '-m', '30']
 
         result = conductor_command(options, 
-                                   host_testing = False)
+                                   host_testing = False,
+                                   chroot_testing = False)
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_flasher_device_pkgs(self):
@@ -82,7 +85,8 @@ class TestConductorCommands(unittest.TestCase):
                     "-t", "my-tests", '-m', '30']
 
         result = conductor_command(options, 
-                                   host_testing = False)
+                                   host_testing = False,
+                                   chroot_testing = False)
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_flasher_reboot_mode(self):
@@ -99,7 +103,8 @@ class TestConductorCommands(unittest.TestCase):
                     "-t", "my-tests", '-m', '30', '-b', 'normal']
 
         result = conductor_command(options,
-                                   host_testing = False)
+                                   host_testing = False,
+                                   chroot_testing = False)
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_testplan(self):
@@ -116,7 +121,8 @@ class TestConductorCommands(unittest.TestCase):
                     '-m', '30', '-p', 'testplan.xml']
 
         result = conductor_command(options,
-                                   host_testing = False)
+                                   host_testing = False,
+                                   chroot_testing = False)
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_testplan_host(self):
@@ -133,7 +139,8 @@ class TestConductorCommands(unittest.TestCase):
                     '-m', '30', '-p', 'testplan.xml', '-o']
 
         result = conductor_command(options,
-                                   host_testing = True)
+                                   host_testing = True,
+                                   chroot_testing = False)
         self.assertEquals(result, expected)
 
 

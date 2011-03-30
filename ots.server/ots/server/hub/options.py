@@ -52,20 +52,53 @@ VALID_PKG_SUFFIXES = [TESTS, TEST, BENCHMARK]
 # Options
 ###################################
 
+
 class Options(object):
     """
     Interface for the options available to the client
     """
 
-    def __init__(self, image, packages = None, plan = None, hosttest = None,
-                 device = None, emmc = None, distribution_model = None,
-                 flasher = None, testfilter = None, hw_testplans = None,
-                 host_testplans = None, timeout = None):
+    def __init__(self, image, rootstrap=None, packages = None, plan = None,
+                 hosttest = None, chroottest=None, device = None, emmc = None,
+                 distribution_model = None, flasher = None, testfilter = None,
+                 hw_testplans = None, host_testplans = None, timeout = None):
+
         """
         @type: C{image}
-        @param: The image url
+        @param: The image URL
 
+        @type rootstrap: C{str}
+        @param rootstrap: The rootstrap URL
 
+        @type packages: C{str}
+        @param packages: Test packages
+
+        @type plan: C{str}
+        @param plan: Test plan id
+
+        @type hosttest: C{str}
+        @param hosttest: Host test cases
+
+        @type chroottest: C{str}
+        @param chroottest: Chroot test cases
+
+        @type device: C{dict}
+        @param device: Device properties
+
+        @type emmc: C{str}
+        @param emmc: Url to the additional content image
+
+        @type distribution_model: C{str}
+        @param distribution_model: The name of ditribution model
+
+        @type flasher: C{str}
+        @param flasher: URL of the flasher
+
+        @type testfilter: C{str}
+        @param testfilter: The test filter string for testrunner-lite
+
+        @type timeout: C{str}
+        @param timeout: Test execution timeout in minutes
         """
         self._image = image
         if packages is None:
@@ -83,19 +116,27 @@ class Options(object):
         self._hosttest = hosttest
         if device is None:
             device = dict()
+        if chroottest is None:
+            chroottest = []
+        self._chroottest = chroottest
+        self._rootstrap = rootstrap
         self._device = device
         self._emmc = emmc
         self._distribution_model = distribution_model
         self._flasher = flasher
         self._testfilter = testfilter
         self._timeout = timeout
+
         self._validate_packages(self.hw_packages)
+        self._validate_packages(self.host_packages)
+        self._validate_packages(self.chroot_packages)
         self._validate_distribution_models(distribution_model,
                                            self.hw_packages \
                                                + self.host_packages \
                                                + self.hw_testplans \
-                                               + self.host_testplans)
-
+                                               + self.host_testplans \
+                                               + self.chroot_packages)
+        self._validate_chroot(self._rootstrap, self.chroot_packages)
 
     ##################################
     # PROPERTIES
@@ -108,6 +149,14 @@ class Options(object):
         @return: The URL of the image
         """
         return self._image
+
+    @property
+    def rootstrap(self):
+        """
+        @rtype: C{str}
+        @return: The URL of the chroot rootstrap file
+        """
+        return self._rootstrap
 
     @property
     def hw_packages(self):
@@ -149,6 +198,14 @@ class Options(object):
         return self._host_testplans
 
     @property
+    def chroot_packages(self):
+        """
+        @rtype: C{list} of C{str}
+        @return: Packages for chroot testing
+        """
+        return string_2_list(self._chroottest)
+
+    @property
     def testplan_id(self):
         """
         @rtype: C{str}
@@ -168,7 +225,7 @@ class Options(object):
                 ret_val = self._device
             else:
                 ret_val = string_2_dict(self._device)
-        return ret_val 
+        return ret_val
 
     @property
     def emmc(self):
@@ -184,7 +241,7 @@ class Options(object):
         @rtype: C{str}
         @return: The name of the Distribution Model
         """
-        return self._distribution_model 
+        return self._distribution_model
 
     @property
     def flasher(self):
@@ -201,7 +258,7 @@ class Options(object):
         @return: The test filter string for testrunner-lite
         """
         if self._testfilter is not None:
-            testfilter = self._testfilter.replace('"',"'")
+            testfilter = self._testfilter.replace('"', "'")
             return "\"%s\"" % testfilter
 
     @property
@@ -229,7 +286,7 @@ class Options(object):
     @staticmethod
     def _validate_distribution_models(distribution_model, packages):
         """
-        checks that all required options for given distribution model are
+        Checks that all required options for given distribution model are
         defined. Raises ValueError if something is missing.
 
         @type distribution_model: C{str}
@@ -242,24 +299,22 @@ class Options(object):
         # Check that packages are defined if "perpackage" distribution is used
         if distribution_model == 'perpackage' and len(packages) == 0:
             error_msg = "Test packages must be defined for specified "\
-                +"distribution model '%s'" % distribution_model
+                + "distribution model '%s'" % distribution_model
             raise ValueError(error_msg)
-
 
     def _validate_packages(self, packages):
         """
-        checks that given testpackages match our naming definitions
+        Checks that given testpackages match our naming definitions
 
         Raises ValueError if invalid packages given
 
         @type test_packages: D{List} consiting of D{str}
         @param test_packages: List of test package names
-
         """
         invalid_packages = [pkg for pkg in packages
                               if not self._is_valid_suffix(pkg)]
         if invalid_packages:
-            pretty_packages =  ', '.join(invalid_packages)
+            pretty_packages = ', '.join(invalid_packages)
             error_msg = "Invalid testpackage(s): %s" % pretty_packages
             raise ValueError(error_msg)
     
@@ -308,3 +363,22 @@ class Options(object):
                 test_plans.append(plan_name)
             format_options["hw_testplans"] = test_plans
         return format_options            
+
+    @staticmethod
+    def _validate_chroot(rootstrap, chroot_packages):
+        """
+        Checks that all required options for chroot are
+        defined. Raises ValueError if something is missing.
+
+        @type rootstrap: C{str}
+        @param rootstrap: rootstrap URL
+
+        @type packages: C{str}
+        @param packages: chroot testpackage names
+        """
+        # Check that chroot packages and rootstrap are defined if
+        # "chroot" is used
+        if bool(rootstrap) != bool(chroot_packages):
+            error_msg = "When testing on chroot both rootstrap and " \
+                + "chroot packages needs to be defined."
+            raise ValueError(error_msg)

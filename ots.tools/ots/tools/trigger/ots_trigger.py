@@ -87,12 +87,16 @@ def ots_trigger(options):
             testplan_data = read_test_plan(testplan)
             testplans.append((os.path.basename(testplan), testplan_data))
         ots_options['host_testplans'] = testplans
+    if options.rootstrap:
+        ots_options['rootstrap'] = options.rootstrap
+    if options.chroottest:
+        ots_options['chroottest'] = options.chroottest
 
     ots_interface = xmlrpclib.Server("http://%s/" % options.server)
     return ots_interface.request_sync(sw_product,
-                                       build_id,
-                                       email_list,
-                                       ots_options)
+                                      build_id,
+                                      email_list,
+                                      ots_options)
 
 
 
@@ -109,67 +113,79 @@ def parse_commandline_arguments():
                 
     parser = OptionParser(usage=usage)
     parser.add_option("-s", "--server", dest="server", action="store",
-                      type="string", help="Ots server URL",
+                      type="string", help="OTS server URL (mandatory)",
                       metavar="SERVER")
 
     parser.add_option("-b", "--build_id", dest="id", action="store",
-                      type="string", help="Build request ID", metavar="ID")
+                      type="string", help="build request ID (mandatory)",
+                      metavar="ID")
 
     parser.add_option("-i", "--image", dest="image", action="store",
-                      type="string", help="Url to image file", metavar="IMAGE",
-                      default="")
-
-    parser.add_option("-d", "--device", dest="device", action="store",
-                      type="string", help="Device properties", metavar="DEVICE",
-                      default="")
+                      type="string", help="URL to image file (mandatory)",
+                      metavar="IMAGE", default="")
 
     parser.add_option("-p", "--sw_product", dest="sw_product", action="store",
                       type="string",
-                      help="Sw product",
+                      help="software product (mandatory)",
                       metavar="SWPRODUCT")
 
     parser.add_option("-e", "--email", dest="email", action="store",
                       type="string",
-                      help="Email addresses as a comma separated list",
+                      help="email addresses as a comma separated " \
+                        "list (mandatory)",
                       metavar="EMAIL", default="")
+
+    parser.add_option("-d", "--device", dest="device", action="store",
+                      type="string", help="device properties", metavar="DEVICE",
+                      default="")
 
     parser.add_option("-t", "--testpackages", dest="testpackages",
                       action="store", type="string",
-                      help="List of test packages separated with comma",
+                      help="list of test packages separated with comma",
                       metavar="TESTPACKAGES", default="")
-
-
-    parser.add_option("-m", "--timeout", dest="timeout", action="store",
-                      type="int", help="Global timeout (minutes)",
-                      metavar="TIMEOUT", default=0)
-
 
     parser.add_option("-o", "--hostpackages", dest="hosttest", action="store",
                       type="string",
-                      help="List of host test packages separated with space",
+                      help="list of host test packages separated with space",
                       metavar="HOSTTEST", default="")
 
+    parser.add_option("-C", "--chrootpackages", dest="chroottest",
+                      action="store", type="string",
+                      help="list of test packages separated with space",
+                      metavar="CHROOTTEST", default="")
+
+    parser.add_option("-m", "--timeout", dest="timeout", action="store",
+                      type="int", help="global timeout (minutes)",
+                      metavar="TIMEOUT", default=0)
+
     parser.add_option("-f", "--filter", dest="filter", action="store",
-                      type="string", help="Test filter string",
+                      type="string", help="test filter string",
                       metavar="FILTER", default="")
 
     parser.add_option("-n", "--input_plugin", dest="input_plugin",
                       action="store",
-                      type="string", help="input_pluging to use",
+                      type="string", help="input plugin to use",
                       metavar="PLUGIN", default="")
 
     parser.add_option("-c", "--distribution",
                       dest="distribution",
                       action="store",
                       type="string",
-                      help="task distribution model(for example 'perpackage')",
+                      help="task distribution model (for example 'perpackage')",
                       metavar="DISTMODEL")
+
+    parser.add_option("-r", "--rootstrap",
+                      dest="rootstrap",
+                      action="store",
+                      type="string",
+                      help="URL to rootstrap file",
+                      metavar="ROOTSTRAP")
 
     parser.add_option("-x", "--options",
                       dest="options",
                       action="store",
                       type="string",
-                      help="Options in form 'key:value key:value'",
+                      help="options in form 'key:value key:value'",
                       metavar="OPTIONS")
     
     parser.add_option("-T", "--deviceplan",
@@ -192,16 +208,22 @@ def parse_commandline_arguments():
     (options, args) = parser.parse_args()
         
     
-    if  not (options.server and options.id and options.sw_product and\
+    if  not (options.server and options.id and options.sw_product and \
                  options.email and options.image):
         parser.print_help()
+        print "\nError: Some of mandatory parameters were missing!"
+        sys.exit(-1)
+    elif not bool(options.rootstrap) == bool(options.chroottest):
+        parser.print_help()
+        print "\nError: Both rootstrap and chrootpackages needs to be defined" \
+            " if using one of them."
         sys.exit(-1)
 
     return options
 
 
 def main():
-    """Main function for running mother of all flashers from command line"""
+    """Main function"""
     options = parse_commandline_arguments()
 
     log_format = '%(asctime)s %(levelname)s %(message)s'
@@ -210,11 +232,11 @@ def main():
                         stream=sys.stdout)
 
     log = logging.getLogger(__name__)
-    log.info("Calling ots xml-rpc with options:\n %s" % str(options))
+    log.info("Calling OTS XML-RPC with options:\n %s" % str(options))
     result = ots_trigger(options)
     log.info("Result: %s" % result)
 
 
-
 if __name__ == '__main__':
     main()
+

@@ -73,6 +73,11 @@ def _parse_command_line(args):
                     default=False,
                     help="Execute tests on host. Requires use of -t.")
 
+    parser.add_option("-C", "--chrooted", dest="chrooted", action="store_true",
+                    default=False,
+                    help="Execute tests inside a chroot. Requires "\
+                         "-t and -r or -R.")
+
     parser.add_option("-i", "--id", dest="testrun_id", action="store", 
                     type="string",
                     help="OTS unique testrun ID. (Do not use if running "\
@@ -97,6 +102,20 @@ def _parse_command_line(args):
                          "flashing.",
                     metavar="CONTENTIMAGEPATH")
 
+    parser.add_option("-r", "--rootstrapurl", dest="rootstrap_url",
+                    action="store", type="string",
+                    help="URL to an i386 rootstrap. If chrooted testing "\
+                        "is enabled, tests will be run chrooted inside this "\
+                        "rootstrap.",
+                    metavar="ROOTSTRAPURL")
+
+    parser.add_option("-R", "--rootstrappath", dest="rootstrap_path",
+                    action="store", type="string",
+                    help="Local path to an i386 rootstrap. If chrooted "\
+                        "testing is enabled, tests will be run chrooted inside "\
+                        "this rootstrap.",
+                    metavar="ROOTSTRAPPATH")
+
     parser.add_option("-f", "--filter", dest="filter_options", action="store", 
                     type="string", 
                     default="",
@@ -113,8 +132,8 @@ def _parse_command_line(args):
 
     parser.add_option("--dontflash", dest="dontflash", action="store_true", 
                     default=False,
-                    help="Do not set up target. Skips image/rootstrap "\
-                         "downloading, flasher and Scratchbox setup.")
+                    help="Do not set up target. Skips image downloading "\
+                         "and flashing.")
 
     parser.add_option("--configfile", dest="config_file", action="store", 
                     type="string", 
@@ -210,9 +229,16 @@ def _check_command_line_options(options):
     if options.image_url is None:
         sys.stderr.write("Missing mandatory argument (url)\n")
         return False
-    if options.host and not options.packages and not options.testplan:
-        sys.stderr.write("Missing test packages. "\
-              "Host-based testing requires specifying test packages!\n")
+
+    if (options.host or options.chrooted) and not options.packages and not options.testplan:
+        sys.stderr.write("Missing test packages. " \
+              "Host-based and chrooted testing require specifying test" \
+              "packages!\n")
+        return False
+    if options.chrooted and not (options.rootstrap_url 
+            or options.rootstrap_path):
+        sys.stderr.write("Missing rootstrap. " \
+            "Chroot-based testing requires specifying a rootstrap!\n")
         return False
     if (options.testrun_id and not options.otsserver) \
             or (not options.testrun_id and options.otsserver):
