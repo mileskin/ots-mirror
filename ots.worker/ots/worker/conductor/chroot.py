@@ -40,7 +40,10 @@ LOG = logging.getLogger(__name__)
 class Chroot(object):
     """ Class for rootstrap handling """
 
+    # Public methods
+
     def __init__(self, testrun):
+        """Chroot initialization"""
         self.testrun = testrun
         self.path = None
         self._rootstrap = None
@@ -101,9 +104,9 @@ class Chroot(object):
                     os.unlink(self._rootstrap)
                 self._rootstrap = None
             finally:
-                if resource: 
+                if resource:
                     resource.close()
-                if tmpfile:    
+                if tmpfile:
                     tmpfile.close()
 
         # fallback to local copy
@@ -124,7 +127,7 @@ class Chroot(object):
     def _unpack_rootstrap(self):
         """Unpack the rootstrap to a temporary directory."""
 
-        ext2compr = { 'tgz': 'gz', 'gz': 'gz', 'bz2': 'bz2' }
+        ext2compr = {'tgz': 'gz', 'gz': 'gz', 'bz2': 'bz2'}
 
         try:
             extension = self._rootstrap.split('.')[-1]
@@ -149,8 +152,7 @@ class Chroot(object):
             ('null',    stat.S_IFCHR | 0666, 1, 3),
             ('random',  stat.S_IFCHR | 0666, 1, 8),
             ('tty',     stat.S_IFCHR | 0666, 5, 0),
-            ('urandom', stat.S_IFCHR | 0666, 1, 9)
-        ]
+            ('urandom', stat.S_IFCHR | 0666, 1, 9)]
 
         try:
             LOG.debug("Preparing chroot environment.")
