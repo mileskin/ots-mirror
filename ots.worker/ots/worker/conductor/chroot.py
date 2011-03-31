@@ -137,7 +137,7 @@ class Chroot(object):
                 compr_flag = ''
             rootstrap = tarfile.open(self._rootstrap, "r:%s" % compr_flag)
             tmpdir = tempfile.mkdtemp(prefix='rootstrap-')
-            LOG.debug("Unpacking rootstrap to '%s'" % tmpdir)
+            LOG.info("Unpacking rootstrap to '%s'" % tmpdir)
             rootstrap.extractall(tmpdir)
             self.path = tmpdir
         except Exception, error:
