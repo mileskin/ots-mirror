@@ -519,17 +519,43 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         self.trigger_testrun_expect_error(options,
                         ["ValueError: Invalid distribution model"])
         
-    def test_load_optimized_distribution_model(self):
+    def test_load_optimized_distribution_model_for_host_packages(self):
         options = Options()
-        options.testpackages = "test-definition-tests testrunner-lite-regression-tests"
+        options.hosttest = "test-definition-tests testrunner-lite-regression-tests"
         options.distribution = "optimized"
+        options.filter = "testcase=trlitereg01,Check-basic-schema"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Beginning to execute test package: test-definition-tests",
                     "Beginning to execute test package: testrunner-lite-regression-tests",
                     "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
+                    "Environment: Host_Hardware",
                     ]
         self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_load_optimized_distribution_model_for_hw_packages(self):
+        options = Options()
+        options.testpackages = "test-definition-tests testrunner-lite-regression-tests"
+        options.distribution = "optimized"
+        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Beginning to execute test package: test-definition-tests",
+                    "Beginning to execute test package: testrunner-lite-regression-tests",
+                    "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
+                    "Environment: Hardware",
+                    ]
+        self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_optimized_without_packages(self):
+        options = Options()
+        options.distribution = "optimized"
+        options.deviceplan = ["data/echo_system_tests.xml"]
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 10
+        
+        self.trigger_testrun_expect_error(options, 
+                    ["No commands created"])
 
 
 ##########################################
@@ -774,6 +800,33 @@ class TestDeviceProperties(unittest.TestCase):
                                         testrun_id1, 
                                         string2))
 
+########################################
+# TestPlugins
+########################################
+
+class TestPlugins(SystemSingleRunTestCaseBase):
+
+    def test_plugins_loaded(self):
+        options = Options()
+        options.hosttest = "test-definition-tests"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        options.filter = "testcase=Check-basic-schema"
+        expected = ["Monitor Plugin loaded",
+                    "History plug-in loaded",
+                    "history data saved",
+                    "Using smtp server",
+                    "Email sent"]
+        self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_email_invalid_address(self):
+        options = Options()
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        options.image = ""
+        options.email = "invalid_email_address"
+        expected = ["Missing `image` parameter"]
+        self.trigger_testrun_expect_error(options, expected)
 
 if __name__ == "__main__":
     unittest.main()
