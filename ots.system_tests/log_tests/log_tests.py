@@ -219,6 +219,36 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Finished running tests.",
                     "Environment: Hardware"]
         self.trigger_testrun_expect_pass(options, expected)
+    
+    def test_hw_based_testrun_with_testplan(self):
+        options = Options()
+        options.distribution = "default"
+        options.deviceplan = ["data/echo_system_tests.xml"]
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Testrun finished with result: PASS",
+                    "Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Hardware",
+                    "Beginning to execute test package: echo_system_tests.xml",
+                    "Executed 1 cases. Passed 1 Failed 0"]
+        self.trigger_testrun_expect_pass(options, expected)
+    
+    def test_hw_based_testrun_with_multiple_testplan(self):
+        options = Options()
+        options.distribution = "default"
+        options.deviceplan = ["data/echo_system_tests.xml",
+                              "data/ls_system_tests.xml"]
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Testrun finished with result: PASS",
+                    "Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Hardware",
+                    "Beginning to execute test package: echo_system_tests.xml",
+                    "Executed 1 cases. Passed 1 Failed 0",
+                    "Beginning to execute test package: ls_system_tests.xml"]
+        self.trigger_testrun_expect_pass(options, expected)
 
 ############################################
 # TestHostBasedSuccessfulTestruns
@@ -263,6 +293,34 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         expected = ["Starting conductor at",
                     "Finished running tests.",
                     "Environment: Host_Hardware"]
+        self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_host_based_testrun_with_testplan(self):
+        options = Options()
+        options.distribution = "default"
+        options.hostplan = ["data/echo_system_tests.xml"]
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Host_Hardware",
+                    "Beginning to execute test package: echo_system_tests.xml",
+                    "Executed 1 cases. Passed 1 Failed 0"]
+        self.trigger_testrun_expect_pass(options, expected)
+    
+    def test_host_based_testrun_with_multiple_testplan(self):
+        options = Options()
+        options.distribution = "default"
+        options.hostplan = ["data/echo_system_tests.xml",
+                              "data/ls_system_tests.xml"]
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Host_Hardware",
+                    "Beginning to execute test package: echo_system_tests.xml",
+                    "Executed 1 cases. Passed 1 Failed 0",
+                    "Beginning to execute test package: ls_system_tests.xml"]
         self.trigger_testrun_expect_pass(options, expected)
 
 ############################################
@@ -342,6 +400,72 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
           "Environment: Hardware",
           "Finished running tests."]
         self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_hw_and_host_based_testplans(self):
+        options = Options()
+        options.distribution = "default"
+        options.deviceplan = ["data/ls_system_tests.xml"]
+        options.hostplan = ["data/echo_system_tests.xml"]
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Host_Hardware",
+                    "Environment: Hardware",
+                    "Beginning to execute test package: echo_system_tests.xml",
+                    "Executed 1 cases. Passed 1 Failed 0",
+                    "Beginning to execute test package: ls_system_tests.xml"]
+        self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_hw_test_package_and_test_plan(self):
+        options = Options()
+        options.distribution = "default"
+        options.deviceplan = ["data/ls_system_tests.xml"]
+        options.testpackages = "test-definition-tests"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Hardware",
+                    "Beginning to execute test package: echo_system_tests.xml",
+                    "Executed 1 cases. Passed 1 Failed 0",
+                    "Beginning to execute test package: test-definition-tests"]
+        self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_host_test_package_and_test_plan(self):
+        options = Options()
+        options.distribution = "default"
+        options.hostplan = ["data/ls_system_tests.xml"]
+        options.hosttest = "test-definition-tests"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Host_Hardware",
+                    "Beginning to execute test package: ls_system_tests.xml",
+                    "Executed 1 cases. Passed 1 Failed 0",
+                    "Beginning to execute test package: test-definition-tests"]
+        self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_host_and_hw_test_package_and_test_plan(self):
+        options = Options()
+        options.distribution = "default"
+        options.deviceplan = ["data/echo_system_tests.xml"]
+        options.testpackages = "test-definition-tests"
+        options.hostplan = ["data/ls_system_tests.xml"]
+        options.hosttest = "testrunner-lite-regression-tests"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Host_Hardware",
+                    "Environment: Hardware",
+                    "Beginning to execute test package: ls_system_tests.xml",
+                    "Beginning to execute test package: echo_system_tests.xml",
+                    "Beginning to execute test package: test-definition-tests",
+                    "Beginning to execute test package: testrunner-lite-regression-tests"]
+        self.trigger_testrun_expect_pass(options, expected)
+
 
 ############################################
 # TestMiscSuccessfulTestruns
@@ -394,6 +518,18 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         options.timeout = 1
         self.trigger_testrun_expect_error(options,
                         ["ValueError: Invalid distribution model"])
+        
+    def test_load_optimized_distribution_model(self):
+        options = Options()
+        options.testpackages = "test-definition-tests testrunner-lite-regression-tests"
+        options.distribution = "optimized"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        expected = ["Beginning to execute test package: test-definition-tests",
+                    "Beginning to execute test package: testrunner-lite-regression-tests",
+                    "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
+                    ]
+        self.trigger_testrun_expect_pass(options, expected)
 
 
 ##########################################

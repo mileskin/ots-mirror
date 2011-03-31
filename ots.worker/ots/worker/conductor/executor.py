@@ -389,7 +389,8 @@ class Executor(object):
                 self.testrun.base_dir, test_package, "results")
 
         if self.testrun.xml_file:
-            self.testrun.testdef_src = self.testrun.xml_file
+            self.testrun.testdef_src = os.path.join( \
+                    "/tmp", self.testrun.xml_file)
             self.testrun.dst_testdef_file_path = os.path.join(\
                     self.testrun.testdef_target_dir, self.testrun.xml_file)
         else:    

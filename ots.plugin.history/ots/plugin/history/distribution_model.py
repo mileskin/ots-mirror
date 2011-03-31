@@ -103,7 +103,9 @@ def history_model(test_list, options):
         LOG.debug(package_groups)
         for group in package_groups:
             options['test_packages'] = string.join(group, ",")
-            cmd = conductor_command(options, host_testing = False)
+            cmd = conductor_command(options, 
+                                    host_testing = False,
+                                    chroot_testing = False)
             commands.append(Task(cmd))
         
         # Rest groups are for host based packages
@@ -122,7 +124,9 @@ def history_model(test_list, options):
         LOG.debug(package_groups)
         for group in package_groups:
             options['test_packages'] = string.join(group, ",")
-            cmd = conductor_command(options, host_testing = False)
+            cmd = conductor_command(options, 
+                                    host_testing = True,
+                                    chroot_testing = False)
             commands.append(Task(cmd))
 
     return commands
