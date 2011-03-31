@@ -72,6 +72,8 @@ def send_files(result_xmls,
     files = _generate_form_data(result_xmls, attachments)
     LOG.info("Uploading results to Meego QA-reports tool: %s" % host)
     
+    response = ""
+    
     try:
         response = post_multipart(host, selector, fields, files,
                        config.get("protocol", ""), config.get("user", ""), 
