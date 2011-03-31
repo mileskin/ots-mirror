@@ -66,6 +66,10 @@ class Options(object):
         self.image = CONFIG["image_url"]
         self.testpackages = ""
         self.hosttest = ""
+        self.deviceplan = ""
+        self.hostplan = ""
+        self.rootstrap = ""
+        self.chroottest = ""
         self.distribution = "default"
         self.filter = ""
         self.input_plugin = ""
