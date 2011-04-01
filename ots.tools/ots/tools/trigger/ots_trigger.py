@@ -193,14 +193,14 @@ def parse_commandline_arguments():
                       action="append",
                       type="string",
                       help="Test plan for device based execution",
-                      metavar="OPTIONS")
+                      metavar="FILE")
     
     parser.add_option("-O", "--hostplan",
                       dest="hostplan",
                       action="append",
                       type="string",
                       help="Test plan for host based execution",
-                      metavar="OPTIONS")
+                      metavar="FILE")
 
     # parser returns options and args even though we only need options
     # Disabling pylint complain about unused variable
