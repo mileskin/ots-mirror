@@ -1,10 +1,11 @@
-* Mon Mar 21 2011 Esa-Pekka Miettinen <esa-pekka.miettinen@digia.com> 0.8.3
- - Implemented test plan based execution, BMC#10863
- - Merged https and basic auth functinality, BMC#13916 
+* Fri Apr 01 2011 Esa-Pekka Miettinen <esa-pekka.miettinen@digia.com> 0.8.3
+ - OTS 0.8.3 release, BMC#13355
+ - Implemented test plan based execution, BMC#10863 
+ - Implemented chroot execution functionality added, BMC#11841
+ - Implemented data exporting functionality to Monitor, BMC#13949
+ - Implemented sort functionality to Monitor, BMC#13950
+ - Merged https and basic authentication functionality, BMC#13916
  - Fixed monitor devicegroup handling, BMC#14838
-
-* Mon Mar 21 2011 Esa-Pekka Miettinen <esa-pekka.miettinen@digia.com> 0.8.3
- - Implemented test plan based execution, BMC#10863
 
 * Mon Mar 21 2011 Esa-Pekka Miettinen <esa-pekka.miettinen@digia.com> 0.8.2
  - Added new publisher plugin, monitor, BMC#13258
