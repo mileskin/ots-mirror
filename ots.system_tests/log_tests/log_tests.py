@@ -34,10 +34,9 @@ Please check that system_tests.conf is up to date!
 """
 
 import unittest
-
+import os
 import configobj
 from configobj import ConfigObj
-from urlparse import urlparse
 
 from ots.tools.trigger.ots_trigger import ots_trigger
 from log_scraper import has_message, has_errors
@@ -587,7 +586,7 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options.image = options.image+"asdfasdfthiswontexistasdfasdf"
         options.testpackages = "testrunner-lite-regression-tests"
         options.timeout = 30
-        path = urlparse(options.image).path[1:]
+        path = os.path.basename(options.image)
         expected = ["Error: Could not download file %s, Error code: 103" % path,
                     "Starting conductor at"]
         self.trigger_testrun_expect_error(options, expected)
