@@ -830,7 +830,6 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.timeout = 60
         options.filter = "testcase=Check-basic-schema"
         expected = ["Monitor Plugin loaded",
-                    "History plug-in loaded",
                     "history data saved",
                     "Using smtp server",
                     "Email sent"]
