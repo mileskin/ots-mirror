@@ -57,10 +57,8 @@ class TestMonitorPlugin(unittest.TestCase):
     """
     Unit tests for monitor plugin
     """
-    _kwargs_str = "{'notify_list': ['ots@localhost'], " \
-        "'emmc': '', 'email_attachments': 'off', 'distribution_model': " \
-        "'default', 'timeout': '60', 'device': {'devicegroup': " \
-        "'examplegroup'}, 'packages': 'test-definition-tests', 'email': 'on'}"
+    _kwargs_str = "{'emmc': '', 'email_attachments': 'off', 'distribution_model': " \
+        "'default', 'timeout': '60', 'packages': 'test-definition-tests', 'email': 'on'}"
 
     def test_init(self):
         request_id = 'test_init'
@@ -69,7 +67,7 @@ class TestMonitorPlugin(unittest.TestCase):
 
         self.assertTrue(tr.values()[0].get('testrun_id') == 'testrun_uuid')
         self.assertTrue(tr.values()[0].get('device_group') == 'examplegroup')
-        self.assertTrue(str(tr.values()[0].get('configuration')) == self._kwargs_str)
+        self.assertEquals(str(tr.values()[0].get('configuration')), self._kwargs_str)
         self.assertTrue(tr.values()[0].get('host_worker_instances') == '')
         self.assertTrue(tr.values()[0].get('requestor') == 'ots@localhost')
         self.assertTrue(tr.values()[0].get('request_id') == request_id)
