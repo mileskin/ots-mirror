@@ -431,7 +431,7 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         expected = ["Starting conductor at",
                     "Finished running tests.",
                     "Environment: Hardware",
-                    "Beginning to execute test package: echo_system_tests.xml",
+                    "Beginning to execute test package: ls_system_tests.xml",
                     "Executed 1 cases. Passed 1 Failed 0",
                     "Beginning to execute test package: test-definition-tests"]
         self.trigger_testrun_expect_pass(options, expected)
