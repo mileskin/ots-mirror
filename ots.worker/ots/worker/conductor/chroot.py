@@ -75,7 +75,7 @@ class Chroot(object):
         if self.testrun.rootstrap_url:
             tmpfile = None
             resource = None
-            LOG.debug("Downloading rootstrap from '%s'" %
+            LOG.info("Downloading rootstrap from '%s'" %
                 self.testrun.rootstrap_url)
 
             try:
