@@ -81,6 +81,7 @@ def perpackage_distribution(test_list, options):
             cmd = conductor_command(options,
                                     host_testing = False,
                                     chroot_testing = True)
+            commands.append(Task(cmd))
 
     return commands
 

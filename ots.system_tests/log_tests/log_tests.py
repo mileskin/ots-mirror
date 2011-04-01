@@ -331,8 +331,9 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_chroot_based_testrun_with_test_definition_tests(self):
         options = Options()
-        options.testpackages = "test-definition-tests"
         options.timeout = 30
+        options.rootstrap = CONFIG["rootstrap_url"]
+        options.chroottest = "test-definition-tests"
         expected = ["Environment: chroot",
                     "Starting conductor at",
                     "Finished running tests.",
@@ -343,10 +344,12 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     def test_chroot_based_testrun_split_into_multiple_tasks(self):
         options = Options()
         options.distribution = "perpackage"
-        options.hosttest = \
-            "test-definition-tests testrunner-lite-regression-tests"
         options.filter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
+        options.rootstrap = CONFIG["rootstrap_url"]
+        options.chroottest = \
+            "test-definition-tests testrunner-lite-regression-tests"
+
         expected = ["Starting conductor at",
           "Finished running tests.",
           "Testrun ID: __TESTRUN_ID__  Environment: chroot",
@@ -359,10 +362,11 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     def test_chroot_based_testrun_with_multiple_tests(self):
         options = Options()
         options.distribution = "default"
-        options.hosttest = \
-            "test-definition-tests testrunner-lite-regression-tests"
         options.filter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
+        options.rootstrap = CONFIG["rootstrap_url"]
+        options.chroottest = \
+            "test-definition-tests testrunner-lite-regression-tests"
         expected = ["Starting conductor at",
                     "Finished running tests.",
                     "Environment: chroot",
@@ -467,6 +471,20 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         self.trigger_testrun_expect_pass(options, expected)
 
 
+    def test_hw_host_chroot_based_testrun_with_test_definition_tests(self):
+        options = Options()
+        options.hosttest = "test-definition-tests"
+        options.testpackages = "test-definition-tests"
+        options.chroottest = "test-definition-tests"
+        options.rootstrap = CONFIG["rootstrap_url"]
+        options.timeout = 60
+        expected = ["Environment: Hardware",
+                    "Environment: Host_Hardware",
+                    "Environment: chroot",
+                    "Starting conductor at",
+                    """Finished running tests."""]
+        self.trigger_testrun_expect_pass(options, expected)
+
 ############################################
 # TestMiscSuccessfulTestruns
 ############################################
@@ -496,7 +514,7 @@ class TestMiscSuccessfulTestruns(SystemSingleRunTestCaseBase):
 ############################################
 # TestCustomDistributionModels
 ############################################
-    
+
 class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
 
     def test_load_example_distribution_model(self):
