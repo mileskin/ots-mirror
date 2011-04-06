@@ -54,6 +54,7 @@ CMD_TESTRUNNER = 'cd %s; ' + \
                  '%s '
 
 TESTRUNNER_SSH_OPTION = "-t root@192.168.2.15"
+TESTRUNNER_CHROOT_OPTION = '-C "%s"'
 TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
 TESTRUNNER_FILTER_OPTION = '-l "%s"'
 
@@ -63,6 +64,7 @@ FLASHER_PATH = "/tmp/flasher"
 
 # Command for HW_COMMAND must not contain single quotes (').
 # Note: Backslash-escaping them doesn't work.
+HW_DEFAULT_IP_ADDRESS = "192.168.2.15"
 HW_COMMAND = "ssh root@192.168.2.15 '%s'"
 HW_COMMAND_TO_COPY_FILE = "scp root@192.168.2.15:%s %s"
 LOCAL_COMMAND_TO_COPY_FILE = "cp %s %s"  #for host-based testing

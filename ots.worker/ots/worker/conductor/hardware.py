@@ -29,6 +29,7 @@ from ots.worker.conductor.testtarget import TestTarget
 from ots.worker.conductor.conductor_config import HW_COMMAND
 from ots.worker.conductor.conductor_config import HW_COMMAND_TO_COPY_FILE
 from ots.worker.conductor.conductor_config import FLASHER_PATH
+from ots.worker.conductor.conductor_config import HW_DEFAULT_IP_ADDRESS
 from ots.worker.conductor.conductorerror import ConductorError
 
 try:
@@ -68,6 +69,7 @@ class Hardware(TestTarget):
         self._fetch_release() 
         self._fetch_content_image()
         self._flash()
+        self._save_ip_address()
 
     def cleanup(self):
         """Remove flash image files."""
@@ -340,6 +342,13 @@ class Hardware(TestTarget):
             self.log.debug("Invalid flasher config! Traceback:", exc_info=True)
             raise ConductorError("Error in preparing hardware: "\
                                  "Invalid flasher config file!", "212")
+
+    def _save_ip_address(self):
+        """Saves the IP address of the target to the testrun data."""
+
+        # this method needs to be adapted to get the address dynamically
+        # when implementing multi-device support. For now it's hard-coded.
+        self.testrun.target_ip_address = HW_DEFAULT_IP_ADDRESS
 
 
 class RPMHardware(Hardware):

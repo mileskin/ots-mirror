@@ -439,7 +439,7 @@ class TaskBroker(object):
         """
         
         if xml_io is not None:
-            self._xml_file = xml_io.name
+            self._xml_file = os.path.join("/tmp/", xml_io.name)
             xml_fb = open(self._xml_file, 'w')
             xml_fb.write(xml_io.getvalue())
             xml_fb.close()

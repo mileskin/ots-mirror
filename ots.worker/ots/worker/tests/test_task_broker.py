@@ -383,15 +383,15 @@ class TestTaskBroker(unittest.TestCase):
         task_broker = _task_broker_factory()
         channel = task_broker.channel
         # Try to keep under timeouts
-        cmd_ignore = CommandMessage(["ignore"], "test", 1, timeout = 1) 
+        cmd_ignore = CommandMessage(["ignore"], "test", 1, timeout = 1)
         self.assertFalse(task_broker._dispatch(cmd_ignore))
-        cmd_quit = CommandMessage(["quit"], "test", 1, timeout = 1) 
+        cmd_quit = CommandMessage(["quit"], "test", 1, timeout = 1)
         self.assertFalse(task_broker._dispatch(cmd_quit))
-        cmd_ls = CommandMessage(["ls -la"], "test", 1, timeout = 1) 
+        cmd_ls = CommandMessage(["ls -la"], "test", 1, timeout = 1)
         self.assertFalse(task_broker._dispatch(cmd_ls))
         xml_file = StringIO("foo bar")
         xml_file.name = "test_xml.xml"
-        cmd_with_file = CommandMessage(["cat test_xml.xml"], 
+        cmd_with_file = CommandMessage(["cat /tmp/test_xml.xml"],
                                        "test", 1, 
                                        timeout = 1, 
                                        xml_file = xml_file) 

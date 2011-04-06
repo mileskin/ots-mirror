@@ -93,6 +93,11 @@ class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
                                             "tatam_xml_testrunner_results_for__2"])
         DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs_2)
+        
+        pkgs_3 = Packages("chroot.unittest", ["tatam_xml_testrunner_results_for__1", 
+                                            "tatam_xml_testrunner_results_for__2"])
+        DTO_SIGNAL.send(sender = "MockTaskRunner",
+                               dto = pkgs_3)
 
     def run(self):
         self._send_testpackages()
@@ -106,6 +111,12 @@ class MockTaskRunnerResultsFail(MockTaskRunnerResultsBase):
                           self.results_xml, 
                           "tatam_xml_testrunner_results_for__1")
         self._send_result("host.unittest", 
+                          self.results_xml, 
+                          "tatam_xml_testrunner_results_for__2")
+        self._send_result("chroot.unittest", 
+                          self.results_xml, 
+                          "tatam_xml_testrunner_results_for__1")
+        self._send_result("chroot.unittest", 
                           self.results_xml, 
                           "tatam_xml_testrunner_results_for__2")
 
@@ -131,6 +142,11 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
                                             "tatam_xml_testrunner_results_for__2"])
         DTO_SIGNAL.send(sender = "MockTaskRunner",
                                dto = pkgs_2)
+        
+        pkgs_3 = Packages("chroot.unittest", ["tatam_xml_testrunner_results_for__1", 
+                                            "tatam_xml_testrunner_results_for__2"])
+        DTO_SIGNAL.send(sender = "MockTaskRunner",
+                               dto = pkgs_3)
 
 
     def run(self):
@@ -145,6 +161,12 @@ class MockTaskRunnerResultsPass(MockTaskRunnerResultsBase):
                           self.results_xml, 
                           "tatam_xml_testrunner_results_for__1")
         self._send_result("host.unittest", 
+                          self.results_xml, 
+                          "tatam_xml_testrunner_results_for__2")
+        self._send_result("chroot.unittest", 
+                          self.results_xml, 
+                          "tatam_xml_testrunner_results_for__1")
+        self._send_result("chroot.unittest", 
                           self.results_xml, 
                           "tatam_xml_testrunner_results_for__2")
 

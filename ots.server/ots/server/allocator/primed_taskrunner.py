@@ -49,6 +49,7 @@ def _storage_address():
     storage_host = config['storage_host']
     if not storage_host:
         storage_host = gethostname()
+
     # TODO: DEPRECATED REMOVE AFTER CONDUCTOR IS CHANGED
     storage_port = "1982" 
     return "%s:%s" % (storage_host, storage_port)     
@@ -59,12 +60,13 @@ def _storage_address():
 # PUBLIC METHOD
 #####################
 
+
 def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model, 
-                      device_properties,
-                      image, hw_packages, host_packages,
-                      hw_testplans, host_testplans,
-                      emmc, testfilter, flasher, custom_distribution_model,
-                      extended_options): 
+                      device_properties, image, rootstrap, hw_packages,
+                      host_packages, chroot_packages, hw_testplans,
+                      host_testplans, emmc, testfilter, flasher,
+                      custom_distribution_model, extended_options): 
+
     """
     Get a Taskrunner loaded with Tasks and ready to Run
 
@@ -79,11 +81,14 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
 
     @type device_properties : C{dict}
     @param device_properties : A dictionary of device properties 
-                                              this testrun requires
-       
+                               this testrun requires
+
     @type image: C{str}
     @param image: The URL of the image
-        
+
+    @type rootstrap : C{str}
+    @param rootstrap: Url to the chroot rootstrap
+
     @type hw_packages : C{list} of C{str}
     @param hw_packages: The hardware packages
 
@@ -125,16 +130,21 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
         test_list['device'] = ",".join(hw_packages)
     if host_packages:
         test_list['host'] = ",".join(host_packages)
+
     if hw_testplans:
         test_list['hw_testplans'] = hw_testplans
     if host_testplans:
         test_list['host_testplans'] = host_testplans
+
+    if chroot_packages:
+        test_list['chroot'] = ",".join(chroot_packages)
 
     # Server deals with minutes, conductor uses seconds, 
     execution_timeout = int(execution_timeout)*60
 
     cmds = get_commands(distribution_model,
                         image,
+                        rootstrap,
                         test_list,
                         emmc,
                         testrun_uuid,

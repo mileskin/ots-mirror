@@ -25,7 +25,7 @@ A module for generating conductor commands based on testrun options
 """
 
 
-def conductor_command(options, host_testing):
+def conductor_command(options, host_testing, chroot_testing):
     """
     Creates a conductor command from the arguments. 
 
@@ -67,5 +67,8 @@ def conductor_command(options, host_testing):
 
     if host_testing == True:
         cmd.extend( ['-o'] )
+
+    if chroot_testing == True:
+        cmd.extend(["--chrooted", "--rootstrapurl=%s" % options["rootstrap"]])
 
     return cmd

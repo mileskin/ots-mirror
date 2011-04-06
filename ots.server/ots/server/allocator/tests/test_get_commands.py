@@ -40,7 +40,7 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
-
+        rootstrap = ""
 
         expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin', 
@@ -48,7 +48,8 @@ class TestGetCommands(unittest.TestCase):
                           '-t', "foo,bar,baz", '-m', '30']
         
         cmds = get_commands(distribution_model, 
-                            image_url, 
+                            image_url,
+                            rootstrap,
                             test_list,
                             emmc_flash_parameter,
                             testrun_id,
@@ -75,12 +76,13 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"
         timeout = "60"
-
+        rootstrap = ""
 
         expected_cmds = ["asdf"]
         
         cmds = get_commands(distribution_model, 
-                            image_url, 
+                            image_url,
+                            rootstrap,
                             test_list,
                             emmc_flash_parameter,
                             testrun_id,
@@ -88,8 +90,7 @@ class TestGetCommands(unittest.TestCase):
                             test_filter,
                             timeout,
                             custom_distribution_model = custom_model1)
-                             
-        
+
         self.assertEquals(cmds, expected_cmds)
 
 
@@ -104,14 +105,15 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "20"
-
+        rootstrap = ""
 
         expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-f', '-testsuite=testrunner-tests', '-m', '20']
         
         cmds = get_commands(distribution_model, 
-                            image_url, 
+                            image_url,
+                            rootstrap,
                             test_list,
                             emmc_flash_parameter,
                             testrun_id,
@@ -124,7 +126,6 @@ class TestGetCommands(unittest.TestCase):
 
     def test_host_tests(self):
         """Check conductor command with test packages for host"""
-
 
         expected_cmds = ['conductor',
                           '-u', 'http://image/url/image.bin', 
@@ -141,9 +142,11 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"
         timeout = "20"
+        rootstrap = ""
 
         cmds = get_commands(distribution_model, 
-                            image_url, 
+                            image_url,
+                            rootstrap,
                             test_list,
                             emmc_flash_parameter,
                             testrun_id,
@@ -153,7 +156,36 @@ class TestGetCommands(unittest.TestCase):
         
         self.assertEquals(cmds[0].command, expected_cmds)
 
-        
+    def test_chroot_tests(self):
+        """Check conductor command with test packages for chroot"""
+
+        expected_cmds = ['conductor',
+                          '-u', 'http://image/url/image.bin', 
+                          '-f', '-testsuite=testrunner-tests',
+                          '-t', "foo,bar,baz", '-m', '20',
+                          '--chrooted', "--rootstrapurl=url_to_rootstrap"]
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_list = {'chroot':"foo,bar,baz"}
+        emmc_flash_parameter = "" 
+        testrun_id = "" 
+        storage_address = "" 
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "20"
+        rootstrap = "url_to_rootstrap"
+
+        cmds = get_commands(distribution_model, 
+                            image_url,
+                            rootstrap,
+                            test_list,
+                            emmc_flash_parameter,
+                            testrun_id,
+                            storage_address,
+                            test_filter,
+                            timeout)
+
+        self.assertEquals(cmds[0].command, expected_cmds)
 
     def test_device_and_host_tests_no_flasher(self):
         """Check conductor command with packages for device and host, without flasherurl."""
@@ -178,9 +210,11 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "20"
+        rootstrap = ""
 
-        cmds = get_commands(distribution_model, 
-                            image_url, 
+        cmds = get_commands(distribution_model,
+                            image_url,
+                            rootstrap,
                             test_list,
                             emmc_flash_parameter,
                             testrun_id,
@@ -193,7 +227,10 @@ class TestGetCommands(unittest.TestCase):
         
 
     def test_device_and_host_tests_with_flasher(self):
-        """Check conductor command with packages for device and host, with flasherurl."""
+        """
+        Check conductor command with packages for device and host,
+        with flasher URL.
+        """
 
         expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin',
@@ -212,15 +249,17 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar,baz",'host':"foo,bar,baz"}
-        emmc_flash_parameter = "" 
-        testrun_id = "" 
+        emmc_flash_parameter = ""
+        testrun_id = ""
         storage_address = "" 
-        test_filter = "-testsuite=testrunner-tests"  
+        test_filter = "-testsuite=testrunner-tests"
         timeout = "60"
         flasher = "asdfasdf/asdf"
+        rootstrap = ""
 
         cmds = get_commands(distribution_model, 
-                            image_url, 
+                            image_url,
+                            rootstrap,
                             test_list,
                             emmc_flash_parameter,
                             testrun_id,
@@ -253,9 +292,11 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
+        rootstrap = ""
 
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -263,13 +304,9 @@ class TestGetCommands(unittest.TestCase):
                                 test_filter,
                                 timeout)
 
-
-
         self.assertEquals(len(commands), 2)
         self.assertEquals(commands[0].command, expected_cmd_1)
         self.assertEquals(commands[1].command, expected_cmd_2)
-
-
 
 
     def test_device_tests_with_one_pkg_in_distribution_perpackage(self):
@@ -288,17 +325,17 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
+        rootstrap = ""
 
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
                                 timeout)
-
-
 
         self.assertEquals(len(commands), 1)
         self.assertEquals(commands[0].command, expected_cmd_1)
@@ -326,8 +363,11 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
+        rootstrap = ""
+
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -369,9 +409,12 @@ class TestGetCommands(unittest.TestCase):
         testrun_id = "" 
         storage_address = ""
         timeout = "10"
-        test_filter = "-testsuite=testrunner-tests"  
+        test_filter = "-testsuite=testrunner-tests"
+        rootstrap = ""
+        
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -397,10 +440,13 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
         timeout = "30"
+        rootstrap = ""
+
         self.assertRaises(ValueError,
                           get_commands,
-                          distribution_model, 
-                          image_url, 
+                          distribution_model,
+                          image_url,
+                          rootstrap,
                           test_list,
                           emmc_flash_parameter,
                           testrun_id,
@@ -421,8 +467,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
                                 image_url, 
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -453,8 +501,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
                                 image_url, 
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -487,8 +537,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
                                 image_url, 
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -519,8 +571,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
                                 image_url, 
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -555,8 +609,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -592,8 +648,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
                                 image_url, 
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -637,8 +695,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
                                 image_url, 
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -669,8 +729,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -703,8 +765,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
                                 image_url, 
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -735,8 +799,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -771,8 +837,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,
@@ -808,8 +876,10 @@ class TestGetCommands(unittest.TestCase):
         storage_address = "" 
         test_filter = ""  
         timeout = "30"
+        rootstrap = ""
         commands = get_commands(distribution_model, 
-                                image_url, 
+                                image_url,
+                                rootstrap,
                                 test_list,
                                 emmc_flash_parameter,
                                 testrun_id,

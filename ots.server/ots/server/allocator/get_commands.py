@@ -23,11 +23,13 @@
 """
 A module for generating conductor commands based on testrun options
 """
-from ots.server.allocator.default_distribution_models\
+from ots.server.allocator.default_distribution_models \
     import single_task_distribution, perpackage_distribution
+
 
 def get_commands(distribution_model,
                  image_url,
+                 rootstrap,
                  test_list,
                  emmc_flash_parameter,
                  testrun_id,
@@ -47,8 +49,10 @@ def get_commands(distribution_model,
     options['flasherurl'] = flasher
     options['timeout'] = str(timeout)
     options['bootmode'] = None
+    options['rootstrap'] = rootstrap
     if extended_options:
         options['bootmode'] = extended_options.get("bootmode", None)
+
     cmds = []
 
     # Try custom distribution model first

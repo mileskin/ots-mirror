@@ -38,6 +38,7 @@ from ots.worker.command import HardTimeoutException
 from ots.worker.command import FailedAfterRetries
 from ots.worker.command import CommandFailed
 from ots.worker.api import ResponseClient
+from ots.worker.conductor.chroot import Chroot, RPMChroot
 
 # Send log messages to stdout (by default)
 logging.basicConfig(stream = sys.stdout, level = logging.DEBUG,
@@ -62,6 +63,7 @@ NON_EXISTING_FILE = "/non/existing/file"
 from ots.worker.conductor.executor import TestRunData as TRD
 from ots.worker.conductor.executor import Executor as TE
 from ots.worker.conductor.hardware import Hardware as HW
+
 
 class Mock_Hardware(HW):
     """
@@ -132,6 +134,9 @@ class Options(object):
         self.flasher_url = None
         self.bootmode = None
         self.testplan = None
+        self.rootstrap_url = None
+        self.chrooted = None
+        self.rootstrap_path = None
 
 class Stub_Executor(object):
     def __init__(self, testrun, stand_alone, responseclient = None,
@@ -638,6 +643,7 @@ class Test_Executor(unittest.TestCase):
         self.testrun.id = "1"
         self.executor.env = "testenvironment"
         self.executor.target = Stub_Hardware()
+        self.executor.chroot = Chroot(self.testrun)
 
         #test_package must match to string in Stub_Hardware
         test_package = "mypackage-test"

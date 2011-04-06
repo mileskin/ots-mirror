@@ -28,6 +28,7 @@ Currently:
 
  - hardware (the device)
  - host (the worker)
+ - chroot (a chroot environment in the worker)
 """
 
 import re
@@ -38,6 +39,7 @@ class Environment(object):
     """
 
     HOST_TEST_PATTERN = "host_*"
+    CHROOT_TEST_PATTERN = "chroot*"
     HARDWARE = "hardware"
 
     def __init__(self, environment):
@@ -51,6 +53,12 @@ class Environment(object):
     def is_host(self):
         """Is this a host environment?"""
         match = re.match(self.HOST_TEST_PATTERN, self.environment.lower())
+        return match is not None
+
+    @property    
+    def is_chroot(self):
+        """Is this a chroot environment?"""
+        match = re.match(self.CHROOT_TEST_PATTERN, self.environment.lower())
         return match is not None
 
     @property 

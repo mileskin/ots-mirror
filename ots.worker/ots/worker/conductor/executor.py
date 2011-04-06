@@ -35,6 +35,8 @@ from ots.worker.command import CommandFailed
 from ots.common.dto.api import MonitorType
 
 from ots.worker.conductor.hardware import Hardware, RPMHardware
+from ots.worker.conductor.chroot import Chroot, RPMChroot
+
 # Import internal constants
 from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                              TESTRUN_LOG_FILE, TESTRUN_LOG_CLEANER, \
@@ -49,7 +51,9 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                              TESTRUNNER_XML_READER_FAILS, \
                              TESTRUNNER_RESULT_LOGGING_FAILS, \
                              TIMEOUT_FETCH_ENVIRONMENT_DETAILS, \
-                             TIMEOUT_FETCH_FILES_AFTER_TESTING
+                             TIMEOUT_FETCH_FILES_AFTER_TESTING, \
+                             TESTRUNNER_CHROOT_OPTION, \
+                             HW_DEFAULT_IP_ADDRESS
 
 from ots.worker.conductor.conductorerror import ConductorError
 
@@ -79,6 +83,11 @@ class TestRunData(object):
         # Bootmode for flasher
         self.bootmode = options.bootmode
 
+        # rootstrap_url is preferred over rootstrap_path
+        self.rootstrap_url = options.rootstrap_url
+        # rootstrap_path may later get overwritten
+        self.rootstrap_path = options.rootstrap_path
+
         self.flasher_url = options.flasher_url
         
         # XML file
@@ -91,6 +100,7 @@ class TestRunData(object):
 
         self.is_host_based = options.host
         self.dontflash = options.dontflash
+        self.is_chrooted = options.chrooted
 
         self.filter_string = \
                 options.filter_options.replace('"', '\\"').replace("'", '\\"')
@@ -107,6 +117,7 @@ class TestRunData(object):
         
         self._parse_image_filename_from_url()
         self._validate_content_image_path()
+        self._validate_rootstrap_path()
 
         self.testdef_src = None
         self.results_src = None
@@ -115,6 +126,9 @@ class TestRunData(object):
         self.results_target_dir = None
         self.dst_testdef_file_path = None
         self.result_file_path = None #This is src and dst
+
+        # Target address, overwritten/updated after flashing
+        self.target_ip_address = HW_DEFAULT_IP_ADDRESS
 
     def _parse_image_filename_from_url(self):
         """ 
@@ -126,12 +140,24 @@ class TestRunData(object):
 
     def _validate_content_image_path(self):
         """
-        Checks that content_image_path is valid. Throws exception if path is not valid. 
-        None is considered valid and it indicates disabling content image flashing.
+        Checks that content_image_path is valid. Throws exception if path is
+        not valid. None is considered valid and it indicates disabling content
+        image flashing.
         """
         if self.content_image_path != None:
             if not os.path.isfile(self.content_image_path):
                 raise Exception("Invalid content image path!")
+
+    def _validate_rootstrap_path(self):
+        """
+        Checks that rootstrap_path is valid. Throws exception if path is not
+        valid. None is considered valid and it indicates that tests will not
+        run chrooted.
+        """
+        if self.rootstrap_path != None:
+            if not os.path.isfile(self.rootstrap_path):
+                raise Exception("Invalid rootstrap path!")
+
 
 
 ###############################################################################
@@ -149,7 +175,7 @@ class Executor(object):
         self.responseclient = responseclient
         self.hostname = hostname
         self.testrun_timeout = testrun_timeout
-        
+        self.chroot = None
 
         self.target = None #Test target object. Implements its own __str__().
         self.env = None    #Test environment name. String.
@@ -166,14 +192,18 @@ class Executor(object):
         packaging = self.testrun.config['device_packaging']
         if packaging == 'debian':
             self.target = Hardware(self.testrun)
+            self.chroot = Chroot(self.testrun)
         elif packaging == 'rpm':
             self.target = RPMHardware(self.testrun)
+            self.chroot = RPMChroot(self.testrun)
         else:
             raise Exception("Unsupported packaging type '%s'" % packaging)
 
-        #set test environment type
+        # Set test environment type
         if self.testrun.is_host_based:
             self.env = "Host_%s" % str(self.target)
+        elif self.testrun.is_chrooted:
+            self.env = "chroot"
         else:
             self.env = str(self.target)
 
@@ -187,8 +217,10 @@ class Executor(object):
         subprocess.call(TESTRUN_LOG_CLEANER, shell=True)
         try:
             errors = self._execute_tests()
-        finally: #exceptions are not caught here. They just pass by.
+        finally: # Exceptions are not caught here. They just pass by.
             self.target.cleanup()
+            self.chroot.cleanup()
+            self._set_status("FINISHED", self.testrun.image_filename)
 
         return errors
 
@@ -201,6 +233,7 @@ class Executor(object):
         self._create_testrun_folder()
         self._set_status(MonitorType.DEVICE_FLASH, self.testrun.image_filename)
         self.target.prepare()
+        self.chroot.prepare()
         self._define_test_packages()
         self._fetch_environment_details()
 
@@ -339,24 +372,25 @@ class Executor(object):
     def _set_paths(self, test_package):
         """Set file paths and target directories."""
 
-        if self.testrun.is_host_based:
-            self.testrun.src_result_folder = os.path.join(\
+        if self.testrun.is_host_based or self.testrun.is_chrooted:
+            self.testrun.src_result_folder = os.path.join( \
                 "~/testrunner_results", test_package)
         else:
-            self.testrun.src_result_folder = os.path.join(\
+            self.testrun.src_result_folder = os.path.join( \
                 "/root/testrunner_results", test_package)
 
         #common paths
-        self.testrun.results_src = os.path.join(\
+        self.testrun.results_src = os.path.join( \
                 self.testrun.src_result_folder, "*")
 
-        self.testrun.testdef_target_dir = os.path.join(\
+        self.testrun.testdef_target_dir = os.path.join( \
                 self.testrun.base_dir, test_package, "testdef")
-        self.testrun.results_target_dir = os.path.join(\
+        self.testrun.results_target_dir = os.path.join( \
                 self.testrun.base_dir, test_package, "results")
 
         if self.testrun.xml_file:
-            self.testrun.testdef_src = self.testrun.xml_file
+            self.testrun.testdef_src = os.path.join( \
+                    "/tmp", self.testrun.xml_file)
             self.testrun.dst_testdef_file_path = os.path.join(\
                     self.testrun.testdef_target_dir, self.testrun.xml_file)
         else:    
@@ -367,7 +401,7 @@ class Executor(object):
 
         self.testrun.result_file_path = os.path.join(\
             self.testrun.results_target_dir, 
-            self._testrunner_result_file(test_package)) #This is src and dst
+            self._testrunner_result_file(test_package)) # This is src and dst
 
 
     def _testrunner_result_file(self, test_package):
@@ -400,6 +434,9 @@ class Executor(object):
         if self.testrun.xml_file:
             return
 
+        if self.testrun.is_chrooted:
+            return
+
         self.log.info("Updating available packages")
         cmdstr = "apt-get update"
         self.log.debug(cmdstr)
@@ -421,10 +458,11 @@ class Executor(object):
 
         if not self.testrun.is_host_based:
             return
-
         if self.testrun.xml_file:
             return
-        
+        if self.testrun.is_chrooted:
+            return
+
         self.log.info("Removing test package %s" % test_package)
         cmdstr = "apt-get remove %s --yes --force-yes" % test_package
         self.log.debug(cmdstr)
@@ -704,10 +742,10 @@ class Executor(object):
         # Check if test plan is delivered
         if not xml_test_plan:
 
-            if self.testrun.is_host_based:
-                if not requested :
+            if self.testrun.is_host_based or self.testrun.is_chrooted:
+                if not requested:
                     raise Exception("Test packages not defined for host-based "\
-                                    "testing")
+                                    "or chrooted testing")
                 self.testrun.test_packages = requested
     
             else:
@@ -864,6 +902,11 @@ class Executor(object):
             return LOCAL_COMMAND_TO_COPY_FILE % \
                     (self.testrun.testdef_src, self.testrun.testdef_target_dir)
 
+        if self.testrun.is_chrooted:
+            return LOCAL_COMMAND_TO_COPY_FILE % \
+                    (self.chroot.path + os.sep + self.testrun.testdef_src,
+                        self.testrun.testdef_target_dir)
+
         return self.target.get_command_to_copy_testdef()
 
     def _get_command_to_copy_results(self):
@@ -897,7 +940,9 @@ class Executor(object):
                                     % self.testrun.filter_string
 
         remote_option = ""
-        if not self.testrun.is_host_based:
+        if self.testrun.is_chrooted:
+            remote_option = TESTRUNNER_CHROOT_OPTION % self.chroot.path
+        elif not self.testrun.is_host_based:
             remote_option = TESTRUNNER_SSH_OPTION
 
         workdir = os.path.expanduser(TESTRUNNER_WORKDIR)

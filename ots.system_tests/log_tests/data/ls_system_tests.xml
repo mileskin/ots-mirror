@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testdefinition version="1.0">
+ <description>System tests for OTS</description>
+ <suite domain="Common" component="System Control" timeout="90" type="Functional" name="OTS" level="System">
+  <description>System tests for OTS</description>
+  <set name="System_tests">
+   <case name="ls">
+    <step>ls -la</step>
+   </case>
+  </set>
+ </suite>
+</testdefinition>
