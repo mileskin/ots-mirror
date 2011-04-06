@@ -71,8 +71,8 @@ def _init_queue(channel, queue, exchange, routing_key):
     @type channel: C{amqplib.client_0_8.channel.Channel}  
     @param channel: The AMQP channel
 
-    @rtype queue: C{string}  
-    @return queue: The queue name
+    @rtype: C{str}  
+    @return: The queue name
     """
     LOGGER.debug("Inititalising queue '%s', exchange '%s', routing_key '%s'"
                  %(queue, exchange, routing_key))
@@ -183,14 +183,14 @@ class TaskRunner(object):
         
         Two types of messages:
         
-        1. Indication of state changes on the Task 
-        2. Feedback from the Task itself
+            1. Indication of state changes on the Task 
+            2. Feedback from the Task itself
 
         State change messages trigger a state transition.
         Everything else fires a signal
 
-        @type message: amqplib.client_0_8.basic_message.Message 
-        @param message: AMQP message
+        @type amqp_message: amqplib.client_0_8.basic_message.Message 
+        @param amqp_message: AMQP message
         """
         msg = unpack_message(amqp_message)
         if isinstance(msg, StateChangeMessage):
@@ -252,8 +252,8 @@ class TaskRunner(object):
         @type task_id: string
         @param task_id: The ID of the Task
 
-        @rtype task: L{Task}  
-        @return task: A Task
+        @rtype: L{Task}  
+        @return: A Task
         """
         return dict([(task.task_id, task) for task in self._tasks])[task_id]
         

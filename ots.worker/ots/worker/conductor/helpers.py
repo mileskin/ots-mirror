@@ -33,16 +33,16 @@ def parse_config(config_file, section, current_config=None):
     Values in current_config dictionary are updated from
     config_file if current_config is not None
 
-    @type config_file: C{string}
+    @type config_file: C{str}
     @param config_file: Absolute path of configuration file
 
-    @type section: C{string}
+    @type section: C{str}
     @param config_file: Section of configuration file
 
     @type current_config: C{dict}
     @param current_config: Base configuration dictionary
 
-    @rtype: C{dictionary}
+    @rtype: C{dict}
     @return: Configuration dictionary
     """
 
@@ -63,8 +63,8 @@ def parse_list(config_value):
     Parse comma-separated list of values from given string.
     Remove possible quotes surrounding any value. Return values as list.
 
-    @type config_value: C{string}
-    @param value: Configuration parameter value
+    @type config_value: C{str}
+    @param config_value: Configuration parameter value
 
     @rtype: C{list}
     @return: List presentation of configuration parameter value
@@ -80,16 +80,16 @@ def _update_config_items(config_dict, key, value):
     """
     Updates configuration dictionary values
 
-    @type config_dict: C{string}
+    @type config_dict: C{str}
     @param config_dict: Dictionary that will be updated
 
-    @type key: C{string}
+    @type key: C{str}
     @param key: Dictionary key
 
     @type value: C{list}
     @param value: Value that will be added to configuration
 
-    @rtype: C{dictionary}
+    @rtype: C{dict}
     @return: Configuration dictionary
 
     """

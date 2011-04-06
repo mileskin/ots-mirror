@@ -46,10 +46,10 @@ def queue_exists(host, user_id, password, virtual_host, queue):
     @param virtual_host: The AMQP virtual host
 
     @type queue : C{str} 
-    @param message: The name of queue which presence is queried
+    @param queue: The name of queue which presence is queried
 
-    @rtype exists: C{bool} 
-    @return exists: Whether the AMQP queue exists or not 
+    @rtype: C{bool} 
+    @return: Whether the AMQP queue exists or not 
     """
     ret_val = False
     connection = amqp.Connection(host = host, 

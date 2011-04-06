@@ -35,8 +35,8 @@ def result_2_string(testrun_result):
     @type testrun_result : L{TestrunResult}
     @param testrun_result : A Testrun result
 
-    @rtype : C {str}
-    @rparam : A string representation of the Result
+    @rtype: C {str}
+    @return: A string representation of the Result
     """
     ret_dict = {None: "No Cases", True : "Pass", False : "Fail"}
     return ret_dict[testrun_result]

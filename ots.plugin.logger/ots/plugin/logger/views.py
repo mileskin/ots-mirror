@@ -28,22 +28,22 @@
 """
 Logger creates and views log messages
 
-Example of creating log message:
+Example of creating log message::
 
-import logging
-import logging.handlers
-logger = logging.getLogger('mylogger_name')
-http_handler = logging.handlers.HTTPHandler(host_address,
-                                            '/logging/%s/%s/' % (servicename, run_id),
-                                            method='POST',)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(http_handler)
+  import logging
+  import logging.handlers
+  logger = logging.getLogger('mylogger_name')
+  http_handler = logging.handlers.HTTPHandler(host_address,
+                 '/logging/%s/%s/' % (servicename, run_id),method='POST',)
+  logger.setLevel(logging.DEBUG)
+  logger.addHandler(http_handler)
+  
+  logger.debug('debug message')
+  logger.info('info message')
+  logger.warn('warning message')
+  logger.error('error message')
+  logger.critical('critical message')
 
-logger.debug('debug message')
-logger.info('info message')
-logger.warn('warning message')
-logger.error('error message')
-logger.critical('critical message')
 """
 import datetime
 import socket
@@ -60,10 +60,10 @@ ROW_AMOUNT_IN_PAGE = 50
 def create_message(request, servicename=None, run_id=None):
     """ Creates log message to database.
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view. Request method must be POST.
 
-        @type servicename: C{string}
+        @type servicename: C{str}
         @param servicename: Service name (e.g. ots)
 
         @type run_id: C{int}
@@ -128,7 +128,7 @@ def create_message(request, servicename=None, run_id=None):
 def basic_testrun_viewer(request, run_id=None):
     """ Shows all messages in list view for given servicename and run id
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
         @type run_id: C{int}
@@ -152,7 +152,7 @@ def basic_testrun_viewer(request, run_id=None):
 def advanced_message_viewer(request):
     """ Shows all messages in list view
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
         @rtype: L{HttpResponse}
@@ -231,7 +231,7 @@ def advanced_message_viewer(request):
 def view_message_details(request, log_id=None):
     """ Shows message details view
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
         @type log_id: C{int}
@@ -255,7 +255,7 @@ def view_message_details(request, log_id=None):
 def view_workers(request):
     """ Shows workers view
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
         @rtype: L{HttpResponse}
@@ -293,10 +293,10 @@ def view_workers(request):
 def view_worker_details(request, remote_host=None):
     """ Shows message details view
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
-        @type remote_host: C{string}
+        @type remote_host: C{str}
         @param remote_host: Worker's host name
 
         @rtype: L{HttpResponse}
@@ -323,7 +323,7 @@ def view_worker_details(request, remote_host=None):
 def main_page(request):
     """
         Index page for viewing summary from all test runs.
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
     """
@@ -347,7 +347,7 @@ def main_page(request):
 def filter_message_viewer(request):
     """
         Page for viewing filtered messages from all test runs.
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
     """

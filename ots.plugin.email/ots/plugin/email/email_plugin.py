@@ -66,7 +66,7 @@ class EmailPlugin(PublisherPluginBase):
         @param request_id: An identifier for the request from the client
 
         @type testrun_uuid: C{str}
-        @param: The unique identifier for the testrun
+        @param testrun_uuid: The unique identifier for the testrun
 
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
@@ -124,24 +124,24 @@ class EmailPlugin(PublisherPluginBase):
     @property
     def is_email_on(self):
         """
+        Is the email switched on?
         @rtype: C{bool}
-        @return: Is the email switched on?
         """
         return self._email == ON
 
     @property
     def is_email_attachments_on(self):
         """
+        Is the email attachment switched on?
         @rtype: C{bool}
-        @return: Is the email attachment switched on?
         """
         return self._email_attachments == ON
 
     @property
     def build_url(self):
         """
+        The build url
         @rtype: C{str}
-        @return: The build url
         """
         if self._build_url is not None:
             return str(self._build_url)
@@ -150,8 +150,8 @@ class EmailPlugin(PublisherPluginBase):
     @property
     def request_id(self):
         """
+        The request_id
         @rtype: C{str}
-        @return: The request_id
         """
         if self._request_id is not None:
             return str(self._request_id)
@@ -160,8 +160,8 @@ class EmailPlugin(PublisherPluginBase):
     @property 
     def notify_list(self):
         """
+        The email notify list
         @rtype: C{list}
-        @return: The email notify list
         """
         if self._notify_list is not None:
             return self._notify_list 
@@ -174,8 +174,8 @@ class EmailPlugin(PublisherPluginBase):
     @property
     def mail_message(self):
         """
+        Mail message
         @rtype: C{str}
-        @return: Mail message
         """
         if self._mail_message is None:
             self._mail_message = MailMessage(self._from_address,
@@ -202,15 +202,15 @@ class EmailPlugin(PublisherPluginBase):
 
     def set_all_publisher_uris(self, uris_dict):
         """
-        @type: C{dict} of C{str} : C{str}
-        @param: Uris of other reporting tools 
+        @type uris_dict: C{dict} of C{str} : C{str}
+        @param uris_dict: Uris of other reporting tools 
         """
         self._source_uris = uris_dict
     
     def set_testrun_result(self, testrun_result):
         """
-        @type: C{str}
-        @param: The testrun result
+        @type testrun_result: C{str}
+        @param testrun_result: The testrun result
         """
         
         self._testrun_result = testrun_result
@@ -224,8 +224,8 @@ class EmailPlugin(PublisherPluginBase):
 
     def set_exception(self, exception):
         """
-        @type: C{Exception}
-        @param: The Exception
+        @type exception: C{Exception}
+        @param exception: The Exception
         """
         self._exception = exception
 

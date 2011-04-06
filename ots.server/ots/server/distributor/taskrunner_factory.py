@@ -36,20 +36,20 @@ def taskrunner_factory(routing_key,
     """
     Instantiate a Taskrunner from the config file
 
-    @type routing_key : C{string }  
+    @type routing_key : C{str}  
     @param routing_key : The routing_key for the Task
 
-    @rtype execution_timeout: C{int}  
-    @return execution_timeout: The timeout for the remote commands
+    @type execution_timeout: C{int}  
+    @param execution_timeout: The timeout for the remote commands
 
     @type testrun_id: C{int}  
     @param testrun_id: The Testrun id 
 
-    @type config_file: C{string}  
+    @type config_file: C{str}  
     @param config_file: The fqname of the config file
 
-    @rtype taskrunner: L{TaskRunner}  
-    @return taskrunner: The TaskRunner
+    @rtype: L{TaskRunner}  
+    @return: The TaskRunner
     """
     if not config_file:
         config_file = server_config_filename()

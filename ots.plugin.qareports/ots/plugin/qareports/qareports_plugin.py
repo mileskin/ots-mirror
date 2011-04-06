@@ -42,19 +42,19 @@ class QAReportsPlugin(PublisherPluginBase):
                  qa_reporting_disabled = False,
                  **kwargs):
         """
-        @type qa_hwproduct: C{string}
+        @type qa_hwproduct: C{str}
         @param qa_hwproduct: HW product used in the report
 
-        @type qa_testtype: C{string}
+        @type qa_testtype: C{str}
         @param qa_testtype: Test Type used in the report
 
-        @type qa_target: C{string}
+        @type qa_target: C{str}
         @param qa_target: Target used in the report
         
-        @type qa_release_version: C{string}
+        @type qa_release_version: C{str}
         @param qa_release_version: Release_Version used in the report
 
-        @type qa_reporting_disabled: C{string}
+        @type qa_reporting_disabled: C{str}
         @param qa_reporting_disabled: Disables report sending if True
         """
         self.result_xmls = []

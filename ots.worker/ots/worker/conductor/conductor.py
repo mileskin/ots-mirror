@@ -145,8 +145,8 @@ def _parse_command_line(args):
 def _setup_logging(verbose):
     """
     Initializes logging with 2 handlers:
-    - stdout will log messages defined by output_level.
-    - DEBUG_LOG_FILE will receive all messages. It is a rotating file handler.
+     - stdout will log messages defined by output_level.
+     - DEBUG_LOG_FILE will receive all messages. It is a rotating file handler.
     Returns root_logger
     """
 
@@ -357,8 +357,8 @@ def main():
         executor = Executor(testrun, stand_alone, responseclient, \
                             gethostname(), timeout)
         executor.set_target()
-    except ValueError, e:
-        log.error("Error: %s" % e)
+    except ValueError, err:
+        log.error("Error: %s" % err)
         sys.exit(1)
     except Exception:
         log.error("Unknown error while creating test!")

@@ -154,8 +154,8 @@ class MonitorPlugin(PublisherPluginBase):
         """
         Set error value to DB
         
-        @type: C{Exception}
-        @param: The Exception raised by the Testrun 
+        @type exception: C{Exception}
+        @param exception: The Exception raised by the Testrun 
         """
         self._testrun.error = exception
         self._testrun.save()

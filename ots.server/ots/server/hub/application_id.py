@@ -25,6 +25,6 @@
 def get_application_id():
     """
     @rtype: C{str}
-    @rparam: The global name of the application
+    @return: The global name of the application
     """
     return "ots_server"

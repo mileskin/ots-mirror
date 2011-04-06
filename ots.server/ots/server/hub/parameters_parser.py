@@ -32,7 +32,7 @@ def string_2_list(string):
     Converts a spaced string to an array
     
     @param string: The string for conversion
-    @type product: C{str}
+    @type string: C{str}
     
     @rtype: C{list} consisting of C{str}
     @return: The converted string
@@ -49,7 +49,7 @@ def string_2_dict(string):
     to a dictionary
     
     @param string: The string for conversion
-    @type product: C{str}
+    @type string: C{str}
     
     @rtype: C{dict} consisting of C{str}
     @return: The converted string

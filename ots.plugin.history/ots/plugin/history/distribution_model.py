@@ -41,8 +41,8 @@ def get_test_package_history(test_packages):
     Returns dictionary of test packages and their latest execution
     time. If time not available, then it is none
     
-    @type test_list: L{List}
-    @param test_list: List of test packages
+    @type test_packages: C{list}
+    @param test_packages: List of test packages
     
     @rtype: C{dict}
     @return: Dictionary of test package names and execution times (in minute)
@@ -74,10 +74,10 @@ def history_model(test_list, options):
     """
     Test package distribution based on history.
 
-    @type test_list: L{List}
+    @type test_list: C{list}
     @param test_list: List of test packages
 
-    @type options: L{Options}
+    @type options: C{Options}
     @param options: Testrun options in an ots.server.hub.options object
     
     @rtype: C{list}
@@ -131,7 +131,7 @@ def history_model(test_list, options):
 def get_model(options):
     """This is the factory method.
 
-    @type options: L{Options}
+    @type options: C{Options}
     @param options: Testrun options in an ots.server.hub.options object
 
     @rtype: C{callable}

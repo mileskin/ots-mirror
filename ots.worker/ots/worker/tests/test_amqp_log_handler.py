@@ -38,8 +38,8 @@ def _init_queue(channel, queue, exchange, routing_key):
     @type channel: C{amqplib.client_0_8.channel.Channel}  
     @param channel: The AMQP channel
 
-    @rtype queue: C{string}  
-    @return queue: The queue name
+    @rtype: C{str}  
+    @return: The queue name
     """
     channel.queue_declare(queue = queue, 
                           durable = False, 

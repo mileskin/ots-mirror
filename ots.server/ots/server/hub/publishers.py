@@ -68,13 +68,13 @@ class Publishers(PublisherPluginBase):
         @param request_id: An identifier for the request from the client
 
         @type testrun_uuid: C{str}
-        @param: The unique identifier for the testrun
+        @param testrun_uuid: The unique identifier for the testrun
 
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
 
-        @type image : C{str}
-        @param image : The URL of the image
+        @type image: C{str}
+        @param image: The URL of the image
         """
         root_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
         plugin_dir = os.path.join(root_dir, "plugins")
@@ -105,8 +105,8 @@ class Publishers(PublisherPluginBase):
         """
         Share the URI information amongst all the loaded Publishers
 
-        @type publishers : C{list} of C{ots.common.publisher_plugin_base}
-        @param publishers : A list of all the PublisherPlugins
+        @type testrun_uuid : C{list} of C{ots.common.publisher_plugin_base}
+        @param testrun_uuid : A list of all the PublisherPlugins
         """
         all_publisher_uris = {}
         for publisher in self._publishers:
@@ -119,8 +119,8 @@ class Publishers(PublisherPluginBase):
         Call the `method_name` on all the registered publishers
         Exception Handling as dictated by policy
 
-        @type : C{str}
-        @param : The name of the method to call on the Publisher
+        @type method_name: C{str}
+        @param method_name: The name of the method to call on the Publisher
         """
         LOG.debug("Delegating '%s' with args: '%s', kwargs: '%s'"
                    %(method_name, args, kwargs))
@@ -132,7 +132,7 @@ class Publishers(PublisherPluginBase):
 
     def _callback(self, signal, dto, **kwargs):
         """
-        @type signal: L{django.dispatch.dispatcher.Signal}
+        @type signal: C{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
 
         @type dto: L{ots.common.dto}
@@ -177,8 +177,8 @@ class Publishers(PublisherPluginBase):
         
     def set_exception(self, exception):
         """
-        @type: C{Exception}
-        @param: The Exception raised by the Testrun 
+        @type exception: C{Exception}
+        @param exception: The Exception raised by the Testrun 
         """
         list(self._delegator_iter("set_exception", exception))
         
@@ -191,8 +191,8 @@ class Publishers(PublisherPluginBase):
         
     def add_monitor_event(self, monitor):
         """
-        @type monitors : C{ots.common.dto.monitor}
-        @param monitors : Monitor events for plugins
+        @type monitor : C{ots.common.dto.monitor}
+        @param monitor : Monitor events for plugins
         """
         list(self._delegator_iter("add_monitor_event", monitor))
         
@@ -203,7 +203,7 @@ class Publishers(PublisherPluginBase):
     def get_uris(self):
         """
         @rtype: C{dict} of C{str} : C{str}
-        @rparam: A Dictionary of uris for the published data 
+        @return: A Dictionary of uris for the published data 
                  for the Publishers {name : uri} 
         """
         uris_dict_all = {}

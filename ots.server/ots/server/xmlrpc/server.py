@@ -43,8 +43,8 @@ class OtsForkingServer(ForkingMixIn, SimpleXMLRPCServer):
 
 def _config():
     """
-    rtype: C{Tuple) of C{str} and C{int}
-    rparam: hostname, port
+    @rtype: C{tuple} of C{str} and C{int}
+    @return: hostname, port
     """
     config_file = server_config_filename()
     config = configobj.ConfigObj(config_file).get("ots.server.xmlrpc")
@@ -75,7 +75,7 @@ def main(is_logging = False):
     server.serve_forever()
 
 if __name__ == "__main__":
-    show_logging = False
+    SHOW_LOGGING = False
     if len(sys.argv) > 1 and sys.argv[1] == "log":
-        show_logging = True
-    main(show_logging)
+        SHOW_LOGGING = True
+    main(SHOW_LOGGING)

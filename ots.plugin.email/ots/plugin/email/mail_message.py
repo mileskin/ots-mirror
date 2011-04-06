@@ -50,7 +50,7 @@ def format_result(result, exception):
     @param exception: The exception raised
 
     @rtype: C{str}
-    @rparam: The formatted result 
+    @return: The formatted result 
     """
 
     if exception is not None:
@@ -60,11 +60,11 @@ def format_result(result, exception):
 
 def format_source_uris(source_uris_dict):
     """ 
-    @type links: C{list} of C{tuple} of C{str},C{str}
-    @param links: The links to the results
+    @type source_uris_dict: C{list} of C{tuple} of C{str},C{str}
+    @param source_uris_dict: The links to the results
 
     @rtype: C{str}
-    @rparam: The formatted result 
+    @return: The formatted result 
     """
     return "\n".join(["%s: %s"%(text, url) 
                       for text,url in source_uris_dict.items()])
@@ -72,9 +72,11 @@ def format_source_uris(source_uris_dict):
 
 def format_packages(packages):
     """
-    @type expected_packages: C{ots.common.dto.packages}
-    @param expected_packages: The packages that should be 
+    @type packages: C{ots.common.dto.packages}
+    @param packages: The packages that should be 
                               executed in the run
+    @rtype: C{str}
+    @return: String representation of given packages
     """
    
     if not packages:
@@ -125,31 +127,28 @@ class MailMessage(object):
         @param request_id: An identifier for the request from the client
 
         @type testrun_uuid: C{str}
-        @param The unique identifier for the testrun
+        @param testrun_uuid: The unique identifier for the testrun
 
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
 
-        @type: C{ots.common.testrun_result}
-        @param: The testrun result
+        @type result: C{ots.common.testrun_result}
+        @param result: The testrun result
         
-        @type results : C{list} of C{ots.common.dto.results}
-        @param results : The Results
+        @type exception: C{Exception}
+        @param exception: The Exception
         
-        @type: C{Exception}
-        @param: The Exception
-        
-        @type tested_packages : C{ots.common.dto.packages}
+        @type tested_packages: C{ots.common.dto.packages}
         @param tested_packages: The Test Packages that were run
 
-        @type source_uris : C{dict} of C{str} : C{str}
-        @param source_uris : Uris of other reporting tools 
+        @type source_uris: C{dict} of C{str} : C{str}
+        @param source_uris: Uris of other reporting tools 
 
-        @type build_url : C{str}
-        @param build_url : The build url
+        @type build_url: C{str}
+        @param build_url: The build url
                 
-        @rtype : C{str}
-        @rparam : The Body of the email message
+        @rtype: C{str}
+        @return: The Body of the email message
         """
         build_link = build_url % request_id
         return self.message_template % (sw_product, 
@@ -168,11 +167,11 @@ class MailMessage(object):
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
 
-        @type: C{ots.common.testrun_result}
-        @param: The testrun result
+        @type result: C{ots.common.testrun_result}
+        @param result: The testrun result
 
-        @rtype : C{str}
-        @rtype : The subject
+        @rtype: C{str}
+        @return: The subject
         """
         
         return self.subject_template % (sw_product, 
@@ -195,37 +194,37 @@ class MailMessage(object):
         @param request_id: An identifier for the request from the client
 
         @type testrun_uuid: C{str}
-        @param The unique identifier for the testrun
+        @param testrun_uuid: The unique identifier for the testrun
 
         @type sw_product: C{str}
         @param sw_product: Name of the sw product this testrun belongs to
 
-        @type: C{str}
-        @param: The testrun result
+        @type result: C{str}
+        @param result: The testrun result
         
-        @type results : C{list} of C{ots.common.dto.results}
-        @param results : The Results
+        @type result_files: C{list} of C{ots.common.dto.results}
+        @param result_files: The Result files
         
-        @type: C{Exception}
-        @param: The Exception
+        @type exception: C{Exception}
+        @param exception: The Exception
         
-        @type tested_packages : C{ots.common.dto.packages}
+        @type tested_packages: C{ots.common.dto.packages}
         @param tested_packages: The Test Packages that were run
 
-        @type source_uris : C{dict} of C{str} : C{str}
-        @param source_uris : Uris of other reporting tools 
+        @type source_uris: C{dict} of C{str} : C{str}
+        @param source_uris: Uris of other reporting tools 
 
-        @type notify_list : C{list}
-        @param notify_list : The email notify list 
+        @type notify_list: C{list}
+        @param notify_list: The email notify list 
   
-        @type email_attachments : C{bool}
-        @param email_attachments : Is the email attachment switched on?
+        @type email_attachments: C{bool}
+        @param email_attachments: Is the email attachment switched on?
         
-        @type build_url : C{str}
-        @param build_url : The build url
+        @type build_url: C{str}
+        @param build_url: The build url
                 
-        @rtype : C{MIMEMultipart}
-        @rparam : Mail message
+        @rtype: C{MIMEMultipart}
+        @return: Mail message
         """
         msg = MIMEMultipart()
         msg["Subject"] = self._subject(request_id, sw_product, result)

@@ -42,8 +42,8 @@ class Environment(object):
 
     def __init__(self, environment):
         """
-        @type environment: C{string}
-        @param: environment: The test environment
+        @type environment: C{str}
+        @param environment: The test environment
         """
         self.environment = environment
 

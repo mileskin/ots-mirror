@@ -20,6 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Logger plug-in to OTS server """
+
 import warnings
 warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
 

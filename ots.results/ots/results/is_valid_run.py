@@ -34,7 +34,7 @@ def _check_packages(expected_packages_dict):
     """
     @type expected_packages_dict: C{dict} 
                             - keys C{ots.common.Environment}
-                            - values C{list} of C{string}
+                            - values C{list} of C{str}
     @param expected_packages_dict: Is hardware testing enabled
   
     Have any packages been found at all?
@@ -47,12 +47,12 @@ def _check_packages(expected_packages_dict):
 
 def _check_hw_testing(is_hw_enabled, expected_packages_dict):
     """
-    @type is_hw_testing_enabled: C{bool}
-    @param is_hw_testing_enabled: Is hardware testing enabled
+    @type is_hw_enabled: C{bool}
+    @param is_hw_enabled: Is hardware testing enabled
     
     @type expected_packages_dict: C{dict} 
                             - keys C{ots.common.Environment}
-                            - values C{list} of C{string}
+                            - values C{list} of C{str}
     @param expected_packages_dict:  The packages that should have been tested
 
     If hardware testing specified are there hardware test packages?
@@ -69,7 +69,7 @@ def _check_host_testing(is_host_enabled, expected_packages_dict):
     
     @type expected_packages_dict: C{dict} 
                             - keys C{ots.common.Environment}
-                            - values C{list} of C{string}
+                            - values C{list} of C{str}
     @param expected_packages_dict:  The packages that should have been tested
 
     If host testing specified are there host packages?
@@ -85,12 +85,12 @@ def _check_complete(expected_packages_dict,
     """
     @type expected_packages_dict: C{dict} 
                             - keys C{ots.common.Environment}
-                            - values C{list} of C{string}
+                            - values C{list} of C{str}
     @param expected_packages_dict: The packages that should have been tested
 
     @type tested_packages_dict: C{dict} 
                             - keys C{ots.common.Environment}
-                            - values C{list} of C{string}
+                            - values C{list} of C{str}
     @param tested_packages_dict: The packages that were actually tested
     """
     missing_packages = []

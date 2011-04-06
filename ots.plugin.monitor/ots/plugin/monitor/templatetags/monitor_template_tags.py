@@ -117,6 +117,19 @@ def logger_url(runid):
 
 @register.filter
 def format_orderby(current, order):
+    """
+    Format orderby parameter to enable
+    ordering of table columns
+    
+    @type current: C{str}
+    @param current: currently active orderby parameter
+    
+    @type order: C{str}
+    @param order: name of the field to order by
+    
+    @rtype: C{str}
+    @return: new orderby parameter
+    """
     if current is None or current == '':
         return order
     base = current
@@ -124,21 +137,33 @@ def format_orderby(current, order):
         base = current[1:]
 
     if base == order:
-        if current[0]=='-':
+        if current[0] == '-':
             return order
         else:
-            return '-%s'%order
+            return '-%s' % order
     return order
 
 @register.filter
 def order_dir(current, order):
+    """
+    Get the direction of sorting
+    
+    @type current: C{str}
+    @param current: currently active orderby parameter
+    
+    @type order: C{str}
+    @param order: name of the field
+    
+    @rtype: C{str}
+    @return: 'asc','desc' or '' depending on sort direction.  
+    """
     if current is None or current == '':
         return ''
     base = current
     if current[0] == '-':
         base = current[1:]
     if base == order:
-        if current[0]=='-':
+        if current[0] == '-':
             return 'desc'
         else:
             return 'asc'

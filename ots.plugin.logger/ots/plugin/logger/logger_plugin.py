@@ -68,8 +68,8 @@ class LoggerPlugin(PublisherPluginBase):
 
     def set_all_publisher_uris(self, uris_dict):
         """
-        @type: C{dict} of C{str} : C{str}
-        @param: A Dictionary of uris for the published data 
+        @type uris_dict: C{dict} of C{str} : C{str}
+        @param uris_dict: A Dictionary of uris for the published data 
         for *all* Publishers in {name : uri} 
         """
         logging.getLogger(__name__).debug("Urls from all publishers: %s" % \
@@ -78,7 +78,7 @@ class LoggerPlugin(PublisherPluginBase):
     def get_this_publisher_uris(self):
         """
         @rtype: C{dict} of C{str} : C{str}
-        @rparam: A Dictionary of uris for the published data 
+        @return: A Dictionary of uris for the published data 
                  for *this* Publisher in {name : uri} 
         """
 

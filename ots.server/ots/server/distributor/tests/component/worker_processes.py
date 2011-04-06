@@ -67,8 +67,8 @@ class WorkerProcesses(object):
         """
         Start the processes
 
-        @type no_of_processes : C{int}
-        @param no_of_processes : The number of Workers
+        @type no_of_workers : C{int}
+        @param no_of_workers : The number of Workers
 
         @rtype: C{list} of C{int}
         @returns: pids of the started processes

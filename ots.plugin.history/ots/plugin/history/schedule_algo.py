@@ -24,12 +24,20 @@
 
 def group_packages(packages, max_runtime=60, max_groups=1000):
     """
-    packages: dict of (packages: estimated runtime)
-    max_runtime: returned groups of packages should not exceed it when possible
-    max_groups: MUST be greater than 1, maximum number of groups to be returned
+    @type packages: C{dict} of C{str} : C{int}
+    @param packages: dict of (packages: estimated runtime)
+    
+    @type max_runtime: C{int}
+    @param max_runtime: returned groups of packages should not exceed
+                        it when possible
+                        
+    @type max_groups: C{int} 
+    @param max_groups: MUST be greater than 1, maximum number of groups
+                       to be returned
 
-    returns: list of list of task names, each sublist is a group of packages, 
-    total estimated runtime of a group should be below max_runtime
+    @rtype: C{list} of C{list} of C{str} 
+    @returns: list of list of task names, each sublist is a group of packages, 
+              total estimated runtime of a group should be below max_runtime
     """
     sorted_tasks, unknown_tasks = _sort_tasks(packages)
     tgroups = []
