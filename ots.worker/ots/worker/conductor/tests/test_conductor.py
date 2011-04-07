@@ -63,7 +63,7 @@ NON_EXISTING_FILE = "/non/existing/file"
 from ots.worker.conductor.executor import TestRunData as TRD
 from ots.worker.conductor.executor import Executor as TE
 from ots.worker.conductor.hardware import Hardware as HW
-
+from ots.common.framework.flasher_plugin_base import FlasherPluginBase
 
 class Mock_Hardware(HW):
     """
@@ -139,6 +139,7 @@ class Options(object):
         self.chrooted = None
         self.rootstrap_path = None
         self.device_n = 0
+        self.target_flasher = ""
 
 class Stub_Executor(object):
     def __init__(self, testrun, stand_alone, responseclient = None,
@@ -245,18 +246,6 @@ class TestConductorConf(unittest.TestCase):
         from ots.worker.conductor import conductor
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
         conf = conductor._read_configuration_files(conf_file, 0)
-        self.assertTrue(type(conf) == type(dict()))
-        self.assertTrue(conf['device_packaging'] != "")
-        self.assertTrue(conf['pre_test_info_commands_debian'] != "")
-        self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
-        self.assertTrue(conf['pre_test_info_commands'] != "")
-        self.assertTrue(conf['files_fetched_after_testing'] != "")
-        self.assertTrue(conf['tmp_path'] != "")
-        
-    def test_read_conductor_config_instance_2(self):
-        from ots.worker.conductor import conductor
-        conf_file = os.path.join(os.path.dirname(__file__), "conductor_2.conf")
-        conf = conductor._read_configuration_files(conf_file, 2)
         self.assertTrue(type(conf) == type(dict()))
         self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['pre_test_info_commands_debian'] != "")
@@ -802,27 +791,46 @@ class Test_Executor(unittest.TestCase):
     def test_include_testrun_log_file(self):
         self.assertTrue(self.real_executor._include_testrun_log_file() in [0,1])
 
+    def test_load_flasher_plugin_default(self):
+        
+        self.testrun.target_flasher = ""
+        executor = Mock_Executor(self.testrun, True, None,
+                                 hostname="hostname", testrun_timeout=60)
+        executor._load_flasher_module()
+        flasher = executor.testrun.flasher_module()
+        self.assertTrue(isinstance(flasher, FlasherPluginBase))        
 
 class TestDefaultFlasher(unittest.TestCase):
     """Tests for defaultflasher.py"""
 
     def test_exceptions(self):
-        from ots.worker.conductor.defaultflasher import FlashFailed
-        from ots.worker.conductor.defaultflasher import InvalidImage
-        from ots.worker.conductor.defaultflasher import InvalidConfig
-        from ots.worker.conductor.defaultflasher import ConnectionTestFailed
+        from ots.common.framework.flasher_plugin_base import FlashFailed
+        from ots.common.framework.flasher_plugin_base import InvalidImage
+        from ots.common.framework.flasher_plugin_base import InvalidConfig
+        from ots.common.framework.flasher_plugin_base import ConnectionTestFailed
 
     def test_softwareupdater_flash(self):
-        from ots.worker.conductor.defaultflasher import SoftwareUpdater
-        sw_updater = SoftwareUpdater()
+        sw_updater = FlasherPluginBase()
         sw_updater.flash("image1", "image2")
 
     def test_softwareupdater_flash_with_bootmode(self):
-        from ots.worker.conductor.defaultflasher import SoftwareUpdater
-        sw_updater = SoftwareUpdater()
+        sw_updater = FlasherPluginBase()
         sw_updater.flash(image_path = "image1",
                          content_image_path = "image2",
-                         boot_mode="normal")
+                         boot_mode = "normal")
+
+    def test_softwareupdater_flash_with_ip_options(self):
+        sw_updater = FlasherPluginBase()
+        sw_updater.flash(image_path = "image1",
+                         content_image_path = "image2",
+                         host_ip = "192.168.2.14",
+                         device_ip = "192.168.2.15")
+
+    def test_softwareupdater_flash_with_device_n(self):
+        sw_updater = FlasherPluginBase()
+        sw_updater.flash(image_path = "image1",
+                         content_image_path = "image2",
+                         device_n = 1)
 
 
 if __name__ == '__main__':
