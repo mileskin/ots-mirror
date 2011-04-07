@@ -25,7 +25,7 @@
 
 # See also /etc/conductor.conf
 
-DEBUG_LOG_FILE = "~/conductor.log"
+DEBUG_LOG_FILE = "~/conductor_%d.log"
 
 TEST_DEFINITION_FILE_NAME = "tests.xml"
 
@@ -64,9 +64,8 @@ FLASHER_PATH = "/tmp/flasher"
 
 # Command for HW_COMMAND must not contain single quotes (').
 # Note: Backslash-escaping them doesn't work.
-HW_DEFAULT_IP_ADDRESS = "192.168.2.15"
-HW_COMMAND = "ssh root@192.168.2.15 '%s'"
-HW_COMMAND_TO_COPY_FILE = "scp root@192.168.2.15:%s %s"
+HW_COMMAND = "ssh root@%s '%s'"
+HW_COMMAND_TO_COPY_FILE = "scp root@%s:%s %s"
 LOCAL_COMMAND_TO_COPY_FILE = "cp %s %s"  #for host-based testing
 
 # Number of retries and sleep interval for SSH connections

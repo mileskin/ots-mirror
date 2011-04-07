@@ -44,6 +44,8 @@ from ots.worker.api import ResponseClient
 DEFAULT_CONFIG = "/etc/conductor.conf"
 OPT_CONF_SUFFIX = ".conf"
 
+LOG = logging.getLogger("conductor")
+
 def _parse_command_line(args):
     """
     Parse command line options (args) and set default values to them.
@@ -61,6 +63,11 @@ def _parse_command_line(args):
                     type="string",
                     help="URL to main flash image file",
                     metavar="URL")
+    
+    parser.add_option("-U", "--imagepath", dest="image_path", action="store", 
+                    type="string",
+                    help="Path to main flash image file",
+                    metavar="PATH")
 
     parser.add_option("-t", "--testpkgs", dest="packages", action="store",
                     type="string",
@@ -157,11 +164,16 @@ def _parse_command_line(args):
                     metavar="FLASHERURL")
 
     (options, args) = parser.parse_args(args)
+    
+    if os.getenv("OTS_WORKER_NUMBER"):
+        options.device_n = int(os.getenv("OTS_WORKER_NUMBER"))
+    else:
+        options.device_n = 0
 
     return (options, parser)
 
 
-def _setup_logging(verbose):
+def _setup_logging(verbose, device_number):
     """
     Initializes logging with 2 handlers:
     - stdout will log messages defined by output_level.
@@ -183,7 +195,7 @@ def _setup_logging(verbose):
     output_handler.setLevel(output_level)
     output_handler.setFormatter(formatter)
 
-    log_file = os.path.expanduser(DEBUG_LOG_FILE)
+    log_file = os.path.expanduser(DEBUG_LOG_FILE % device_number)
     debug_handler = logging.handlers.RotatingFileHandler(log_file,
                                                 maxBytes=5242880,
                                                 backupCount=5)
@@ -226,7 +238,7 @@ def _check_command_line_options(options):
             sys.stderr.write("Invalid OTS server parameter: %s\n"\
                              % (options.otsserver))
             return False
-    if options.image_url is None:
+    if options.image_url is None :
         sys.stderr.write("Missing mandatory argument (url)\n")
         return False
 
@@ -274,7 +286,7 @@ def _parse_conductor_config(config_file, current_config_dict=None):
     return config_dict
 
 
-def _read_configuration_files(config_file):
+def _read_configuration_files(config_file, device_n):
     """
     Read main configuration file and optional custom configuraion
     files.
@@ -283,6 +295,16 @@ def _read_configuration_files(config_file):
     if not (config_file and os.path.exists(config_file)):
         config_file = DEFAULT_CONFIG
 
+    # Try if there is separated config file
+    if device_n != 0:
+        default_path = os.path.splitext(DEFAULT_CONFIG)
+        new_config_path = default_path[0] + "_%d" % device_n + default_path[1]
+        
+        if os.path.exists(new_config_path):
+            config_file = new_config_path
+    
+    LOG.info("using config file %s" % config_file)
+    
     config_dict = _parse_conductor_config(config_file)
 
     if config_dict.has_key('custom_config_folder'):
@@ -303,7 +325,7 @@ def _read_optional_config_files(custom_folder, config_dict):
     try:
         contents = os.listdir(custom_folder)
     except (OSError, IOError), error:
-        log.warning("Error listing directory %s: %s" % (custom_folder, error))
+        LOG.warning("Error listing directory %s: %s" % (custom_folder, error))
     else:
         for custom_config_file in contents:
             if len(custom_config_file) > len(OPT_CONF_SUFFIX) \
@@ -329,16 +351,16 @@ def _initialize_remote_connections(otsserver, testrun_id):
     try:
         _add_http_logger(host, testrun_id)
     except:
-        log.error("Unknown error in initializing http logger to server "\
+        LOG.error("Unknown error in initializing http logger to server "\
                   "%s!" % host)
-        log.debug("Traceback follows:", exc_info=True)
+        LOG.debug("Traceback follows:", exc_info=True)
         return None
 
     try:
         responseclient = ResponseClient(host, testrun_id)
         responseclient.connect()
     except:
-        log.error("Unknown error in initializing OTS client connecting "\
+        LOG.error("Unknown error in initializing OTS client connecting "\
                       "to %s! (Using OtsResponseClient)" % (host))
         
     return responseclient
@@ -354,8 +376,10 @@ def main():
 
     stand_alone = not options.testrun_id and not options.otsserver
 
-    _setup_logging(options.verbose)
-    log = logging.getLogger("conductor")
+    device_n = 0
+    if options.device_n:
+        device_n = options.device_n
+    _setup_logging(options.verbose, device_n)
 
     responseclient = None
 
@@ -365,17 +389,17 @@ def main():
         if not responseclient:
             sys.exit(1)
 
-    log.debug(70*"=") #for log file
-    log.info("Starting conductor at %s" % gethostname())
-    log.info("Incoming command line parameters: %s" \
+    LOG.debug(70*"=") #for log file
+    LOG.info("Starting conductor at %s" % gethostname())
+    LOG.info("Incoming command line parameters: %s" \
                 % " ".join([arg for arg in sys.argv[1:]]))
-    log.debug("os.getenv('USERNAME') = %s" % os.getenv('USERNAME'))
-    log.debug("os.environ.get('HOME') = %s" % os.environ.get("HOME"))
-    log.debug("os.getcwd() = %s" % os.getcwd())
+    LOG.debug("os.getenv('USERNAME') = %s" % os.getenv('USERNAME'))
+    LOG.debug("os.environ.get('HOME') = %s" % os.environ.get("HOME"))
+    LOG.debug("os.getcwd() = %s" % os.getcwd())
 
-    log.debug("Reading configuration file")
+    LOG.debug("Reading configuration file")
 
-    config = _read_configuration_files(options.config_file)
+    config = _read_configuration_files(options.config_file, device_n)
 
     try:
         timeout = float(options.timeout)
@@ -384,41 +408,41 @@ def main():
                             gethostname(), timeout)
         executor.set_target()
     except ValueError, e:
-        log.error("Error: %s" % e)
+        LOG.error("Error: %s" % e)
         sys.exit(1)
     except Exception:
-        log.error("Unknown error while creating test!")
-        log.error("Traceback follows:", exc_info=True)
+        LOG.error("Unknown error while creating test!")
+        LOG.error("Traceback follows:", exc_info=True)
         sys.exit(1)
 
-    log.info("Testrun ID: %s  Environment: %s" % (options.testrun_id, 
+    LOG.info("Testrun ID: %s  Environment: %s" % (options.testrun_id, 
                                                   executor.env))
 
     if options.filter_options:
-        log.debug("Filtering enabled: %s" % options.filter_options)
+        LOG.debug("Filtering enabled: %s" % options.filter_options)
 
     errors = 0
     try:
         errors = executor.execute_tests()
     except ConductorError, exc:
-        log.error("%s (ots error code: %s)" % (exc.error_info, exc.error_code))
+        LOG.error("%s (ots error code: %s)" % (exc.error_info, exc.error_code))
         if not stand_alone:
             responseclient.set_error(exc.error_info, exc.error_code)
-        log.info("Testing in %s ended with error." % executor.env)
+        LOG.info("Testing in %s ended with error." % executor.env)
         sys.exit(0)
     except:
-        log.error("Unknown error when trying to execute tests.")
-        log.error("Traceback follows:", exc_info = True)
+        LOG.error("Unknown error when trying to execute tests.")
+        LOG.error("Traceback follows:", exc_info = True)
         if not stand_alone:
             responseclient.set_error(str(sys.exc_info()[1]), "999")
-        log.info("Testing in %s ended with error." % executor.env)
+        LOG.info("Testing in %s ended with error." % executor.env)
         sys.exit(0)
 
     if errors:
-        log.info("Testing in %s done. Execution error reported on %i "\
+        LOG.info("Testing in %s done. Execution error reported on %i "\
                  "test packages." % (executor.env, errors))
     else:
-        log.info("Testing in %s done. No errors." % executor.env)
+        LOG.info("Testing in %s done. No errors." % executor.env)
 
 
 if __name__ == '__main__':

@@ -123,6 +123,7 @@ class Options(object):
     def __init__(self):
         self.testrun_id = None #standalone
         self.image_url = "xxx/yyy.bin"
+        self.image_path = None
         self.content_image_url = "xxx/yyy"
         self.content_image_path = None
         self.packages = ""
@@ -137,6 +138,7 @@ class Options(object):
         self.rootstrap_url = None
         self.chrooted = None
         self.rootstrap_path = None
+        self.device_n = 0
 
 class Stub_Executor(object):
     def __init__(self, testrun, stand_alone, responseclient = None,
@@ -223,8 +225,8 @@ class TestConductorInternalConstants(unittest.TestCase):
         c.TESTRUNNER_LOGGER_OPTION % 1
         c.TESTRUNNER_FILTER_OPTION   % "xxx"
         c.HTTP_LOGGER_PATH % 1
-        c.HW_COMMAND % "xxx"
-        c.HW_COMMAND_TO_COPY_FILE    % (1,2)
+        c.HW_COMMAND % ("xxx", "bar")
+        c.HW_COMMAND_TO_COPY_FILE    % ("xxx", 1,2)
         c.LOCAL_COMMAND_TO_COPY_FILE % (1,2)
         c.SSH_CONNECTION_RETRIES
         c.SSH_RETRY_INTERVAL
@@ -242,7 +244,19 @@ class TestConductorConf(unittest.TestCase):
     def test_read_conductor_config(self):
         from ots.worker.conductor import conductor
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
-        conf = conductor._read_configuration_files(conf_file)
+        conf = conductor._read_configuration_files(conf_file, 0)
+        self.assertTrue(type(conf) == type(dict()))
+        self.assertTrue(conf['device_packaging'] != "")
+        self.assertTrue(conf['pre_test_info_commands_debian'] != "")
+        self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
+        self.assertTrue(conf['pre_test_info_commands'] != "")
+        self.assertTrue(conf['files_fetched_after_testing'] != "")
+        self.assertTrue(conf['tmp_path'] != "")
+        
+    def test_read_conductor_config_instance_2(self):
+        from ots.worker.conductor import conductor
+        conf_file = os.path.join(os.path.dirname(__file__), "conductor_2.conf")
+        conf = conductor._read_configuration_files(conf_file, 2)
         self.assertTrue(type(conf) == type(dict()))
         self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['pre_test_info_commands_debian'] != "")
@@ -255,7 +269,7 @@ class TestConductorConf(unittest.TestCase):
         from ots.worker.conductor import conductor
         optional_value = "ps aux"
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
-        conf = conductor._read_configuration_files(conf_file)
+        conf = conductor._read_configuration_files(conf_file,0 )
         self.assertTrue(type(conf) == type(dict()))
         self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['pre_test_info_commands_debian'] != "")
@@ -424,9 +438,9 @@ class TestHardware(unittest.TestCase):
 
     def test_fetch_file(self):
         url = "http://my.fake.server.com/path/filename"
-        expected_path = os.path.join(self.config['tmp_path'], "filename")
         path = self.mock_hw._fetch_file(url) #urllib.urlretrieve and delete_file are stubbed out
-        self.assertEquals(path, expected_path)
+        self.assertTrue(path.find("/tmp/tmp") == 0)
+        self.assertTrue(path.find("/filename") > 0)
 
     def test_fetch_flasher(self):
         self.testrun.flasher_url = "http://my.fake.server.com/path/flasher"

@@ -36,6 +36,7 @@ class Options(object):
     def __init__(self):
         self.testrun_id = None #standalone
         self.image_url = "xxx/yyy.bin"
+        self.image_path = "xxx/yyy.bin"
         self.content_image_url = "xxx/yyy"
         self.content_image_path = None
         self.packages = ""
@@ -50,6 +51,7 @@ class Options(object):
         self.rootstrap_url = None
         self.chrooted = None
         self.rootstrap_path = None
+        self.device_n = 0
 
 
 class TestChroot(unittest.TestCase):

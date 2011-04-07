@@ -27,6 +27,7 @@ import logging
 import os
 import subprocess
 import time
+import pkg_resources
 
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
@@ -52,8 +53,7 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                              TESTRUNNER_RESULT_LOGGING_FAILS, \
                              TIMEOUT_FETCH_ENVIRONMENT_DETAILS, \
                              TIMEOUT_FETCH_FILES_AFTER_TESTING, \
-                             TESTRUNNER_CHROOT_OPTION, \
-                             HW_DEFAULT_IP_ADDRESS
+                             TESTRUNNER_CHROOT_OPTION
 
 from conductorerror import ConductorError
 
@@ -73,8 +73,7 @@ class TestRunData(object):
         self.id = options.testrun_id
         self.image_url = options.image_url
 
-        #TODO Add image_path parameter behind cmd line option -U.
-        self.image_path = None
+        self.image_path = options.image_path
         #content_image_url is preferred over content_image_path.
         self.content_image_url = options.content_image_url
         #content_image_path may later get overwritten.
@@ -128,7 +127,15 @@ class TestRunData(object):
         self.result_file_path = None #This is src and dst
 
         # Target address, overwritten/updated after flashing
-        self.target_ip_address = HW_DEFAULT_IP_ADDRESS
+        self.target_ip_address = config.get('default_device_ip')
+        self.host_ip_address = config.get('default_host_ip')
+        self.target_flasher = config.get('default_flasher')
+        self.flasher_module = None
+        self.device_n = 0
+        
+        if options.device_n:
+            self.device_n = options.device_n
+            
 
     def _parse_image_filename_from_url(self):
         """ 
@@ -231,6 +238,7 @@ class Executor(object):
         """Execute the tests"""
 
         self._create_testrun_folder()
+        self._load_flasher_module()
         self._set_status(MonitorType.DEVICE_FLASH, self.testrun.image_filename)
         self.target.prepare()
         self.chroot.prepare()
@@ -955,6 +963,34 @@ class Executor(object):
                                 remote_option)
 
         return cmd
+    
+    def _load_flasher_module(self):
+        """
+        Load flasher module which is then used for flashing
+        """
+        
+        flasher_module = self.testrun.target_flasher
+        
+        if flasher_module:
+            try:
+                entry_point = pkg_resources.iter_entry_points(
+                    group = "ots_flasher_module",
+                    name = flasher_module).next()
+    
+                flasher_entry_point = \
+                     entry_point.load()
+                self.log.info("Loaded flasher '%s'"%
+                         (flasher_module))
+                flasher_module = flasher_entry_point
+            except StopIteration:
+                raise ValueError("Invalid flasher module: %s"\
+                                     % flasher_module)
+        else:
+            # Load default flasher 
+            from ots.common.framework.api import FlasherPluginBase
+            flasher_module = FlasherPluginBase
+        
+        self.testrun.flasher_module = flasher_module
 
 
 def items_missing_from_all_items(items, all_items):

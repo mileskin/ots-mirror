@@ -27,20 +27,20 @@ from ots.worker.conductor.testtarget import TestTarget
 from ots.worker.conductor.conductor_config import HW_COMMAND
 from ots.worker.conductor.conductor_config import HW_COMMAND_TO_COPY_FILE
 from ots.worker.conductor.conductor_config import FLASHER_PATH
-from ots.worker.conductor.conductor_config import HW_DEFAULT_IP_ADDRESS
 from ots.worker.conductor.conductorerror import ConductorError
 
-try:
-    import customflasher as flasher_module
-except ImportError:
-    # This is just example class of flasher implementation 
-    import defaultflasher as flasher_module
-
+from ots.common.framework.api import FlasherPluginBase
+from ots.common.framework.api import FlashFailed
+from ots.common.framework.api import InvalidImage
+from ots.common.framework.api import InvalidConfig
+from ots.common.framework.api import ConnectionTestFailed
 
 import os
+import shutil
 import urllib
 import hashlib
 import re
+import tempfile
 
 class Hardware(TestTarget):
     """
@@ -67,13 +67,12 @@ class Hardware(TestTarget):
         self._fetch_release() 
         self._fetch_content_image()
         self._flash()
-        self._save_ip_address()
 
     def cleanup(self):
         """Remove flash image files."""
         self.log.debug("Removing flash image files.")
         for path in (self.testrun.image_path, self.testrun.content_image_path):
-            self._delete_file(path)
+            self._delete_folder(path)
 
     def get_commands_to_show_test_environment(self):
         """
@@ -84,28 +83,35 @@ class Hardware(TestTarget):
                      self.config['pre_test_info_commands']
         commands = []
         for cmd in plain_cmds:
-            commands.append(HW_COMMAND % cmd)
+            commands.append(HW_COMMAND % (self.testrun.target_ip_address, cmd))
         return zip(commands, plain_cmds)
 
     def get_command_to_copy_file(self, src_path, dest_path):
         """Command used to copy file"""
-        return HW_COMMAND_TO_COPY_FILE % (src_path, dest_path)
+        return HW_COMMAND_TO_COPY_FILE  % (self.testrun.target_ip_address, 
+                                           src_path, 
+                                           dest_path)
 
     def get_command_to_copy_testdef(self):
         """Command used to copy test definition"""
         cmd = HW_COMMAND_TO_COPY_FILE \
-                % (self.testrun.testdef_src, self.testrun.testdef_target_dir)
+                 % (self.testrun.target_ip_address,
+                    self.testrun.testdef_src,
+                    self.testrun.testdef_target_dir)
         return cmd
 
     def get_command_to_copy_results(self):
         """Command used to copy test results"""
         cmd = HW_COMMAND_TO_COPY_FILE \
-                % (self.testrun.results_src, self.testrun.results_target_dir)
+                 % (self.testrun.target_ip_address, 
+                    self.testrun.results_src,
+                    self.testrun.results_target_dir)
         return cmd
 
     def get_command_to_find_test_packages(self):
         """Command to find Debian packages with file tests.xml from device."""
-        return HW_COMMAND % "dpkg -S tests.xml"
+        return HW_COMMAND  % (self.testrun.target_ip_address,
+                              "dpkg -S tests.xml")
 
     def parse_packages_with_file(self, lines):
         """
@@ -119,7 +125,7 @@ class Hardware(TestTarget):
 
     def get_command_to_list_installed_packages(self):
         """Command that lists all Debian packages installed in device."""
-        return HW_COMMAND % "dpkg -l"
+        return HW_COMMAND % (self.testrun.target_ip_address, "dpkg -l")
 
     def parse_installed_packages(self, lines):
         """
@@ -194,11 +200,12 @@ class Hardware(TestTarget):
             self._delete_file(path)
 
         if not path:
-            path = os.path.join(self.config['tmp_path'], os.path.basename(url))
+            tmpdir = tempfile.mkdtemp(dir = self.config['tmp_path'])
+            path = os.path.join(tmpdir, os.path.basename(url))
 
         self._delete_file(path)
 
-        self.log.debug("Fetching file from %s" % url)
+        self.log.info("Fetching file from %s" % url)
 
         try:
             self._urlretrieve(url, path)
@@ -266,6 +273,16 @@ class Hardware(TestTarget):
             except OSError:
                 return
             self.log.debug("Deleted file %s" % path)
+    
+    def _delete_folder(self, path):
+        """Delete folder. Do not raise exception if deleting fails."""
+        if path:
+            path = os.path.dirname(path)
+            try:
+                shutil.rmtree(path, True)
+            except OSError:
+                return
+            self.log.debug("Deleted folder %s" % path)
 
     def _add_execute_privileges(self, path):
         """Add execute rights to file in given path. Return 0 for success."""
@@ -310,8 +327,7 @@ class Hardware(TestTarget):
             flasher_path = FLASHER_PATH
 
         try:
-            flasher = flasher_module.SoftwareUpdater(flasher=\
-                                                     flasher_path)
+            flasher = self.testrun.flasher_module(flasher = flasher_path)
 
             self.log.debug("image: %s" % self.testrun.image_path)
             self.log.debug("content image: %s" % \
@@ -320,33 +336,32 @@ class Hardware(TestTarget):
             #Run flasher. Note: one of paths (image_path OR content_image_path)
             #may be None
             if self.testrun.bootmode:
-                flasher.flash(image_path = self.testrun.image_path, \
-                              content_image_path = self.testrun.content_image_path, \
-                              boot_mode = self.testrun.bootmode)
+                flasher.flash(image_path = self.testrun.image_path,
+                              content_image_path = self.testrun.content_image_path,
+                              boot_mode = self.testrun.bootmode,
+                              device_n = self.testrun.device_n,
+                              host_ip = self.testrun.host_ip_address,
+                              device_ip= self.testrun.target_ip_address)
             else:
-                flasher.flash(image_path = self.testrun.image_path, \
-                              content_image_path = self.testrun.content_image_path)
+                flasher.flash(image_path = self.testrun.image_path,
+                              content_image_path = self.testrun.content_image_path,
+                              device_n = self.testrun.device_n,
+                              host_ip = self.testrun.host_ip_address,
+                              device_ip= self.testrun.target_ip_address)
 
-        except flasher_module.ConnectionTestFailed:
+        except ConnectionTestFailed:
             raise ConductorError("Error in preparing hardware: "\
                                  "Connection test failed!", "2101")
-        except flasher_module.FlashFailed:
+        except FlashFailed:
             raise ConductorError("Error in preparing hardware: "\
                                  "Flashing the image failed!", "210")
-        except flasher_module.InvalidImage:
+        except InvalidImage:
             raise ConductorError("Error in preparing hardware: "\
                                  "Invalid flash image!", "211")
-        except flasher_module.InvalidConfig:
+        except InvalidConfig:
             self.log.debug("Invalid flasher config! Traceback:", exc_info=True)
             raise ConductorError("Error in preparing hardware: "\
                                  "Invalid flasher config file!", "212")
-
-    def _save_ip_address(self):
-        """Saves the IP address of the target to the testrun data."""
-
-        # this method needs to be adapted to get the address dynamically
-        # when implementing multi-device support. For now it's hard-coded.
-        self.testrun.target_ip_address = HW_DEFAULT_IP_ADDRESS
 
 
 class RPMHardware(Hardware):
@@ -363,12 +378,13 @@ class RPMHardware(Hardware):
                      self.config['pre_test_info_commands']
         commands = []
         for cmd in plain_cmds:
-            commands.append(HW_COMMAND % cmd)
+            commands.append(HW_COMMAND % (self.testrun.target_ip_address, cmd))
         return zip(commands, plain_cmds)
 
     def get_command_to_find_test_packages(self):
         """Command that lists rpm test packages with tests.xml from device."""
-        return HW_COMMAND % "find /usr/share/ -name tests.xml | xargs -r rpm -q --queryformat \"%{NAME}\n\" -f"
+        return HW_COMMAND % (self.testrun.target_ip_address,
+                             "find /usr/share/ -name tests.xml | xargs -r rpm -q --queryformat \"%{NAME}\n\" -f")
 
     def parse_packages_with_file(self, lines):
         """
@@ -383,7 +399,8 @@ class RPMHardware(Hardware):
 
     def get_command_to_list_installed_packages(self):
         """Command that lists all rpm packages installed in device."""
-        return HW_COMMAND % "rpm -qa --queryformat \"%{NAME}\n\""
+        return HW_COMMAND % (self.testrun.target_ip_address,
+                             "rpm -qa --queryformat \"%{NAME}\n\"")
 
     def parse_installed_packages(self, lines):
         """
