@@ -179,6 +179,8 @@ def _conductor_config_simple(config_file = "", default_file = ""):
     config['pre_test_info_commands_rpm'] = ['ls', 'echo "jouni"']
     config['pre_test_info_commands'] = ['ls', 'echo "testing ...."', 'ls -al']
     config['files_fetched_after_testing'] = ['xxx']
+    config['default_host_ip'] = "192.168.2.14"
+    config['default_device_ip'] = "192.168.2.15"
     config['tmp_path'] = "/tmp/"
     return config
 
@@ -222,7 +224,7 @@ class TestConductorInternalConstants(unittest.TestCase):
         c.CONDUCTOR_WORKDIR
         c.TESTRUNNER_WORKDIR
         c.CMD_TESTRUNNER   % (1,2,3,4,5,6)
-        c.TESTRUNNER_SSH_OPTION
+        c.TESTRUNNER_SSH_OPTION % "iippee"
         c.TESTRUNNER_LOGGER_OPTION % 1
         c.TESTRUNNER_FILTER_OPTION   % "xxx"
         c.HTTP_LOGGER_PATH % 1

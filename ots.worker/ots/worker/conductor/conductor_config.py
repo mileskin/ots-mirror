@@ -53,7 +53,7 @@ CMD_TESTRUNNER = 'cd %s; ' + \
                  '%s ' + \
                  '%s '
 
-TESTRUNNER_SSH_OPTION = "-t root@192.168.2.15"
+TESTRUNNER_SSH_OPTION = "-t root@%s"
 TESTRUNNER_CHROOT_OPTION = '-C "%s"'
 TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
 TESTRUNNER_FILTER_OPTION = '-l "%s"'
