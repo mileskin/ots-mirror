@@ -843,6 +843,33 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.email = "invalid_email_address"
         expected = ["Missing `image` parameter"]
         self.trigger_testrun_expect_error(options, expected)
+    
+
+class TestMultiDevice(SystemSingleRunTestCaseBase):
+    
+    #
+    # These tests are requiring that one ots-worker
+    # is started as number 1 and uses meego-ai-flasher-n900
+    # flasher.
+    #
+    
+    def test_load_flasher_plugin(self):
+        options = Options()
+        options.hosttest = "test-definition-tests"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        options.filter = "testcase=Check-basic-schema"
+        expected = ["Loaded flasher 'meego-ai-flasher-n900'"]
+        self.trigger_testrun_expect_pass(options, expected)
+        
+    def test_load_separated_settings(self):
+        options = Options()
+        options.hosttest = "test-definition-tests"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        options.filter = "testcase=Check-basic-schema"
+        expected = ["using config file /etc/conductor_1.conf"]
+        self.trigger_testrun_expect_pass(options, expected)
 
 if __name__ == "__main__":
     unittest.main()
