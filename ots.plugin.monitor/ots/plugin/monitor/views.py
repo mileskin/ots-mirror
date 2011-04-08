@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -672,7 +672,7 @@ def view_group_details(request, devicegroup):
     clients = []
     event_list = Event.objects.filter(testrun_id__in=testruns.values_list('id',flat=True))
     queue_avg = _calculate_average_from_events(event_list,MonitorType.TASK_INQUEUE,MonitorType.TASK_ONGOING)
-    flash_avg = _calculate_average_from_events(event_list,MonitorType.DEVICE_FLASH,MonitorType.DEVICE_BOOT)
+    flash_avg = _calculate_average_from_events(event_list,MonitorType.DEVICE_FLASH,MonitorType.TEST_EXECUTION)
     execute_avg = _calculate_average_from_events(event_list,MonitorType.TEST_EXECUTION, MonitorType.TESTRUN_ENDED)
     
     clients_list = testruns.values_list('host_worker_instances',flat=True)
