@@ -338,10 +338,12 @@ class Executor(object):
         Create local folder for all result files related to this test run.
         NOTE: All folders are inside self.testrun.workdir
         """
-
+        
+        timestamp = time.strftime("%y%m%d-%H%M%S")
+        
         #conductor executes as root.
         dir1 = "conductor"
-        dir12 = os.path.join(dir1, "%s" % self.testrun.id)
+        dir12 = os.path.join(dir1, "%s_%s" % (self.testrun.id, timestamp))
         dir123 = os.path.join(dir12, "%s" % self.env)
 
         os.chdir(self.testrun.workdir)
