@@ -650,10 +650,12 @@ class Test_Executor(unittest.TestCase):
         self.executor.target = Stub_Hardware()
         self.executor.chroot = Chroot(self.testrun)
 
+        timestamp = time.strftime("%y%m%d-%H%M%S")
+
         #test_package must match to string in Stub_Hardware
         test_package = "mypackage-test"
 
-        path = os.path.join(self.workdir, "conductor", self.testrun.id,
+        path = os.path.join(self.workdir, "conductor", self.testrun.id + "_%s" % (timestamp),
                             self.executor.env)
         expected_stdout_file = \
                 os.path.join(path, "%s_testrunner_stdout.txt" % test_package)
@@ -822,17 +824,15 @@ class TestDefaultFlasher(unittest.TestCase):
                          boot_mode = "normal")
 
     def test_softwareupdater_flash_with_ip_options(self):
-        sw_updater = FlasherPluginBase()
+        sw_updater = FlasherPluginBase(host_ip = "192.168.2.14",
+                                       device_ip = "192.168.2.15")
         sw_updater.flash(image_path = "image1",
-                         content_image_path = "image2",
-                         host_ip = "192.168.2.14",
-                         device_ip = "192.168.2.15")
+                         content_image_path = "image2")
 
     def test_softwareupdater_flash_with_device_n(self):
-        sw_updater = FlasherPluginBase()
+        sw_updater = FlasherPluginBase(device_n = 1)
         sw_updater.flash(image_path = "image1",
-                         content_image_path = "image2",
-                         device_n = 1)
+                         content_image_path = "image2")
 
 
 if __name__ == '__main__':
