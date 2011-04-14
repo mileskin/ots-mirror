@@ -978,7 +978,7 @@ class Executor(object):
                 entry_point = pkg_resources.iter_entry_points(
                     group = "ots_flasher_module",
                     name = flasher_module).next()
-    
+                
                 flasher_entry_point = \
                      entry_point.load()
                 self.log.info("Loaded flasher '%s'"%

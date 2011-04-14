@@ -327,7 +327,10 @@ class Hardware(TestTarget):
             flasher_path = FLASHER_PATH
 
         try:
-            flasher = self.testrun.flasher_module(flasher = flasher_path)
+            flasher = self.testrun.flasher_module(flasher = flasher_path,
+                                                  device_n = self.testrun.device_n,
+                                                  host_ip = self.testrun.host_ip_address,
+                                                  device_ip = self.testrun.target_ip_address)
 
             self.log.debug("image: %s" % self.testrun.image_path)
             self.log.debug("content image: %s" % \
@@ -338,16 +341,10 @@ class Hardware(TestTarget):
             if self.testrun.bootmode:
                 flasher.flash(image_path = self.testrun.image_path,
                               content_image_path = self.testrun.content_image_path,
-                              boot_mode = self.testrun.bootmode,
-                              device_n = self.testrun.device_n,
-                              host_ip = self.testrun.host_ip_address,
-                              device_ip= self.testrun.target_ip_address)
+                              boot_mode = self.testrun.bootmode)
             else:
                 flasher.flash(image_path = self.testrun.image_path,
-                              content_image_path = self.testrun.content_image_path,
-                              device_n = self.testrun.device_n,
-                              host_ip = self.testrun.host_ip_address,
-                              device_ip= self.testrun.target_ip_address)
+                              content_image_path = self.testrun.content_image_path)
 
         except ConnectionTestFailed:
             raise ConductorError("Error in preparing hardware: "\

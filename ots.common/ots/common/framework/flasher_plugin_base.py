@@ -47,16 +47,19 @@ class ConnectionTestFailed(Exception):
 class FlasherPluginBase(object):
     """ Default class for SoftwareUpdater """
 
-    def __init__(self, flasher=None):
+    def __init__(self,
+                 flasher=None,
+                 device_n = None,
+                 host_ip = None,
+                 device_ip = None,
+                 **kwargs):
+        
         super(FlasherPluginBase, self).__init__()
 
     def flash(self,
               image_path,
               content_image_path,
-              boot_mode = None,
-              device_n = None,
-              host_ip = None,
-              device_ip = None):
+              boot_mode = None):
         """
         Call this method to start flashing.
 
