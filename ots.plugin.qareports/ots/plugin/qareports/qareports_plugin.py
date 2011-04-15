@@ -74,6 +74,7 @@ class QAReportsPlugin(PublisherPluginBase):
         for result in results:
             if result.is_result_xml:
                 self.result_xmls.append((result.name, result.content))
+                continue
             self.attachments.append((result.name, result.content))
 
     def publish(self):

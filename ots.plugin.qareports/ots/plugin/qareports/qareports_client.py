@@ -69,7 +69,13 @@ def send_files(result_xmls,
               ("target", target or config["target"]),
               ("testtype", testtype or config["testtype"]),
               ("hwproduct", hwproduct or config["hwproduct"])]
-    files = _generate_form_data(result_xmls, attachments)
+    
+    upload_attachments = True
+    if config.has_key("upload_attachments"):
+        upload_attachments = config.as_bool("upload_attachments")
+    
+    files = _generate_form_data(result_xmls, attachments, upload_attachments)
+    
     LOG.info("Uploading results to Meego QA-reports tool: %s" % host)
     
     response = ""
@@ -93,7 +99,9 @@ def send_files(result_xmls,
         LOG.error("Invalid JSON response:\n%s" % response, exc_info = True)
 
 
-def _generate_form_data(result_xmls, attachments = None):
+def _generate_form_data(result_xmls,
+                        attachments = None,
+                        upload_attachments = True):
     """
     Generates a form_data list from input files
     """
@@ -107,6 +115,8 @@ def _generate_form_data(result_xmls, attachments = None):
         index += 1
         files.append(("report.%s" % index, result[0], result[1]))
     index = 0
+    if not upload_attachments:
+        return files
     for attachment in attachments:
         index += 1
         files.append(("attachment.%s" % index, attachment[0], attachment[1]))
