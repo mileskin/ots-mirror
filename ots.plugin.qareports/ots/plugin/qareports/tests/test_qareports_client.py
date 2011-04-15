@@ -46,6 +46,18 @@ class test_qareports_client(unittest.TestCase):
                     ('attachment.1', 'attachment_name1', 'attachment_content1'),
                     ('attachment.2', 'attachment_name2', 'attachment_content2')]
         self.assertEquals(files, expected)
+        
+    def test_generate_form_data_2_xml_2_attachments_attachments_disabled(self):
+        report1 = ("name1", "content1")
+        report2 = ("name2", "content2")
+        attachment1 = ("attachment_name1", "attachment_content1")
+        attachment2 = ("attachment_name2", "attachment_content2")
+        files = _generate_form_data([report1, report2],
+                                    [attachment1, attachment2],
+                                    False)
+        expected = [('report.1', 'name1', 'content1'),
+                    ('report.2', 'name2', 'content2'),]
+        self.assertEquals(files, expected)
 
     def test_generate_form_data_2_xml_0_attachments(self):
         report1 = ("name1", "content1")
