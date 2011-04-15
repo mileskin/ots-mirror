@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
 # Contact: meego-qa@lists.meego.com
 #
@@ -20,33 +21,24 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-""" Interface class for flasher plug-ins """
+# Modified from the defaultflasher.py by Sampo Saaristo
+# Modified to support multiple devices by Esa-Pekka Miettinen
+# pylint: disable-msg=W0511
 
-# Example flasher, disable pylint warnings 
-# pylint: disable=W0613
+
+"""
+This module includes meego-ai flasher for N900 
+"""
+
+from ots.common.framework.api import FlasherPluginBase
+from ots.common.framework.api import FlashFailed
+from ots.common.framework.api import InvalidImage
+from ots.common.framework.api import InvalidConfig
+from ots.common.framework.api import ConnectionTestFailed
 
 import logging
 
-class FlashFailed(Exception):
-    """Flash Failed exception"""
-    pass
-
-class InvalidImage(Exception):
-    """Invalid Image exception"""
-    pass
-
-class InvalidConfig(Exception):
-    """Invalid configuration exception"""
-    pass
-
-class ConnectionTestFailed(Exception):
-    """Connection test failed exception"""
-    pass
-
-
-class FlasherPluginBase(object):
-    """ Default class for SoftwareUpdater """
-
+class ExampleFlasher(FlasherPluginBase):
     def __init__(self,
                  flasher=None,
                  device_n = None,
@@ -55,7 +47,7 @@ class FlasherPluginBase(object):
                  **kwargs):
         """
         @type flasher: C{str}
-        @param flasher: Path to flasher        
+        @param flasher: Path to flasher
         
         @type device_n: C{int}
         @param device_n: Number of the conductor instance
@@ -84,13 +76,8 @@ class FlasherPluginBase(object):
 
         @type boot_mode: C{string}
         @param boot_mode: Boot mode parameter from ots input parameters.
+        
         """
 
-        log = logging.getLogger("default_flasher")
-        log.warning("***************************************************")
-        log.warning("* Customflasher not available in Worker!          *")
-        log.warning("* Setting up test target cannot be done.          *")
-        log.warning("* You must implement customflasher Python         *")
-        log.warning("* module (see OTS Worker documentation).          *")
-        log.warning("* Now continuing as if test target is set up...   *")
-        log.warning("***************************************************")
+        log = logging.getLogger("example flasher")
+        log.info("This is example flasher, flashing....")
