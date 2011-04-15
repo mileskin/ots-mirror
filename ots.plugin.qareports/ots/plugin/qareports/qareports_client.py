@@ -76,8 +76,9 @@ def send_files(result_xmls,
     
     try:
         response = post_multipart(host, selector, fields, files,
-                       config.get("protocol", ""), config.get("user", ""), 
-                       config.get("password",""), config.get("realm", ""))
+                       config.get("protocol", "http"), config.get("user", ""), 
+                       config.get("password", ""), config.get("realm", ""),
+                       config.get("proxy", None))
         json_response = json.loads(response)
         
         if json_response.get("ok") == "1":
