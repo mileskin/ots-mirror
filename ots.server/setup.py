@@ -34,7 +34,7 @@ else:
 
 setup(
       name="ots.server",
-      author="teemu.vainio@ixonos.com",
+      author="meego-qa@lists.meego.com",
       version=get_spec_version(),
       include_package_data=True,
       namespace_packages=["ots"],
