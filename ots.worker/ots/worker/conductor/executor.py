@@ -33,6 +33,7 @@ from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
+from ots.worker.conductor.conductor_plugins import ConductorPlugins
 from ots.common.dto.api import MonitorType
 
 from ots.worker.conductor.hardware import Hardware, RPMHardware
@@ -88,7 +89,7 @@ class TestRunData(object):
         self.rootstrap_path = options.rootstrap_path
 
         self.flasher_url = options.flasher_url
-        
+
         # XML file
         self.xml_file = options.testplan
 
@@ -113,7 +114,7 @@ class TestRunData(object):
         self.post_test_dir = None
 
         self.image_filename = ""
-        
+
         self._parse_image_filename_from_url()
         self._validate_content_image_path()
         self._validate_rootstrap_path()
@@ -187,6 +188,7 @@ class Executor(object):
         self.target = None #Test target object. Implements its own __str__().
         self.env = None    #Test environment name. String.
 
+        self._plugins = ConductorPlugins(self.testrun)
 
     # public methods
 
@@ -205,6 +207,9 @@ class Executor(object):
             self.chroot = RPMChroot(self.testrun)
         else:
             raise Exception("Unsupported packaging type '%s'" % packaging)
+
+        # Set target HW for plug-ins
+        self._plugins.set_target(self.target)
 
         # Set test environment type
         if self.testrun.is_host_based:
@@ -245,6 +250,11 @@ class Executor(object):
         self._define_test_packages()
         self._fetch_environment_details()
 
+        self._plugins.set_result_dir(self.testrun.base_dir)
+
+        # Trigger conductor plug-ins before a testrun
+        self._plugins.before_testrun()
+
         errors = 0
         if self.testrun_timeout:
             self.log.info("Testrun timeout set to %s seconds" % \
@@ -265,7 +275,7 @@ class Executor(object):
                 self._install_package(test_package)
                 self._fetch_test_definition(test_package)
                 self._set_status(MonitorType.TEST_PACKAGE_STARTED, test_package)
-     
+
                 # Press the timer button
                 time_current = time.time()
                 testrun_status = self._run_tests(test_package, start_time, \
@@ -293,6 +303,13 @@ class Executor(object):
 
         # Include /var/log/testrun.log file
         self._include_testrun_log_file()
+
+        # Trigger conductor plug-ins after a testrun
+        self._plugins.after_testrun()
+
+        # Collect plug-ins result files
+        for result_file in self._plugins.get_result_files():
+            self._store_result_file(result_file, test_package="undefined")
 
         return errors
 

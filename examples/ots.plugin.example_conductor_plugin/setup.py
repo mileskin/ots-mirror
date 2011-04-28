@@ -19,18 +19,19 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+	
+from setuptools import setup, find_packages
+from get_spec_version import get_spec_version
 
-""" Common OTS framework API functions """
-
-# API file, ignoring Unused import unpack_message 
-# pylint: disable=W0611
-
-from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.publisher_plugin_base import PublisherPluginBase
-from ots.common.framework.conductor_plugin_base import ConductorPluginBase
-from ots.common.framework.plugin_exception_policy import plugin_exception_policy
-from ots.common.framework.flasher_plugin_base import FlasherPluginBase
-from ots.common.framework.flasher_plugin_base import FlashFailed
-from ots.common.framework.flasher_plugin_base import InvalidImage
-from ots.common.framework.flasher_plugin_base import InvalidConfig
-from ots.common.framework.flasher_plugin_base import ConnectionTestFailed
+setup(
+    name = "example_conductor_plugin",
+    author = "meego-dev@meego.com",
+    version=get_spec_version(),
+    namespace_packages = ["ots", "ots.plugin"],
+    packages = find_packages(),
+    include_package_data = True,
+    entry_points={"ots.plugin.conductor":
+        ["example_conductor_plugin = ots.plugin.example_conductor_plugin." \
+         "example_conductor_plugin:ExampleConductorPlugin"]
+                  },
+    zip_safe = False)

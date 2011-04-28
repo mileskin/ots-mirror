@@ -20,17 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-""" Common OTS framework API functions """
+#This shouldn't be necessary
+#http://bugs.python.org/setuptools/issue36
 
-# API file, ignoring Unused import unpack_message 
-# pylint: disable=W0611
+import warnings
+warnings.filterwarnings("ignore", "Module (.*) was already imported (.*)")
 
-from ots.common.framework.load_plugins import plugins_iter
-from ots.common.framework.publisher_plugin_base import PublisherPluginBase
-from ots.common.framework.conductor_plugin_base import ConductorPluginBase
-from ots.common.framework.plugin_exception_policy import plugin_exception_policy
-from ots.common.framework.flasher_plugin_base import FlasherPluginBase
-from ots.common.framework.flasher_plugin_base import FlashFailed
-from ots.common.framework.flasher_plugin_base import InvalidImage
-from ots.common.framework.flasher_plugin_base import InvalidConfig
-from ots.common.framework.flasher_plugin_base import ConnectionTestFailed
+__import__('pkg_resources').declare_namespace(__name__)

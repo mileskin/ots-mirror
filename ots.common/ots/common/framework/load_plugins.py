@@ -31,10 +31,10 @@ LOG = logging.getLogger(__name__)
 def plugins_iter(plugin_dir, ep_name):
     """
     @type plugin_dir : C{str}
-    @param plugin_dir : The fqname of the plugin directory 
+    @param plugin_dir : The fqname of the plugin directory
 
     @type ep_name : C{str}
-    @param ep_name : The name of the Entry Point to be loaded 
+    @param ep_name : The name of the Entry Point to be loaded
     
     @ytype : C{obj}
     @yparam : The loaded Entry Point 
