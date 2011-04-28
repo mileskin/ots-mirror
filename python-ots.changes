@@ -1,3 +1,12 @@
+Thu Apr 28 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.4
+ - OTS 0.8.4 release, BMC#13356
+ - One worker can support multiple devices in Parallel, BMC#8742
+ - Added conductor plug-in interface, BMC#15403
+ - Added configuration option for email attachments, BMC#15765
+ - Added proxy support to QA-Reports plug-in, BMC#16018
+ - Fixed average flashing time display for OTS monitor, BMC#15362
+ - Fixed Django settings import error, BMC#16704
+
 * Fri Apr 01 2011 Esa-Pekka Miettinen <esa-pekka.miettinen@digia.com> 0.8.3
  - OTS 0.8.3 release, BMC#13355
  - Implemented test plan based execution, BMC#10863 
