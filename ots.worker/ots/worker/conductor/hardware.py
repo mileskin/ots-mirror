@@ -398,18 +398,13 @@ class RPMHardware(Hardware):
         return pkgs_with_file
 
     def get_command_to_list_installed_packages(self):
-<<<<<<< HEAD
-        """Command that lists all rpm packages installed in device."""
-        return HW_COMMAND % (self.testrun.target_ip_address,
-                             "rpm -qa --queryformat \"%{NAME}\n\"")
-=======
         """
         Command that lists all rpm packages installed in device.
 
         @return: command for listing installed packages
         """
-        return HW_COMMAND % "rpm -qa --queryformat \"%{NAME}\n\""
->>>>>>> 058f57751f177350535c77918d472530f5db3968
+        return HW_COMMAND % (self.testrun.target_ip_address,
+                             "rpm -qa --queryformat \"%{NAME}\n\"")
 
     def parse_installed_packages(self, lines):
         """
