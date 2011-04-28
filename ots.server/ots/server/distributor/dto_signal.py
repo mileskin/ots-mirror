@@ -35,6 +35,10 @@ from ots.common.dto.monitor import Monitor
 
 try:
     from django.conf import settings
+    # Settings file is loaded when any settings is needed
+    # and that will throw ImportError if environment variable
+    # doesn't exists
+    settings.DEBUG
 except ImportError:
     import types
     class SettingsStub(object):
