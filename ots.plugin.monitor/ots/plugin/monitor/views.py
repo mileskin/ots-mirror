@@ -157,7 +157,7 @@ def export_table(tabledata,rowdata,titledata=[],type='csv',filename=None,
         export list of items in given format
         
         Used for exporting tables from views.
-        iterates through given tabledata and formats and wirtes
+        iterates through given tabledata and formats and writes
         attributes selected with rowdata.  
 
         @type tabledata: C{list} or C{QuerySet}
