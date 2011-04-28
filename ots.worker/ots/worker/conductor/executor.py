@@ -55,7 +55,7 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                              TIMEOUT_FETCH_FILES_AFTER_TESTING, \
                              TESTRUNNER_CHROOT_OPTION
 
-from conductorerror import ConductorError
+from ots.worker.conductor.conductorerror import ConductorError
 
 WAIT_SIGKILL = 5
 
@@ -932,10 +932,10 @@ class Executor(object):
         Constructs and returns command for testrunner-lite. 
 
         Command line options are included with following conditions:
-        - Http-logger option is given if we're not running stand-alone.
-        - Testfilter option is given if filter string has been specified.
-        - Remote-testing option is given if we're not doing host-based 
-          testing.
+         - Http-logger option is given if we're not running stand-alone.
+         - Testfilter option is given if filter string has been specified.
+         - Remote-testing option is given if we're not doing host-based 
+           testing.
         """
 
         http_logger_option = ""

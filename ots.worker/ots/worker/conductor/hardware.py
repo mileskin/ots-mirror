@@ -21,6 +21,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+# Ignoring: Class 'Hardware' has no 'testrun' member
+# pylint: disable=E1101
 """Hardware test target"""
 
 from ots.worker.conductor.testtarget import TestTarget
@@ -339,12 +341,12 @@ class Hardware(TestTarget):
             #Run flasher. Note: one of paths (image_path OR content_image_path)
             #may be None
             if self.testrun.bootmode:
-                flasher.flash(image_path = self.testrun.image_path,
-                              content_image_path = self.testrun.content_image_path,
-                              boot_mode = self.testrun.bootmode)
+                flasher.flash(image_path=self.testrun.image_path,
+                        content_image_path=self.testrun.content_image_path,
+                        boot_mode=self.testrun.bootmode)
             else:
-                flasher.flash(image_path = self.testrun.image_path,
-                              content_image_path = self.testrun.content_image_path)
+                flasher.flash(image_path=self.testrun.image_path,
+                        content_image_path=self.testrun.content_image_path)
 
         except ConnectionTestFailed:
             raise ConductorError("Error in preparing hardware: "\
@@ -385,9 +387,10 @@ class RPMHardware(Hardware):
 
     def parse_packages_with_file(self, lines):
         """
-        Parse lines returned by 'find /usr/share/ -name tests.xml | xargs 
-        rpm -q --queryformat "%{NAME}\n" -f' command for test packages.
-        Returns list of test packages.
+        Parse lines returned by:
+        C{'find /usr/share/ -name tests.xml | xargs rpm -q --queryformat "%{NAME}E{\}n" -f'}
+        command for test packages.
+        @return: List of test packages.
         """
         test_pkg_pattern = re.compile(\
             "(?P<name>\S+-test|\S+-tests|\S+-benchmark)$", re.MULTILINE)
@@ -395,14 +398,25 @@ class RPMHardware(Hardware):
         return pkgs_with_file
 
     def get_command_to_list_installed_packages(self):
+<<<<<<< HEAD
         """Command that lists all rpm packages installed in device."""
         return HW_COMMAND % (self.testrun.target_ip_address,
                              "rpm -qa --queryformat \"%{NAME}\n\"")
+=======
+        """
+        Command that lists all rpm packages installed in device.
+
+        @return: command for listing installed packages
+        """
+        return HW_COMMAND % "rpm -qa --queryformat \"%{NAME}\n\""
+>>>>>>> 058f57751f177350535c77918d472530f5db3968
 
     def parse_installed_packages(self, lines):
         """
-        Parse test packages from output lines returned by 
-        rpm -qa --queryformat '%{NAME}\n' command.  Returns sorted list.
+        Parse test packages from output lines returned by
+        C{rpm -qa --queryformat '%{NAME}E{\}n'} command.
+        
+        @return: sorted list.
         """
         test_pkg_pattern = re.compile(\
             "(?P<name>\S+-test|\S+-tests|\S+-benchmark)$", re.MULTILINE)

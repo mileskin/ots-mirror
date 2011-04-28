@@ -76,13 +76,13 @@ class FlasherPluginBase(object):
         """
         Call this method to start flashing.
 
-        @type image_path: C{string}
-        @param image: Absolute path of image file
+        @type image_path: C{str}
+        @param image_path: Absolute path of image file
 
-        @type content_image_path: C{string}
+        @type content_image_path: C{str}
         @param content_image_path: Absolute path of Device content image file
 
-        @type boot_mode: C{string}
+        @type boot_mode: C{str}
         @param boot_mode: Boot mode parameter from ots input parameters.
         """
 

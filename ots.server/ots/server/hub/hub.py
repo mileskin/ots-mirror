@@ -222,8 +222,8 @@ class Hub(object):
     @property
     def is_hw_enabled(self):
         """
-        @rtype C{bool}
-        @rparam Is hw testing enabled?
+        Is hw testing enabled?
+        @rtype: C{bool}
         """        
         hw_packages = self.options.hw_packages
         return bool(len(hw_packages))
@@ -231,8 +231,8 @@ class Hub(object):
     @property 
     def is_host_enabled(self):
         """
-        @rtype C{bool}
-        @rparam Is host testing enabled
+        Is host testing enabled
+        @rtype: C{bool}
         """
         host_packages = self.options.host_packages
         return  bool(len(host_packages))
@@ -249,8 +249,8 @@ class Hub(object):
     @property
     def testrun_uuid(self):
         """
-        @rtype C{str}
-        @rparam A globally unique identifier for the testrun
+        A globally unique identifier for the testrun
+        @rtype: C{str}
         """
         if self._testrun_uuid is None:
             self._testrun_uuid = uuid.uuid1().hex
@@ -260,8 +260,8 @@ class Hub(object):
     @property
     def options(self):
         """
-        @rtype : C{ots.server.hub.options.Options
-        @rparam : The Options
+        The Options
+        @rtype: L{ots.server.hub.options.Options<ots.server.hub.options.Options>}
         """
         if self._options is None:
             self._options = self._options_factory()
@@ -272,8 +272,7 @@ class Hub(object):
         """
         A Taskrunner loaded with Tasks as allocated by preferences
 
-        @rtype : L{ots.server.distributor.taskrunner}
-        @rparam : A Taskrunner loaded with Tasks
+        @rtype: L{ots.server.distributor.taskrunner}
         """
         custom_distribution_model = None
         distribution_model = self.options.distribution_model
@@ -355,8 +354,8 @@ class Hub(object):
         """
         Start a Testrun and populate the Publishers
 
-        @rtype : C{unittest.TestResult}
-        @rparam : A TestResult 
+        @rtype: C{unittest.TestResult}
+        @return: A TestResult 
         """    
         testrun_result = TestResult()
         try:
@@ -386,8 +385,8 @@ class Hub(object):
             publishers.set_results(testrun.results)
 
         except Exception, err:
-            type, value, traceback = sys.exc_info()
-            testrun_result.addError(TestCase, (type, value, traceback))
+            er_type, value, traceback = sys.exc_info()
+            testrun_result.addError(TestCase, (er_type, value, traceback))
             LOG.debug("publishing failed", exc_info=True)
         return testrun_result
 
@@ -399,8 +398,8 @@ class Hub(object):
         """
         Start a Testrun and publish the data
 
-        @rtype : C{unittest.TestResult}
-        @rparam : A TestResult 
+        @rtype: C{unittest.TestResult}
+        @return: A TestResult 
         """
         if sandbox.exc_info != (None, None, None): 
             LOG.error("Testrun Error. Forced Initialisation", \
@@ -428,8 +427,8 @@ def result_to_string(testrun_result):
     @type testrun_result: C{unittest.TestResult}
     @param testrun_result: A TestResult
     
-    @rtype C{str}
-    @rparam Result as string
+    @rtype: C{str}
+    @return: Result as string
     """
 
     if testrun_result.wasSuccessful():

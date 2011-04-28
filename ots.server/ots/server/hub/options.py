@@ -64,8 +64,8 @@ class Options(object):
                  hw_testplans = None, host_testplans = None, timeout = None):
 
         """
-        @type: C{image}
-        @param: The image URL
+        @type image: C{image}
+        @param image: The image URL
 
         @type rootstrap: C{str}
         @param rootstrap: The rootstrap URL
@@ -145,40 +145,40 @@ class Options(object):
     @property
     def image(self):
         """
+        The URL of the image
         @rtype: C{str}
-        @return: The URL of the image
         """
         return self._image
 
     @property
     def rootstrap(self):
         """
+        The URL of the chroot rootstrap file
         @rtype: C{str}
-        @return: The URL of the chroot rootstrap file
         """
         return self._rootstrap
 
     @property
     def hw_packages(self):
         """
+        Packages for hardware testing
         @rtype: C{list} of C{str}
-        @return: Packages for hardware testing
         """
         return string_2_list(self._packages)
 
     @property
     def host_packages(self):
         """
+        Packages for host testing
         @rtype: C{list} of C{str}
-        @return: Packages for host testing
         """
         return string_2_list(self._hosttest)
     
     @property
     def hw_testplans(self):
         """
+        Test plans for hardware testing
         @rtype: C{list} of C{str}
-        @return: Test plans for hardware testing
         """
         if len(self._hw_testplans) > 0:
             if not isinstance(self._hw_testplans[0], StringIO):
@@ -188,8 +188,8 @@ class Options(object):
     @property
     def host_testplans(self):
         """
+        Test plans for host testing
         @rtype: C{list} of C{str}
-        @return: Test plans for host testing
         """
         if len(self._host_testplans) > 0:
             if not isinstance(self._host_testplans[0], StringIO):
@@ -200,24 +200,24 @@ class Options(object):
     @property
     def chroot_packages(self):
         """
+        Packages for chroot testing
         @rtype: C{list} of C{str}
-        @return: Packages for chroot testing
         """
         return string_2_list(self._chroottest)
 
     @property
     def testplan_id(self):
         """
+        The Testplan id
         @rtype: C{str}
-        @return: The Testplan id
         """
         return self._plan
 
     @property
     def device_properties(self):
         """
+        A dictionary of device properties this testrun requires
         @rtype: C{dict}
-        @return: A dictionary of device properties this testrun requires
         """
         ret_val = {}
         if self._device is not None:
@@ -230,32 +230,32 @@ class Options(object):
     @property
     def emmc(self):
         """
+        Url to the additional content image (memory card image)
         @rtype: C{str}
-        @return: Url to the additional content image (memory card image)
         """
         return self._emmc
 
     @property
     def distribution_model(self):
         """
+        The name of the Distribution Model
         @rtype: C{str}
-        @return: The name of the Distribution Model
         """
         return self._distribution_model
 
     @property
     def flasher(self):
         """
+        The URL of the flasher
         @rtype: C{str}
-        @return: The URL of the flasher
         """
         return self._flasher
 
     @property
     def testfilter(self):
         """
+        The test filter string for testrunner-lite
         @rtype: C{str}
-        @return: The test filter string for testrunner-lite
         """
         if self._testfilter is not None:
             testfilter = self._testfilter.replace('"', "'")
@@ -264,8 +264,8 @@ class Options(object):
     @property
     def timeout(self):
         """
+        Test execution timeout in minutes
         @rtype: C{int}
-        @return: Test execution timeout in minutes
         """
         if self._timeout is None:
             self._timeout = 0
@@ -308,8 +308,8 @@ class Options(object):
 
         Raises ValueError if invalid packages given
 
-        @type test_packages: D{List} consiting of D{str}
-        @param test_packages: List of test package names
+        @type packages: C{List} consiting of C{str}
+        @param packages: List of test package names
         """
         invalid_packages = [pkg for pkg in packages
                               if not self._is_valid_suffix(pkg)]
@@ -322,10 +322,10 @@ class Options(object):
         """
         Converts list of test plans to StringIO.
         
-        @type test_plans: D{list} of D{tuple}
+        @type test_plans: C{list} of C{tuple}
         @param test_plans: List of test plans
         
-        @rtype : D{List} of D{StringIO}
+        @rtype: C{List} of C{StringIO}
         @return: List of test plans as StringIO
         
         """
@@ -342,10 +342,10 @@ class Options(object):
         Makes options dictionary to look nice. Replaces
         test plans from the options.
         
-        @type options_dict: D{dict}
+        @type options_dict: C{dict}
         @param options_dict: Dictionary of options
         
-        @rtype : D{dict}
+        @rtype: C{dict}
         @return: Returns nice dictionary
         """
         
@@ -362,7 +362,7 @@ class Options(object):
             for plan_name, plan_data in test_plans_data:
                 test_plans.append(plan_name)
             format_options["hw_testplans"] = test_plans
-        return format_options            
+        return format_options
 
     @staticmethod
     def _validate_chroot(rootstrap, chroot_packages):
@@ -375,6 +375,8 @@ class Options(object):
 
         @type packages: C{str}
         @param packages: chroot testpackage names
+
+        @raise ValueError: rootstrap or chroot packages missing.
         """
         # Check that chroot packages and rootstrap are defined if
         # "chroot" is used

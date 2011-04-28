@@ -50,7 +50,7 @@ class LocalHttpHandler(logging.Handler):
         """
         Stores the message in db by calling create_message() directly
 
-        @type record: L{logging.LogRecord}
+        @type record: C{logging.LogRecord}
         @param record: LogRecord object from pythons logging module
 
         """

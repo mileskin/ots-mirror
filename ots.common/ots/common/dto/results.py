@@ -63,7 +63,6 @@ class Results(object):
         """
         Name of the result file
         @rtype: C{str}
-        @return: Name of the result file
         """
         return self.data.name
 
@@ -75,8 +74,8 @@ class Results(object):
     @property
     def is_result_xml(self):
         """
-        @rtype : C{bool}
-        @rparam : True if this is a result xml
+        True if this is a result xml
+        @rtype: C{bool}
         """
         if self.name.startswith(RESULT_XML_PATTERN):
             return True
@@ -86,8 +85,8 @@ class Results(object):
     @property 
     def is_definition_xml(self):
         """
-        @rtype : C{bool}
-        @rparam : True if this is a test definition xml
+        True if this is a test definition xml
+        @rtype: C{bool}
         """
         if self.name.startswith(DEFINITION_XML_PATTERN):
             return True

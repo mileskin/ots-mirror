@@ -29,8 +29,8 @@ from ots.results.testrun_result import TestrunResult
 
 def go_nogo_gauge(results_xmls, insignificant_tests_matter = False):
     """
-    @type: C{list} of C{file}
-    @param: A list of the result_xmls
+    @type results_xmls: C{list} of C{file}
+    @param results_xmls: A list of the result_xmls
 
     @rtype: L{TestrunResult}
     @return: PASS / FAIL / NO_CASES

@@ -13,10 +13,34 @@ def post_multipart(host, selector, fields, files,
                    proxy = ""):
     """
     Post fields and files to an http host as multipart/form-data.
-    fields is a sequence of (name, value) elements for regular form fields.
-    files is a sequence of (name, filename, value) elements for data to be
-    uploaded as files
-    Return the server's response page.
+    
+    @type host: C{str}
+    @param host: receiving host
+    
+    @type selector: C{str}
+    @param selector: selector part of url
+    
+    @type fields: C{list} of (C{str}, ?) C{tuple}s
+    @param fields: sequence of (name, value) elements for regular form fields.
+    
+    @type files: C{list} of (C{str}, C{str}, ?) C{tuple}s
+    @param files: sequence of (name, filename, value) elements for data to be
+                  uploaded as files
+    
+    @type protocol: C{str}
+    @param protocol: protocol to be used. defaults to http
+    
+    @type user: C{str}
+    @param user: user name to be used in authentication
+    
+    @type password: C{str}
+    @param password: password to be used in authentication
+    
+    @type realm: C{str}
+    @param realm: realm to be associate with
+    
+    @rtype: C{file}
+    @return: the server's response page.
     """
     if (user and password and realm):
         auth_handler = urllib2.HTTPBasicAuthHandler()
@@ -27,7 +51,7 @@ def post_multipart(host, selector, fields, files,
     content_type, body = encode_multipart_formdata(fields, files)
     headers = {'Content-Type': content_type,
                'Content-Length': str(len(body))}
-    r = urllib2.Request("%s://%s/%s" % (protocol, host, selector),
+    request = urllib2.Request("%s://%s/%s" % (protocol, host, selector),
                         body, headers)
     if proxy:
         r.set_proxy(proxy, "http")
@@ -35,29 +59,35 @@ def post_multipart(host, selector, fields, files,
 
 def encode_multipart_formdata(fields, files):
     """
-    fields is a sequence of (name, value) elements for regular form fields.
-    files is a sequence of (name, filename, value) elements for data to be
-    uploaded as files
+    @type fields: C{list} of ({C{str}, ?) C{tuple}s
+    @param fields: sequence of (name, value) elements for regular form fields.
+    
+    @type files: C{list} of (C{str},C{str},?) C{tuple}s
+    @param files: sequence of (name, filename, value) elements for data to be
+                  uploaded as files
+    
+    @rtype: (C{str},C{str}) C{tuple}
+    @return: tuple of content type and encoded body 
     """
-    BOUNDARY = mimetools.choose_boundary()
-    CRLF = '\r\n'
-    L = []
+    unique_boundary = mimetools.choose_boundary()
+    crlf = '\r\n'
+    lines = []
     for (key, value) in fields:
-        L.append('--' + BOUNDARY)
-        L.append('Content-Disposition: form-data; name="%s"' % key)
-        L.append('')
-        L.append(value)
+        lines.append('--' + unique_boundary)
+        lines.append('Content-Disposition: form-data; name="%s"' % key)
+        lines.append('')
+        lines.append(value)
     for (key, filename, value) in files:
-        L.append('--' + BOUNDARY)
-        L.append('Content-Disposition: form-data; name="%s"; filename="%s"'\
+        lines.append('--' + unique_boundary)
+        lines.append('Content-Disposition: form-data; name="%s"; filename="%s"'\
                      % (key, filename))
-        L.append('Content-Type: %s' % get_content_type(filename))
-        L.append('')
-        L.append(value)
-    L.append('--' + BOUNDARY + '--')
-    L.append('')
-    body = CRLF.join(L)
-    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
+        lines.append('Content-Type: %s' % get_content_type(filename))
+        lines.append('')
+        lines.append(value)
+    lines.append('--' + unique_boundary + '--')
+    lines.append('')
+    body = crlf.join(lines)
+    content_type = 'multipart/form-data; boundary=%s' % unique_boundary
     return content_type, body
 
 def get_content_type(filename):

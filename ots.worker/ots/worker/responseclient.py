@@ -25,8 +25,6 @@ Client that sends response messages back to server over amqp
 """
 import logging
 
-import warnings
-
 from amqplib import client_0_8 as amqp
 from socket import gethostname
 

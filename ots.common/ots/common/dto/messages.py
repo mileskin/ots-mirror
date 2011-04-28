@@ -68,8 +68,8 @@ class CommandMessage(MessageBase):
         @type command: C{list}
         @param command: The CL params
 
-        @type queue : C{str}
-        @param queue : The queue to post the message
+        @type response_queue : C{str}
+        @param response_queue : The queue to post the message
 
         @type timeout : C{int}
         @param timeout : The timeout for the Task
@@ -81,7 +81,7 @@ class CommandMessage(MessageBase):
         @param xml_file : XML test plan
 
         @type min_worker_version: C{str}
-        @type min_worker_version: The minimum acceptable worker version 
+        @param min_worker_version: The minimum acceptable worker version 
         """
         self.command = " ".join(command)
         self.response_queue = response_queue
@@ -93,16 +93,16 @@ class CommandMessage(MessageBase):
     @property    
     def is_quit(self):
         """
+        Should the Worker quit
         @rtype: C{bool}
-        @param: Should the Worker quit
         """
         return self.command == self.QUIT
 
     @property 
     def is_ignore(self):
         """
+        Should the Worker ignore
         @rtype: C{bool}
-        @param: Should the Worker ignore
         """
         #FIXME: Explain the point of this
         return self.command == self.IGNORE
@@ -123,15 +123,15 @@ class StateChangeMessage(MessageBase):
     @property 
     def is_start(self):
         """
+        Is this a start condition
         @rtype: C{bool}
-        @param: Is this a start condition
         """
         return self.condition == TaskCondition.START
 
     @property
     def is_finish(self):
         """
+        Is this a finish condition
         @rtype: C{bool}
-        @param: Is this a finish condition
         """
         return self.condition == TaskCondition.FINISH

@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -151,8 +151,14 @@ class xml_table_writer(table_writer):
         self.writer.writexml(self.response)
         return self.response
 
-def export_table(tabledata,rowdata,titledata=[],type='csv',filename=None,csv_delimiter='|',data_unit_name='row'):
-    """export list of items in given format
+def export_table(tabledata,rowdata,titledata=[],type='csv',filename=None,
+                 csv_delimiter='|',data_unit_name='row'):
+    """
+        export list of items in given format
+        
+        Used for exporting tables from views.
+        iterates through given tabledata and formats and wirtes
+        attributes selected with rowdata.  
 
         @type tabledata: C{list} or C{QuerySet}
         @param tabledata: list of items to be exported
@@ -215,13 +221,13 @@ def export_table(tabledata,rowdata,titledata=[],type='csv',filename=None,csv_del
 def _paginate(request,list_items):
     """paginates list of items
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpResponse}
         @param request: HttpRequest of the view
 
         @type list_items: C{list} or C{QuerySet}
         @param list_items: list of items to be paginated
 
-        @rtype: L{list} or L{QuerySet}
+        @rtype: C{list} or C{QuerySet}
         @return: Returns items on page
     
     """
@@ -241,11 +247,11 @@ def _handle_date_filter(request):
     Checks date filter from the HTTP request
     and saves new time to session.
     
-    @type request: C{django.http.HttpResponse}
+    @type request: C{HttpResponse}
     @param request: Django HTTP response
     
-    @rtype C{dict}
-    @rparam Filter start and end time as datetime and string
+    @rtype: C{dict}
+    @return: Filter start and end time as datetime and string
     """
     date_dict = dict()
     
@@ -299,11 +305,11 @@ def _handle_date_filter(request):
 
 def _top_requestor(device_group_data):
     """    
-    @type request: C{django.http.HttpResponse}
-    @param request: Django HTTP response
+    @type device_group_data: C{QuerySet}
+    @param device_group_data: QuerySet of testruns
     
-    @rtype C{str}, C{int}
-    @rparam Top requester name and amount of test requests
+    @rtype: C{str}, C{int}
+    @return: Top requester name and amount of test requests
     """
     
     req_list = device_group_data.values("requestor"). \
@@ -318,11 +324,11 @@ def _generate_stats_from_events(event_list):
     """
     Generates statistic from testrun events
     
-    @type event_list: C{Event}
+    @type event_list: L{Event<ots.plugin.monitor.models.Event>}
     @param event_list: Event database model
     
-    @rtype C{dict}
-    @rparam Dictionary of event statistics
+    @rtype: C{dict}
+    @return: Dictionary of event statistics
     """
     
     event_category = {
@@ -358,17 +364,17 @@ def _calculate_average_from_events(event_list,start_event,end_event):
     """
     Calculates average time from testrun events
     
-    @type event_list: C{Event}
+    @type event_list: L{Event<ots.plugin.monitor.models.Event>}
     @param event_list: Event database model
     
-    @type start_event: C{MonitorType}
+    @type start_event: L{MonitorType<ots.common.dto.api.MonitorType>}
     @param start_event: start event
     
-    @type end_event: C{MonitorType}
+    @type end_event: L{MonitorType<ots.common.dto.api.MonitorType>}
     @param end_event: end event
     
-    @rtype C{int}
-    @rparam Average time between start and end events
+    @rtype: C{int}
+    @return: Average time between start and end events
     """
     #src_events = event_list.filter(event_name__in=[start_event, end_event]).order_by('testrun_id')
     start_time = None
@@ -400,11 +406,11 @@ def _calculate_testrun_stats(testruns):
     Calculates pass,fail,error rations and
     current status amount.
     
-    @type testruns: C{Testrun}
+    @type testruns: L{Testrun<ots.plugin.monitor.models.Testrun>}
     @param testruns: Testrun database model
     
-    @rtype C{dict}
-    @rparam TDictionary of testrun statistic
+    @rtype: C{dict}
+    @return: TDictionary of testrun statistic
     """
     retDict = dict()
     retDict["inqueue_ration"] = 0
@@ -446,7 +452,7 @@ def _calculate_testrun_stats(testruns):
 def main_page(request):
     """
     Index page for viewing summary from all test runs.
-    @type request: L{HttpRequest}
+    @type request: C{HttpRequest}
     @param request: HttpRequest of the view
     """
     
@@ -507,11 +513,11 @@ def view_testrun_list(request, device_group = None):
     """
     List testruns
     
-    @type request: L{HttpRequest}
+    @type request: C{HttpRequest}
     @param request: HttpRequest of the view
     
-    @type queue_name: L{device_group}
-    @param queue_name: Name of the device group   
+    @type device_group: L{str}
+    @param device_group: Name of the device group   
     """
     
     context_dict = {}
@@ -580,7 +586,7 @@ def view_testrun_details(request, testrun_id):
     """
     Testrun details view
     
-    @type request: L{HttpRequest}
+    @type request: C{HttpRequest}
     @param request: HttpRequest of the view
     
     @type testrun_id: L{str}
@@ -606,10 +612,10 @@ def view_testrun_details(request, testrun_id):
 def view_group_details(request, devicegroup):
     """ Shows testruns and details of device group view
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
-        @type devicegroup: L{string}
+        @type devicegroup: C{str}
         @param devicegroup: name of device group
     """
     context_dict = {}
@@ -666,7 +672,7 @@ def view_group_details(request, devicegroup):
     clients = []
     event_list = Event.objects.filter(testrun_id__in=testruns.values_list('id',flat=True))
     queue_avg = _calculate_average_from_events(event_list,MonitorType.TASK_INQUEUE,MonitorType.TASK_ONGOING)
-    flash_avg = _calculate_average_from_events(event_list,MonitorType.DEVICE_FLASH,MonitorType.DEVICE_BOOT)
+    flash_avg = _calculate_average_from_events(event_list,MonitorType.DEVICE_FLASH,MonitorType.TEST_EXECUTION)
     execute_avg = _calculate_average_from_events(event_list,MonitorType.TEST_EXECUTION, MonitorType.TESTRUN_ENDED)
     
     clients_list = testruns.values_list('host_worker_instances',flat=True)
@@ -709,10 +715,10 @@ def view_group_details(request, devicegroup):
 def view_requestor_details(request, requestor):
     """ Shows testruns by requestor view
 
-        @type request: L{HttpRequest}
+        @type request: C{HttpRequest}
         @param request: HttpRequest of the view
 
-        @type requestor: C{string}
+        @type requestor: C{str}
         @param requestor: emali address of requestor
 
         @rtype: L{HttpResponse}
@@ -814,10 +820,10 @@ def get_timedeltas(request, start, stop, step, device_group):
     @param device_group: The name of the device group 
                          None returns all device groups 
    
-    @rtype: A list of [C{tuple} of (C{str}, 
+    @rtype: A C{list} of [C{tuple} of (C{str}, 
                          [C{list} of 
-                            [C{list} of C{float}]])]
-    @rparam: A tuple of the testrun_id and the time deltas
+                         [C{list} of C{float}]])]
+    @return: A tuple of the testrun_id and the time deltas
                   for all the steps in the testrun 
     """
     ev_dt =  EventTimeDeltas(device_group)
@@ -829,7 +835,7 @@ service.add_method('get_timedeltas', get_timedeltas)
 def get_event_sequence(request):
     """
     @rtype: C{list} of C{str}            
-    @rparam: The sequence of interesting events  
+    @return: The sequence of interesting events  
     """   
     return event_sequence()
 
@@ -843,7 +849,7 @@ def get_total_no_of_testruns(request, device_group):
                          None returns all device groups 
    
     @rtype: C{int},            
-    @rparam: The no of recorded runs of the device group  
+    @return: The no of recorded runs of the device group  
     """
     ev_dt =  EventTimeDeltas(device_group)
     return len(ev_dt.all_testrun_ids)
@@ -857,7 +863,7 @@ def get_testrun_states(request, testrun_ids):
     @param testrun_ids: The testrun ids to query
                         
     @rtype: C{list} of C{str} or None            
-    @rparam: A corresponding list of states  
+    @return: A corresponding list of states  
     """
     ret_val = []
     for testrun_id in testrun_ids:

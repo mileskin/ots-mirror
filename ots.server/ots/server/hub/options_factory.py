@@ -113,11 +113,11 @@ class OptionsFactory(object):
     @staticmethod
     def _default_options_dict(sw_product):
         """
-        @type sw_product : C{str}
-        @param sw_product : The name of the software product
+        @type sw_product: C{str}
+        @param sw_product: The name of the software product
 
-        @rtype default_options_dict : C{dict} or None
-        @param default_options_dict : The dictionary of options
+        @rtype: C{dict} or None
+        @return: The dictionary of options
 
         Get the default options for the SW product
         """
@@ -213,9 +213,8 @@ class OptionsFactory(object):
         """
         Take only the recognised core options 
         Overrides the defaults depending on configuration
-        
-        rtype : C{dict}
-        rparam : The treated Options dictionary
+        The treated Options dictionary
+        @rtype: C{dict} 
         """
         #Take only the core options
         core_options_dict = {}
@@ -256,10 +255,10 @@ class OptionsFactory(object):
         Recognised core options 
         Overrides the defaults depending on configuration.
 
-        Ensures that there is `devicegroup` added to the device  
-       
-        rtype : C{dict}
-        rparam : The processed Options dictionary
+        Ensures that there is `devicegroup` added to the device
+        
+        The processed Options dictionary  
+        @rtype: C{dict}
         """
         #The `device` holds the attributes for the routing mechanism
         #The routing presents an attribute based API 
@@ -280,8 +279,8 @@ class OptionsFactory(object):
 
     def __call__(self):
         """
-        rtype : C{ots.server.hub.options.Options
-        rparam : The Options
+        @rtype: C{ots.server.hub.options.Options}
+        @return: The Options
         """
         if not self.core_options_dict.has_key("image"):
             raise ValueError("Missing `image` parameter")

@@ -42,8 +42,8 @@ def unpack_message(message):
     @type message: amqplib.client_0_8.basic_message.Message
     @param message: A pickled message in AMQP message format
 
-    @rtype message: L{ots.common.message_io.Message} 
-    @rparam mesage: The Message 
+    @rtype: C{ots.common.message_io.Message} 
+    @return: The Message 
     """
     body = loads(message.body)
     return body
@@ -52,11 +52,11 @@ def pack_message(message):
     """
     Packs the message for sending as AMQP with Pickle
 
-    @type message: L{ots.common.message_io.Message} 
-    @param mesage: The AMQP message 
+    @type message: C{ots.common.message_io.Message} 
+    @param message: The AMQP message 
 
-    @rtype message: amqplib.client_0_8.basic_message.Message
-    @return message: A pickled message in AMQP message format
+    @rtype: C{amqplib.client_0_8.basic_message.Message}
+    @return: A pickled message in AMQP message format
     """
     message = dumps(message, True)
     amqp_message = amqp.Message(message)

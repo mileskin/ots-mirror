@@ -26,8 +26,8 @@ Runs an OTS Testrun
 Provides a thin wrapper around the DTOHandler 
 
 Adds it's value by 
-1. Checking the validity of the Run
-2. The Go / NoGo return value
+  1. Checking the validity of the Run
+  2. The Go / NoGo return value
 
 
 At present the callable run_test needs setting 
@@ -92,16 +92,16 @@ class Testrun(object):
     @property 
     def expected_packages(self):
         """
-        @rtype : C{ots.common.dto.packages}
-        @rparam : The Test Packages that should have been run
+        The Test Packages that should have been run
+        @rtype: C{ots.common.dto.packages}
         """
         return self._dto_handler.expected_packages
 
     @property 
     def exceptions(self):
         """
-        @rtype : C{list} of C{Exception}
-        @rparam : Exceptions raised during testrun
+        Exceptions raised during testrun
+        @rtype: C{list} of C{Exception}
         """
         return self._dto_handler.exceptions
 
@@ -109,16 +109,16 @@ class Testrun(object):
     @property
     def tested_packages(self):
         """
-        @rtype : C{ots.common.dto.packages}
-        @rparam : The Test Packages that were run
+        The Test Packages that were run
+        @rtype: C{ots.common.dto.packages}
         """
         return self._dto_handler.tested_packages
         
     @property
     def monitors(self):
         """
-        @rtype : C(list} of C{ots.common.dto.monitor}
-        @rparam : The Monitors
+        The Monitors
+        @rtype: C{list} of C{ots.common.dto.monitor}
         """
         return self._dto_handler.monitors
 
@@ -130,8 +130,8 @@ class Testrun(object):
         """
         Blocking call returns when test completed
 
-        @rtype : L{ots.results.api.TestrunResult
-        @rparam : The Go / NoGo result of the run
+        @rtype: L{ots.results.api.TestrunResult}
+        @return: The Go / NoGo result of the run
         """
         ret_val = TestrunResult.FAIL
         if self.run_test is not None:

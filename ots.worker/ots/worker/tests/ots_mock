@@ -104,7 +104,7 @@ def main(package, testrun_id):
     Unpacks the 'package'. Run the tests
     Feed the results file and the test definition file back 
     
-    @type fqname: C{string}
+    @type fqname: C{str}
     @param fqname: The fully qualified name of the package 
                    (a zipfile for demo purposes) 
     

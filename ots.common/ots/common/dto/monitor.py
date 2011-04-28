@@ -80,7 +80,7 @@ class Monitor(object):
                  description = None, 
                  **kw):
         """
-        @type event_type: C{MonitorType}
+        @type event_type: L{MonitorType}
         @param event_type: Event type
 
         @type sender : C{str}
@@ -99,31 +99,31 @@ class Monitor(object):
     @property    
     def type(self):
         """
-        @rtype: C{MonitorType}
-        @param: Event type
+        Event type
+        @rtype: L{MonitorType}
         """
         return self._event_type
 
     @property    
     def emitted(self):
         """
+        Creation time in seconds
         @rtype: C{int}
-        @param: Creation time in seconds
         """
         return self._event_emitted
 
     @property    
     def received(self):
         """
+        Emit time in seconds
         @rtype: C{int}
-        @param: Emit time in seconds
         """
         return self._event_received
 
     def set_received(self, value = None):
         """
-        @rtype: C{int}
-        @param: Received time in seconds
+        @type value: C{int}
+        @param value: Received time in seconds
         """
         if value is None:
             value = time.time()
@@ -132,31 +132,31 @@ class Monitor(object):
     @property    
     def sender(self):
         """
+        Event sender
         @rtype: C{str}
-        @param: Event sender
         """
         return self._sender
 
     @sender.setter    
     def sender(self, value = None):
         """
-        @rtype: C{str}
-        @param: Event sender setter
+        @type value: C{str}
+        @param value: Event sender setter
         """
         self._sender = value
 
     @property    
     def description(self):
         """
+        Event description
         @rtype: C{str}
-        @param: Event description
         """
         return self._description
 
     @description.setter 
     def description(self, value = None):
         """
-        @rtype: C{str}
-        @param: Event description setter
+        @type value: C{str}
+        @param value: Event description setter
         """
         self._description = value

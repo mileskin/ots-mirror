@@ -20,6 +20,8 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+""" Common OTS Email plugin API functions """
+
 # API file, ignoring Unused import unpack_message 
 # pylint: disable=W0611
 

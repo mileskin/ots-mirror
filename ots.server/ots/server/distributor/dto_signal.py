@@ -44,9 +44,9 @@ except ImportError:
     class SettingsStub(object):
         """Stubs out django settings object"""
         DEBUG = False
-    conf_stub = types.ModuleType("django.conf")
-    conf_stub.settings = SettingsStub()
-    sys.modules["django.conf"] = conf_stub
+    CONF_STUB = types.ModuleType("django.conf")
+    CONF_STUB.settings = SettingsStub()
+    sys.modules["django.conf"] = CONF_STUB
 #    LOGGER.debug("Monkey patching django.conf")
 
 from django.dispatch.dispatcher import Signal
@@ -62,8 +62,8 @@ def send_monitor_event(monitory_type, sender = None, description = None):
     """
     Create monitor instance and send it
     
-    @type event_type: C{MonitorType}
-    @param event_type: Event type
+    @type monitory_type: L{MonitorType}
+    @param monitory_type: Event type
 
     @type sender : C{str}
     @param sender : Event sender

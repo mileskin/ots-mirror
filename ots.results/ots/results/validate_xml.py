@@ -32,7 +32,7 @@ from ots.results.results_schema import SCHEMA_FILENAME
 
 def validate_xml(results_xml):
     """
-    @type results_xml: C{string} 
+    @type results_xml: C{str} 
     @param results_xml: The results xml 
 
     Postprocess the element

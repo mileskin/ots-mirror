@@ -145,7 +145,7 @@ def _check_testruns_result_values(result_values):
                           testruns. 
     @type result_values: C{list} consisting of C{unittest.TestResult}
 
-    @rtype: C{string}
+    @rtype: C{str}
     @return: Result value testruns
     """
     
@@ -167,13 +167,13 @@ def _run_hub(queue, sw_product, request_id, options_dict):
     Function to run a hub and save the testrun result to queue.
     
     @param queue: Process queue
-    @type queue: L{multiprocess.Queue}
+    @type queue: C{multiprocess.Queue}
 
     @param sw_product: Software product
-    @type sw_product: C{string}
+    @type sw_product: C{str}
 
     @param request_id: request ID
-    @type request_id: C{string}
+    @type request_id: C{str}
 
     @param options_dict: Options dictionary for Hub
     @type options_dict: C{dict}

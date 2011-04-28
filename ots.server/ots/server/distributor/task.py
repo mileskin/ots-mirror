@@ -67,10 +67,10 @@ class Task(object):
         @type command: C{list} 
         @param command: The CL params as a list
  
-        @type timeout C{int} 
+        @type timeout: C{int} 
         @param timeout: The timeout for the command
         
-        @type xml_file C{StringIO} 
+        @type xml_file: C{StringIO} 
         @param xml_file: Is task includes a test plan
 
         """
@@ -83,7 +83,7 @@ class Task(object):
         """
         Trigger a state transition 
 
-        @type condition: C{string} 
+        @type condition: C{str} 
         @param condition: The condition 
         """
         transition_table = self.transition_table
@@ -101,16 +101,15 @@ class Task(object):
     def is_finished(self):
         """
         Has the Task finished the run?
-
-        @rtype is_finished: C{bool} 
-        @param is_finished: Is the Task in the finished state 
+        Is the Task in the finished state
+        @rtype: C{bool}  
         """
         return self.current_state == self._FINISHED
     
     def set_timeout(self, timeout):
         """
         Set the task timeout.
-        @type timeout C{int} 
+        @type timeout: C{int} 
         @param timeout: The timeout for the command
         """
         self._timeout = timeout
@@ -118,7 +117,7 @@ class Task(object):
     def set_test_plan(self, xml_file):
         """
         Set test plan to task.
-        @type xml_file C{StringIO} 
+        @type xml_file: C{StringIO} 
         @param xml_file: Test plan as StringIO
         """
         self.xml_file = xml_file

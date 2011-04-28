@@ -26,12 +26,11 @@ for the `accept` method on a node for the tree
 traversal performed by ElementTreeVisitor
 
 Sublclasses provide method that correspond to the name
-of the Element that it dispatches e.g.
+of the Element that it dispatches e.g.::
 
-{{{
     def _case(self, element):
-        #processes 'case'
-}}}
+    #processes 'case'}
+
 """
 
 from ots.results.element_processor_base import ElementProcessorBase
@@ -55,7 +54,7 @@ class ResultsProcessorBase(ElementProcessorBase):
     def _process(self, method_name, *args):
         """
         @type method_name: C{string} 
-        @param tag: The name of the method
+        @param method_name: The name of the method
 
         Safely process the method_name for the args
         """

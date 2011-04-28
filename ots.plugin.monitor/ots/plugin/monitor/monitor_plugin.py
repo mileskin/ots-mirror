@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -154,8 +154,8 @@ class MonitorPlugin(PublisherPluginBase):
         """
         Set error value to DB
         
-        @type: C{Exception}
-        @param: The Exception raised by the Testrun 
+        @type exception: C{Exception}
+        @param exception: The Exception raised by the Testrun 
         """
         self._testrun.error = exception
         self._testrun.save()

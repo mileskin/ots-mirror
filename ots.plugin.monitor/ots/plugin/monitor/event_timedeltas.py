@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
-# Contact: Ville Ilvonen <ville.p.ilvonen@nokia.com>
+# Contact: meego-qa@lists.meego.com
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -19,6 +19,11 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
+
+"""
+Event Time Deltas
+@newfield yield: Yield, Yields
+"""
  
 from ots.plugin.monitor.models import Event
 
@@ -26,8 +31,8 @@ from ots.common.dto.api import MonitorType
 
 def event_sequence():
     """
-    rtype: C{list} of C{str}
-    rparam: The interesting Events in chrono order for the Testrun
+    @rtype: C{list} of C{str}
+    @return: The interesting Events in chrono order for the Testrun
     """
     return [MonitorType.TESTRUN_REQUESTED, MonitorType.TASK_INQUEUE, 
             MonitorType.TASK_ONGOING, MonitorType.DEVICE_FLASH, 
@@ -46,17 +51,13 @@ class EventTimeDeltas(object):
     for a specified (or all) Device Group(s).
     
     e.g. 
-       the call:-
-
-       deltas_iter(1,4,1)
-
-       might yield:-
-
+    the call:
+       >>> deltas_iter(1,4,1)
+       might yield:
        "testrun_id1", [[1],[2],[3],[4],[5],[6]]  # For a Clean run
-         
        "testrun_id2", [[1],[2],[3,3,3],[],[],[]] # Rptd iteration step 3
-         
        "testrun_id3", [[1],[2],[],[],[],[]])]    # Stopped at step 2
+       
     """
 
     def __init__(self, device_group = None):
@@ -75,8 +76,8 @@ class EventTimeDeltas(object):
 
     def _get_events(self):
         """
-        rtype: L{django.db.models.query.QuerySet}
-        rparam: The events (filtered by device group if appropriate)
+        The events (filtered by device group if appropriate)
+        @rtype: C{django.db.models.query.QuerySet}
         """
         if self._events_cache is None:
             if self._device_group is None:      
@@ -90,8 +91,8 @@ class EventTimeDeltas(object):
 
     def _get_events_query_sets(self):
         """
-        rtype:  C{list} of L{django.db.models.query.QuerySet}
-        rparam: The events for the event sequence
+        The events for the event sequence
+        @rtype:  C{list} of C{django.db.models.query.QuerySet}
         """
         if self._events_query_sets_cache is None:
             self._events_query_sets_cache = \
@@ -103,8 +104,8 @@ class EventTimeDeltas(object):
 
     def _get_all_testrun_ids(self):
         """
-        rtype:  C{list} of C{str}
-        rparam: All the testrun ids 
+        All the testrun ids
+        @rtype:  C{list} of C{str} 
         """
         if self._all_testrun_ids is None:
             self._all_testrun_ids = self._events.values_list('testrun_id', 
@@ -124,13 +125,17 @@ class EventTimeDeltas(object):
         @type step: C{int} or None
         @param step: The step of the iteration
         
-        rtype:  C{list} of C{str}
-        rparam: A list of testrun_ids that correspond to the event sequence
+        @rtype:  C{list} of C{str}
+        @return: A list of testrun_ids that correspond to the event sequence
         """
         
-        if start is None: start = 0
-        if stop is None: stop = len(self.all_testrun_ids)
-        if step is None: step = 1
+        if start is None:
+            start = 0
+        if stop is None:
+            stop = len(self.all_testrun_ids)
+        if step is None:
+            step = 1
+            
         return self.all_testrun_ids[start:stop][::step]
 
     def _get_event_times(self, testrun_id, idx):
@@ -141,8 +146,8 @@ class EventTimeDeltas(object):
         @type idx: C{int}
         @param idx: The index into the `_events_query_set`
 
-        @rtype: C{list} of C{datetime.datetime)
-        @param: The times of the events 
+        @rtype: C{list} of C{datetime.datetime}
+        @return: The times of the events 
         """
         times = []
         try:
@@ -155,22 +160,23 @@ class EventTimeDeltas(object):
 
     def _event_dts(self, prev_event_times, this_event_times):
         """
-        @type prev_event_times:  C{list} of C{datetime.datetime)
+        @type prev_event_times:  C{list} of C{datetime.datetime}
         @param prev_event_times: The time(s) of a monitoring event
 
-        @type this_event_times:  C{list} of C{datetime.datetime)
+        @type this_event_times:  C{list} of C{datetime.datetime}
         @param this_event_times: The time(s) of a subsequent monitoring event
 
-        @rtype: C{list} of C{int)
-        @param: The timedelta(s) for the step in the Testrun sequence 
+        @rtype: C{list} of C{int}
+        @return: The timedelta(s) for the step in the Testrun sequence 
         """
         ret_val = []
         if prev_event_times and this_event_times:
-            dt = (this_event_times[0] - prev_event_times[-1]).seconds
-            ret_val.append(dt)
+            deltatime = (this_event_times[0] - prev_event_times[-1]).seconds
+            ret_val.append(deltatime)
             for idx in range(1, len(this_event_times)):
-                dt = (this_event_times[idx] - this_event_times[idx-1]).seconds
-                ret_val.append(dt)
+                deltatime = (this_event_times[idx] - 
+                             this_event_times[idx-1]).seconds
+                ret_val.append(deltatime)
         return ret_val
 
     ###########################################
@@ -188,16 +194,14 @@ class EventTimeDeltas(object):
         @type step: C{int} or None
         @param step: The step of the iteration
         
-        @yield type: C{tuple} of (C{str}, [C{list} of 
-                            [C{list} of C{float}]])
-        @yield param: A tuple of the testrun_id and the time deltas
-                        for all the steps in the testrun 
+        @yield: C{tuple} of (C{str}, [C{list} of [C{list} of C{float}]])
+                A tuple of the testrun_id and the time deltas
+                for all the steps in the testrun 
         """
         for testrun_id in self._testrun_ids(start, stop, step):
             dts = []
             start_time = None
             for event_idx in range(1, len(self._events_query_sets)):
-                dt = []
                 if start_time is None:
                     prev_event_times = self._get_event_times(testrun_id, 
                                                              event_idx - 1)

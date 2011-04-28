@@ -20,7 +20,10 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-""" Functionality for loading OTS plugins """
+""" 
+Functionality for loading OTS plugins
+@newfield yield: Yield, Yields
+"""
 
 import logging
 
@@ -36,8 +39,7 @@ def plugins_iter(plugin_dir, ep_name):
     @type ep_name : C{str}
     @param ep_name : The name of the Entry Point to be loaded 
     
-    @ytype : C{obj}
-    @yparam : The loaded Entry Point 
+    @yield: The loaded Entry Point (C{obj})
     """
 
     working_set.add_entry(plugin_dir)

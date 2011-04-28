@@ -29,17 +29,19 @@ def conductor_command(options, host_testing, chroot_testing):
     """
     Creates a conductor command from the arguments. 
 
-    options[test_packages]: String with test package names. Multiple 
-                            packages must be separated by comma, without 
-                            spaces. String may be empty.
-                            Packages are either for device or for host. 
+    @type options: C{list} of C{str}
+    @param options: String with test package names.
+        Multiple packages must be separated by comma, without 
+        spaces. String may be empty. 
+        Packages are either for device or for host. 
 
-    host_testing: Whether options[test_packages] is assumed to contain 
-                  tests for host. True or False.
+    @type host_testing: C{bool}
+    @param host_testing: Whether options[test_packages]
+        is assumed to contain tests for host. True or False.
 
-    Returns: 
-        cmd: A list. First item is shell executable. 
-             The rest of the items are command line parameters.
+    @rtype: C{list}
+    @return: A list. First item is shell executable. 
+        The rest of the items are command line parameters.
     """
     cmd = ["conductor"]
     cmd.extend( ["-u", options['image_url']] )

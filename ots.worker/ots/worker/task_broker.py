@@ -31,9 +31,9 @@ the Tasks as (Blocking) Processes.
 The simple implementation will hold as long as 
 the following assumptions holding true:
 
-1. There is only a single resource providing i/o (RabbitMQ)
-2. Tasks are blocking
-3. Tasks are run in Serial 
+ 1. There is only a single resource providing i/o (RabbitMQ)
+ 2. Tasks are blocking
+ 3. Tasks are run in Serial 
 """
 
 #Disable spurious pylint warnings
@@ -76,7 +76,7 @@ def _start_process(command):
     """
     Starts the specified process
 
-    @type command: string
+    @type command: C{str}
     @param command: The CL params for the Process to be run as a Task 
     """
     task = Command(command)
@@ -266,8 +266,8 @@ class TaskBroker(object):
         """
         Dispatch the Task. Currently as a Process (Blocking)
                 
-        @type message: C{ots.common.amqp.messages.CommandMessage
-        @param message: The CL params for the Process to be run as a Task 
+        @type cmd_msg: C{ots.common.amqp.messages.CommandMessage}
+        @param cmd_msg: The CL params for the Process to be run as a Task 
         """
 
         if cmd_msg.is_quit:
@@ -357,7 +357,7 @@ class TaskBroker(object):
         @param message: A message containing a pickled dictionary
 
         @rtype: C{bool}
-        @rparam: Returns True if compatible otherwise false
+        @return: Returns True if compatible otherwise false
         """
         ret_val = True
         cmd_msg = unpack_message(message)
@@ -421,8 +421,8 @@ class TaskBroker(object):
         """
         Check whether the stop file is in place
         
-        @rtype stop: C{bool} 
-        @return stop: Is stop file present
+        @rtype: C{bool} 
+        @return: Is stop file present
         """
         stop = False
         if os.path.exists(STOP_SIGNAL_FILE):

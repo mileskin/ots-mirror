@@ -64,7 +64,7 @@ class DTOHandler(object):
     
     def _results(self, result):
         """
-        @type result: L{ots.common.api.ResultObject}
+        @type result: C{ots.common.api.ResultObject}
         @param result: The Results Objects
 
         Handler for Results
@@ -81,7 +81,7 @@ class DTOHandler(object):
 
     def _packages(self, packages): 
         """
-        @type packages: L{ots.common.dto.environment.packages}
+        @type packages: C{ots.common.dto.environment.packages}
         @param packages: The Packages
 
         Handler for Packages
@@ -98,7 +98,7 @@ class DTOHandler(object):
 
     def _callback(self, signal, dto, **kwargs):
         """
-        @type signal: L{django.dispatch.dispatcher.Signal}
+        @type signal: C{django.dispatch.dispatcher.Signal}
         @param signal: The django signal
 
         @type dto: L{ots.common.dto}

@@ -49,8 +49,8 @@ class Packages(dict):
     @property
     def environments(self):
         """
+        The names of the environments
         @rtype: C{list} of C{str}
-        @rparam: The names of the environments
         """
         envs = [key.environment for key in self.keys()]
         envs.sort()
@@ -59,11 +59,11 @@ class Packages(dict):
     
     def packages(self, environment):
         """
-        @type: L{ots.common.dto.environment.Environment} or C{str}
-        @param: The environment or the name of the environment
+        @type environment: L{ots.common.dto.environment.Environment} or C{str}
+        @param environment: The environment or the name of the environment
 
         @rtype: C{list} of C{str}
-        @rparam: The names of the packages
+        @return: The names of the packages
         """
         if isinstance(environment, str):
             return self[Environment(environment)]
@@ -73,8 +73,8 @@ class Packages(dict):
         """
         Updates the packages extending lists on matching keys
 
-        @type: L{ots.common.dto.environment.Packages} 
-        @param: Packages
+        @type packages: L{ots.common.dto.environment.Packages} 
+        @param packages: Packages
         """
         for env, pkgs in packages.items():
             if self.has_key(env):

@@ -47,19 +47,19 @@ class Connection(object):
 
     def __init__(self, vhost, host, port, username, password):
         """
-        @type vhost: C{string}
+        @type vhost: C{str}
         @param vhost: amqp vhost
 
-        @type host: C{string}
+        @type host: C{str}
         @param host: amqp host
 
-        @type port: C{integer}
+        @type port: C{int}
         @param port: amqp port
 
-        @type username: C{string}
+        @type username: C{str}
         @param username: amqp username
 
-        @type password: C{string}
+        @type password: C{str}
         @param password: amqp password
         """
         self._vhost = vhost

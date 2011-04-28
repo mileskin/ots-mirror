@@ -41,22 +41,22 @@ def send_files(result_xmls,
     """
     Sends files to reporting tool
 
-    @type result_xmls: C{list} of C{tuple}s consisting of 2 C{string}s
+    @type result_xmls: C{list} of C{tuple}s consisting of 2 C{str}s
     @param result_xmls: Result xmls in format ("filename", "file content")
 
-    @type attachments: C{list} of C{tuple}s consisting of 2 C{string}s
+    @type attachments: C{list} of C{tuple}s consisting of 2 C{str}s
     @param attachments: Attachment files in format ("filename", "file content")
 
-    @type hwproduct: C{string}
+    @type hwproduct: C{str}
     @param hwproduct: HW product used in the report. If None, read from config
 
-    @type testtype: C{string}
+    @type testtype: C{str}
     @param testtype: Test Type used in the report. If None, read from config
 
-    @type target: C{string}
+    @type target: C{str}
     @param target: Target used in the report. If None, read from config
 
-    @type release_version: C{string}
+    @type release_version: C{str}
     @param release_version: Release_Version used in the report. If None, read
                             from config
     """

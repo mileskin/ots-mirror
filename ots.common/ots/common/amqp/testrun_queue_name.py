@@ -32,7 +32,7 @@ def testrun_queue_name(testrun_id):
     @type testrun_id: C{int}
     @param testrun_id: The testrun_id
 
-    @rtype message: C{string}
-    @return message: The queue name
+    @rtype: C{str}
+    @return: The queue name
     """
     return "r%s" % testrun_id

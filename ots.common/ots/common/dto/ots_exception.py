@@ -23,8 +23,8 @@
 """
 The Base Class for Exceptions.
 
-- Allows for transfer across the wire 
-- Has an errno
+    - Allows for transfer across the wire 
+    - Has an errno
 """
 
 class OTSException(Exception):

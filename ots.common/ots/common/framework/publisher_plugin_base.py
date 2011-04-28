@@ -48,22 +48,22 @@ class PublisherPluginBase(object):
         
     def set_testrun_result(self, testrun_result):
         """
-        @type packages : C{ots.results.testrun_result}
-        @param packages: The result of the Testrun
+        @type testrun_result : C{ots.results.testrun_result}
+        @param testrun_result: The result of the Testrun
         """
         pass
     
     def set_exception(self, exception):
         """
-        @type: C{Exception}
-        @param: The Exception raised by the Testrun 
+        @type exception: C{Exception}
+        @param exception: The Exception raised by the Testrun 
         """
         pass
 
     def set_all_publisher_uris(self, uris_dict):
         """
-        @type: C{dict} of C{str} : C{str}
-        @param: A Dictionary of uris for the published data 
+        @type uris_dict: C{dict} of C{str} : C{str}
+        @param uris_dict: A Dictionary of uris for the published data 
                 for *all* Publishers in {name : uri} 
         """
         pass
@@ -77,7 +77,7 @@ class PublisherPluginBase(object):
 
     def add_monitor_event(self, monitors):
         """
-        @type monitors : C(list} of C{ots.common.dto.monitor}
+        @type monitors : C{list} of C{ots.common.dto.monitor}
         @param monitors : The Monitors
         """
         pass
@@ -89,7 +89,7 @@ class PublisherPluginBase(object):
     def get_this_publisher_uris(self):
         """
         @rtype: C{dict} of C{str} : C{str}
-        @rparam: A Dictionary of uris for the published data 
+        @return: A Dictionary of uris for the published data 
                  for *this* Publisher in {name : uri} 
         """
         return {}

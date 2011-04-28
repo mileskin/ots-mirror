@@ -33,8 +33,8 @@ class ElementTreeVisitor(object):
 
     def add_processor(self, processor):
         """
-        @type processor: C{ElementProcessorBase
-        @param dispatcher: Dispatch strategy
+        @type processor: C{ElementProcessorBase}
+        @param processor: Dispatch strategy
         """
         self._processors.append(processor)
 

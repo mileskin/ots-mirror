@@ -25,9 +25,9 @@ Component Test for OTS-Core
 
 Runs an Integration Test on Components:
 
-- ots.server.distributor
-- ots.worker
-- ots.common
+    - ots.server.distributor
+    - ots.worker
+    - ots.common
 
 and the command_error_mock
 

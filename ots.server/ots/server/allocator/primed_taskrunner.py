@@ -103,13 +103,7 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
 
     @type emmc : C{str}
     @param emmc: Url to the additional content image (memory card image)
-
-    @type testrun_uuid : C{str}
-    @param testrun_uuid: The testrun uuid
-        
-    @type storage_address: C{str}
-    @param storage_address: The storage address 
-
+      
     @type testfilter: C{str}
     @param testfilter: The test filter string for testrunner-lite
 
@@ -123,8 +117,8 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     @type extended_options : C{dict}
     @param extended_options : A dictionary of extended ots testrun options
 
-    rtype: L{Taskrunner}
-    rparam: A loaded Taskrunner 
+    @rtype: C{Taskrunner}
+    @return: A loaded Taskrunner 
     """
 
     routing_key = get_routing_key(device_properties)

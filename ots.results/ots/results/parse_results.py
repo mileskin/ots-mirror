@@ -38,14 +38,14 @@ from ots.results.significant_results_processor import \
         
 def parse_results(results_xml, insignificant_tests_matter):
     """
-    @type results_xml: C{string} 
+    @type results_xml: C{str} 
     @param results_xml: The results xml
 
     @type insignificant_tests_matter: C{bool} 
     @param insignificant_tests_matter: Flag
 
-    @rtype: C(list} of C{TestrunResult} 
-    @param: A list of the Test results that matter
+    @rtype: C{list} of C{TestrunResult} 
+    @return: A list of the Test results that matter
 
     Parse the Test results xml
     """

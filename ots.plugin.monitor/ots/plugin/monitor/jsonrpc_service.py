@@ -20,7 +20,9 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import sys
+""" OTS Monitor plugin JSON RPC Service """
+
+#import sys
 
 import logging
 
@@ -30,18 +32,29 @@ from django.http import HttpResponse
 LOG = logging.getLogger(__name__)
 
 class JSONRPCService: 
-
-    def __init__(self, method_map={}):
+    """ JSON RPC Service Class """
+    def __init__(self, method_map=None):
         LOG.debug("Initialising JSONRPCService") 
+        if method_map == None:
+            method_map = {}
         self.method_map = method_map
 	
     def add_method(self, name, method):
+        """
+        Adds new method
+        
+        @type name: C{str}
+        @param name: method name
+        
+        @type method: C{function}
+        @param method: method to be added
+        """
         self.method_map[name] = method
         LOG.debug("Adding JSONRPCService method %s"%(method))
 		
     def __call__(self, request, extra=None):
         data = simplejson.loads(request.raw_post_data)
-        id = data["id"]
+        identifier = data["id"]
         method = data["method"]
         params = [request,] + data["params"]
         if method in self.method_map:
@@ -52,10 +65,11 @@ class JSONRPCService:
             #But it doesn't appear to support connecting handlers to callers
             #other than onRemoteReponse.
             #Hacking for now
-            response = simplejson.dumps({'id': id, 'result': (method, result)})
+            response = simplejson.dumps({'id': identifier,
+                                         'result': (method, result)})
         else:
             LOG.debug("No registered method '%s'"%(method))
-            response = simplejson.dumps({'id': id, 
+            response = simplejson.dumps({'id': identifier, 
                                          'error': "No such method", 'code': -1})
         return HttpResponse(response)
 
@@ -65,6 +79,11 @@ def jsonremote(service):
     JSONRPC decorator
     """
     def remotify(func):
+        """
+        remotify
+        @type func: C{function}
+        @param func: method to be added to service
+        """
         LOG.debug("jsonremote: '%s'"%(func.__name__))
         if isinstance(service, JSONRPCService):
             service.add_method(func.__name__, func)
