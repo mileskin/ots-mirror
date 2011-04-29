@@ -262,8 +262,6 @@ def _handle_date_filter(request):
     end_time = None
     follow = request.session.get('follow')
     
-    print follow
-    
     if request.method == 'POST':
         post = request.POST
         if "submit_clear" in post:
@@ -382,8 +380,12 @@ def _calculate_average_from_events(event_list,start_event,end_event):
     total_time = 0
     event_count = 0
     #for event in src_events:
-    for event in event_list.filter(event_name__in=[start_event, end_event]).order_by('testrun_id').iterator():
+    for event in event_list.filter(event_name__in=[start_event, end_event]).order_by('testrun_id', 'event_emit').iterator():
+        #pdb.set_trace()
         if start_time != None and end_time != None:
+            if start_time > end_time:
+                end_time = None
+                continue
             total_time += (end_time-start_time).seconds
             event_count += 1
             start_time = None
@@ -683,6 +685,9 @@ def view_group_details(request, devicegroup):
         clients = list(set(clients))
     
     context_dict['num_of_clients'] = len(clients)
+    context_dict['avg_queue'] = queue_avg
+    context_dict['avg_flash'] = flash_avg
+    context_dict['avg_execution'] = execute_avg
     if queue_avg:
         context_dict['avg_queue'] = round(queue_avg/60.0,1)
     if flash_avg:
