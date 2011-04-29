@@ -41,32 +41,60 @@ class ExampleConductorPlugin(ConductorPluginBase):
         """
         self.options = options
 
-    def callback_before_testrun(self):
+    def before_testrun(self):
         """
-        Implement method to call your plugin before a test run
+        Implement method to call your plug-in before a test run
         """
-        LOG.debug("ExampleConductorPlugin callback_before_testrun " \
+        LOG.info("ExampleConductorPlugin before_testrun " \
                   "method called.")
 
-        raise NotImplementedError("Example conductor plugin " \
-            "callback_before_testrun method not implemented.")
+        raise NotImplementedError("Example conductor plug-in " \
+            "before_testrun method not implemented.")
 
-    def callback_after_testrun(self):
+    def after_testrun(self):
         """
-        Implement method to call your plugin after a test run
+        Implement method to call your plug-in after a test run
         """
-        LOG.debug("ExampleConductorPlugin callback_before_testrun " \
+        LOG.info("ExampleConductorPlugin after_testrun " \
                   "method called.")
 
-        raise NotImplementedError("Example conductor plugin " \
-            "callback_after_testrun method not implemented.")
+        raise NotImplementedError("Example conductor plug-in " \
+            "after_testrun method not implemented.")
 
-    def get_result_file_paths(self):
+    def set_target(self, hw_target):
         """
+        Implement set target method
+
+        @type hw_target: C{ots.worker.conductor.testtarget.TestTarget}
+        @param hw_target: Hardware specific communication class
+        """
+        LOG.info("ExampleConductorPlugin set_target " \
+                  "method called.")
+
+        raise NotImplementedError("Example conductor plug-in " \
+            "set_target method not implemented.")
+
+    def set_result_dir(self, result_dir):
+        """
+        Implement set result directory method
+
+        @type result_dir: C{string}
+        @param result_dir: Result file directory path
+        """
+        LOG.info("ExampleConductorPlugin set_result_dir " \
+                  "method called.")
+
+        raise NotImplementedError("Example conductor plug-in " \
+            "set_result_dir method not implemented.")
+
+    def get_result_files(self):
+        """
+        Implement get result files directory
+
         @rtype: C{list} of C{str}
         @rparam: A list of result file paths
         """
-        LOG.debug("ExampleConductorPlugin get_result_file_paths method called.")
+        LOG.info("ExampleConductorPlugin get_result_files method called.")
 
-        raise NotImplementedError("Example conductor plugin " \
-            "get_result_file_paths method not implemented.")
+        raise NotImplementedError("Example conductor plug-in " \
+            "get_result_files method not implemented.")

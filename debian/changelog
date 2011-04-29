@@ -1,3 +1,15 @@
+ots (0.8.4-1) unstable; urgency=low
+
+  * OTS 0.8.4 release, BMC#13356
+  * One worker can support multiple devices in Parallel, BMC#8742
+  * Added conductor plug-in interface, BMC#15403
+  * Added configuration option for email attachments, BMC#15765
+  * Added proxy support to QA-Reports plug-in, BMC#16018
+  * Fixed average flashing time display for OTS monitor, BMC#15362
+  * Fixed Django settings import error, BMC#16704
+
+ -- Elias Luttinen <elias.luttinen@digia.com>  Thu, 28 Apr 2011 15:29:53 +0300
+
 ots (0.8.3-1) unstable; urgency=low
 
   * OTS 0.8.3 release, BMC#13355

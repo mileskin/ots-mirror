@@ -1,7 +1,7 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 #
 # Contact: meego-qa@lists.meego.com
 #
@@ -20,18 +20,6 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-from setuptools import setup, find_packages
-from get_spec_version import get_spec_version
-
-setup(
-      name = "ots.plugin.email",
-      author="meego-qa@lists.meego.com",
-      namespace_packages = ["ots", "ots.plugin"],
-      version=get_spec_version(),
-      include_package_data = True,
-      packages = find_packages(),
-      install_requires=['ots.server'],
-      entry_points={"ots.publisher_plugin":
-            ["publisher_klass "\
-             "= ots.plugin.email.email_plugin:EmailPlugin"]},
-     )
+"""
+An example custom package distribution model plugin
+"""
