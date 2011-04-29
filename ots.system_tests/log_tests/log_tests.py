@@ -843,7 +843,7 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.email = "invalid_email_address"
         expected = ["Missing `image` parameter"]
         self.trigger_testrun_expect_error(options, expected)
-    
+
 
 class TestMultiDevice(SystemSingleRunTestCaseBase):
     
@@ -870,6 +870,31 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         options.filter = "testcase=Check-basic-schema"
         expected = ["using config file /etc/conductor_1.conf"]
         self.trigger_testrun_expect_pass(options, expected)
+
+class TestConductorPlugin(SystemSingleRunTestCaseBase):
+    """Tests for conductor plug-ins"""
+
+    def test_example_conductor_plugin(self):
+        """
+        Example conductor plugin from examples directory needs to be installed!
+        """
+        options = Options()
+        options.hosttest = "test-definition-tests"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        options.filter = "testcase=Check-basic-schema"
+        expected = ["ExampleConductorPlugin before_testrun " \
+                    "method called.",
+                    "ExampleConductorPlugin after_testrun " \
+                    "method called.",
+                    "ExampleConductorPlugin set_target method " \
+                    "called.",
+                    "ExampleConductorPlugin set_result_dir method " \
+                    "called.",
+                    "ExampleConductorPlugin get_result_files method " \
+                    "called."]
+        self.trigger_testrun_expect_pass(options, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
