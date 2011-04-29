@@ -54,8 +54,8 @@ def post_multipart(host, selector, fields, files,
     request = urllib2.Request("%s://%s/%s" % (protocol, host, selector),
                         body, headers)
     if proxy:
-        r.set_proxy(proxy, "http")
-    return urllib2.urlopen(r).read()
+        request.set_proxy(proxy, "http")
+    return urllib2.urlopen(request).read()
 
 def encode_multipart_formdata(fields, files):
     """
