@@ -374,14 +374,11 @@ def _calculate_average_from_events(event_list,start_event,end_event):
     @rtype: C{int}
     @return: Average time between start and end events
     """
-    #src_events = event_list.filter(event_name__in=[start_event, end_event]).order_by('testrun_id')
     start_time = None
     end_time = None
     total_time = 0
     event_count = 0
-    #for event in src_events:
     for event in event_list.filter(event_name__in=[start_event, end_event]).order_by('testrun_id', 'event_emit').iterator():
-        #pdb.set_trace()
         if start_time != None and end_time != None:
             if start_time > end_time:
                 end_time = None
@@ -403,6 +400,7 @@ def _calculate_average_from_events(event_list,start_event,end_event):
     if event_count:
         return total_time/event_count
     return 0
+
 def _calculate_testrun_stats(testruns):
     """
     Calculates pass,fail,error rations and
