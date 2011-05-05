@@ -94,3 +94,12 @@ XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Monitor plugin to OTS server
  Statistical information from the OTS system.
+
+Package: python-ots-plugin-conductor-richcore
+Architecture: all
+Depends: python (>= 2.5), python-ots-worker
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: Rich core processing plugin to OTS conductor
+ Plugin for sending rich-core dumps saved from test runs to post-processing.
+

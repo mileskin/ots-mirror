@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/python
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -22,13 +21,26 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-# Creates developer eggs for all the eggs with 'ots' namespace
-PACKAGES="ots.common ots.results ots.server ots.worker ots.tools ots.django
-                  ots.plugin.email ots.plugin.logger ots.plugin.qareports
-                  ots.plugin.monitor ots.plugin.history ots.plugin.conductor_richcore"
-for egg_root in $PACKAGES
-do
-    cd "$egg_root"
-    python setup.py develop
-    cd -
-done
+""" Gets version number from the spec file """
+
+import os
+
+def get_spec_version():
+    spec_location = "python-ots.spec"
+    try:
+        if not os.path.exists(spec_location):
+            spec_location = "../" + spec_location
+        specfile = open(spec_location)
+        for line in specfile:
+            version = line.find('Version:')
+            if version == -1:
+                continue
+            version = line.split(":")[1].strip()
+            break
+        specfile.close()
+        return version
+    except:
+        return None
+
+if __name__ == "__main__":
+    print get_spec_version()

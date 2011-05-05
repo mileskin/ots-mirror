@@ -103,6 +103,14 @@ Requires:               python-ots-server, python-ots-django
 %description            plugin-monitor
 Statistical information from the OTS system.
 
+%package                plugin-conductor-richcore
+Summary:                Rich core processing plugin to OTS worker
+Prefix:                 /usr
+Group:                  Development/Tools
+Requires:               python-ots-worker
+%description            plugin-conductor-richcore
+Plugin for sending rich-core dumps saved from test runs to post-processing.
+
 %prep
 %setup -n %{name}-%{version}
 
@@ -208,4 +216,11 @@ setsebool httpd_unified 1
 /usr/lib/python*/site-packages/ots.plugin.monitor-*
 /usr/lib/python*/site-packages/ots/plugin/monitor/*
 /usr/share/ots/plugin/monitor/*
+
+%files plugin-conductor-richcore
+%defattr(-,root,root)
+%config /etc/ots_plugin_conductor_richcore.conf
+/usr/local/lib/python*/dist-packages/ots.plugin.conductor_richcore-*
+/usr/local/lib/python*/dist-packages/ots/plugin/conductor_richcore/*
+
 

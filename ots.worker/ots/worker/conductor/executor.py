@@ -54,7 +54,8 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                              TESTRUNNER_RESULT_LOGGING_FAILS, \
                              TIMEOUT_FETCH_ENVIRONMENT_DETAILS, \
                              TIMEOUT_FETCH_FILES_AFTER_TESTING, \
-                             TESTRUNNER_CHROOT_OPTION
+                             TESTRUNNER_CHROOT_OPTION, \
+                             TESTRUNNER_RICH_CORE_DUMPS_OPTION
 
 from ots.worker.conductor.conductorerror import ConductorError
 
@@ -134,6 +135,13 @@ class TestRunData(object):
         self.flasher_module = None
         self.device_n = 0
         
+        self.target_rich_core_dumps = config.get('rich_core_dumps_folder')
+        
+        if config.get('save_rich_core_dumps') == "yes":
+            self.save_rich_core_dumps = True
+        else:
+            self.save_rich_core_dumps = False
+
         if options.device_n:
             self.device_n = options.device_n
             
@@ -967,10 +975,13 @@ class Executor(object):
                                     % self.testrun.filter_string
 
         remote_option = ""
+        rich_core_option = ""
         if self.testrun.is_chrooted:
             remote_option = TESTRUNNER_CHROOT_OPTION % self.chroot.path
         elif not self.testrun.is_host_based:
             remote_option = TESTRUNNER_SSH_OPTION % self.testrun.target_ip_address
+            if self.testrun.save_rich_core_dumps:
+                rich_core_option = TESTRUNNER_RICH_CORE_DUMPS_OPTION % self.testrun.target_rich_core_dumps
 
         workdir = os.path.expanduser(TESTRUNNER_WORKDIR)
 
@@ -979,7 +990,8 @@ class Executor(object):
                                 self.testrun.result_file_path, 
                                 filter_option,
                                 http_logger_option,
-                                remote_option)
+                                remote_option,
+                                rich_core_option)
 
         return cmd
     

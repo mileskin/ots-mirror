@@ -1,0 +1,3 @@
+/etc/ots_plugin_conductor_richcore.conf
+/usr/local/lib/python*/dist-packages/ots.plugin.conductor_richcore-*
+/usr/local/lib/python*/dist-packages/ots/plugin/conductor_richcore/*
