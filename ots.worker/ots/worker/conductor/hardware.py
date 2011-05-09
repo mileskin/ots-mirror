@@ -421,3 +421,20 @@ class RPMHardware(Hardware):
         test_packages.sort()
         return test_packages
 
+    def get_command_to_enable_debug_repos(self):
+        """
+        Returns command list, enable and refresh debug repos
+        
+        @return: command to list, enable and refresh debug repos
+        """
+        
+        return HW_COMMAND % (self.testrun.target_ip_address, "zypper lr | grep debuginfo | cut -s -d \"|\" -f 2 | xargs zypper mr --enable; zypper --no-gpg-checks ref")
+
+    def get_command_to_list_debug_packages(self):
+        """
+        Command to list -debuginfo packages.
+
+        @return: command to list debugs
+        """
+        
+        return HW_COMMAND % (self.testrun.target_ip_address, "rpm -qa --queryformat \"%{NAME}-debuginfo \" | xargs zypper se | cut -s -d \"|\" -f 2 | sed \"s/^[ \t]*//\" | grep -v ^Name")
