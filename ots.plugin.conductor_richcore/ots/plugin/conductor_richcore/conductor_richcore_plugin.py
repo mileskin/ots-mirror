@@ -68,6 +68,8 @@ class RichCorePlugin(ConductorPluginBase):
         copies it to the build server.
         """
 
+        if self.process_rich_core_dumps == False: return
+
         config = configobj.ConfigObj(DEFAULT_CONFIG_FILE).get("debug_build")
         host = config.get("host")
 

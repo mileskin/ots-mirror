@@ -134,10 +134,9 @@ class TestRunData(object):
         self.target_flasher = config.get('default_flasher')
         self.flasher_module = None
         self.device_n = 0
-        
-        self.target_rich_core_dumps = config.get('rich_core_dumps_folder')
-        
-        if config.get('save_rich_core_dumps') == "yes":
+                
+        if config.has_key('rich_core_dumps_folder'):
+            self.target_rich_core_dumps = config.get('rich_core_dumps_folder')
             self.save_rich_core_dumps = True
         else:
             self.save_rich_core_dumps = False
