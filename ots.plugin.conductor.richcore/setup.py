@@ -32,7 +32,7 @@ else:
 
 
 setup(
-      name="ots.plugin.conductor_richcore",
+      name="ots.plugin.conductor.richcore",
       author="meego-qa@lists.meego.com",
       namespace_packages=["ots", "ots.plugin"],
       version=get_spec_version(),
@@ -41,8 +41,8 @@ setup(
       install_requires=['ots.worker', 'configobj'],
       entry_points={"ots.plugin.conductor":
                     ["plugin_klass = "\
-                     "ots.plugin.conductor_richcore.conductor_richcore_plugin:RichCorePlugin"]},
+                     "ots.plugin.conductor.richcore.richcore_plugin:RichCorePlugin"]},
                      data_files=[(j(data_prefix,'etc'),
-                                  ['ots/plugin/conductor_richcore/ots_plugin_conductor_richcore.conf'])]
+                                  ['ots/plugin/conductor/richcore/ots_plugin_conductor_richcore.conf'])]
       )
 

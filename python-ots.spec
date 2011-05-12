@@ -220,7 +220,7 @@ setsebool httpd_unified 1
 %files plugin-conductor-richcore
 %defattr(-,root,root)
 %config /etc/ots_plugin_conductor_richcore.conf
-/usr/local/lib/python*/dist-packages/ots.plugin.conductor_richcore-*
-/usr/local/lib/python*/dist-packages/ots/plugin/conductor_richcore/*
+/usr/local/lib/python*/dist-packages/ots.plugin.conductor.richcore-*
+/usr/local/lib/python*/dist-packages/ots/plugin/conductor/richcore/*
 
 
