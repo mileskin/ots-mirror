@@ -1,7 +1,7 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
 # Contact: meego-qa@lists.meego.com
 #
@@ -36,7 +36,6 @@ from ots.worker.conductor.executor import TestRunData as TestRunData
 ##############################################################################
 
 THIS_FILE = os.path.dirname(os.path.abspath(__file__))
-TEST_PLUGIN_CONF = os.path.join(THIS_FILE, "testdata/test_ots_plugin_conductor_richcore.conf")
 TEST_RESULT_DIR = os.path.join(tempfile.gettempdir(), "testrun123", "Hardware")
 
 ##############################################################################
@@ -66,7 +65,7 @@ class Stub_Command(object):
 
     def execute():
         pass
- 
+
 def _stub_execute_ssh_command(cmdstr):
     return g_Command
 
@@ -76,7 +75,7 @@ def _stub_execute_ssh_command(cmdstr):
 
 def _build_conductor_config():
     config = _conductor_config_simple()
-    
+
     if not config.has_key('rich_core_dumps'):
         config['rich_core_dumps_folder'] = "/home/meego/core-dumps"
 
@@ -91,7 +90,7 @@ def _create_result_dirs():
 # Tests
 ##############################################################################
 
-class test_richcore_plugin(unittest.TestCase):
+class TestRichcorePlugin(unittest.TestCase):
     """unit tests for richcore_plugin"""
 
     def setUp(self):
@@ -104,16 +103,7 @@ class test_richcore_plugin(unittest.TestCase):
         if os.path.exists(TEST_RESULT_DIR):
             shutil.rmtree(TEST_RESULT_DIR)
 
-    def test_no_config_found(self):
-
-        DEFAULT_CONFIG_FILE = os.path.join(THIS_FILE, "test.conf")
-     
-        plugin = RichCorePlugin(TestRunData(Options(), config = _build_conductor_config()))
-        self.assertRaises(Exception, plugin.__init__)
-
     def test_before_testrun_disabled(self):
-
-        DEFAULT_CONFIG_FILE = TEST_PLUGIN_CONF
         config = _build_conductor_config()
         del config['rich_core_dumps_folder']
         plugin = RichCorePlugin(TestRunData(Options(), config))
@@ -125,8 +115,6 @@ class test_richcore_plugin(unittest.TestCase):
         self.assertFalse(plugin.process_rich_core_dumps)
 
     def test_before_testrun_fetching_build_id_failed(self):
-
-        DEFAULT_CONFIG_FILE = TEST_PLUGIN_CONF
         plugin = RichCorePlugin(TestRunData(Options(), config = _build_conductor_config()))
 
         plugin.set_target(Stub_Target())
@@ -140,8 +128,6 @@ class test_richcore_plugin(unittest.TestCase):
         self.assertFalse(plugin.process_rich_core_dumps)
 
     def test_before_testrun_ok(self):
-
-        DEFAULT_CONFIG_FILE = TEST_PLUGIN_CONF
         plugin = RichCorePlugin(TestRunData(Options(), config = _build_conductor_config()))
 
         plugin.set_target(Stub_Target())
@@ -159,8 +145,6 @@ class test_richcore_plugin(unittest.TestCase):
         self.assertTrue(plugin.process_rich_core_dumps)
 
     def test_after_testrun_ok(self):
-
-        DEFAULT_CONFIG_FILE = TEST_PLUGIN_CONF
         plugin = RichCorePlugin(TestRunData(Options(), config = _build_conductor_config()))
 
         plugin.set_target(Stub_Target())
@@ -184,10 +168,10 @@ class test_richcore_plugin(unittest.TestCase):
             temp.close()
         except IOError:
             return
-    
+
         plugin.after_testrun()
         self.assertFalse(os.path.exists(path))
-            
-                
+
+
 if __name__ == '__main__':
     unittest.main()
