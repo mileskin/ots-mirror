@@ -223,7 +223,7 @@ class TestConductorInternalConstants(unittest.TestCase):
         c.TESTRUN_LOG_CLEANER
         c.CONDUCTOR_WORKDIR
         c.TESTRUNNER_WORKDIR
-        c.CMD_TESTRUNNER   % (1,2,3,4,5,6)
+        c.CMD_TESTRUNNER   % (1,2,3,4,5,6,7)
         c.TESTRUNNER_SSH_OPTION % "iippee"
         c.TESTRUNNER_LOGGER_OPTION % 1
         c.TESTRUNNER_FILTER_OPTION   % "xxx"
