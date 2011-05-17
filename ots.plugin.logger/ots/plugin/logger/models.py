@@ -31,9 +31,9 @@ Django models file
 
 from django.db import models
 
+
 class LogMessage(models.Model):
-    """ Model for message logs
-    """
+    """ Model for message logs """
     service = models.CharField(max_length=20, db_index=True)
     run_id = models.CharField(db_index=True, max_length=32)
 
