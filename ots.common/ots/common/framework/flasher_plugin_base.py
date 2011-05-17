@@ -94,3 +94,10 @@ class FlasherPluginBase(object):
         log.warning("* module (see OTS Worker documentation).          *")
         log.warning("* Now continuing as if test target is set up...   *")
         log.warning("***************************************************")
+
+    def clean_up(self):
+        """
+        This method is called after the test execution is done
+        or error has occurred.
+        """
+        log.warning("Nothing to clean up")
