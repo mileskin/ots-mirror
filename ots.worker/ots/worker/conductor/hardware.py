@@ -51,7 +51,10 @@ class Hardware(TestTarget):
 
     The default implementation has support for hardware using Debian packaging.
     """
-
+    
+    # Flasher module
+    _flasher = None
+    
     def __str__(self):
         return "Hardware"
 
@@ -75,6 +78,9 @@ class Hardware(TestTarget):
         self.log.debug("Removing flash image files.")
         for path in (self.testrun.image_path, self.testrun.content_image_path):
             self._delete_folder(path)
+        
+        if self._flasher:
+            self._flasher.clean_up()
 
     def get_commands_to_show_test_environment(self):
         """
@@ -333,6 +339,8 @@ class Hardware(TestTarget):
                                                   device_n = self.testrun.device_n,
                                                   host_ip = self.testrun.host_ip_address,
                                                   device_ip = self.testrun.target_ip_address)
+            
+            self._flasher = flasher
 
             self.log.debug("image: %s" % self.testrun.image_path)
             self.log.debug("content image: %s" % \
