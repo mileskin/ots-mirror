@@ -607,8 +607,9 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options.timeout = 1
         expected = [
           "No queue for this_should_not_exist",
-          "Incoming request: program: ots-system-tests, request: 0, " \
-          "notify_list: ['%s'], options: {"  % (CONFIG["email"]),
+          "Incoming request: program: %s, request: 0, " \
+          "notify_list: ['%s'], options: {" \
+              % (CONFIG["sw_product"], CONFIG["email"]),
           "'image': '%s'" % (CONFIG["image_url"]),
           "'distribution_model': 'default'",
           "'timeout': 1",
