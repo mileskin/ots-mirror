@@ -829,7 +829,7 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.filter = "testcase=Check-basic-schema"
-        expected = ["Monitor Plugin loaded",
+        expected = ["Plugin: ots.plugin.conductor.richcore loaded",
                     "history data saved",
                     "Using smtp server",
                     "Email sent"]
