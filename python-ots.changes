@@ -1,3 +1,9 @@
+Fri May 20 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.5
+ - OTS 0.8.5 release, BMC#16861
+ - Added new conductor plug-in for rich-core processing by rikhalon, BMC#17509
+ - Added support for flasher module to clean up, BMC#17620
+ - Fixed OTS logger view problem when using MySQL, BMC#17765
+
 Thu Apr 28 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.4
  - OTS 0.8.4 release, BMC#13356
  - One worker can support multiple devices in Parallel, BMC#8742

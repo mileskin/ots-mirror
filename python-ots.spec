@@ -1,6 +1,6 @@
 Summary: Open Test System 
 Name: python-ots
-Version: 0.8.4
+Version: 0.8.5
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: LGPL 2.1
@@ -220,7 +220,7 @@ setsebool httpd_unified 1
 %files plugin-conductor-richcore
 %defattr(-,root,root)
 %config /etc/ots_plugin_conductor_richcore.conf
-/usr/local/lib/python*/dist-packages/ots.plugin.conductor.richcore-*
-/usr/local/lib/python*/dist-packages/ots/plugin/conductor/richcore/*
+/usr/lib/python*/site-packages/ots.plugin.conductor.richcore-*
+/usr/lib/python*/site-packages/ots/plugin/conductor/richcore/*
 
 
