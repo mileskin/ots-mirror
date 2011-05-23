@@ -29,6 +29,7 @@ import os
 import logging
 import configobj
 import subprocess
+import re
 
 from ots.common.framework.api import ConductorPluginBase
 from ots.worker.command import Command
@@ -160,10 +161,12 @@ class RichCorePlugin(ConductorPluginBase):
                         if result_file.endswith(RICH_CORE_FILE_SUFFIX):
                             local_rcore_path = os.path.join(results_path,
                                                             result_file)
+                            # Get crash id from the rich core file name
+                            id = re.match("(.*)-(.*)%s" % RICH_CORE_FILE_SUFFIX, result_file)                            
+
                             remote_rcore_path = \
                                 os.path.join(config.get("core_queue_path"),
-                                             result_file.split( \
-                                                    RICH_CORE_FILE_SUFFIX)[0])
+                                             id.group(2))
 
                             remote_copy_cmd = \
                                 COPY_RICHCORE_TO_PROCESSING_QUEUE % \

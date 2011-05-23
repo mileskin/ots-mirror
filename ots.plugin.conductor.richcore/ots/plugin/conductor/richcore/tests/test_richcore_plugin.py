@@ -37,6 +37,7 @@ from ots.worker.conductor.executor import TestRunData as TestRunData
 
 THIS_FILE = os.path.dirname(os.path.abspath(__file__))
 TEST_RESULT_DIR = os.path.join(tempfile.gettempdir(), "testrun123", "Hardware")
+TEST_FILE = "testserver-xxxx-11-2441-5918df5d096e30451008b27029a23bcd191a-383979ac7cbad8dfe0f7a1ecc7c0638d.rcore.lzo"
 
 ##############################################################################
 # Globals
@@ -161,7 +162,7 @@ class TestRichcorePlugin(unittest.TestCase):
 
         subprocess.call = _stub_subprocess_call
 
-        path = os.path.join(TEST_RESULT_DIR, "testdef", "results", "test.rcore.lzo")
+        path = os.path.join(TEST_RESULT_DIR, "testdef", "results", TEST_FILE)
         try:
             temp = open(path, "w")
             temp.write("foo")
@@ -171,7 +172,6 @@ class TestRichcorePlugin(unittest.TestCase):
 
         plugin.after_testrun()
         self.assertFalse(os.path.exists(path))
-
 
 if __name__ == '__main__':
     unittest.main()

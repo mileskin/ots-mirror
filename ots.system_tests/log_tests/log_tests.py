@@ -607,8 +607,9 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options.timeout = 1
         expected = [
           "No queue for this_should_not_exist",
-          "Incoming request: program: ots-system-tests, request: 0, " \
-          "notify_list: ['%s'], options: {"  % (CONFIG["email"]),
+          "Incoming request: program: %s, request: 0, " \
+          "notify_list: ['%s'], options: {" \
+              % (CONFIG["sw_product"], CONFIG["email"]),
           "'image': '%s'" % (CONFIG["image_url"]),
           "'distribution_model': 'default'",
           "'timeout': 1",
@@ -829,7 +830,7 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.filter = "testcase=Check-basic-schema"
-        expected = ["Monitor Plugin loaded",
+        expected = ["Plugin: ots.plugin.conductor.richcore loaded",
                     "history data saved",
                     "Using smtp server",
                     "Email sent"]

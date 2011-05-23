@@ -28,21 +28,23 @@ from get_spec_version import get_spec_version
 if sys.prefix.startswith("/usr") or sys.prefix == "/":
     data_prefix="/" #install data and config files relative to root
 else:
-    data_prefix=sys.prefix #we are inside virtualenv, so install files relative to it
-
+    data_prefix=sys.prefix  # we are inside virtualenv, so 
+                            # install files relative to it
 
 setup(
       name="ots.plugin.conductor.richcore",
       author="meego-qa@lists.meego.com",
-      namespace_packages=["ots", "ots.plugin"],
+      namespace_packages=["ots", "ots.plugin", "ots.plugin.conductor"],
       version=get_spec_version(),
       include_package_data=True,
       packages=find_packages(),
       install_requires=['ots.worker', 'configobj'],
-      entry_points={"ots.plugin.conductor":
-                    ["plugin_klass = "\
-                     "ots.plugin.conductor.richcore.richcore_plugin:RichCorePlugin"]},
-                     data_files=[(j(data_prefix,'etc'),
-                                  ['ots/plugin/conductor/richcore/ots_plugin_conductor_richcore.conf'])]
+      entry_points={
+            "ots.plugin.conductor":
+            ["plugin_klass = " \
+             "ots.plugin.conductor.richcore.richcore_plugin:RichCorePlugin"]},
+             data_files=[(j(data_prefix, "etc"),
+                ["ots/plugin/conductor/richcore/" \
+                 "ots_plugin_conductor_richcore.conf"])]
       )
 

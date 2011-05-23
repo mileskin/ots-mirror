@@ -335,7 +335,7 @@ def main_page(request):
     messages = []
     
     for run in run_ids:
-        message = LogMessage.objects.filter(run_id = run['run_id']).order_by('-date')[0]
+        message = LogMessage.objects.filter(run_id = run['run_id']).order_by('-date','-msecs')[0]
         messages.append(message)
     
     messages = sorted(messages, key=lambda message: message.date, reverse=True)
