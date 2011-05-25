@@ -42,6 +42,12 @@ def post_multipart(host, selector, fields, files,
     @rtype: C{file}
     @return: the server's response page.
     """
+    if proxy:
+        proxy_support = urllib2.ProxyHandler({'https': proxy,
+                                              'http': proxy})
+        opener = urllib2.build_opener(proxy_support, urllib2.HTTPHandler)
+        urllib2.install_opener(opener)
+
     if (user and password and realm):
         auth_handler = urllib2.HTTPBasicAuthHandler()
         auth_handler.add_password(realm, host, user, password)
@@ -53,8 +59,6 @@ def post_multipart(host, selector, fields, files,
                'Content-Length': str(len(body))}
     request = urllib2.Request("%s://%s/%s" % (protocol, host, selector),
                         body, headers)
-    if proxy:
-        request.set_proxy(proxy, "http")
     return urllib2.urlopen(request).read()
 
 def encode_multipart_formdata(fields, files):
