@@ -60,7 +60,7 @@ TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
 TESTRUNNER_FILTER_OPTION = '-l "%s"'
 TESTRUNNER_RICH_CORE_DUMPS_OPTION = '-d "%s"'
 
-HTTP_LOGGER_PATH = "/logger/ots/%s/"  #testrun id
+HTTP_LOGGER_PATH = "/logger/ots/%s/%s/"  # testrun id, device_n
 
 FLASHER_PATH = "/tmp/flasher"
 
@@ -77,7 +77,6 @@ SSH_RETRY_INTERVAL = 5
 # Timeouts for commands
 TIMEOUT_FETCH_ENVIRONMENT_DETAILS = 60
 TIMEOUT_FETCH_FILES_AFTER_TESTING = 60
-
 
 # Return codes for Testrunner-lite
 TESTRUNNER_SUCCESFUL = 0
