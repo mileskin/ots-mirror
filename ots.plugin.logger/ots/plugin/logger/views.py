@@ -331,15 +331,7 @@ def main_page(request):
     'MEDIA_URL' : settings.MEDIA_URL,
     }
 
-    run_ids = LogMessage.objects.values('run_id').distinct()
-    messages = []
-    
-    for run in run_ids:
-        message = LogMessage.objects.filter(run_id = run['run_id']).order_by('-date','-msecs')[0]
-        messages.append(message)
-    
-    messages = sorted(messages, key=lambda message: message.date, reverse=True)
-        
+    messages = LogMessage.objects.get_latest_messages().order_by('-created')
     context_dict['messages']  = messages
     template = loader.get_template('logger/index.html')
     return HttpResponse(template.render(Context(context_dict)))

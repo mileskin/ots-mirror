@@ -31,6 +31,19 @@ Django models file
 
 from django.db import models
 
+class LogManager(models.Manager):
+    def get_latest_messages(self):
+        from django.db import connection
+        cursor = connection.cursor()
+        cursor.execute(
+                       """SELECT id FROM log_messages,
+                       (SELECT MAX(created) mcred FROM log_messages 
+                       GROUP BY run_id) AS maxcreated 
+                       WHERE created = maxcreated.mcred 
+                       """)
+        return self.get_query_set().filter(
+                        id__in=[row[0] for row in cursor.fetchall()])
+
 class LogMessage(models.Model):
     """ Model for message logs
     """
@@ -63,6 +76,7 @@ class LogMessage(models.Model):
     relativeCreated = models.FloatField(db_column='relative_created')
     msecs = models.FloatField()
 
+    objects = LogManager()
     class Meta:
         """
         Meta class for model
