@@ -107,7 +107,7 @@ Statistical information from the OTS system.
 Summary:                Rich core processing plugin to OTS worker
 Prefix:                 /usr
 Group:                  Development/Tools
-Requires:               python-ots-worker
+Requires:               python-ots-worker, python-configobj
 %description            plugin-conductor-richcore
 Plugin for sending rich-core dumps saved from test runs to post-processing.
 
