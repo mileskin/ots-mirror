@@ -78,7 +78,7 @@ class RichCorePlugin(ConductorPluginBase):
         
         proxy = config.get("proxy")
 
-        self.command_timeout = config.get("command_timeout")
+        self.command_timeout = config.as_int("command_timeout")
     
         user = config.get("user")
         if user == "":
