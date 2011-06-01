@@ -84,13 +84,13 @@ class RichCorePlugin(ConductorPluginBase):
         if user == "":
             user = os.getenv("USER")
 
+        proxycmd = ":"
+        if proxy:
+            proxycmd = "export http_proxy=" + proxy
+
         # Enable debug repos        
         LOG.debug("Enabling debug repos in Device Under Test...")
-        cmdstr = self.target.get_command_to_enable_debug_repos()
-        cmdstr = "route add default gw " + self.host_ip_address + ";" + cmdstr
-        cmdstr = "echo \"nameserver 8.8.8.8\" > /etc/resolv.conf;" + cmdstr
-        if proxy:
-            cmdstr = "export http_proxy=" + proxy + ";"
+        cmdstr = self.target.get_command_to_enable_debug_repos() % (self.host_ip_address, proxy_command)
 
         self._execute_ssh_command(cmdstr)
 
