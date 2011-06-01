@@ -90,7 +90,7 @@ class RichCorePlugin(ConductorPluginBase):
 
         # Enable debug repos        
         LOG.debug("Enabling debug repos in Device Under Test...")
-        cmdstr = self.target.get_command_to_enable_debug_repos() % (self.host_ip_address, proxy_command)
+        cmdstr = self.target.get_command_to_enable_debug_repos() % (self.host_ip_address, proxycmd)
 
         self._execute_ssh_command(cmdstr)
 
