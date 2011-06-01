@@ -58,7 +58,7 @@ from ots.plugin.logger.models import LogMessage
 ROW_AMOUNT_IN_PAGE = 50
 
 
-def create_message(request, servicename=None, run_id=None, worker_id=None):
+def create_message(request, servicename=None, run_id=None):
     """ Creates log message to database.
 
         @type request: C{HttpRequest}
@@ -69,9 +69,6 @@ def create_message(request, servicename=None, run_id=None, worker_id=None):
 
         @type run_id: C{int}
         @param run_id: Run id
-
-        @type worker_id: C{int}
-        @param worker_id: Worker id
 
         @rtype: L{HttpResponse}
         @return: Returns HttpResponse.
@@ -92,9 +89,6 @@ def create_message(request, servicename=None, run_id=None, worker_id=None):
 
         if not remote_host: # If host is still empty, use IP
             remote_host = request.META['REMOTE_ADDR']
-
-        if worker_id:
-            remote_host += '/' + worker_id
 
         instance = LogMessage(
             service         = servicename,
@@ -123,6 +117,7 @@ def create_message(request, servicename=None, run_id=None, worker_id=None):
             process         = int(request.POST['process']),
             relativeCreated = float(request.POST['relativeCreated']),
             msecs           = float(request.POST['msecs']),
+            userDefinedId   = request.POST.get('userDefinedId', ''),
             )
         instance.save()
 
@@ -131,7 +126,7 @@ def create_message(request, servicename=None, run_id=None, worker_id=None):
         return HttpResponse('Request method is not POST')
 
 def basic_testrun_viewer(request, run_id=None):
-    """ Shows all messages in list view for given servicename and run id
+    """ Shows all messages in list view for given service name and run id
 
         @type request: C{HttpRequest}
         @param request: HttpRequest of the view

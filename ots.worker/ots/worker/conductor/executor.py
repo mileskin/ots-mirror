@@ -55,7 +55,8 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                              TIMEOUT_FETCH_ENVIRONMENT_DETAILS, \
                              TIMEOUT_FETCH_FILES_AFTER_TESTING, \
                              TESTRUNNER_CHROOT_OPTION, \
-                             TESTRUNNER_RICH_CORE_DUMPS_OPTION
+                             TESTRUNNER_RICH_CORE_DUMPS_OPTION, \
+                             TESTRUNNER_USER_DEFINED_OPTION
 
 from ots.worker.conductor.conductorerror import ConductorError
 
@@ -963,10 +964,12 @@ class Executor(object):
 
         http_logger_option = ""
         if not self.stand_alone:
-            path = HTTP_LOGGER_PATH % (str(self.testrun.id),
-                                       self.testrun.device_n)
+            path = HTTP_LOGGER_PATH % str(self.testrun.id)
             url = "%s%s" % (self.responseclient.host, path) #http:// not needed
             http_logger_option = TESTRUNNER_LOGGER_OPTION % url
+
+        user_defined_option = \
+            TESTRUNNER_USER_DEFINED_OPTION % self.testrun.device_n
 
         filter_option = ""
         if self.testrun.filter_string:
@@ -978,17 +981,20 @@ class Executor(object):
         if self.testrun.is_chrooted:
             remote_option = TESTRUNNER_CHROOT_OPTION % self.chroot.path
         elif not self.testrun.is_host_based:
-            remote_option = TESTRUNNER_SSH_OPTION % self.testrun.target_ip_address
+            remote_option = TESTRUNNER_SSH_OPTION % \
+                                        self.testrun.target_ip_address
             if self.testrun.save_rich_core_dumps:
-                rich_core_option = TESTRUNNER_RICH_CORE_DUMPS_OPTION % self.testrun.target_rich_core_dumps
+                rich_core_option = TESTRUNNER_RICH_CORE_DUMPS_OPTION % \
+                                        self.testrun.target_rich_core_dumps
 
         workdir = os.path.expanduser(TESTRUNNER_WORKDIR)
 
         cmd = CMD_TESTRUNNER % (workdir, 
-                                self.testrun.dst_testdef_file_path, 
-                                self.testrun.result_file_path, 
+                                self.testrun.dst_testdef_file_path,
+                                self.testrun.result_file_path,
                                 filter_option,
                                 http_logger_option,
+                                user_defined_option,
                                 remote_option,
                                 rich_core_option)
 

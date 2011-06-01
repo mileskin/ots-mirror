@@ -63,6 +63,9 @@ class LogMessage(models.Model):
     relativeCreated = models.FloatField(db_column='relative_created')
     msecs = models.FloatField()
 
+    userDefinedId = models.CharField(max_length=255, blank=True,
+                                     default='', db_column='user_defined_id')
+
     class Meta:
         """
         Meta class for model

@@ -107,7 +107,8 @@ def _init_logging(config_filename = None, device_n = 0):
     """
     formatter = \
         logging.Formatter\
-        ("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            ("%(asctime)s - %(userDefinedId)s - %(name)s - " \
+             "%(levelname)s - %(message)s")
     log_filename = None
     if config_filename is not None:
         config = ConfigParser.ConfigParser()

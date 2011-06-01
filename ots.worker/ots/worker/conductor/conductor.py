@@ -186,7 +186,8 @@ def _setup_logging(verbose, device_number):
     else:
         output_level = logging.INFO
 
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    formatter = logging.Formatter('%(asctime)s %(userDefinedId)s ' \
+                                  '%(levelname)s %(message)s')
     root_logger = logging.getLogger()
 
     root_logger.setLevel(logging.DEBUG)
@@ -214,7 +215,7 @@ def _add_http_logger(server_host, testrun_id, device_n):
     """
     http_handler = logging.handlers.HTTPHandler( \
                             server_host, 
-                            HTTP_LOGGER_PATH % (str(testrun_id), device_n), 
+                            HTTP_LOGGER_PATH % str(testrun_id), 
                             "POST")
     root_logger = logging.getLogger()
     http_handler.setLevel(logging.INFO)
