@@ -97,7 +97,7 @@ Description: Monitor plugin to OTS server
 
 Package: python-ots-plugin-conductor-richcore
 Architecture: all
-Depends: python (>= 2.5), python-ots-worker
+Depends: python (>= 2.5), python-ots-worker, python-configobj
 XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Rich core processing plugin to OTS conductor

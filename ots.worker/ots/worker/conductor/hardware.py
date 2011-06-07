@@ -436,7 +436,7 @@ class RPMHardware(Hardware):
         @return: command to list, enable and refresh debug repos
         """
         
-        return HW_COMMAND % (self.testrun.target_ip_address, "zypper lr | grep debuginfo | cut -s -d \"|\" -f 2 | xargs zypper mr --enable; zypper --no-gpg-checks ref")
+        return HW_COMMAND % (self.testrun.target_ip_address, "route add default gw %s;  echo \"nameserver 8.8.8.8\" > /etc/resolv.conf; %s; zypper lr | grep debuginfo | cut -s -d \"|\" -f 2 | xargs zypper mr --enable; zypper --no-gpg-checks ref")
 
     def get_command_to_list_debug_packages(self):
         """

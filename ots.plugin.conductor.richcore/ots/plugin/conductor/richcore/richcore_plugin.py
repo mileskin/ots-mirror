@@ -36,8 +36,7 @@ from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
-from ots.worker.conductor.conductor_config \
-        import TIMEOUT_FETCH_ENVIRONMENT_DETAILS, HW_COMMAND
+from ots.worker.conductor.conductor_config import HW_COMMAND
 
 DEFAULT_CONFIG_FILE = "/etc/ots_plugin_conductor_richcore.conf"
 RICH_CORE_FILE_SUFFIX = ".rcore.lzo"
@@ -58,7 +57,7 @@ class RichCorePlugin(ConductorPluginBase):
         self.result_dir = ""
         self.target = None
         self.target_ip_address = options.target_ip_address 
-        
+        self.host_ip_address = options.host_ip_address 
         if not os.path.exists(DEFAULT_CONFIG_FILE):
             self.process_rich_core_dumps = False
             raise Exception("%s not found" % (DEFAULT_CONFIG_FILE))
@@ -76,14 +75,23 @@ class RichCorePlugin(ConductorPluginBase):
 
         config = configobj.ConfigObj(DEFAULT_CONFIG_FILE).get("debug_build")
         host = config.get("host")
+        
+        proxy = config.get("proxy")
 
+        self.command_timeout = config.as_int("command_timeout")
+    
         user = config.get("user")
         if user == "":
             user = os.getenv("USER")
 
+        proxycmd = ":"
+        if proxy:
+            proxycmd = "export http_proxy=" + proxy
+
         # Enable debug repos        
         LOG.debug("Enabling debug repos in Device Under Test...")
-        cmdstr = self.target.get_command_to_enable_debug_repos()
+        cmdstr = self.target.get_command_to_enable_debug_repos() % (self.host_ip_address, proxycmd)
+
         self._execute_ssh_command(cmdstr)
 
         # Get build id
@@ -214,8 +222,8 @@ class RichCorePlugin(ConductorPluginBase):
         @param command: Command string to execute
         @return ots.worker.command
         """
-        cmd = Command(cmdstr, soft_timeout = TIMEOUT_FETCH_ENVIRONMENT_DETAILS,
-                      hard_timeout = TIMEOUT_FETCH_ENVIRONMENT_DETAILS + 5)
+        cmd = Command(cmdstr, soft_timeout = self.command_timeout,
+                      hard_timeout = self.command_timeout + 5)
 
         try:
             cmd.execute()
