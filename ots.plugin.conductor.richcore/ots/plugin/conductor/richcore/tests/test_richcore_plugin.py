@@ -52,7 +52,7 @@ g_Command = None
 class Stub_Target(object):
 
     def get_command_to_enable_debug_repos(self):
-        return ""
+        return "%s %s"
 
     def get_command_to_list_debug_packages(self):
         return ""
