@@ -36,7 +36,7 @@
 		</tr>
 	</thead>
 	<tbody>
-	    {% for message in messages %}
+	    {% for message in messages.object_list %}
     	<tr class="{% cycle 'odd' 'even' %}">
 			<td><a href="{% url ots.plugin.logger.views.basic_testrun_viewer run_id=message.run_id %}">{{ message.run_id }}</a></td>
 			<td>{{ message.date|format_datetime }}</td>
@@ -47,4 +47,24 @@
 		{% endfor %}
 	</tbody>
 </table>
+<div class="pagination">
+    <span class="step-links">
+        {% if messages.has_previous %}
+            <a href="?page={{ messages.previous_page_number }}">previous</a>
+        {% endif %}
+        {% for page_num in messages.paginator.page_range %}
+            {% if page_num == messages.number %}
+                <span class="current">
+                    {{ messages.number }}
+                </span>
+            {% else %}
+                <a href="?page={{ page_num }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if messages.has_next %}
+            <a href="?page={{ messages.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
 {% endblock content %}
