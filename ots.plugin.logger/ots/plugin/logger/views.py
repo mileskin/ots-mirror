@@ -52,11 +52,35 @@ from copy import deepcopy
 from django.http import HttpResponse
 from django.conf import settings
 from django.template import loader, Context
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from ots.plugin.logger.models import LogMessage
 
 ROW_AMOUNT_IN_PAGE = 50
 
+def _paginate(request,list_items):
+    """paginates list of items
+
+        @type request: C{HttpResponse}
+        @param request: HttpRequest of the view
+
+        @type list_items: C{list} or C{QuerySet}
+        @param list_items: list of items to be paginated
+
+        @rtype: C{list} or C{QuerySet}
+        @return: Returns items on page
+    
+    """
+    paginator = Paginator(list_items,ROW_AMOUNT_IN_PAGE)
+    try: 
+        page = int(request.GET.get('page','1'))
+    except ValueError:
+        page = 1
+    try:
+        list = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        list = paginator.page(paginator.num_pages)
+    return list
 
 def create_message(request, servicename=None, run_id=None, worker_id=None):
     """ Creates log message to database.
@@ -336,16 +360,9 @@ def main_page(request):
     'MEDIA_URL' : settings.MEDIA_URL,
     }
 
-    run_ids = LogMessage.objects.values('run_id').distinct()
-    messages = []
+    messages = LogMessage.objects.get_latest_messages().order_by('-created')
     
-    for run in run_ids:
-        message = LogMessage.objects.filter(run_id = run['run_id']).order_by('-date','-msecs')[0]
-        messages.append(message)
-    
-    messages = sorted(messages, key=lambda message: message.date, reverse=True)
-        
-    context_dict['messages']  = messages
+    context_dict['messages']  = _paginate(request,messages)
     template = loader.get_template('logger/index.html')
     return HttpResponse(template.render(Context(context_dict)))
 
