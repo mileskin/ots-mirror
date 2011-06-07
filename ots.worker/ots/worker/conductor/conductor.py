@@ -207,14 +207,15 @@ def _setup_logging(verbose, device_number):
     return root_logger
 
 
-def _add_http_logger(server_host, testrun_id):
+def _add_http_logger(server_host, testrun_id, device_n):
     """
     Add http logger handler into logging. 
     Associate it with given testrun in server. Returns root_logger.
     """
-    http_handler = logging.handlers.HTTPHandler(server_host, 
-                                            HTTP_LOGGER_PATH % str(testrun_id),
-                                            "POST")
+    http_handler = logging.handlers.HTTPHandler( \
+                            server_host, 
+                            HTTP_LOGGER_PATH % (str(testrun_id), device_n), 
+                            "POST")
     root_logger = logging.getLogger()
     http_handler.setLevel(logging.INFO)
     root_logger.addHandler(http_handler)
@@ -339,7 +340,7 @@ def _read_optional_config_files(custom_folder, config_dict):
     return config_dict
 
 
-def _initialize_remote_connections(otsserver, testrun_id):
+def _initialize_remote_connections(otsserver, testrun_id, device_n):
     """
     Initialise ResponseClient and http_logger. Return ResponseClient object if 
     everything succeeds or None if anything fails. Log details about failure.
@@ -349,7 +350,7 @@ def _initialize_remote_connections(otsserver, testrun_id):
     host, port = otsserver.split(":")
 
     try:
-        _add_http_logger(host, testrun_id)
+        _add_http_logger(host, testrun_id, device_n)
     except:
         LOG.error("Unknown error in initializing http logger to server "\
                   "%s!" % host)
@@ -384,8 +385,9 @@ def main():
     responseclient = None
 
     if not stand_alone:
-        responseclient = _initialize_remote_connections(options.otsserver, 
-                                                    options.testrun_id)
+        responseclient = _initialize_remote_connections(options.otsserver,
+                                                        options.testrun_id,
+                                                        device_n)
         if not responseclient:
             sys.exit(1)
 

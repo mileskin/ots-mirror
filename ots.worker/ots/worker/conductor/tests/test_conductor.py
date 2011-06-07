@@ -227,7 +227,7 @@ class TestConductorInternalConstants(unittest.TestCase):
         c.TESTRUNNER_SSH_OPTION % "iippee"
         c.TESTRUNNER_LOGGER_OPTION % 1
         c.TESTRUNNER_FILTER_OPTION   % "xxx"
-        c.HTTP_LOGGER_PATH % 1
+        c.HTTP_LOGGER_PATH % (1, 2)
         c.HW_COMMAND % ("xxx", "bar")
         c.HW_COMMAND_TO_COPY_FILE    % ("xxx", 1,2)
         c.LOCAL_COMMAND_TO_COPY_FILE % (1,2)

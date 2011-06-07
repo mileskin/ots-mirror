@@ -55,7 +55,7 @@ class LoggerPlugin(PublisherPluginBase):
         @param sw_product: Name of the sw product this testrun belongs to
 
         @type image : C{str}
-        @param image : The URL of the image        
+        @param image : The URL of the image
         """
 
         self._httphandler = None
@@ -99,12 +99,12 @@ class LoggerPlugin(PublisherPluginBase):
         logging.basicConfig()
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
-        
+
         # HTTP handler for end users
         self._httphandler = LocalHttpHandler(testrun_uuid)
         self._httphandler.setLevel(logging.INFO) # No debug msgs to end users
         root_logger.addHandler(self._httphandler)
-        
+
     #############################################
     # Logger removal
     #############################################

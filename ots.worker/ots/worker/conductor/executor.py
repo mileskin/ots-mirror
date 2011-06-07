@@ -143,7 +143,6 @@ class TestRunData(object):
 
         if options.device_n:
             self.device_n = options.device_n
-            
 
     def _parse_image_filename_from_url(self):
         """ 
@@ -964,7 +963,8 @@ class Executor(object):
 
         http_logger_option = ""
         if not self.stand_alone:
-            path = HTTP_LOGGER_PATH % str(self.testrun.id)
+            path = HTTP_LOGGER_PATH % (str(self.testrun.id),
+                                       self.testrun.device_n)
             url = "%s%s" % (self.responseclient.host, path) #http:// not needed
             http_logger_option = TESTRUNNER_LOGGER_OPTION % url
 
@@ -993,7 +993,7 @@ class Executor(object):
                                 rich_core_option)
 
         return cmd
-    
+
     def _load_flasher_module(self):
         """
         Load flasher module which is then used for flashing

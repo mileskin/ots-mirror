@@ -82,7 +82,7 @@ def _paginate(request,list_items):
         list = paginator.page(paginator.num_pages)
     return list
 
-def create_message(request, servicename=None, run_id=None):
+def create_message(request, servicename=None, run_id=None, worker_id=None):
     """ Creates log message to database.
 
         @type request: C{HttpRequest}
@@ -93,6 +93,9 @@ def create_message(request, servicename=None, run_id=None):
 
         @type run_id: C{int}
         @param run_id: Run id
+
+        @type worker_id: C{int}
+        @param worker_id: Worker id
 
         @rtype: L{HttpResponse}
         @return: Returns HttpResponse.
@@ -114,7 +117,8 @@ def create_message(request, servicename=None, run_id=None):
         if not remote_host: # If host is still empty, use IP
             remote_host = request.META['REMOTE_ADDR']
 
-
+        if worker_id:
+            remote_host += '/' + worker_id
 
         instance = LogMessage(
             service         = servicename,
