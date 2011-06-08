@@ -59,6 +59,8 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                              TESTRUNNER_USER_DEFINED_OPTION
 
 from ots.worker.conductor.conductorerror import ConductorError
+from ots.worker.conductor.helpers import get_logger_adapter
+
 
 WAIT_SIGKILL = 5
 
@@ -70,7 +72,7 @@ class TestRunData(object):
     
     def __init__(self, options, config):
 
-        self.log = logging.getLogger("conductor")
+        self.log = get_logger_adapter("conductor")
         self.config = config
 
         self.id = options.testrun_id
@@ -183,7 +185,7 @@ class Executor(object):
     def __init__(self, testrun, stand_alone, responseclient = None, 
                  hostname = "unknown", testrun_timeout = 0):
 
-        self.log = logging.getLogger("conductor")
+        self.log = get_logger_adapter("conductor")
         self.testrun = testrun
         self.stand_alone = stand_alone
         self.config = testrun.config

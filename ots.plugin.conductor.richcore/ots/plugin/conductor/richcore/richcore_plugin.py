@@ -38,6 +38,7 @@ from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 from ots.worker.conductor.conductor_config \
         import TIMEOUT_FETCH_ENVIRONMENT_DETAILS, HW_COMMAND
+from ots.worker.conductor.helpers import get_logger_adapter
 
 DEFAULT_CONFIG_FILE = "/etc/ots_plugin_conductor_richcore.conf"
 RICH_CORE_FILE_SUFFIX = ".rcore.lzo"
@@ -45,7 +46,7 @@ COPY_RICHCORE_TO_PROCESSING_QUEUE = "ssh %s@%s mkdir %s; scp %s %s@%s:%s"
 COPY_LOCAL_FILE_TO_REMOTE = "scp %s %s@%s:%s"
 DEBUG_PACKAGE_LIST_FILE_NAME = "%s_debug_package_list"
 GET_BUILD_ID_COMMAND = "grep \"BUILD\" /etc/meego-release | cut -d\  -f 2"
-LOG = logging.getLogger(__name__)
+LOG = get_logger_adapter(__name__)
 
 class RichCorePlugin(ConductorPluginBase):
     """

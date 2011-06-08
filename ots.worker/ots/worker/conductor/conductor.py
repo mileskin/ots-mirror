@@ -40,11 +40,12 @@ from ots.worker.conductor.executor import TestRunData
 from ots.worker.conductor.executor import Executor
 from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
+from ots.worker.conductor.helpers import get_logger_adapter
 
 DEFAULT_CONFIG = "/etc/conductor.conf"
 OPT_CONF_SUFFIX = ".conf"
+LOG = get_logger_adapter("conductor")
 
-LOG = logging.getLogger("conductor")
 
 def _parse_command_line(args):
     """
@@ -186,8 +187,7 @@ def _setup_logging(verbose, device_number):
     else:
         output_level = logging.INFO
 
-    formatter = logging.Formatter('%(asctime)s %(userDefinedId)s ' \
-                                  '%(levelname)s %(message)s')
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     root_logger = logging.getLogger()
 
     root_logger.setLevel(logging.DEBUG)
@@ -304,7 +304,7 @@ def _read_configuration_files(config_file, device_n):
         
         if os.path.exists(new_config_path):
             config_file = new_config_path
-    
+
     LOG.info("using config file %s" % config_file)
     
     config_dict = _parse_conductor_config(config_file)
@@ -364,7 +364,7 @@ def _initialize_remote_connections(otsserver, testrun_id, device_n):
     except:
         LOG.error("Unknown error in initializing OTS client connecting "\
                       "to %s! (Using OtsResponseClient)" % (host))
-        
+
     return responseclient
 
 
