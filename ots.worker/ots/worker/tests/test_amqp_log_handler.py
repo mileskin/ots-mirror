@@ -129,10 +129,7 @@ class TestAMQPLogHandler(unittest.TestCase):
         messages = [rec.msg for rec in records]
         self.assertEquals(['debug', 'info', 'warning', 'error', 'exception'],
                           messages)
-       
-       
+
 
 if __name__ == "__main__":
     unittest.main()
-        
-        
