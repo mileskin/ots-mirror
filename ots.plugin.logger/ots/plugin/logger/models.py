@@ -20,23 +20,23 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""
-Django models file
-"""
-
 # Ignoring class has no __init__ method
 # pylint: disable=W0232
 # Ignoring too few public methods
 # pylint: disable=R0903
 
-from django.db import models
+"""Django models file"""
+
+from django.db import models, connection
+
 
 class LogManager(models.Manager):
+    """Extra manager for LogMessage model"""
     def get_latest_messages(self):
-        from django.db import connection
+        """Get the latest message for each testrun"""
         cursor = connection.cursor()
-        cursor.execute(
-                       """SELECT id FROM log_messages,
+        cursor.execute("""
+                       SELECT id FROM log_messages,
                        (SELECT MAX(created) mcred FROM log_messages
                        GROUP BY run_id) AS maxcreated
                        WHERE created = maxcreated.mcred
@@ -44,8 +44,9 @@ class LogManager(models.Manager):
         return self.get_query_set().filter(
                         id__in=[row[0] for row in cursor.fetchall()])
 
+
 class LogMessage(models.Model):
-    """ Model for message logs """
+    """Model for message logs"""
     service = models.CharField(max_length=20, db_index=True)
     run_id = models.CharField(db_index=True, max_length=32)
 
@@ -81,13 +82,9 @@ class LogMessage(models.Model):
     objects = LogManager()
 
     class Meta:
-        """
-        Meta class for model
-        """
+        """Meta class for model"""
         db_table = 'log_messages'
 
     def __unicode__(self):
-        """
-        Unicode function for table
-        """
+        """Unicode function for table"""
         return self.msg
