@@ -37,6 +37,7 @@ from ots.worker.command import SoftTimeoutException
 from ots.worker.command import HardTimeoutException
 from ots.worker.command import CommandFailed
 from ots.worker.conductor.conductor_config import HW_COMMAND
+from ots.worker.conductor.helpers import get_logger_adapter
 
 DEFAULT_CONFIG_FILE = "/etc/ots_plugin_conductor_richcore.conf"
 RICH_CORE_FILE_SUFFIX = ".rcore.lzo"
@@ -44,7 +45,8 @@ COPY_RICHCORE_TO_PROCESSING_QUEUE = "ssh %s@%s mkdir %s; scp %s %s@%s:%s"
 COPY_LOCAL_FILE_TO_REMOTE = "scp %s %s@%s:%s"
 DEBUG_PACKAGE_LIST_FILE_NAME = "%s_debug_package_list"
 GET_BUILD_ID_COMMAND = "grep \"BUILD\" /etc/meego-release | cut -d\  -f 2"
-LOG = logging.getLogger(__name__)
+LOG = get_logger_adapter(__name__)
+
 
 class RichCorePlugin(ConductorPluginBase):
     """
@@ -56,8 +58,8 @@ class RichCorePlugin(ConductorPluginBase):
         self.process_rich_core_dumps = options.save_rich_core_dumps
         self.result_dir = ""
         self.target = None
-        self.target_ip_address = options.target_ip_address 
-        self.host_ip_address = options.host_ip_address 
+        self.target_ip_address = options.target_ip_address
+        self.host_ip_address = options.host_ip_address
         if not os.path.exists(DEFAULT_CONFIG_FILE):
             self.process_rich_core_dumps = False
             raise Exception("%s not found" % (DEFAULT_CONFIG_FILE))
@@ -75,11 +77,11 @@ class RichCorePlugin(ConductorPluginBase):
 
         config = configobj.ConfigObj(DEFAULT_CONFIG_FILE).get("debug_build")
         host = config.get("host")
-        
+
         proxy = config.get("proxy")
 
         self.command_timeout = config.as_int("command_timeout")
-    
+
         user = config.get("user")
         if user == "":
             user = os.getenv("USER")
@@ -88,7 +90,7 @@ class RichCorePlugin(ConductorPluginBase):
         if proxy:
             proxycmd = "export http_proxy=" + proxy
 
-        # Enable debug repos        
+        # Enable debug repos
         LOG.debug("Enabling debug repos in Device Under Test...")
         cmdstr = self.target.get_command_to_enable_debug_repos() % (self.host_ip_address, proxycmd)
 
@@ -120,7 +122,7 @@ class RichCorePlugin(ConductorPluginBase):
             self.process_rich_core_dumps = False
             return
 
-        # Save list locally and copy to remote processing machine 
+        # Save list locally and copy to remote processing machine
         try:
             list_file = open(path, "w")
             list_file.write(cmd.stdout)
@@ -152,25 +154,25 @@ class RichCorePlugin(ConductorPluginBase):
             config = configobj \
                 .ConfigObj(DEFAULT_CONFIG_FILE).get("core_processing")
             host = config.get("host")
-                
+
             user = config.get("user")
             if user == "":
                 user = os.getenv("USER")
 
             for _file in files:
                 results_path = os.path.join(self.result_dir, _file, "results")
-                
+
                 if os.path.isdir(results_path):
                     LOG.debug("Locating rich-core dumps from:  %s ..." \
                               % results_path)
                     result_files = os.listdir(results_path)
 
-                    for result_file in result_files: 
+                    for result_file in result_files:
                         if result_file.endswith(RICH_CORE_FILE_SUFFIX):
                             local_rcore_path = os.path.join(results_path,
                                                             result_file)
                             # Get crash id from the rich core file name
-                            id = re.match("(.*)-(.*)%s" % RICH_CORE_FILE_SUFFIX, result_file)                            
+                            id = re.match("(.*)-(.*)%s" % RICH_CORE_FILE_SUFFIX, result_file)
 
                             remote_rcore_path = \
                                 os.path.join(config.get("core_queue_path"),
@@ -187,7 +189,7 @@ class RichCorePlugin(ConductorPluginBase):
                             if subprocess.call(remote_copy_cmd, shell=True):
                                 LOG.warning("Failed to execute: %s, "
                                             "keep going..." % remote_copy_cmd)
-                                                    
+
                             try:
                                 os.remove(local_rcore_path)
                             except OSError:
@@ -203,7 +205,7 @@ class RichCorePlugin(ConductorPluginBase):
         """
 
         self.target = hw_target
-                
+
     def set_result_dir(self, result_dir):
         """
         Sets result file directory
@@ -237,5 +239,5 @@ class RichCorePlugin(ConductorPluginBase):
                         cmd.return_value))
         else:
             LOG.debug("Command executed successfully!")
-        
+
         return cmd

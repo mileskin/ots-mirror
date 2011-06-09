@@ -56,8 +56,7 @@ from ots.worker.version import __VERSION__
 from ots.worker.command import Command
 from ots.worker.command import CommandFailed
 from ots.common.dto.ots_exception import OTSException
-
-LOGGER = logging.getLogger(__name__)
+from ots.worker.conductor.helpers import get_logger_adapter
 
 STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
 
@@ -105,7 +104,8 @@ class TaskBroker(object):
         @type device_properties : C{dict}
         @param device_properties : The device_properties
         """
-        self._connection = connection 
+        self._log = get_logger_adapter(__name__)
+        self._connection = connection
         self._queues = get_queues(device_properties)
         self._keep_looping = True
         self._consumer_tags = dict()
@@ -150,7 +150,7 @@ class TaskBroker(object):
         """
         basic_consume = self.channel.basic_consume
         for queue in self._queues:
-            LOGGER.info("start consume on queue: %s" % queue)
+            self._log.info("start consume on queue: %s" % queue)
             self._consumer_tags[queue] = basic_consume(queue = queue,
                                               callback = self._on_message)
             
@@ -162,7 +162,7 @@ class TaskBroker(object):
         """
         for queue in self._queues:
             self.channel.basic_cancel(self._consumer_tags[queue])
-            LOGGER.info("stop consume on queue: %s" % queue)
+            self._log.info("stop consume on queue: %s" % queue)
 
     def _init_connection(self):
         """
@@ -170,7 +170,7 @@ class TaskBroker(object):
         Queue and Services Exchange are both durable
         """
         for queue in self._queues:
-            LOGGER.info("Initialising queue: %s" % queue)
+            self._log.info("Initialising queue: %s" % queue)
             self.channel.queue_declare(queue = queue, 
                                        durable = True,
                                        exclusive = False, 
@@ -193,7 +193,7 @@ class TaskBroker(object):
         The main loop
         Continually listen for messages coming from RabbitMQ
         """
-        LOGGER.debug("Starting main loop...")
+        self._log.debug("Starting main loop...")
         while self._keep_looping:
             try:
                 if not self._stop_file_exists():
@@ -201,7 +201,7 @@ class TaskBroker(object):
                 else:
                     self._keep_looping = False
             except Exception:
-                LOGGER.exception("_loop() failed")
+                self._log.exception("_loop() failed")
                 self._try_reconnect()
         self._clean_up()
     
@@ -231,7 +231,7 @@ class TaskBroker(object):
             self._dispatch(cmd_msg)
         except CommandFailed, exc:
             error_msg = "Command %s failed" % cmd_msg.command
-            LOGGER.error(error_msg)
+            self._log.error(error_msg)
 
             # We need to send pure OTSException because server does not know
             # about ots.worker.command.CommandFailed and unpickle will fail
@@ -254,11 +254,11 @@ class TaskBroker(object):
         @type message: amqplib.client_0_8.basic_message.Message 
         @param message: A message containing a pickled dictionary
         """
-        LOGGER.debug("Received Message")
+        self._log.debug("Received Message")
         if self._is_version_compatible(message):
             self._handle_message(message)
         else:
-            LOGGER.error("Worker not version compatible")
+            self._log.error("Worker not version compatible")
             #Close the connection makes message available to other Workers
             self._clean_up()
 
@@ -271,7 +271,7 @@ class TaskBroker(object):
         """
 
         if cmd_msg.is_quit:
-            LOGGER.debug("Received QUIT command")
+            self._log.debug("Received QUIT command")
             self._keep_looping = False
         elif not cmd_msg.is_ignore:
             
@@ -282,7 +282,7 @@ class TaskBroker(object):
             if cmd_msg.xml_file is not None:
                 self._save_xml_file(cmd_msg.xml_file)
             
-            LOGGER.debug("Running command: '%s'"%(command))
+            self._log.debug("Running command: '%s'"%(command))
             _start_process(command = command)
             self._remove_xml_file()
     
@@ -299,7 +299,7 @@ class TaskBroker(object):
         @param response_queue: The name of the response queue 
         """
         state = self._task_state.next()
-        LOGGER.debug("Task in state: '%s'"%(state))
+        self._log.debug("Task in state: '%s'"%(state))
 
         # Monitor event send
         event_type = MonitorType.TASK_ONGOING
@@ -335,7 +335,7 @@ class TaskBroker(object):
         @param exception: An OTSException 
 
         """
-        LOGGER.debug("publishing exception")
+        self._log.debug("publishing exception")
         message = pack_message(exception)
         try:
             self.channel.basic_publish(message,
@@ -343,7 +343,7 @@ class TaskBroker(object):
                                        exchange = response_queue,
                                        routing_key = response_queue)
         except AMQPChannelException:
-            LOGGER.error("Can't publish exception")
+            self._log.error("Can't publish exception")
 
     #######################################
     # HELPERS
@@ -366,7 +366,7 @@ class TaskBroker(object):
         if min_worker_version is not None:
             version = __VERSION__.split(".", 3)
             major_version = version[0] + "." + version[1]
-            LOGGER.debug("Min version: %s. Worker version: %s"%
+            self._log.debug("Min version: %s. Worker version: %s"%
                          (min_worker_version, major_version))
             ret_val = float(major_version) >= float(min_worker_version)
         return ret_val
@@ -388,16 +388,16 @@ class TaskBroker(object):
         A poorly implemented reconnect to AMQP
         """
         #Implement with a exponential backoff with max retries.
-        LOGGER.exception("Error. Waiting 5s then retrying")
+        self._log.exception("Error. Waiting 5s then retrying")
         sleep(5)
         try:
-            LOGGER.info("Trying to reconnect...")
+            self._log.info("Trying to reconnect...")
             self._connection.connect()
             self._init_connection()
             self._start_consume()
         except Exception:
             #If rabbit is still down, we expect this to fail
-            LOGGER.exception("Reconnecting failed...")
+            self._log.exception("Reconnecting failed...")
 
     def _clean_up(self):
         """
@@ -427,7 +427,7 @@ class TaskBroker(object):
         stop = False
         if os.path.exists(STOP_SIGNAL_FILE):
             os.system("rm -fr "+STOP_SIGNAL_FILE)
-            LOGGER.info("Worker was asked to stop after testrun ready.")
+            self._log.info("Worker was asked to stop after testrun ready.")
             stop = True
         return stop
     
@@ -456,7 +456,7 @@ class TaskBroker(object):
             if self._xml_file is not None:
                 os.remove(self._xml_file)
         except:
-            LOGGER.warning("failed to remove test plan", exc_info = True)
+            self._log.warning("failed to remove test plan", exc_info = True)
       
     ################################
     # PUBLIC METHODS

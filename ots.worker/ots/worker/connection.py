@@ -29,11 +29,9 @@ FIXME: retries need adding to this class
 """
 
 import logging
-
-
 from amqplib import client_0_8 as amqp
 
-LOG = logging.getLogger(__name__)
+from ots.worker.conductor.helpers import get_logger_adapter
 
 
 class Connection(object):
@@ -62,6 +60,7 @@ class Connection(object):
         @type password: C{str}
         @param password: amqp password
         """
+        self.log = get_logger_adapter(__name__)
         self._vhost = vhost
         self._host = host
         self._port = port
@@ -74,7 +73,7 @@ class Connection(object):
         """
         Create the connection to the rabbitMQ server
         """
-        LOG.debug("Connecting to RabbitMQ")
+        self.log.debug("Connecting to RabbitMQ")
         self.connection = amqp.Connection(
                             host=("%s:%s" % (self._host, self._port)),
                             userid=self._username,
@@ -87,15 +86,15 @@ class Connection(object):
         """
         Cleans up after ourselves, closing connections etc.
         """
-        LOG.debug('Shutting down connection to Rabbit')
+        self.log.debug('Shutting down connection to Rabbit')
         try:
             self.channel.close()
             try:
                 self.connection.close()
             except AttributeError:
-                LOG.debug("Connection already lost")
+                self.log.debug("Connection already lost")
         except:
-            LOG.exception("clean_up() failed")
+            self.log.exception("clean_up() failed")
 
         # Fix Memory leaks
         if hasattr(self.channel, "callbacks"):

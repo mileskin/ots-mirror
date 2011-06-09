@@ -28,11 +28,13 @@
 
 import logging
 
+from ots.worker.conductor.helpers import get_logger_adapter
+
 class TestTarget(object):
     """Base class for different types of test targets."""
     
     def __init__(self, testrun):
-        self.log = logging.getLogger("conductor")
+        self.log = get_logger_adapter("conductor")
         self.testrun = testrun
         self.config = testrun.config
 
