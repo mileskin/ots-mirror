@@ -36,14 +36,9 @@ class LogManager(models.Manager):
         """Get the latest message for each testrun"""
         cursor = connection.cursor()
         cursor.execute("""
-                        SELECT MAX(id) FROM log_messages
-                        GROUP BY run_id
-                        """)
-#                       SELECT id FROM log_messages,
-#                       (SELECT MAX(created) mcred FROM log_messages
-#                       GROUP BY run_id) AS maxcreated
-#                       WHERE created = maxcreated.mcred
-#                       """)
+                       SELECT MAX(id) FROM log_messages
+                       GROUP BY run_id
+                       """)
         return self.get_query_set().filter(
                         id__in=[row[0] for row in cursor.fetchall()])
 
