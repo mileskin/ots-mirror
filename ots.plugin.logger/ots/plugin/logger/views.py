@@ -355,7 +355,7 @@ def main_page(request):
     'MEDIA_URL' : settings.MEDIA_URL,
     }
 
-    messages = LogMessage.objects.get_latest_messages().order_by('-created')
+    messages = LogMessage.objects.get_latest_messages().order_by('-date')
     
     context_dict['messages']  = _paginate(request,messages)
     template = loader.get_template('logger/index.html')
