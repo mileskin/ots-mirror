@@ -5,7 +5,7 @@
   <description>System tests for OTS</description>
   <set name="System_tests">
    <case name="ls">
-    <step>ls -la</step>
+    <step>ls</step>
    </case>
   </set>
  </suite>

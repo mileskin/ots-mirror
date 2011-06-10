@@ -1,3 +1,13 @@
+Fri Jun 10 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.6
+ - OTS 0.8.6 release, BMC#17933
+ - Added pagination support for logger main view, BMC#17735
+ - Added worker number to log message model, BMC#17996
+ - Fixed incorrect ordering in OTS logger view (thanks to Timo Hencken),
+   BMC#18113
+ - Added functionality to rich-core plug-in to set connection settings for DUT
+   (by sampos), BMC#18415
+ - Added better proxy handling for qa-reports plug-in (by vesse)
+
 Fri May 20 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.5
  - OTS 0.8.5 release, BMC#16861
  - Added new conductor plug-in for rich-core processing by rikhalon, BMC#17509
