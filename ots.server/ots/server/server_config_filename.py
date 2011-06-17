@@ -24,7 +24,7 @@
 Returns the ots server config file path.
 """
 
-DEFAULT_CONFIG_FILE = "/etc/ots/ots_server.conf"
+DEFAULT_CONFIG_FILE = "/etc/ots/server.conf"
 
 import os
 

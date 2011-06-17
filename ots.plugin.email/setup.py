@@ -43,5 +43,5 @@ setup(
             ["publisher_klass "\
              "= ots.plugin.email.email_plugin:EmailPlugin"]},
                      data_files=[(j(data_prefix,'etc/ots/plugins/'),
-                                  ['ots/plugin/email/ots_plugin_email.conf'])]
+                                  ['ots/plugin/email/email.conf'])]
      )

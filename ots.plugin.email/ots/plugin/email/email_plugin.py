@@ -37,7 +37,7 @@ import socket
 from ots.common.framework.api import PublisherPluginBase
 from ots.plugin.email.mail_message import MailMessage 
 
-DEFAULT_CONFIG_FILE = '/etc/ots/plugins/ots_plugin_email.conf'
+DEFAULT_CONFIG_FILE = '/etc/ots/plugins/email.conf'
 LOG = logging.getLogger(__name__)
 
 ON = "on"

@@ -39,7 +39,7 @@ from ots.worker.command import CommandFailed
 from ots.worker.conductor.conductor_config import HW_COMMAND
 from ots.worker.conductor.helpers import get_logger_adapter
 
-DEFAULT_CONFIG_FILE = "/etc/ots/plugins/ots_plugin_conductor_richcore.conf"
+DEFAULT_CONFIG_FILE = "/etc/ots/plugins/conductor_richcore.conf"
 RICH_CORE_FILE_SUFFIX = ".rcore.lzo"
 COPY_RICHCORE_TO_PROCESSING_QUEUE = "ssh %s@%s mkdir %s; scp %s %s@%s:%s"
 COPY_LOCAL_FILE_TO_REMOTE = "scp %s %s@%s:%s"
