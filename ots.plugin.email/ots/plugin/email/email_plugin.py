@@ -33,10 +33,11 @@ import smtplib
 import configobj
 import socket
 
-from ots.server.server_config_filename import server_config_filename
+#from ots.server.server_config_filename import server_config_filename
 from ots.common.framework.api import PublisherPluginBase
 from ots.plugin.email.mail_message import MailMessage 
 
+DEFAULT_CONFIG_FILE = '/etc/ots/plugins/ots_plugin_email.conf'
 LOG = logging.getLogger(__name__)
 
 ON = "on"
@@ -91,7 +92,7 @@ class EmailPlugin(PublisherPluginBase):
         self.sw_product = sw_product
         self.image = image
         self._build_url = build_url
-        config_file = server_config_filename()
+        config_file = _config_filename()
 
         config = configobj.ConfigObj(config_file).get("ots.email_plugin")
         #
@@ -267,4 +268,14 @@ class EmailPlugin(PublisherPluginBase):
                 LOG.warning("Error in sending mail to following addresses: %s"\
                                 % failed_addresses)
         else:
-            LOG.warning("No address list")
+            LOG.warning("No address list"i)
+
+def _config_filename():
+    """
+    Returns the config file path.
+    """
+    if os.path.exists(DEFAULT_CONFIG_FILE):
+        return DEFAULT_CONFIG_FILE
+    else:
+        raise Exception("Email plugin configuration file %s not found"%(DEFAULT_CONFIG_FILE))
+
