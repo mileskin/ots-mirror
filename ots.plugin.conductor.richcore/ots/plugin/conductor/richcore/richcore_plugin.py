@@ -60,11 +60,25 @@ class RichCorePlugin(ConductorPluginBase):
         self.target = None
         self.target_ip_address = options.target_ip_address
         self.host_ip_address = options.host_ip_address
-        if not os.path.exists(DEFAULT_CONFIG_FILE):
-            self.process_rich_core_dumps = False
-            raise Exception("%s not found" % (DEFAULT_CONFIG_FILE))
+        self.config = self.config_file()
+        #if not os.path.exists(DEFAULT_CONFIG_FILE):
+        #    self.process_rich_core_dumps = False
+        #    raise Exception("%s not found" % (DEFAULT_CONFIG_FILE))
 
         LOG.info("Plugin: ots.plugin.conductor.richcore loaded.")
+
+    def config_file(self):
+        if os.path.exists(DEFAULT_CONFIG_FILE):
+            return DEFAULT_CONFIG_FILE
+        
+        distributor_dirname = os.path.dirname(os.path.abspath(__file__))
+        distributor_config_filename = os.path.join(distributor_dirname,
+                                               "conductor_richcore.conf")
+        if not os.path.exists(distributor_config_filename):
+            raise Exception("%s not found"%(distributor_config_filename))
+        return distributor_config_filename
+
+            
 
     def before_testrun(self):
         """
@@ -75,7 +89,7 @@ class RichCorePlugin(ConductorPluginBase):
         if self.process_rich_core_dumps == False:
             return
 
-        config = configobj.ConfigObj(DEFAULT_CONFIG_FILE).get("debug_build")
+        config = configobj.ConfigObj(self.config).get("debug_build")
         host = config.get("host")
 
         proxy = config.get("proxy")
@@ -152,7 +166,7 @@ class RichCorePlugin(ConductorPluginBase):
             files = os.listdir(self.result_dir)
 
             config = configobj \
-                .ConfigObj(DEFAULT_CONFIG_FILE).get("core_processing")
+                .ConfigObj(self.config).get("core_processing")
             host = config.get("host")
 
             user = config.get("user")

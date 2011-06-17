@@ -28,6 +28,7 @@ That sends an email of the email of the Test Results.
 Requires an SMTP server 
 """
 
+import os
 import logging
 import smtplib
 import configobj
@@ -268,7 +269,7 @@ class EmailPlugin(PublisherPluginBase):
                 LOG.warning("Error in sending mail to following addresses: %s"\
                                 % failed_addresses)
         else:
-            LOG.warning("No address list"i)
+            LOG.warning("No address list")
 
 def _config_filename():
     """
@@ -276,6 +277,15 @@ def _config_filename():
     """
     if os.path.exists(DEFAULT_CONFIG_FILE):
         return DEFAULT_CONFIG_FILE
-    else:
-        raise Exception("Email plugin configuration file %s not found"%(DEFAULT_CONFIG_FILE))
+    
+    distributor_dirname = os.path.dirname(os.path.abspath(__file__))
+    distributor_config_filename = os.path.join(distributor_dirname,
+                                               "email.conf")
+
+    if not os.path.exists(distributor_config_filename):
+        raise Exception("%s not found"%(distributor_config_filename))
+    return distributor_config_filename
+
+    #else:
+    #    raise Exception("Email plugin configuration file %s not found"%(DEFAULT_CONFIG_FILE))
 

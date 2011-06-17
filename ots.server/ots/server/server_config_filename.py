@@ -40,7 +40,7 @@ def server_config_filename():
 
     distributor_dirname = os.path.dirname(os.path.abspath(__file__))
     distributor_config_filename = os.path.join(distributor_dirname,
-                                               "ots_server.ini")
+                                               "server.conf")
     if not os.path.exists(distributor_config_filename):
         raise Exception("%s not found"%(distributor_config_filename))
     return distributor_config_filename
