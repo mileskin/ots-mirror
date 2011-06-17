@@ -43,7 +43,7 @@ setup(
             "ots.plugin.conductor":
             ["plugin_klass = " \
              "ots.plugin.conductor.richcore.richcore_plugin:RichCorePlugin"]},
-             data_files=[(j(data_prefix, "etc"),
+             data_files=[(j(data_prefix, "etc/ots/plugins/"),
                 ["ots/plugin/conductor/richcore/" \
                  "ots_plugin_conductor_richcore.conf"])]
       )

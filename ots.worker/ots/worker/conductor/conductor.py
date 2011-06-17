@@ -42,7 +42,7 @@ from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
 from ots.worker.conductor.helpers import get_logger_adapter
 
-DEFAULT_CONFIG = "/etc/conductor.conf"
+DEFAULT_CONFIG = "/etc/ots/conductor.conf"
 OPT_CONF_SUFFIX = ".conf"
 LOG = get_logger_adapter("conductor")
 

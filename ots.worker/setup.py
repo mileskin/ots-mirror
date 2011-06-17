@@ -44,7 +44,7 @@ setup(
       entry_points={"console_scripts":
                     ["conductor = ots.worker.conductor.conductor:main",
                      "ots_worker = ots.worker.worker:main"]},
-      data_files=[(os.path.join(DATA_PREFIX, 'etc'),
+      data_files=[(os.path.join(DATA_PREFIX, 'etc/ots/'),
                    ['ots.ini', 'ots/worker/conductor/conductor.conf']),
                    (os.path.join(DATA_PREFIX, 'etc/init.d/'),
                     ['ots-worker']),

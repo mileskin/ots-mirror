@@ -45,6 +45,6 @@ setup(
                    },
       zip_safe=False,
       test_suite='ots.server.tests.suite',
-      data_files=[(os.path.join(DATA_PREFIX, 'etc'),
+      data_files=[(os.path.join(DATA_PREFIX, 'etc/ots/'),
                   ['ots/server/ots_server.ini'])]
     )
