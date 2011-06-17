@@ -1,4 +1,4 @@
-/etc/ots/ots.ini
+/etc/ots/ots.conf
 /etc/ots/conductor.conf
 /etc/conductor/
 /etc/init.d/ots-worker

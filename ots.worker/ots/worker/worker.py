@@ -43,7 +43,7 @@ from ots.worker.conductor.helpers import get_logger_adapter
 
 
 STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
-DEFAULT_CONF = "/etc/ots/ots.ini"
+DEFAULT_CONF = "/etc/ots/ots.conf"
 
 
 class Worker(object):

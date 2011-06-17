@@ -140,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files server
 %defattr(-,root,root)
-%config /etc/ots/ots_server.ini
+%config /etc/ots/ots_server.conf
 /usr/bin/ots_server
 /usr/lib/python*/site-packages/ots.server-*
 /usr/lib/python*/site-packages/ots/server/*
@@ -155,7 +155,7 @@ fi
 
 %files worker
 %defattr(-,root,root)
-%config /etc/ots/ots.ini
+%config /etc/ots/ots.conf
 %config /etc/ots/conductor.conf
 %config /etc/init.d/ots-worker
 /etc/conductor/
