@@ -22,7 +22,7 @@
 
 
 #!/usr/bin/env python
-"""A command line tool for starting testruns with ots xmlrpc"""
+"""A command line tool for triggering a test run via OTS XML-RPC interface"""
 
 from optparse import OptionParser
 import logging
@@ -30,11 +30,11 @@ import xmlrpclib
 import sys
 import os
 
+
 def read_test_plan(filepath):
     """
     Reads given test plan and returns the file data.
     """
-    
     testplan_data = None
     if os.path.exists(filepath):
         testplan_fb = open(filepath, 'r')
@@ -42,6 +42,7 @@ def read_test_plan(filepath):
         testplan_fb.close()
 
     return testplan_data
+
 
 def ots_trigger(options):
     """
@@ -91,13 +92,14 @@ def ots_trigger(options):
         ots_options['rootstrap'] = options.rootstrap
     if options.chroottest:
         ots_options['chroottest'] = options.chroottest
+    if options.use_libssh2:
+        ots_options['use_libssh2'] = options.use_libssh2
 
     ots_interface = xmlrpclib.Server("http://%s/" % options.server)
     return ots_interface.request_sync(sw_product,
                                       build_id,
                                       email_list,
                                       ots_options)
-
 
 
 def parse_commandline_arguments():
@@ -181,26 +183,33 @@ def parse_commandline_arguments():
                       help="URL to rootstrap file",
                       metavar="ROOTSTRAP")
 
-    parser.add_option("-x", "--options",
-                      dest="options",
-                      action="store",
-                      type="string",
-                      help="options in form 'key:value key:value'",
-                      metavar="OPTIONS")
-    
     parser.add_option("-T", "--deviceplan",
                       dest="deviceplan",
                       action="append",
                       type="string",
-                      help="Test plan for device based execution",
+                      help="test plan for device based execution",
                       metavar="FILE")
     
     parser.add_option("-O", "--hostplan",
                       dest="hostplan",
                       action="append",
                       type="string",
-                      help="Test plan for host based execution",
+                      help="test plan for host based execution",
                       metavar="FILE")
+
+    parser.add_option("-S", "--libssh2",
+                      dest="use_libssh2",
+                      action="store_true",
+                      help="use testrunner-lite libssh2 support",
+                      default=False,
+                      metavar="BOOL")
+
+    parser.add_option("-x", "--options",
+                      dest="options",
+                      action="store",
+                      type="string",
+                      help="options in form 'key:value key:value'",
+                      metavar="OPTIONS")
 
     # parser returns options and args even though we only need options
     # Disabling pylint complain about unused variable
