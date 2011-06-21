@@ -348,7 +348,7 @@ class TestConductor(unittest.TestCase):
         self.assertEquals(options.bootmode, None)
         self.assertEquals(options.testplan, None)
         self.assertEquals(options.use_libssh2, False)
-        parser.print_help() #check help text is set
+        #parser.print_help() #check help text is set
 
 
 class TestTestTarget(unittest.TestCase):
@@ -752,8 +752,7 @@ class TestExecutor(unittest.TestCase):
         self._assertCommandContains(command, "testrunner-lite")
         self._assertCommandContains(command, "logger")
         self._assertCommandContains(command,
-            "-n root@192.168.2.15 -k /opt/sshkey-host/id_dsa:"
-            "/opt/sshkey-host/id_dsa.pub")
+            "-n root@192.168.2.15 -k /var/opt/eat/sshkey-host/id_eat_dsa")
         self._assertCommandDoesNotContain(command, "-t root@192.168.2.15")
 
     def test_get_command_for_testrunner_2(self):

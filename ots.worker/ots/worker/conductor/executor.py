@@ -72,7 +72,6 @@ class TestRunData(object):
     """
     
     def __init__(self, options, config):
-
         self.log = get_logger_adapter("conductor")
         self.config = config
 
