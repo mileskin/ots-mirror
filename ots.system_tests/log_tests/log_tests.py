@@ -76,6 +76,7 @@ class Options(object):
         self.email = CONFIG["email"]
         self.timeout = 30
         self.server = CONFIG["server"]
+        self.use_libssh2 = False
 
 ############################################
 #  BASE
@@ -187,6 +188,17 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.timeout = 30
         expected = ["Environment: Hardware",
                     "Starting conductor at",
+                    """Finished running tests."""]
+        self.trigger_testrun_expect_pass(options, expected)
+
+    def test_hw_based_testrun_with_test_definition_tests_using_libssh2(self):
+        options = Options()
+        options.testpackages = "test-definition-tests"
+        options.timeout = 30
+        options.use_libssh2 = True
+        expected = ["Environment: Hardware",
+                    "Starting conductor at",
+                    "-t %s -m 1800 --libssh2" % options.testpackages,
                     """Finished running tests."""]
         self.trigger_testrun_expect_pass(options, expected)
 
