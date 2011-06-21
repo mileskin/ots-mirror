@@ -115,5 +115,11 @@ class TestOptions(unittest.TestCase):
         self.assertEquals('\'"\\\'hello world\\\'"\'',
                           repr(options.testfilter))
 
+    def test_libssh2(self):
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
+                  "use_libssh2" : True}
+        options = Options(**kwargs)
+        self.assertEquals(True, options.use_libssh2)
+
 if __name__ == "__main__":
     unittest.main()

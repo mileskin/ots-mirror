@@ -64,7 +64,7 @@ def _storage_address():
 def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model, 
                       device_properties, image, rootstrap, hw_packages,
                       host_packages, chroot_packages, hw_testplans,
-                      host_testplans, emmc, testfilter, flasher,
+                      host_testplans, emmc, testfilter, flasher, use_libssh2,
                       custom_distribution_model, extended_options): 
 
     """
@@ -110,6 +110,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     @type flasher: C{str}
     @param flasher: The URL of the flasher
 
+    @type use_libssh2: C{boolean}
+    @param use_libssh2: Use testrunner-lite libssh2 support
+
     @type custom_distribution_model: C{callable}
     @param custom_distribution_model: A callable matching the default models
                                       in default_distribution_models.py
@@ -153,11 +156,13 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
                         execution_timeout,
                         flasher,
                         custom_distribution_model,
+                        use_libssh2,
                         extended_options)
     
     if len(cmds) == 0:
         raise AllocatorException("No commands created!")
-    
+
+
     for cmd in cmds:
         LOG.info("Added cmd '%s' to taskrunner" % (" ".join(cmd.command)))
         taskrunner.add_task(cmd)
