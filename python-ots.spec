@@ -140,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files server
 %defattr(-,root,root)
-%config /etc/ots/ots_server.conf
+%config /etc/ots/server.conf
 /usr/bin/ots_server
 /usr/lib/python*/site-packages/ots.server-*
 /usr/lib/python*/site-packages/ots/server/*
@@ -155,7 +155,7 @@ fi
 
 %files worker
 %defattr(-,root,root)
-%config /etc/ots/ots.conf
+%config /etc/ots/worker.conf
 %config /etc/ots/conductor.conf
 %config /etc/init.d/ots-worker
 /etc/conductor/
@@ -203,7 +203,7 @@ setsebool httpd_unified 1
 
 %files plugin-email
 %defattr(-,root,root)
-%config /etc/ots/plugins/ots_plugin_email.conf
+%config /etc/ots/plugins/email.conf
 /usr/lib/python*/site-packages/ots.plugin.email*
 /usr/lib/python*/site-packages/ots/plugin/email/*
 
@@ -220,7 +220,7 @@ setsebool httpd_unified 1
 
 %files plugin-conductor-richcore
 %defattr(-,root,root)
-%config /etc/ots/plugins/ots_plugin_conductor_richcore.conf
+%config /etc/ots/plugins/conductor_richcore.conf
 /usr/lib/python*/site-packages/ots.plugin.conductor.richcore-*
 /usr/lib/python*/site-packages/ots/plugin/conductor/richcore/*
 
