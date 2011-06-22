@@ -29,7 +29,7 @@ import json
 import urllib2
 from ots.plugin.qareports.post_multipart import post_multipart
 
-DEFAULT_CONFIG_FILE = "/etc/ots_plugin_qareports.conf"
+DEFAULT_CONFIG_FILE = "/etc/ots/plugins/qareports.conf"
 LOG = logging.getLogger(__name__)
 
 def send_files(result_xmls,

@@ -197,7 +197,7 @@ setsebool httpd_unified 1
 
 %files plugin-qareports
 %defattr(-,root,root)
-%config /etc/ots/plugins/ots_plugin_qareports.conf
+%config /etc/ots/plugins/qareports.conf
 /usr/lib/python*/site-packages/ots.plugin.qareports-*
 /usr/lib/python*/site-packages/ots/plugin/qareports/*
 
