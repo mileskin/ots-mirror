@@ -164,8 +164,12 @@ def _parse_command_line(args):
                     default=None,
                     metavar="FLASHERURL")
 
+    parser.add_option("--libssh2", dest="use_libssh2",
+                      action="store_true", default=False,
+                      help="Use testrunner-lite libssh2 support")
+
     (options, args) = parser.parse_args(args)
-    
+
     if os.getenv("OTS_WORKER_NUMBER"):
         options.device_n = int(os.getenv("OTS_WORKER_NUMBER"))
     else:

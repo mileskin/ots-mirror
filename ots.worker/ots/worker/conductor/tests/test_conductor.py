@@ -140,6 +140,7 @@ class Options(object):
         self.rootstrap_path = None
         self.device_n = 0
         self.target_flasher = ""
+        self.use_libssh2 = False
 
 class Stub_Executor(object):
     def __init__(self, testrun, stand_alone, responseclient = None,
@@ -208,6 +209,7 @@ class Stub_ResponseClient(object):
         pass
     def add_executed_packages(self, environment, packages):
         pass
+
 
 ##############################################################################
 # Tests
@@ -345,7 +347,8 @@ class TestConductor(unittest.TestCase):
         self.assertEquals(options.flasher_url, None)
         self.assertEquals(options.bootmode, None)
         self.assertEquals(options.testplan, None)
-        parser.print_help() #check help text is set
+        self.assertEquals(options.use_libssh2, False)
+        #parser.print_help() #check help text is set
 
 
 class TestTestTarget(unittest.TestCase):
@@ -533,12 +536,11 @@ class TestRPMHardware(unittest.TestCase):
         self.assertEquals(self.hw.parse_packages_with_file(lines), ["mypackage-tests"])
 
 
-class Test_Executor(unittest.TestCase):
+class TestExecutor(unittest.TestCase):
     """
     Tests for Executor class and executor file.
     responseclient = None, stand_alone = True
     """
-
     def setUp(self):
         from ots.worker.conductor.executor import Executor as Executor
         from ots.worker.conductor.executor import TestRunData as TestRunData
@@ -560,7 +562,6 @@ class Test_Executor(unittest.TestCase):
 
     def tearDown(self):
         subprocess.call("rm -rf "+self.workdir, shell=True) #created in setUp
-
 
     def test_run_tests_returns_true(self):
         """Test for _run_tests method when testrunner command succeeds"""
@@ -732,45 +733,54 @@ class Test_Executor(unittest.TestCase):
         cmd = Stub_Command("")
         self.assertRaises(ConductorError, self.executor._ssh_command_exception_handler, exc, cmd, "")
 
-
-    def test_get_command_for_testrunner_1(self):
+    def test_get_command_for_testrunner_normal_ssh(self):
         """Test for method when we should execute tests over ssh at device"""
         executor = self.real_executor
         executor.stand_alone = False
         command = executor._get_command_for_testrunner()
-        self.assertTrue(command.find("testrunner-lite") != -1)
-        self.assertTrue(command.find("root@192.168.2.15") != -1)
-        self.assertTrue(command.find("logger") != -1)
+        self._assertCommandContains(command, "testrunner-lite")
+        self._assertCommandContains(command, "root@192.168.2.15")
+        self._assertCommandContains(command, "logger")
+
+    def test_get_command_for_testrunner_libssh2(self):
+        """Test for method when we should execute tests over ssh at device
+        using libssh2"""
+        executor = self.real_executor
+        executor.stand_alone = False
+        self.testrun.use_libssh2 = True
+        command = executor._get_command_for_testrunner()
+        self._assertCommandContains(command, "testrunner-lite")
+        self._assertCommandContains(command, "logger")
+        self._assertCommandContains(command,
+            "-n root@192.168.2.15 -k /var/opt/eat/sshkey-host/id_eat_dsa")
+        self._assertCommandDoesNotContain(command, "-t root@192.168.2.15")
 
     def test_get_command_for_testrunner_2(self):
         """Test for method when we should execute tests at device, standalone."""
         executor = self.real_executor
         command = executor._get_command_for_testrunner()
-        self.assertTrue(command.find("testrunner-lite") != -1)
-        self.assertTrue(command.find("root@192.168.2.15") != -1)
-        self.assertTrue(command.find("logger") == -1) #should not be found
+        self._assertCommandContains(command, "testrunner-lite")
+        self._assertCommandContains(command, "root@192.168.2.15")
+        self._assertCommandDoesNotContain(command, "logger") #should not be found
 
     def test_get_command_for_testrunner_host_based_1(self):
         """Test for method when we should execute tests at host"""
         executor = self.real_executor
         executor.stand_alone = False
         self.testrun.is_host_based = True #expose more code for testing
-
         command = executor._get_command_for_testrunner()
-        print command
-        self.assertTrue(command.find("testrunner-lite") != -1)
-        self.assertTrue(command.find("root@192.168.2.15") == -1) #should not be found
-        self.assertTrue(command.find("logger") != -1)
+        self._assertCommandContains(command, "testrunner-lite")
+        self._assertCommandDoesNotContain(command, "root@192.168.2.15") #should not be found
+        self._assertCommandContains(command, "logger")
 
     def test_get_command_for_testrunner_host_based_2(self):
         """Test for method when we should execute tests at host, standalone"""
         executor = self.real_executor
         self.testrun.is_host_based = True #expose more code for testing
-
         command = executor._get_command_for_testrunner()
-        self.assertTrue(command.find("testrunner-lite") != -1)
-        self.assertTrue(command.find("root@192.168.2.15") == -1) #should not be found
-        self.assertTrue(command.find("logger") == -1) #should not be found
+        self._assertCommandContains(command, "testrunner-lite")
+        self._assertCommandDoesNotContain(command, "root@192.168.2.15") #should not be found
+        self._assertCommandDoesNotContain(command, "logger") #should not be found
 
     def test_testrunner_lite_error_handler(self):
         self.assertRaises(ConductorError, self.executor._testrunner_lite_error_handler,"",1)
@@ -802,7 +812,16 @@ class Test_Executor(unittest.TestCase):
                                  hostname="hostname", testrun_timeout=60)
         executor._load_flasher_module()
         flasher = executor.testrun.flasher_module()
-        self.assertTrue(isinstance(flasher, FlasherPluginBase))        
+        self.assertTrue(isinstance(flasher, FlasherPluginBase))
+
+    def _assertCommandContains(self, command, text):
+            self.assertTrue(command.find(text) != -1,
+                            "Did not find '%s' in '%s'" % (text, command))
+
+    def _assertCommandDoesNotContain(self, command, text):
+            self.assertTrue(command.find(text) == -1,
+                            "Found '%s' in '%s'" % (text, command))
+
 
 class TestDefaultFlasher(unittest.TestCase):
     """Tests for defaultflasher.py"""

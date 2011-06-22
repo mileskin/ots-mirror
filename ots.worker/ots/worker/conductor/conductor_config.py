@@ -56,6 +56,7 @@ CMD_TESTRUNNER = 'cd %s; ' + \
                  '%s '
 
 TESTRUNNER_SSH_OPTION = "-t root@%s"
+TESTRUNNER_SSH_OPTION_LIBSSH2 = "-n root@%s -k /var/opt/eat/sshkey-host/id_eat_dsa"
 TESTRUNNER_CHROOT_OPTION = '-C "%s"'
 TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
 TESTRUNNER_USER_DEFINED_OPTION = '--logid %s'

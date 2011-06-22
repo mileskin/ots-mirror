@@ -309,6 +309,7 @@ class Hub(object):
                                   self.options.emmc,
                                   self.options.testfilter,
                                   self.options.flasher,
+                                  self.options.use_libssh2,
                                   custom_distribution_model,
                                   self.extended_options_dict)
 

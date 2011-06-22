@@ -41,22 +41,23 @@ from ots.worker.conductor.chroot import Chroot, RPMChroot
 
 # Import internal constants
 from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
-                             TESTRUN_LOG_FILE, TESTRUN_LOG_CLEANER, \
-                             TESTRUNNER_WORKDIR, CMD_TESTRUNNER, \
-                             TESTRUNNER_SSH_OPTION, TESTRUNNER_LOGGER_OPTION, \
-                             TESTRUNNER_FILTER_OPTION, HTTP_LOGGER_PATH, \
-                             LOCAL_COMMAND_TO_COPY_FILE, CONDUCTOR_WORKDIR, \
-                             SSH_CONNECTION_RETRIES, SSH_RETRY_INTERVAL, \
-                             TESTRUNNER_SSH_FAILS, TESTRUNNER_PARSING_FAILS, \
-                             TESTRUNNER_VALIDATION_FAILS, \
-                             TESTRUNNER_RESULT_FOLDER_FAILS, \
-                             TESTRUNNER_XML_READER_FAILS, \
-                             TESTRUNNER_RESULT_LOGGING_FAILS, \
-                             TIMEOUT_FETCH_ENVIRONMENT_DETAILS, \
-                             TIMEOUT_FETCH_FILES_AFTER_TESTING, \
-                             TESTRUNNER_CHROOT_OPTION, \
-                             TESTRUNNER_RICH_CORE_DUMPS_OPTION, \
-                             TESTRUNNER_USER_DEFINED_OPTION
+                        TESTRUN_LOG_FILE, TESTRUN_LOG_CLEANER, \
+                        TESTRUNNER_WORKDIR, CMD_TESTRUNNER, \
+                        TESTRUNNER_SSH_OPTION, TESTRUNNER_SSH_OPTION_LIBSSH2, \
+                        TESTRUNNER_LOGGER_OPTION, \
+                        TESTRUNNER_FILTER_OPTION, HTTP_LOGGER_PATH, \
+                        LOCAL_COMMAND_TO_COPY_FILE, CONDUCTOR_WORKDIR, \
+                        SSH_CONNECTION_RETRIES, SSH_RETRY_INTERVAL, \
+                        TESTRUNNER_SSH_FAILS, TESTRUNNER_PARSING_FAILS, \
+                        TESTRUNNER_VALIDATION_FAILS, \
+                        TESTRUNNER_RESULT_FOLDER_FAILS, \
+                        TESTRUNNER_XML_READER_FAILS, \
+                        TESTRUNNER_RESULT_LOGGING_FAILS, \
+                        TIMEOUT_FETCH_ENVIRONMENT_DETAILS, \
+                        TIMEOUT_FETCH_FILES_AFTER_TESTING, \
+                        TESTRUNNER_CHROOT_OPTION, \
+                        TESTRUNNER_RICH_CORE_DUMPS_OPTION, \
+                        TESTRUNNER_USER_DEFINED_OPTION
 
 from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.conductor.helpers import get_logger_adapter
@@ -71,7 +72,6 @@ class TestRunData(object):
     """
     
     def __init__(self, options, config):
-
         self.log = get_logger_adapter("conductor")
         self.config = config
 
@@ -105,6 +105,8 @@ class TestRunData(object):
         self.is_host_based = options.host
         self.dontflash = options.dontflash
         self.is_chrooted = options.chrooted
+
+        self.use_libssh2 = options.use_libssh2
 
         self.filter_string = \
                 options.filter_options.replace('"', '\\"').replace("'", '\\"')
@@ -182,9 +184,8 @@ class TestRunData(object):
 class Executor(object):
     """Test executor"""
 
-    def __init__(self, testrun, stand_alone, responseclient = None, 
-                 hostname = "unknown", testrun_timeout = 0):
-
+    def __init__(self, testrun, stand_alone, responseclient=None,
+                 hostname="unknown", testrun_timeout=0):
         self.log = get_logger_adapter("conductor")
         self.testrun = testrun
         self.stand_alone = stand_alone
@@ -983,8 +984,12 @@ class Executor(object):
         if self.testrun.is_chrooted:
             remote_option = TESTRUNNER_CHROOT_OPTION % self.chroot.path
         elif not self.testrun.is_host_based:
-            remote_option = TESTRUNNER_SSH_OPTION % \
-                                        self.testrun.target_ip_address
+            if self.testrun.use_libssh2:
+                remote_option = TESTRUNNER_SSH_OPTION_LIBSSH2 % \
+                                            self.testrun.target_ip_address
+            else:
+                remote_option = TESTRUNNER_SSH_OPTION % \
+                                            self.testrun.target_ip_address
             if self.testrun.save_rich_core_dumps:
                 rich_core_option = TESTRUNNER_RICH_CORE_DUMPS_OPTION % \
                                         self.testrun.target_rich_core_dumps
