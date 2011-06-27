@@ -328,8 +328,8 @@ def _default_config_file():
     if not then the one in the source tree
     """
 
-    if os.path.exists(DEFAULT_CONFIG_FILE):
-        return DEFAULT_CONFIG_FILE
+    if os.path.exists(DEFAULT_CONFIG):
+        return DEFAULT_CONFIG
  
     conductor_dirname = os.path.dirname(os.path.abspath(__file__))
     conductor_config_filename = os.path.join(conductor_dirname, "conductor.conf")
