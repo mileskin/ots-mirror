@@ -321,7 +321,8 @@ def _read_configuration_files(config_file, device_n):
 
     return config_dict
 
-def _default_config_file()
+
+def _default_config_file():
     """
     Return default config file. Returns it from /etc/ots/ if exists or
     if not then the one in the source tree
