@@ -28,15 +28,17 @@ That sends an email of the email of the Test Results.
 Requires an SMTP server 
 """
 
+import os
 import logging
 import smtplib
 import configobj
 import socket
 
-from ots.server.server_config_filename import server_config_filename
+#from ots.server.server_config_filename import server_config_filename
 from ots.common.framework.api import PublisherPluginBase
 from ots.plugin.email.mail_message import MailMessage 
 
+DEFAULT_CONFIG_FILE = '/etc/ots/plugins/email.conf'
 LOG = logging.getLogger(__name__)
 
 ON = "on"
@@ -91,7 +93,7 @@ class EmailPlugin(PublisherPluginBase):
         self.sw_product = sw_product
         self.image = image
         self._build_url = build_url
-        config_file = server_config_filename()
+        config_file = _config_filename()
 
         config = configobj.ConfigObj(config_file).get("ots.email_plugin")
         #
@@ -268,3 +270,22 @@ class EmailPlugin(PublisherPluginBase):
                                 % failed_addresses)
         else:
             LOG.warning("No address list")
+
+def _config_filename():
+    """
+    Returns the config file path.
+    """
+    if os.path.exists(DEFAULT_CONFIG_FILE):
+        return DEFAULT_CONFIG_FILE
+    
+    distributor_dirname = os.path.dirname(os.path.abspath(__file__))
+    distributor_config_filename = os.path.join(distributor_dirname,
+                                               "email.conf")
+
+    if not os.path.exists(distributor_config_filename):
+        raise Exception("%s not found"%(distributor_config_filename))
+    return distributor_config_filename
+
+    #else:
+    #    raise Exception("Email plugin configuration file %s not found"%(DEFAULT_CONFIG_FILE))
+

@@ -1,4 +1,4 @@
-/etc/ots_server.ini
+/etc/ots/server.conf
 /usr/local/bin/ots_server
 /usr/local/lib/python*/dist-packages/ots.server-*
 /usr/local/lib/python*/dist-packages/ots/server/*

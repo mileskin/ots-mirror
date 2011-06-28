@@ -34,7 +34,7 @@ else:
 
 setup(
       name="ots.worker",
-      author="teemu.vainio@ixonos.com",
+      author="meego-qa@lists.meego.com",
       version=get_spec_version(),
       include_package_data=True,
       namespace_packages=['ots'],
@@ -44,8 +44,8 @@ setup(
       entry_points={"console_scripts":
                     ["conductor = ots.worker.conductor.conductor:main",
                      "ots_worker = ots.worker.worker:main"]},
-      data_files=[(os.path.join(DATA_PREFIX, 'etc'),
-                   ['ots.ini', 'ots/worker/conductor/conductor.conf']),
+      data_files=[(os.path.join(DATA_PREFIX, 'etc/ots/'),
+                   ['worker.conf', 'ots/worker/conductor/conductor.conf']),
                    (os.path.join(DATA_PREFIX, 'etc/init.d/'),
                     ['ots-worker']),
                    (os.path.join(DATA_PREFIX, 'etc/conductor'), [])]

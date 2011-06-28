@@ -27,6 +27,9 @@
 
 import logging
 
+LOG = logging.getLogger("default_flasher")
+
+
 class FlashFailed(Exception):
     """Flash Failed exception"""
     pass
@@ -86,18 +89,17 @@ class FlasherPluginBase(object):
         @param boot_mode: Boot mode parameter from ots input parameters.
         """
 
-        log = logging.getLogger("default_flasher")
-        log.warning("***************************************************")
-        log.warning("* Customflasher not available in Worker!          *")
-        log.warning("* Setting up test target cannot be done.          *")
-        log.warning("* You must implement customflasher Python         *")
-        log.warning("* module (see OTS Worker documentation).          *")
-        log.warning("* Now continuing as if test target is set up...   *")
-        log.warning("***************************************************")
+        LOG.warning("***************************************************")
+        LOG.warning("* Customflasher not available in Worker!          *")
+        LOG.warning("* Setting up test target cannot be done.          *")
+        LOG.warning("* You must implement customflasher Python         *")
+        LOG.warning("* module (see OTS Worker documentation).          *")
+        LOG.warning("* Now continuing as if test target is set up...   *")
+        LOG.warning("***************************************************")
 
     def clean_up(self):
         """
         This method is called after the test execution is done
         or error has occurred.
         """
-        log.warning("Nothing to clean up")
+        LOG.warning("Nothing to clean up")

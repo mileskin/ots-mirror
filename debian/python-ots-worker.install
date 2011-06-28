@@ -1,5 +1,5 @@
-/etc/ots.ini
-/etc/conductor.conf
+/etc/ots/worker.conf
+/etc/ots/conductor.conf
 /etc/conductor/
 /etc/init.d/ots-worker
 /usr/local/bin/ots_worker

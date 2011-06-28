@@ -1,6 +1,6 @@
 Summary: Open Test System 
 Name: python-ots
-Version: 0.8.3
+Version: 0.8.6
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: LGPL 2.1
@@ -103,6 +103,14 @@ Requires:               python-ots-server, python-ots-django
 %description            plugin-monitor
 Statistical information from the OTS system.
 
+%package                plugin-conductor-richcore
+Summary:                Rich core processing plugin to OTS worker
+Prefix:                 /usr
+Group:                  Development/Tools
+Requires:               python-ots-worker, python-configobj
+%description            plugin-conductor-richcore
+Plugin for sending rich-core dumps saved from test runs to post-processing.
+
 %prep
 %setup -n %{name}-%{version}
 
@@ -132,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files server
 %defattr(-,root,root)
-%config /etc/ots_server.ini
+%config /etc/ots/server.conf
 /usr/bin/ots_server
 /usr/lib/python*/site-packages/ots.server-*
 /usr/lib/python*/site-packages/ots/server/*
@@ -147,8 +155,8 @@ fi
 
 %files worker
 %defattr(-,root,root)
-%config /etc/ots.ini
-%config /etc/conductor.conf
+%config /etc/ots/worker.conf
+%config /etc/ots/conductor.conf
 %config /etc/init.d/ots-worker
 /etc/conductor/
 /usr/bin/ots_worker
@@ -189,12 +197,13 @@ setsebool httpd_unified 1
 
 %files plugin-qareports
 %defattr(-,root,root)
-%config /etc/ots_plugin_qareports.conf
+%config /etc/ots/plugins/qareports.conf
 /usr/lib/python*/site-packages/ots.plugin.qareports-*
 /usr/lib/python*/site-packages/ots/plugin/qareports/*
 
 %files plugin-email
 %defattr(-,root,root)
+%config /etc/ots/plugins/email.conf
 /usr/lib/python*/site-packages/ots.plugin.email*
 /usr/lib/python*/site-packages/ots/plugin/email/*
 
@@ -208,4 +217,11 @@ setsebool httpd_unified 1
 /usr/lib/python*/site-packages/ots.plugin.monitor-*
 /usr/lib/python*/site-packages/ots/plugin/monitor/*
 /usr/share/ots/plugin/monitor/*
+
+%files plugin-conductor-richcore
+%defattr(-,root,root)
+%config /etc/ots/plugins/conductor_richcore.conf
+/usr/lib/python*/site-packages/ots.plugin.conductor.richcore-*
+/usr/lib/python*/site-packages/ots/plugin/conductor/richcore/*
+
 

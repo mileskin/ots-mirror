@@ -44,21 +44,26 @@ CONDUCTOR_WORKDIR = "~"
 TESTRUNNER_WORKDIR = "~"
 
 # Command for testrunner-lite:
-# Last 3 options are: testfilter, httplogger, remotessh
+# Last 4 options are: testfilter, httplogger, remotessh, rich-core-dumps
 CMD_TESTRUNNER = 'cd %s; ' + \
                  '/usr/bin/testrunner-lite -s -v -a -c ' + \
                  '-f %s ' + \
                  '-o %s ' + \
                  '%s ' + \
                  '%s ' + \
+                 '%s ' + \
+                 '%s ' + \
                  '%s '
 
 TESTRUNNER_SSH_OPTION = "-t root@%s"
+TESTRUNNER_SSH_OPTION_LIBSSH2 = "-n root@%s -k /var/opt/eat/sshkey-host/id_eat_dsa"
 TESTRUNNER_CHROOT_OPTION = '-C "%s"'
 TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
+TESTRUNNER_USER_DEFINED_OPTION = '--logid %s'
 TESTRUNNER_FILTER_OPTION = '-l "%s"'
+TESTRUNNER_RICH_CORE_DUMPS_OPTION = '-d "%s"'
 
-HTTP_LOGGER_PATH = "/logger/ots/%s/"  #testrun id
+HTTP_LOGGER_PATH = "/logger/ots/%s/"  # testrun id
 
 FLASHER_PATH = "/tmp/flasher"
 
@@ -75,7 +80,6 @@ SSH_RETRY_INTERVAL = 5
 # Timeouts for commands
 TIMEOUT_FETCH_ENVIRONMENT_DETAILS = 60
 TIMEOUT_FETCH_FILES_AFTER_TESTING = 60
-
 
 # Return codes for Testrunner-lite
 TESTRUNNER_SUCCESFUL = 0

@@ -1,5 +1,5 @@
 Source: ots
-Maintainer: Teemu Vainio <teemu.vainio@ixonos.com>
+Maintainer: Elias Luttinen <elias.luttinen@digia.com>
 Section: python
 Priority: optional
 Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4)
@@ -94,3 +94,12 @@ XB-Python-Version: >=2.5
 Provides: ${python:Provides}
 Description: Monitor plugin to OTS server
  Statistical information from the OTS system.
+
+Package: python-ots-plugin-conductor-richcore
+Architecture: all
+Depends: python (>= 2.5), python-ots-worker, python-configobj
+XB-Python-Version: >=2.5
+Provides: ${python:Provides}
+Description: Rich core processing plugin to OTS conductor
+ Plugin for sending rich-core dumps saved from test runs to post-processing.
+

@@ -58,10 +58,11 @@ class Options(object):
     Interface for the options available to the client
     """
 
-    def __init__(self, image, rootstrap=None, packages = None, plan = None,
-                 hosttest = None, chroottest=None, device = None, emmc = None,
-                 distribution_model = None, flasher = None, testfilter = None,
-                 hw_testplans = None, host_testplans = None, timeout = None):
+    def __init__(self, image, rootstrap=None, packages=None, plan=None,
+                 hosttest=None, chroottest=None, device=None, emmc=None,
+                 distribution_model=None, flasher=None, testfilter=None,
+                 hw_testplans=None, host_testplans=None, timeout=None,
+                 use_libssh2=None):
 
         """
         @type image: C{image}
@@ -99,6 +100,9 @@ class Options(object):
 
         @type timeout: C{str}
         @param timeout: Test execution timeout in minutes
+
+        @type use_libssh2: C{boolean}
+        @param use_libssh2: Use testrunner-lite libssh2 support
         """
         self._image = image
         if packages is None:
@@ -125,6 +129,7 @@ class Options(object):
         self._distribution_model = distribution_model
         self._flasher = flasher
         self._testfilter = testfilter
+        self._use_libssh2 = use_libssh2
         self._timeout = timeout
 
         self._validate_packages(self.hw_packages)
@@ -260,6 +265,14 @@ class Options(object):
         if self._testfilter is not None:
             testfilter = self._testfilter.replace('"', "'")
             return "\"%s\"" % testfilter
+
+    @property
+    def use_libssh2(self):
+        """
+        testrunner-lite libssh2 support
+        @rtype: C{boolean}
+        """
+        return self._use_libssh2
 
     @property
     def timeout(self):

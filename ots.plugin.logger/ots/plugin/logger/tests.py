@@ -56,6 +56,7 @@ from ots.plugin.logger.views import create_message
 
 SERVICENAME = 'logmessage'
 RUN_ID      = uuid.uuid1().hex
+WORKER_ID   = '1'
 
 class TestLogger(unittest.TestCase):
     """
@@ -96,7 +97,7 @@ class TestLogger(unittest.TestCase):
         request.method = 'POST'
         request.POST = self.post_data
         request.META = self.meta_data
-        create_message(request, SERVICENAME, RUN_ID)
+        create_message(request, SERVICENAME, RUN_ID, WORKER_ID)
 
     def tearDown(self):
         """
@@ -206,7 +207,7 @@ class TestLogger(unittest.TestCase):
     def testRemotehost(self):
         self.assertEquals(
             LogMessage.objects.all()[0].remote_host,
-            self.meta_data['REMOTE_HOST'])
+            self.meta_data['REMOTE_HOST'] + '/' + WORKER_ID)
 
 class TestLocalHttpHandler(unittest.TestCase):
     """

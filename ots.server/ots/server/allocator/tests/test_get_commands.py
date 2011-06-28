@@ -29,6 +29,7 @@ from StringIO import StringIO
 
 class TestGetCommands(unittest.TestCase):
     """Tests for get_commands"""
+
     def test_device_tests_with_packages(self):
         """Check conductor command with test packages for device"""
 
@@ -59,6 +60,37 @@ class TestGetCommands(unittest.TestCase):
         
         self.assertEquals(cmds[0].command, expected_cmds)
 
+    def test_device_tests_with_packages_using_libssh2(self):
+        """Check conductor command with test packages for device and libssh2"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_list = {'device':"foo,bar,baz"}
+        emmc_flash_parameter = ""
+        testrun_id = ""
+        storage_address = ""
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "30"
+        rootstrap = ""
+        use_libssh2 = True
+
+        expected_cmds = ['conductor', 
+                          '-u', 'http://image/url/image.bin', 
+                          '-f', '-testsuite=testrunner-tests',
+                          '-t', "foo,bar,baz", '-m', '30', '--libssh2']
+        
+        cmds = get_commands(distribution_model, 
+                            image_url,
+                            rootstrap,
+                            test_list,
+                            emmc_flash_parameter,
+                            testrun_id,
+                            storage_address,
+                            test_filter,
+                            timeout,
+                            use_libssh2=True)
+        
+        self.assertEquals(cmds[0].command, expected_cmds)
 
     def test_custom_distribution_models(self):
         """Check that custom distribution models can be used"""
@@ -904,12 +936,14 @@ class TestGetCommands(unittest.TestCase):
                           '-u', 'http://image/url/image.bin', 
                           '-m', '30', '-p', 'testplan.xml', '-o']
 
-
         self.assertEquals(len(commands), 4)
         self.assertEquals(commands[0].command, expected_cmd_1)
         self.assertEquals(commands[1].command, expected_cmd_2)
         self.assertEquals(commands[2].command, expected_cmd_3)
         self.assertEquals(commands[3].command, expected_cmd_4)
+
+
+
 
 #######################################################################
 

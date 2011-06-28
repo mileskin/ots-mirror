@@ -1,2 +1,3 @@
 /usr/local/lib/python*/dist-packages/ots.plugin.email-*
 /usr/local/lib/python*/dist-packages/ots/plugin/email/*
+/etc/ots/plugins/email.conf

@@ -23,8 +23,10 @@
 
 """General helper methods, classes etc."""
 
-import ConfigParser
+import os
 import shlex
+import logging
+import ConfigParser
 
 
 def parse_config(config_file, section, current_config=None):
@@ -100,3 +102,14 @@ def _update_config_items(config_dict, key, value):
             config_dict[key] = value
 
     return config_dict
+
+
+def get_logger_adapter(logger_name):
+    """
+    Returns the logger adapter for logging with 'userDefinedId' parameter,
+    which is the same as OTS worker number, device id and HAT control USB
+    port number.
+    """
+    device_n = os.getenv("OTS_WORKER_NUMBER")
+    return logging.LoggerAdapter(logging.getLogger(logger_name),
+                                 {'userDefinedId': device_n})

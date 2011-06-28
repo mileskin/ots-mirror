@@ -8,6 +8,7 @@ export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ots.plugin.logger
 export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ots.plugin.qareports
 export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ots.plugin.history
 export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ots.plugin.monitor
+export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ots.plugin.conductor.richcore
 export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ots.results
 export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ots.server
 export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ots.tools
@@ -32,9 +33,10 @@ pylint \
    ots.plugin.logger/ots \
    ots.plugin.monitor/ots \
    ots.plugin.qareports/ots \
+   ots.plugin.conductor.richcore/ots \
    ots.results/ots \
    ots.server/ots \
    ots.tools/ots \
-   ots.worker/ots > pylint.txt
+   ots.worker/ots > pylint.txt 
 
 echo "################# PYLINT END #################"

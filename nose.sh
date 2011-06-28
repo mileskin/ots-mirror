@@ -45,6 +45,8 @@ EMAIL_PLUGIN_TESTS="ots.plugin.email/ots/plugin/email/tests/test_*.py"
 
 QA_REPORTS_PLUGIN_TESTS="ots.plugin.qareports/ots/plugin/qareports/tests/test_*.py"
 
+RICHCORE_PLUGIN_TESTS="ots.plugin.conductor.richcore/ots/plugin/conductor/richcore/tests/test_*.py"
+
 # Run tests
 nosetests \
   $SERVER_TESTS \
@@ -53,5 +55,6 @@ nosetests \
   $RESULT_TESTS \
   $EMAIL_PLUGIN_TESTS \
   $QA_REPORTS_PLUGIN_TESTS \
+  $RICHCORE_PLUGIN_TESTS \
   -e testrun_queue_name \
   $@

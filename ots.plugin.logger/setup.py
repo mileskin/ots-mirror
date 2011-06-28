@@ -25,7 +25,7 @@ from get_spec_version import get_spec_version
 
 setup(
       name="ots.plugin.logger",
-      author="teemu.vainio@ixonos.com",
+      author="meego-qa@lists.meego.com",
       namespace_packages=["ots", "ots.plugin"],
       version=get_spec_version(),
       include_package_data=True,

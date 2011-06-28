@@ -33,8 +33,9 @@ import shutil
 import logging
 
 from ots.worker.conductor.conductorerror import ConductorError
+from ots.worker.conductor.helpers import get_logger_adapter
 
-LOG = logging.getLogger(__name__)
+LOG = get_logger_adapter(__name__)
 
 
 class Chroot(object):

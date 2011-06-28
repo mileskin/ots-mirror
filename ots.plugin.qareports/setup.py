@@ -33,7 +33,7 @@ else:
 
 setup(
       name="ots.plugin.qareports",
-      author="teemu.vainio@ixonos.com",
+      author="meego-qa@lists.meego.com",
       namespace_packages=["ots", "ots.plugin"],
       version=get_spec_version(),
       include_package_data=True,
@@ -42,6 +42,6 @@ setup(
       entry_points={"ots.publisher_plugin":
                     ["publisher_klass = "\
                      "ots.plugin.qareports.qareports_plugin:QAReportsPlugin"]},
-                     data_files=[(j(data_prefix,'etc'),
-                                  ['ots/plugin/qareports/ots_plugin_qareports.conf'])]
+                     data_files=[(j(data_prefix,'etc/ots/plugins/'),
+                                  ['ots/plugin/qareports/qareports.conf'])]
       )

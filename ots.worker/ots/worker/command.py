@@ -23,12 +23,13 @@
 
 """A Class for executing shell commands with timeout."""
 
-import logging
 import os
 import time
 import signal
 import subprocess
 import threading
+
+from ots.worker.conductor.helpers import get_logger_adapter
 
 from ots.common.dto.ots_exception import OTSException
 
@@ -62,7 +63,7 @@ class Command(object):
         hard_timeout is timeout after kill -9 is sent.
         wrapper is a string with %s where the command will go
         """
-        self.log = logging.getLogger(__name__)
+        self.log = get_logger_adapter(__name__)
         self.command = command
         if wrapper:
             self.command = wrapper % command

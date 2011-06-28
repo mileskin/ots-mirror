@@ -32,8 +32,8 @@ from ots.common.amqp.api import pack_message
 from ots.common.amqp.api import testrun_queue_name
 from ots.common.dto.api import Results, Packages, Monitor
 from ots.common.dto.ots_exception import OTSException
+from ots.worker.conductor.helpers import get_logger_adapter
 
-LOG = logging.getLogger(__file__)
 
 class ResponseClient(object):
     """
@@ -41,7 +41,7 @@ class ResponseClient(object):
     """
 
     def __init__(self, server_host, testrun_id, response_queue=None):
-        self.log = logging.getLogger(__file__)
+        self.log = get_logger_adapter(__name__)
         self.host = server_host
         self.testrun_id = testrun_id
         self.conn = None

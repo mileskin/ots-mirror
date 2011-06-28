@@ -40,11 +40,12 @@ from ots.worker.conductor.executor import TestRunData
 from ots.worker.conductor.executor import Executor
 from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
+from ots.worker.conductor.helpers import get_logger_adapter
 
-DEFAULT_CONFIG = "/etc/conductor.conf"
+DEFAULT_CONFIG = "/etc/ots/conductor.conf"
 OPT_CONF_SUFFIX = ".conf"
+LOG = get_logger_adapter("conductor")
 
-LOG = logging.getLogger("conductor")
 
 def _parse_command_line(args):
     """
@@ -163,8 +164,12 @@ def _parse_command_line(args):
                     default=None,
                     metavar="FLASHERURL")
 
+    parser.add_option("--libssh2", dest="use_libssh2",
+                      action="store_true", default=False,
+                      help="Use testrunner-lite libssh2 support")
+
     (options, args) = parser.parse_args(args)
-    
+
     if os.getenv("OTS_WORKER_NUMBER"):
         options.device_n = int(os.getenv("OTS_WORKER_NUMBER"))
     else:
@@ -207,14 +212,15 @@ def _setup_logging(verbose, device_number):
     return root_logger
 
 
-def _add_http_logger(server_host, testrun_id):
+def _add_http_logger(server_host, testrun_id, device_n):
     """
     Add http logger handler into logging. 
     Associate it with given testrun in server. Returns root_logger.
     """
-    http_handler = logging.handlers.HTTPHandler(server_host, 
-                                            HTTP_LOGGER_PATH % str(testrun_id),
-                                            "POST")
+    http_handler = logging.handlers.HTTPHandler( \
+                            server_host, 
+                            HTTP_LOGGER_PATH % str(testrun_id), 
+                            "POST")
     root_logger = logging.getLogger()
     http_handler.setLevel(logging.INFO)
     root_logger.addHandler(http_handler)
@@ -288,12 +294,12 @@ def _parse_conductor_config(config_file, current_config_dict=None):
 
 def _read_configuration_files(config_file, device_n):
     """
-    Read main configuration file and optional custom configuraion
+    Read main configuration file and optional custom configuration
     files.
     """
 
     if not (config_file and os.path.exists(config_file)):
-        config_file = DEFAULT_CONFIG
+        config_file = _default_config_file()
 
     # Try if there is separated config file
     if device_n != 0:
@@ -302,7 +308,7 @@ def _read_configuration_files(config_file, device_n):
         
         if os.path.exists(new_config_path):
             config_file = new_config_path
-    
+
     LOG.info("using config file %s" % config_file)
     
     config_dict = _parse_conductor_config(config_file)
@@ -314,6 +320,25 @@ def _read_configuration_files(config_file, device_n):
         config_dict = _read_optional_config_files(custom_folder, config_dict)
 
     return config_dict
+
+
+def _default_config_file():
+    """
+    Return default config file. Returns it from /etc/ots/ if exists or
+    if not then the one in the source tree
+    """
+
+    if os.path.exists(DEFAULT_CONFIG):
+        return DEFAULT_CONFIG
+ 
+    conductor_dirname = os.path.dirname(os.path.abspath(__file__))
+    conductor_config_filename = os.path.join(conductor_dirname, "conductor.conf")
+
+    if not os.path.exists(conductor_config_filename):
+        raise Exception("%s not found"%(conductor_config_filename))
+
+    return conductor_config_filename
+
 
 def _read_optional_config_files(custom_folder, config_dict):
     """
@@ -339,7 +364,7 @@ def _read_optional_config_files(custom_folder, config_dict):
     return config_dict
 
 
-def _initialize_remote_connections(otsserver, testrun_id):
+def _initialize_remote_connections(otsserver, testrun_id, device_n):
     """
     Initialise ResponseClient and http_logger. Return ResponseClient object if 
     everything succeeds or None if anything fails. Log details about failure.
@@ -349,7 +374,7 @@ def _initialize_remote_connections(otsserver, testrun_id):
     host, port = otsserver.split(":")
 
     try:
-        _add_http_logger(host, testrun_id)
+        _add_http_logger(host, testrun_id, device_n)
     except:
         LOG.error("Unknown error in initializing http logger to server "\
                   "%s!" % host)
@@ -362,7 +387,7 @@ def _initialize_remote_connections(otsserver, testrun_id):
     except:
         LOG.error("Unknown error in initializing OTS client connecting "\
                       "to %s! (Using OtsResponseClient)" % (host))
-        
+
     return responseclient
 
 
@@ -384,8 +409,9 @@ def main():
     responseclient = None
 
     if not stand_alone:
-        responseclient = _initialize_remote_connections(options.otsserver, 
-                                                    options.testrun_id)
+        responseclient = _initialize_remote_connections(options.otsserver,
+                                                        options.testrun_id,
+                                                        device_n)
         if not responseclient:
             sys.exit(1)
 

@@ -20,12 +20,20 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
+import os.path; j = os.path.join
+import sys
 from setuptools import setup, find_packages
 from get_spec_version import get_spec_version
 
+if sys.prefix.startswith("/usr") or sys.prefix == "/":
+    data_prefix="/" #install data and config files relative to root
+else:
+    data_prefix=sys.prefix #we are inside virtualenv, so install files relative to it
+
+
 setup(
       name = "ots.plugin.email",
-      author="teemu.vainio@ixonos.com",
+      author="meego-qa@lists.meego.com",
       namespace_packages = ["ots", "ots.plugin"],
       version=get_spec_version(),
       include_package_data = True,
@@ -34,4 +42,6 @@ setup(
       entry_points={"ots.publisher_plugin":
             ["publisher_klass "\
              "= ots.plugin.email.email_plugin:EmailPlugin"]},
+                     data_files=[(j(data_prefix,'etc/ots/plugins/'),
+                                  ['ots/plugin/email/email.conf'])]
      )

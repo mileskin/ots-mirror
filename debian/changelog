@@ -1,3 +1,37 @@
+ots (0.8.6-1) unstable; urgency=low
+
+  * OTS 0.8.6 release, BMC#17933
+  * Added pagination support for logger main view, BMC#17735
+  * Added worker number to log message model, BMC#17996
+  * Fixed incorrect ordering in OTS logger view (thanks to Timo Hencken),
+    BMC#18113
+  * Added functionality to rich-core plug-in to set connection settings for DUT
+    (by sampos), BMC#18415
+  * Added better proxy handling for qa-reports plug-in (by vesse)
+
+ -- Elias Luttinen <elias.luttinen@digia.com>  Fri, 10 Jun 2011 09:13:31 +0300
+
+ots (0.8.5-1) unstable; urgency=low
+
+  * OTS 0.8.5 release, BMC#16861
+  * Added new conductor plug-in for rich-core processing by rikhalon, BMC#17509
+  * Added support for flasher module to clean up, BMC#17620
+  * Fixed OTS logger view problem when using MySQL, BMC#17765
+
+ -- Elias Luttinen <elias.luttinen@digia.com>  Fri, 20 May 2011 08:53:23 +0300
+
+ots (0.8.4-1) unstable; urgency=low
+
+  * OTS 0.8.4 release, BMC#13356
+  * One worker can support multiple devices in Parallel, BMC#8742
+  * Added conductor plug-in interface, BMC#15403
+  * Added configuration option for email attachments, BMC#15765
+  * Added proxy support to QA-Reports plug-in, BMC#16018
+  * Fixed average flashing time display for OTS monitor, BMC#15362
+  * Fixed Django settings import error, BMC#16704
+
+ -- Elias Luttinen <elias.luttinen@digia.com>  Thu, 28 Apr 2011 15:29:53 +0300
+
 ots (0.8.3-1) unstable; urgency=low
 
   * OTS 0.8.3 release, BMC#13355

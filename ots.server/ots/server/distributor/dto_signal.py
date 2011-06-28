@@ -29,8 +29,8 @@ from ots.common.dto.monitor import Monitor
 ###################
 
 #Django has forked PyDispatcher
-#We will probably need the Django Signals 
-#But to avoid making ots.server.distributor a 
+#We will probably need the Django Signals
+#But to avoid making ots.server.distributor a
 #Django project use a MonkeyPatch for now
 
 try:
@@ -41,6 +41,7 @@ try:
     settings.DEBUG
 except ImportError:
     import types
+
     class SettingsStub(object):
         """Stubs out django settings object"""
         DEBUG = False
@@ -58,10 +59,11 @@ from django.dispatch.dispatcher import Signal
 
 DTO_SIGNAL = Signal()
 
-def send_monitor_event(monitory_type, sender = None, description = None):
+
+def send_monitor_event(monitory_type, sender=None, description=None):
     """
     Create monitor instance and send it
-    
+
     @type monitory_type: L{MonitorType}
     @param monitory_type: Event type
 
@@ -71,12 +73,8 @@ def send_monitor_event(monitory_type, sender = None, description = None):
     @type description : C{str}
     @param description : Event description
     """
-    
-    monitor = Monitor(event_type = monitory_type, 
-                      sender = sender, 
-                      description = description)
-    
-    DTO_SIGNAL.send(sender = sender, dto = monitor)
-    
-    
+    monitor = Monitor(event_type=monitory_type,
+                      sender=sender,
+                      description=description)
 
+    DTO_SIGNAL.send(sender=sender, dto=monitor)

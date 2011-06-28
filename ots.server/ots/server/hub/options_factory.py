@@ -31,7 +31,7 @@ import logging
 
 from ots.server.server_config_filename import server_config_filename
 
-from ots.server.hub.options import Options 
+from ots.server.hub.options import Options
 from ots.server.hub.sandbox import sandbox
 from ots.server.hub.parameters_parser import string_2_dict
 
@@ -163,7 +163,7 @@ class OptionsFactory(object):
     @property 
     def core_options_names(self):
         """
-        The names of the Options necessary for core functionality  
+        The names of the Options necessary for core functionality
         
         rtype : C{tuple} of C{str}
         rparam : The core function names 

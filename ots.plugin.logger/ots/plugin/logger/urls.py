@@ -44,4 +44,5 @@ urlpatterns = patterns('',
     (r'^view/testrun/(?P<run_id>\w+)/$', basic_testrun_viewer),
     (r'^view/details/(?P<log_id>\w+)/$', view_message_details),
     (r'^(?P<servicename>\w+)/(?P<run_id>\w+)/$', create_message),
+    (r'^(?P<servicename>\w+)/(?P<run_id>\w+)/(?P<worker_id>\d+)/$', create_message),
 )

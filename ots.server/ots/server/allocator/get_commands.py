@@ -37,8 +37,9 @@ def get_commands(distribution_model,
                  test_filter,
                  timeout,
                  flasher="",
-                 custom_distribution_model = None,
-                 extended_options = None):
+                 custom_distribution_model=None,
+                 use_libssh2=False,
+                 extended_options=None):
     """Returns a list of conductor commands based on the options"""
     options = dict()
     options['image_url'] = image_url
@@ -50,6 +51,8 @@ def get_commands(distribution_model,
     options['timeout'] = str(timeout)
     options['bootmode'] = None
     options['rootstrap'] = rootstrap
+    options['use_libssh2'] = use_libssh2
+
     if extended_options:
         options['bootmode'] = extended_options.get("bootmode", None)
 

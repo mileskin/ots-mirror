@@ -24,49 +24,50 @@
 A module for generating conductor commands based on testrun options
 """
 
-
 def conductor_command(options, host_testing, chroot_testing):
     """
-    Creates a conductor command from the arguments. 
+    Creates a conductor command from the arguments.
 
-    @type options: C{list} of C{str}
+    @type options: C{dict}
     @param options: String with test package names.
-        Multiple packages must be separated by comma, without 
-        spaces. String may be empty. 
-        Packages are either for device or for host. 
+        Multiple packages must be separated by comma, without
+        spaces. String may be empty.
+        Packages are either for device or for host.
 
     @type host_testing: C{bool}
     @param host_testing: Whether options[test_packages]
         is assumed to contain tests for host. True or False.
 
     @rtype: C{list}
-    @return: A list. First item is shell executable. 
+    @return: A list. First item is shell executable.
         The rest of the items are command line parameters.
     """
     cmd = ["conductor"]
-    cmd.extend( ["-u", options['image_url']] )
+    cmd.extend(["-u", options['image_url']])
     if options['emmc_flash_parameter']:
-        cmd.extend( ["-e", options['emmc_flash_parameter']] )
+        cmd.extend(["-e", options['emmc_flash_parameter']])
     if options['testrun_id']:
-        cmd.extend( ["-i", str(options['testrun_id'])] )
+        cmd.extend(["-i", str(options['testrun_id'])])
     if options['storage_address']:
-        cmd.extend( ["-c", options['storage_address']] )
+        cmd.extend(["-c", options['storage_address']])
     if options['testfilter']:
-        cmd.extend( ["-f", options['testfilter']] )
+        cmd.extend(["-f", options['testfilter']])
     if options['flasherurl']:
-        cmd.extend( ["--flasherurl", options['flasherurl']] )
+        cmd.extend(["--flasherurl", options['flasherurl']])
     if options['test_packages']:
-        cmd.extend( ["-t", options['test_packages']] )
+        cmd.extend(["-t", options['test_packages']])
     # Use global timeout as conductor testrun timeout
     if options['timeout']:
-        cmd.extend( ["-m", str(options['timeout'])] )
+        cmd.extend(["-m", str(options['timeout'])])
     if options['bootmode']:
-        cmd.extend( ["-b", options['bootmode']] )
+        cmd.extend(["-b", options['bootmode']])
+    if options['use_libssh2']:
+        cmd.extend(["--libssh2"])
     if options.has_key('testplan_name'):
-        cmd.extend( ["-p", options['testplan_name']] )
+        cmd.extend(["-p", options['testplan_name']])
 
     if host_testing == True:
-        cmd.extend( ['-o'] )
+        cmd.extend(['-o'])
 
     if chroot_testing == True:
         cmd.extend(["--chrooted", "--rootstrapurl=%s" % options["rootstrap"]])

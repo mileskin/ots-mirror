@@ -31,7 +31,8 @@ class TestConductorCommands(unittest.TestCase):
     def test_conductor_command_without_testpackages(self):
         options = {'bootmode': None, 'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"", 'timeout':"30"}
+                   'flasherurl':"", 'test_packages':"", 'timeout':"30",
+                   'use_libssh2': False}
         expected = ['conductor',  
                     "-u", 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '30']
 
@@ -44,7 +45,8 @@ class TestConductorCommands(unittest.TestCase):
     def test_conductor_command_with_emmc_flash(self):
         options = {'bootmode': None, 'image_url':"www.nokia.com", 'emmc_flash_parameter':"Gordon", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
-                   'flasherurl':"", 'test_packages':"", 'timeout':"30" }
+                   'flasherurl':"", 'test_packages':"", 'timeout':"30",
+                   'use_libssh2': False}
         expected = ['conductor',  
                     '-u', 'www.nokia.com', '-e', 'Gordon', 
                     '-i', '1', '-c', 'foo', '-m', '30']
@@ -55,11 +57,10 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_conductor_command_with_flasher_no_pkgs(self):
-
         options = {'bootmode': None, 'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"", 
-                   'timeout':"30" }
+                   'timeout':"30", 'use_libssh2': False}
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
@@ -72,11 +73,10 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_flasher_device_pkgs(self):
-
         options = {'bootmode': None, 'image_url':"www.nokia.com", 'emmc_flash_parameter':"", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
-                   'timeout':"30" }
+                   'timeout':"30", 'use_libssh2': False}
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
@@ -90,11 +90,10 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_flasher_reboot_mode(self):
-
         options = {'image_url':"www.nokia.com", 'emmc_flash_parameter':"",
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
-                   'timeout':"30", 'bootmode':"normal"}
+                   'timeout':"30", 'bootmode':"normal", 'use_libssh2': False}
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
@@ -108,11 +107,10 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_testplan(self):
-
         options = {'bootmode': None, 'image_url':"www.nokia.com", 'emmc_flash_parameter':"",
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'testplan_name' : "testplan.xml",
-                   'timeout':"30", 'test_packages':''}
+                   'timeout':"30", 'test_packages':'', 'use_libssh2': False}
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
@@ -126,17 +124,35 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_testplan_host(self):
-
         options = {'bootmode': None, 'image_url':"www.nokia.com", 'emmc_flash_parameter':"",
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'testplan_name' : "testplan.xml",
-                   'timeout':"30", 'test_packages':''}
+                   'timeout':"30", 'test_packages':'', 'use_libssh2': False}
         expected = ['conductor',
                     "-u", 'www.nokia.com',
                     '-i', '1',
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf",
                     '-m', '30', '-p', 'testplan.xml', '-o']
+
+        result = conductor_command(options,
+                                   host_testing = True,
+                                   chroot_testing = False)
+        self.assertEquals(result, expected)
+
+    def test_conductor_command_with_libssh2(self):
+        options = {'bootmode': None, 'image_url':"www.nokia.com",
+                   'emmc_flash_parameter':"", 'testrun_id':1,
+                   'storage_address':"foo", 'testfilter':"",
+                   'flasherurl':"asdfasdf/asdf",
+                   'use_libssh2': True,
+                   'timeout':"30", 'test_packages':''}
+        expected = ['conductor',
+                    "-u", 'www.nokia.com',
+                    '-i', '1',
+                    '-c', 'foo',
+                    '--flasherurl', "asdfasdf/asdf",
+                    '-m', '30', '--libssh2', '-o']
 
         result = conductor_command(options,
                                    host_testing = True,

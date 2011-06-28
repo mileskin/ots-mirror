@@ -76,6 +76,7 @@ class Options(object):
         self.email = CONFIG["email"]
         self.timeout = 30
         self.server = CONFIG["server"]
+        self.use_libssh2 = False
 
 ############################################
 #  BASE
@@ -187,6 +188,17 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.timeout = 30
         expected = ["Environment: Hardware",
                     "Starting conductor at",
+                    """Finished running tests."""]
+        self.trigger_testrun_expect_pass(options, expected)
+
+    def test_hw_based_testrun_with_test_definition_tests_using_libssh2(self):
+        options = Options()
+        options.testpackages = "test-definition-tests"
+        options.timeout = 30
+        options.use_libssh2 = True
+        expected = ["Environment: Hardware",
+                    "Starting conductor at",
+                    "-t %s -m 1800 --libssh2" % options.testpackages,
                     """Finished running tests."""]
         self.trigger_testrun_expect_pass(options, expected)
 
@@ -607,8 +619,9 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options.timeout = 1
         expected = [
           "No queue for this_should_not_exist",
-          "Incoming request: program: ots-system-tests, request: 0, " \
-          "notify_list: ['%s'], options: {"  % (CONFIG["email"]),
+          "Incoming request: program: %s, request: 0, " \
+          "notify_list: ['%s'], options: {" \
+              % (CONFIG["sw_product"], CONFIG["email"]),
           "'image': '%s'" % (CONFIG["image_url"]),
           "'distribution_model': 'default'",
           "'timeout': 1",
@@ -829,7 +842,7 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.filter = "testcase=Check-basic-schema"
-        expected = ["Monitor Plugin loaded",
+        expected = ["Plugin: ots.plugin.conductor.richcore loaded",
                     "history data saved",
                     "Using smtp server",
                     "Email sent"]
@@ -843,7 +856,7 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.email = "invalid_email_address"
         expected = ["Missing `image` parameter"]
         self.trigger_testrun_expect_error(options, expected)
-    
+
 
 class TestMultiDevice(SystemSingleRunTestCaseBase):
     
@@ -870,6 +883,31 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         options.filter = "testcase=Check-basic-schema"
         expected = ["using config file /etc/conductor_1.conf"]
         self.trigger_testrun_expect_pass(options, expected)
+
+class TestConductorPlugin(SystemSingleRunTestCaseBase):
+    """Tests for conductor plug-ins"""
+
+    def test_example_conductor_plugin(self):
+        """
+        Example conductor plugin from examples directory needs to be installed!
+        """
+        options = Options()
+        options.hosttest = "test-definition-tests"
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        options.filter = "testcase=Check-basic-schema"
+        expected = ["ExampleConductorPlugin before_testrun " \
+                    "method called.",
+                    "ExampleConductorPlugin after_testrun " \
+                    "method called.",
+                    "ExampleConductorPlugin set_target method " \
+                    "called.",
+                    "ExampleConductorPlugin set_result_dir method " \
+                    "called.",
+                    "ExampleConductorPlugin get_result_files method " \
+                    "called."]
+        self.trigger_testrun_expect_pass(options, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
