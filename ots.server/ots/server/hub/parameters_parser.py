@@ -37,6 +37,10 @@ def string_2_list(string):
     @rtype: C{list} consisting of C{str}
     @return: The converted string
     """
+    
+    if type(string) is list:
+        return string
+    
     if string:
         spaces = re.compile(r'\s+')
         return spaces.split(string.strip())

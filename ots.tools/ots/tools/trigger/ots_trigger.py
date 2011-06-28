@@ -151,7 +151,7 @@ def ots_trigger(options):
         for testplan in options.get('hw_testplans'):
             testplan_data = read_test_plan(testplan)
             testplans.append((os.path.basename(testplan), testplan_data))
-        ots_options['hw_testplans'] = testplans
+        options['hw_testplans'] = testplans
     if options.get('host_testplans'):
         testplans = list()
         for testplan in options.get('host_testplans'):
@@ -213,7 +213,7 @@ def parse_commandline_arguments():
                               type="string", help="device properties", metavar="DEVICE",
                               default="")
 
-    optional_group.add_option("-t", "--testpackages", dest="testpackages",
+    optional_group.add_option("-t", "--testpackages", dest="packages",
                               action="store", type="string",
                               help="list of test packages separated with comma",
                               metavar="TESTPACKAGES", default="")

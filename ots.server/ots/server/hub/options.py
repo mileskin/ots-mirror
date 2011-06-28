@@ -105,22 +105,22 @@ class Options(object):
         @param use_libssh2: Use testrunner-lite libssh2 support
         """
         self._image = image
-        if packages is None:
+        if not packages:
             packages = []
         self._packages = packages
         self._plan = plan
-        if hosttest is None:
+        if not hosttest:
             hosttest = []
-        if hw_testplans is None:
+        if not hw_testplans:
             hw_testplans = []
         self._hw_testplans = hw_testplans
-        if host_testplans is None:
+        if not host_testplans:
             host_testplans = []
         self._host_testplans = host_testplans
         self._hosttest = hosttest
-        if device is None:
+        if not device:
             device = dict()
-        if chroottest is None:
+        if not chroottest:
             chroottest = []
         self._chroottest = chroottest
         self._rootstrap = rootstrap
