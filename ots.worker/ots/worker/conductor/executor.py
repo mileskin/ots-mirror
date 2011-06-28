@@ -972,9 +972,7 @@ class Executor(object):
         elif not self.testrun.is_host_based:
             remote_option = TESTRUNNER_SSH_OPTION % self.testrun.target_ip_address
 
-        workdir = os.path.expanduser(TESTRUNNER_WORKDIR)
-
-        cmd = CMD_TESTRUNNER % (workdir, 
+        cmd = CMD_TESTRUNNER % (self.testrun.base_dir, 
                                 self.testrun.dst_testdef_file_path, 
                                 self.testrun.result_file_path, 
                                 filter_option,
