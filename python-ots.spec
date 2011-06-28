@@ -188,6 +188,7 @@ setsebool httpd_unified 1
 /usr/bin/ots_trigger
 /usr/lib/python*/site-packages/ots.tools-*
 /usr/lib/python*/site-packages/ots/tools/*
+/usr/share/ots/trigger/*
 
 %files plugin-logger
 %defattr(-,root,root)

@@ -32,7 +32,7 @@ setup(
       namespace_packages=['ots'],
       packages=find_packages(),
       zip_safe=False,
-    
+      data_files=[('/usr/share/ots/trigger', ['ots/tools/trigger/ots_trigger_example.conf'])],
       entry_points={
                     "console_scripts":
                     ["ots_trigger = ots.tools.trigger.ots_trigger:main",
