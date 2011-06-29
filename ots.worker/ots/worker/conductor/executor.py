@@ -612,7 +612,7 @@ class Executor(object):
         except (CommandFailed, SoftTimeoutException, HardTimeoutException), exc:
             self._ssh_command_exception_handler(exc, cmd, task.lower())
         else:
-            self.log.debug("%s finished succesfully" % task.lower())
+            self.log.debug("%s finished successfully" % task.lower())
             return cmd
 
 
