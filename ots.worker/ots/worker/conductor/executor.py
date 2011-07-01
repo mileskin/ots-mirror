@@ -28,6 +28,7 @@ import os
 import subprocess
 import time
 import pkg_resources
+import signal
 
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
@@ -64,6 +65,7 @@ from ots.worker.conductor.helpers import get_logger_adapter
 
 
 WAIT_SIGKILL = 5
+
 
 class TestRunData(object):
     """
@@ -139,7 +141,7 @@ class TestRunData(object):
         self.target_flasher = config.get('default_flasher')
         self.flasher_module = None
         self.device_n = 0
-                
+
         if config.has_key('rich_core_dumps_folder'):
             self.target_rich_core_dumps = config.get('rich_core_dumps_folder')
             self.save_rich_core_dumps = True
@@ -194,6 +196,7 @@ class Executor(object):
         self.hostname = hostname
         self.testrun_timeout = testrun_timeout
         self.chroot = None
+        self.trlite_command = None
 
         self.target = None #Test target object. Implements its own __str__().
         self.env = None    #Test environment name. String.
@@ -246,6 +249,9 @@ class Executor(object):
 
         return errors
 
+    def save_environment_details(self):
+        """Fetch environment details"""
+        self._fetch_environment_details()
 
     # Private methods
 
@@ -673,6 +679,15 @@ class Executor(object):
         """
         Runs tests in hardware or at host.
         Writes two files (for stderr and stdout) in folder testrun.base_dir
+
+        @type test_package: C{str}
+        @param test_package: Test package to be executed
+
+        @type start_time: C{float}
+        @param start_time: Start time in seconds since the epoch, in UTC
+
+        @type time_current: C{float}
+        @param time_current: Current time in seconds since the epoch, in UTC
         """
 
         ret_value = True
@@ -691,12 +706,15 @@ class Executor(object):
         if not self.testrun_timeout or current_timeout > 0:
             self.log.info("Testrunner-lite command: %s" % cmdstr)
             if not self.testrun_timeout:
-                cmd = Command(cmdstr)
+                self.trlite_command = Command(cmdstr)
             else:                  
-                cmd = Command(cmdstr, soft_timeout=current_timeout, 
-                              hard_timeout= current_timeout + WAIT_SIGKILL)
+                self.trlite_command = Command( \
+                                cmdstr,
+                                soft_timeout=current_timeout,
+                                hard_timeout=current_timeout + WAIT_SIGKILL)
+
             try:
-                cmd.execute()
+                self.trlite_command.execute()
             except (SoftTimeoutException, HardTimeoutException), error:
                 # testrunner-lite killed by timeout, we need to collect
                 # files, so we don't want to raise ConductorError
@@ -710,6 +728,7 @@ class Executor(object):
                 self._create_new_file(path_stderr, cmd.stderr)
                 self._store_result_file(path_stdout, test_package)
                 self._store_result_file(path_stderr, test_package)
+                self.trlite_command = None
         else:
             self.log.warning("Testrun timed out while not executing tests")
             ret_value = False
