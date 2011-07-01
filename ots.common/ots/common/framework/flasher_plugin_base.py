@@ -22,25 +22,38 @@
 
 """ Interface class for flasher plug-ins """
 
-# Example flasher, disable pylint warnings 
+# Example flasher, disable pylint warnings
 # pylint: disable=W0613
 
 import logging
 
 LOG = logging.getLogger("default_flasher")
 
+NOT_AVAILABLE_MSG = """
+                    ***************************************************
+                    * Customflasher not available in Worker!          *
+                    * Setting up test target cannot be done.          *
+                    * You must implement customflasher Python         *
+                    * module (see OTS Worker documentation).          *
+                    * Now continuing as if test target is set up...   *
+                    ***************************************************
+                    """
+
 
 class FlashFailed(Exception):
     """Flash Failed exception"""
     pass
 
+
 class InvalidImage(Exception):
     """Invalid Image exception"""
     pass
 
+
 class InvalidConfig(Exception):
     """Invalid configuration exception"""
     pass
+
 
 class ConnectionTestFailed(Exception):
     """Connection test failed exception"""
@@ -52,30 +65,29 @@ class FlasherPluginBase(object):
 
     def __init__(self,
                  flasher=None,
-                 device_n = None,
-                 host_ip = None,
-                 device_ip = None,
+                 device_n=None,
+                 host_ip=None,
+                 device_ip=None,
                  **kwargs):
         """
         @type flasher: C{str}
-        @param flasher: Path to flasher        
-        
+        @param flasher: Path to flasher
+
         @type device_n: C{int}
         @param device_n: Number of the conductor instance
-        
+
         @type host_ip: C{string}
         @param host_ip: Host IP for flasher
-        
+
         @type device_ip: C{string}
         @param device_ip: Device IP for flasher
         """
-        
         super(FlasherPluginBase, self).__init__()
 
     def flash(self,
               image_path,
               content_image_path,
-              boot_mode = None):
+              boot_mode=None):
         """
         Call this method to start flashing.
 
@@ -88,14 +100,22 @@ class FlasherPluginBase(object):
         @type boot_mode: C{str}
         @param boot_mode: Boot mode parameter from ots input parameters.
         """
+        LOG.warning(NOT_AVAILABLE_MSG)
 
-        LOG.warning("***************************************************")
-        LOG.warning("* Customflasher not available in Worker!          *")
-        LOG.warning("* Setting up test target cannot be done.          *")
-        LOG.warning("* You must implement customflasher Python         *")
-        LOG.warning("* module (see OTS Worker documentation).          *")
-        LOG.warning("* Now continuing as if test target is set up...   *")
-        LOG.warning("***************************************************")
+    def reboot(self, image_path=None, content_image_path=None, boot_mode=None):
+        """
+        Call this method if you need to reboot the device
+
+        @type image_path: C{str}
+        @param image_path: Absolute path of image file
+
+        @type content_image_path: C{str}
+        @param content_image_path: Absolute path of Device content image file
+
+        @type boot_mode: C{str}
+        @param boot_mode: Boot mode parameter from ots input parameters.
+        """
+        LOG.warning(NOT_AVAILABLE_MSG)
 
     def clean_up(self):
         """
