@@ -53,13 +53,13 @@
             <a href="?page={{ messages.previous_page_number }}">previous</a>
         {% endif %}
         {% for page_num in messages.paginator.page_range %}
-            {% if page_num == messages.number %}
+            {% ifequal page_num messages.number %}
                 <span class="current">
                     {{ messages.number }}
                 </span>
             {% else %}
                 <a href="?page={{ page_num }}">{{ page_num }}</a>
-            {% endif %}
+            {% endifequal %}
         {% endfor %}
         {% if messages.has_next %}
             <a href="?page={{ messages.next_page_number }}">next</a>
