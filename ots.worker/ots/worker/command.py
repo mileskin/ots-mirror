@@ -236,6 +236,11 @@ class Command(object):
         """Returns true if command has been executed."""
         return self.execution_time != - 1
 
+    def send_signal(self, sig_num):
+        """Send a signal to command process"""
+        os.killpg(self.pid, sig_num)
+        self.log.debug("Sent signal %d to %d" % (sig_num, self.pid))
+
     def _kill_softly(self):
         """A Callback function to terminate process softly"""
 
