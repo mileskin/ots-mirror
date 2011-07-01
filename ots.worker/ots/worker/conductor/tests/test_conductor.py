@@ -30,6 +30,7 @@ import tempfile
 import logging
 import traceback
 import time
+import signal
 
 from socket import gethostname
 from ots.worker.command import Command
@@ -63,7 +64,9 @@ NON_EXISTING_FILE = "/non/existing/file"
 from ots.worker.conductor.executor import TestRunData as TRD
 from ots.worker.conductor.executor import Executor as TE
 from ots.worker.conductor.hardware import Hardware as HW
-from ots.common.framework.flasher_plugin_base import FlasherPluginBase
+from ots.common.framework.flasher_plugin_base import FlasherPluginBase,\
+    FlashFailed
+
 
 class Mock_Hardware(HW):
     """
@@ -87,6 +90,7 @@ class Mock_Hardware(HW):
         # method just returned from real Hardware class when checking
         # primary_flasher, because now obsoleted flasher was empty dict
         return 0
+
 
 class Stub_Hardware(object):
     """All public methods stubbed out. Option to inject exit_code coming from shell"""
@@ -142,15 +146,17 @@ class Options(object):
         self.target_flasher = ""
         self.use_libssh2 = False
 
+
 class Stub_Executor(object):
-    def __init__(self, testrun, stand_alone, responseclient = None,
-                 hostname = "unknown"):
+    def __init__(self, testrun, stand_alone, responseclient=None,
+                 hostname="unknown"):
         self.env = ""
         self.stand_alone = stand_alone
     def set_target(self, target):
         pass
     def execute_tests(self):
         return 0
+
 
 class Mock_Executor(TE):
     def __init__(self, testrun, stand_alone, responseclient = None,
@@ -165,6 +171,7 @@ class Mock_Executor(TE):
     def _get_command_for_testrunner(self):
         return "" #TODO: self.testrunner_command
 
+
 class Mock_Executor_with_cmd(Mock_Executor):
     def __init__(self, testrun, stand_alone, responseclient = None,
                  hostname = "unknown", testrun_timeout = 0):
@@ -172,6 +179,7 @@ class Mock_Executor_with_cmd(Mock_Executor):
               hostname, testrun_timeout)
     def _get_command_for_testrunner(self):
         return "sleep 2"
+
 
 def _conductor_config_simple(config_file = "", default_file = ""):
     config = dict()
@@ -185,10 +193,12 @@ def _conductor_config_simple(config_file = "", default_file = ""):
     config['tmp_path'] = "/tmp/"
     return config
 
+
 class Stub_Command(object):
     def __init__(self, command, return_value = None):
         self.command = command
         self.return_value = return_value
+
 
 class Stub_ResponseClient(object):
     def __init__(self, server_host, server_port, testrun_id):
@@ -211,6 +221,20 @@ class Stub_ResponseClient(object):
         pass
 
 
+class Mock_Command(Command):
+    def __init__(self, value):
+        self.signal_sent = None
+    def send_signal(self, sig_num):
+        self.signal_sent = sig_num
+
+class Mock_Flasher(FlasherPluginBase):
+    def __init__(self, raise_exc=None):
+        self.device_rebooted = False
+        self.raise_exc = raise_exc
+    def reboot(self, boot_mode=None):
+        self.device_rebooted = True
+        if self.raise_exc:
+            raise self.raise_exc
 ##############################################################################
 # Tests
 ##############################################################################
@@ -852,6 +876,86 @@ class TestDefaultFlasher(unittest.TestCase):
         sw_updater = FlasherPluginBase(device_n = 1)
         sw_updater.flash(image_path = "image1",
                          content_image_path = "image2")
+
+
+class TestExecutorSignalHandler(unittest.TestCase):
+    """Tests for ExecutorSignalHandler"""
+
+    def setUp(self):
+        from ots.worker.conductor.executor import TestRunData
+        from ots.worker.conductor.executor import Executor
+        from ots.worker.conductor.conductor import ExecutorSignalHandler
+        from StringIO import StringIO
+        
+        testrun = TestRunData(Options(), config=_conductor_config_simple())
+        self.workdir = tempfile.mkdtemp("_test_conductor")
+        testrun.base_dir = self.workdir
+        responseclient = Stub_ResponseClient("", "", 0)
+        self.executor = Executor(testrun=testrun,
+                                 stand_alone=True,
+                                 responseclient=responseclient,
+                                 hostname="hostname")
+        self.executor.target = Stub_Hardware()
+        self.executor_signal_handler = ExecutorSignalHandler(self.executor)
+        self.process_listed_info_commands_called = False
+
+        self.logger = logging.getLogger('conductor')
+        self.log_stream = StringIO()
+        
+        self.logger.setLevel(logging.WARNING)
+        self.logger.addHandler(logging.StreamHandler(self.log_stream))
+        
+        self.flash_logger = logging.getLogger('default_flasher')
+        self.flash_log_stream = StringIO()
+        self.flash_logger.setLevel(logging.DEBUG)
+        self.flash_logger.addHandler(logging.StreamHandler(self.flash_log_stream))
+        
+
+    #
+    # Tests
+    #
+
+    def test_skips_reboot_if_no_testrunner_lite_running(self):
+        self._send_sigusr1()
+        self.assertTrue(self.log_stream.getvalue().find( \
+                "SIGUSR1 caught but no testrunner-lite running") >= 0)
+
+    def test_reboots_device(self):
+        self._prepare_executor_mocks()
+        self._send_sigusr1()
+        self.assertTrue(self.executor.testrun.flasher_module.device_rebooted)
+        self.assertEquals(self.executor.trlite_command.signal_sent,
+                          signal.SIGUSR1)
+
+    def test_sends_sigterm_on_connection_test_failed(self):
+        self._prepare_executor_mocks()
+        #self.executor.target.software_updater = \
+        #        Mock_SoftwareUpdater(BootupFailed("Testing"))
+        print self.executor.testrun.flasher_module.device_rebooted
+        self.executor.testrun.flasher_module = \
+                            Mock_Flasher(FlashFailed("Testing"))
+        self._send_sigusr1()
+        self.assertTrue(self.executor.testrun.flasher_module.device_rebooted)
+        self.assertEquals(self.executor.trlite_command.signal_sent, 
+                signal.SIGTERM)
+
+    def test_save_environment_details_after_reboot(self):
+#        self._prepare_executor_mocks()
+#        self._send_sigusr1()
+#        self.assertTrue(self.process_listed_info_commands_called)
+        pass
+
+    #
+    # Private methods
+    #
+
+    def _prepare_executor_mocks(self):
+        self.executor.trlite_command = Mock_Command("#echo Mocked Command")
+        self.executor.testrun.flasher_module = Mock_Flasher()
+
+    def _send_sigusr1(self):    
+        self.executor_signal_handler.reboot_device(sig_num=signal.SIGUSR1,
+                                                   frame=None)
 
 
 if __name__ == '__main__':
