@@ -28,6 +28,7 @@ import logging
 import logging.handlers
 import os
 import sys
+import signal
 from optparse import OptionParser
 from socket import gethostname
 
@@ -41,10 +42,52 @@ from ots.worker.conductor.executor import Executor
 from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
 from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.framework.flasher_plugin_base import FlashFailed
 
 DEFAULT_CONFIG = "/etc/ots/conductor.conf"
 OPT_CONF_SUFFIX = ".conf"
 LOG = get_logger_adapter("conductor")
+
+
+class ExecutorSignalHandler(object):
+    """Signal handler to catch signals from testrunner-lite"""
+
+    def __init__(self, executor):
+        """
+        Initialization
+
+        @type command: C{obj}
+        @param command: Executor
+        """
+        self._executor = executor
+
+    def reboot_device(self, sig_num, frame):
+        """
+        Function to trigger device reboot
+        
+        @type sig_num: C{int}
+        @param sig_num: Signal number
+
+        @type frame: None
+        @param frame: Current stack frame
+        """
+        LOG.debug("'%s' signal received from testrunner-lite" % sig_num)
+
+        trlite_command = self._executor.trlite_command
+
+        if not trlite_command:
+            LOG.warning("SIGUSR1 caught but no testrunner-lite running")
+            return
+
+        try:
+            self._executor.testrun.flasher_module.reboot()
+        except FlashFailed, err:
+            LOG.error("Bootup failed: %s" % err)
+            trlite_command.send_signal(signal.SIGTERM)
+            return
+
+        self._executor.save_environment_details()
+        trlite_command.send_signal(signal.SIGUSR1)
 
 
 def _parse_command_line(args):
@@ -424,6 +467,10 @@ def main():
 
     LOG.info("Testrun ID: %s  Environment: %s" % (options.testrun_id, 
                                                   executor.env))
+
+    executor_signal_handler = ExecutorSignalHandler(executor)
+    signal.signal(signal.SIGUSR1,
+                  executor_signal_handler.reboot_device)
 
     if options.filter_options:
         LOG.debug("Filtering enabled: %s" % options.filter_options)
