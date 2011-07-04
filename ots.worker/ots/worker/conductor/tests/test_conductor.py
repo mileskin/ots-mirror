@@ -940,22 +940,29 @@ class TestExecutorSignalHandler(unittest.TestCase):
                 signal.SIGTERM)
 
     def test_save_environment_details_after_reboot(self):
-#        self._prepare_executor_mocks()
-#        self._send_sigusr1()
-#        self.assertTrue(self.process_listed_info_commands_called)
+        self._prepare_executor_mocks()
+        self._send_sigusr1()
+        self.assertTrue(self.save_environment_details)
         pass
 
     #
     # Private methods
     #
 
+    def _send_sigusr1(self):
+        self.executor_signal_handler.reboot_device(sig_num=signal.SIGUSR1,
+                                                   frame=None)
+
     def _prepare_executor_mocks(self):
         self.executor.trlite_command = Mock_Command("#echo Mocked Command")
         self.executor.testrun.flasher_module = Mock_Flasher()
+        self.executor.save_environment_details = self._save_env_details_mock
 
-    def _send_sigusr1(self):    
-        self.executor_signal_handler.reboot_device(sig_num=signal.SIGUSR1,
-                                                   frame=None)
+    def _save_env_details_mock(self):
+        self.save_environment_details= True
+
+
+
 
 
 if __name__ == '__main__':
