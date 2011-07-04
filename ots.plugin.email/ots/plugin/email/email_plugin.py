@@ -192,7 +192,7 @@ class EmailPlugin(PublisherPluginBase):
                                              self._tested_packages, 
                                              self._source_uris,
                                              self.notify_list, 
-                                             self._email_attachments,
+                                             self.is_email_attachments_on,
                                              self.build_url)
         return message.as_string()
         

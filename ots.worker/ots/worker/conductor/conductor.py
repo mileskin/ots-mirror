@@ -337,12 +337,12 @@ def _parse_conductor_config(config_file, current_config_dict=None):
 
 def _read_configuration_files(config_file, device_n):
     """
-    Read main configuration file and optional custom configuraion
+    Read main configuration file and optional custom configuration
     files.
     """
 
     if not (config_file and os.path.exists(config_file)):
-        config_file = DEFAULT_CONFIG
+        config_file = _default_config_file()
 
     # Try if there is separated config file
     if device_n != 0:
@@ -363,6 +363,25 @@ def _read_configuration_files(config_file, device_n):
         config_dict = _read_optional_config_files(custom_folder, config_dict)
 
     return config_dict
+
+
+def _default_config_file():
+    """
+    Return default config file. Returns it from /etc/ots/ if exists or
+    if not then the one in the source tree
+    """
+
+    if os.path.exists(DEFAULT_CONFIG):
+        return DEFAULT_CONFIG
+ 
+    conductor_dirname = os.path.dirname(os.path.abspath(__file__))
+    conductor_config_filename = os.path.join(conductor_dirname, "conductor.conf")
+
+    if not os.path.exists(conductor_config_filename):
+        raise Exception("%s not found"%(conductor_config_filename))
+
+    return conductor_config_filename
+
 
 def _read_optional_config_files(custom_folder, config_dict):
     """

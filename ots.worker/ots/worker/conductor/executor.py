@@ -1015,11 +1015,9 @@ class Executor(object):
                 rich_core_option = TESTRUNNER_RICH_CORE_DUMPS_OPTION % \
                                         self.testrun.target_rich_core_dumps
 
-        workdir = os.path.expanduser(TESTRUNNER_WORKDIR)
-
-        cmd = CMD_TESTRUNNER % (workdir, 
-                                self.testrun.dst_testdef_file_path,
-                                self.testrun.result_file_path,
+        cmd = CMD_TESTRUNNER % (self.testrun.base_dir, 
+                                self.testrun.dst_testdef_file_path, 
+                                self.testrun.result_file_path, 
                                 filter_option,
                                 http_logger_option,
                                 user_defined_option,
