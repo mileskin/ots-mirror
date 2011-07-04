@@ -211,6 +211,10 @@ def _parse_command_line(args):
                       action="store_true", default=False,
                       help="Use testrunner-lite libssh2 support")
 
+    parser.add_option("--resume", dest="resume",
+                      action="store_true", default=False,
+                      help="Use testrunner-lite resume functionality")
+
     (options, args) = parser.parse_args(args)
 
     if os.getenv("OTS_WORKER_NUMBER"):
