@@ -722,10 +722,12 @@ class Executor(object):
                                % error)
                 ret_value = False
             except CommandFailed:
-                self._testrunner_lite_error_handler(cmdstr, cmd.return_value)
+                self._testrunner_lite_error_handler( \
+                                            cmdstr,
+                                            self.trlite_command.return_value)
             finally:
-                self._create_new_file(path_stdout, cmd.stdout)
-                self._create_new_file(path_stderr, cmd.stderr)
+                self._create_new_file(path_stdout, self.trlite_command.stdout)
+                self._create_new_file(path_stderr, self.trlite_command.stderr)
                 self._store_result_file(path_stdout, test_package)
                 self._store_result_file(path_stderr, test_package)
                 self.trlite_command = None
