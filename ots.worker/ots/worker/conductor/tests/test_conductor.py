@@ -145,6 +145,7 @@ class Options(object):
         self.device_n = 0
         self.target_flasher = ""
         self.use_libssh2 = False
+        self.resume = False
 
 
 class Stub_Executor(object):
@@ -249,7 +250,7 @@ class TestConductorInternalConstants(unittest.TestCase):
         c.TESTRUN_LOG_CLEANER
         c.CONDUCTOR_WORKDIR
         c.TESTRUNNER_WORKDIR
-        c.CMD_TESTRUNNER   % (1,2,3,4,5,6,7,8)
+        c.CMD_TESTRUNNER   % (1,2,3,4,5,6,7,8,9)
         c.TESTRUNNER_SSH_OPTION % "iippee"
         c.TESTRUNNER_LOGGER_OPTION % 1
         c.TESTRUNNER_FILTER_OPTION   % "xxx"
@@ -372,6 +373,7 @@ class TestConductor(unittest.TestCase):
         self.assertEquals(options.bootmode, None)
         self.assertEquals(options.testplan, None)
         self.assertEquals(options.use_libssh2, False)
+        self.assertEquals(options.resume, False)
         #parser.print_help() #check help text is set
 
 
@@ -778,6 +780,29 @@ class TestExecutor(unittest.TestCase):
         self._assertCommandContains(command,
             "-n root@192.168.2.15 -k /var/opt/eat/sshkey-host/id_eat_dsa")
         self._assertCommandDoesNotContain(command, "-t root@192.168.2.15")
+
+    def test_get_command_for_testrunner_resume_continue(self):
+        """Test for method when we should execute tests over ssh at device
+        using resume functionality"""
+        executor = self.real_executor
+        executor.stand_alone = False
+        self.testrun.resume = True
+        command = executor._get_command_for_testrunner()
+        self._assertCommandContains(command, "testrunner-lite")
+        self._assertCommandContains(command, "logger")
+        self._assertCommandContains(command, "--resume=continue")
+        self._assertCommandDoesNotContain(command, "--resume=exit")
+
+    def test_get_command_for_testrunner_resume_exit(self):
+        """Test for method when we should execute tests over ssh at device
+        using resume functionality"""
+        executor = self.real_executor
+        executor.stand_alone = False
+        command = executor._get_command_for_testrunner()
+        self._assertCommandContains(command, "testrunner-lite")
+        self._assertCommandContains(command, "logger")
+        self._assertCommandContains(command, "--resume=exit")
+        self._assertCommandDoesNotContain(command, "--resume=continue")
 
     def test_get_command_for_testrunner_2(self):
         """Test for method when we should execute tests at device, standalone."""
