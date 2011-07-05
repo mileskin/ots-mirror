@@ -99,8 +99,10 @@ def _parameter_validator(config_options, cmdline_options):
     
     """
     
-    del cmdline_options["configfile"]
-    del cmdline_options["configsection"]
+    if cmdline_options.has_key('configfile'):
+        del cmdline_options["configfile"]
+    if cmdline_options.has_key('configsection'):
+        del cmdline_options["configsection"]
     
     # Convert email str to list
     if config_options.get('email'):

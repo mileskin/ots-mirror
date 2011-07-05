@@ -38,7 +38,7 @@ import os
 import configobj
 from configobj import ConfigObj
 
-from ots.tools.trigger.ots_trigger import ots_trigger
+from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
 from log_scraper import has_message, has_errors
 from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
 
@@ -60,7 +60,7 @@ class Options(object):
     """
 
     def __init__(self):
-        self.id = 0
+        self.build_id = 0
         self.sw_product = CONFIG["sw_product"]
         self.image = CONFIG["image_url"]
         self.testpackages = ""
@@ -164,14 +164,16 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
 
     def trigger_testrun_expect_pass(self, options, strings):
         self._print_options(options)
-        result = ots_trigger(options)
+        parameters = _parameter_validator(options.__dict__, {})
+        result = ots_trigger(parameters)
         self.assert_result_is_pass(result)
         self.assert_false_log_has_errors()
         self.assert_log_contains_strings(self._replace_keywords(strings))
 
     def trigger_testrun_expect_error(self, options, strings):
         self._print_options(options)
-        result = ots_trigger(options)
+        parameters = _parameter_validator(options.__dict__, {})
+        result = ots_trigger(parameters)
         self.assert_result_is_error(result)
         self.assert_true_log_has_errors()
         self.assert_log_contains_strings(self._replace_keywords(strings))
