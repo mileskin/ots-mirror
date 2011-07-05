@@ -45,6 +45,8 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                         TESTRUN_LOG_FILE, TESTRUN_LOG_CLEANER, \
                         TESTRUNNER_WORKDIR, CMD_TESTRUNNER, \
                         TESTRUNNER_SSH_OPTION, TESTRUNNER_SSH_OPTION_LIBSSH2, \
+                        TESTRUNNER_RESUME_CONTINUE_OPTION, \
+                        TESTRUNNER_RESUME_EXIT_OPTION, \
                         TESTRUNNER_LOGGER_OPTION, \
                         TESTRUNNER_FILTER_OPTION, HTTP_LOGGER_PATH, \
                         LOCAL_COMMAND_TO_COPY_FILE, CONDUCTOR_WORKDIR, \
@@ -109,6 +111,7 @@ class TestRunData(object):
         self.is_chrooted = options.chrooted
 
         self.use_libssh2 = options.use_libssh2
+        self.resume = options.resume
 
         self.filter_string = \
                 options.filter_options.replace('"', '\\"').replace("'", '\\"')
@@ -1002,6 +1005,8 @@ class Executor(object):
 
         remote_option = ""
         rich_core_option = ""
+        resume_option = ""
+
         if self.testrun.is_chrooted:
             remote_option = TESTRUNNER_CHROOT_OPTION % self.chroot.path
         elif not self.testrun.is_host_based:
@@ -1011,9 +1016,15 @@ class Executor(object):
             else:
                 remote_option = TESTRUNNER_SSH_OPTION % \
                                             self.testrun.target_ip_address
+
             if self.testrun.save_rich_core_dumps:
                 rich_core_option = TESTRUNNER_RICH_CORE_DUMPS_OPTION % \
                                         self.testrun.target_rich_core_dumps
+
+            if self.testrun.resume:
+                resume_option = TESTRUNNER_RESUME_CONTINUE_OPTION
+            else:
+                resume_option = TESTRUNNER_RESUME_EXIT_OPTION
 
         cmd = CMD_TESTRUNNER % (self.testrun.base_dir, 
                                 self.testrun.dst_testdef_file_path, 
@@ -1022,7 +1033,8 @@ class Executor(object):
                                 http_logger_option,
                                 user_defined_option,
                                 remote_option,
-                                rich_core_option)
+                                rich_core_option,
+                                resume_option)
 
         return cmd
 
