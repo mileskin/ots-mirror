@@ -53,6 +53,7 @@ CMD_TESTRUNNER = 'cd %s; ' + \
                  '%s ' + \
                  '%s ' + \
                  '%s ' + \
+                 '%s ' + \
                  '%s '
 
 TESTRUNNER_SSH_OPTION = "-t root@%s"
@@ -62,6 +63,8 @@ TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
 TESTRUNNER_USER_DEFINED_OPTION = '--logid %s'
 TESTRUNNER_FILTER_OPTION = '-l "%s"'
 TESTRUNNER_RICH_CORE_DUMPS_OPTION = '-d "%s"'
+TESTRUNNER_RESUME_CONTINUE_OPTION = "--resume=continue"
+TESTRUNNER_RESUME_EXIT_OPTION = "--resume=exit"
 
 HTTP_LOGGER_PATH = "/logger/ots/%s/"  # testrun id
 
