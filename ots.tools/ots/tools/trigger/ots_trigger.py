@@ -30,6 +30,7 @@ import logging
 import xmlrpclib
 import sys
 import os
+import exceptions
 
 
 def read_test_plan(filepath):
@@ -98,8 +99,16 @@ def _parameter_validator(config_options, cmdline_options):
     
     """
     
-    del cmdline_options["configfile"]
-    del cmdline_options["configsection"]
+    if cmdline_options.has_key('configfile'):
+        del cmdline_options["configfile"]
+    if cmdline_options.has_key('configsection'):
+        del cmdline_options["configsection"]
+    
+    # Convert email str to list
+    if config_options.get('email'):
+        if type(config_options.get('email')) is str:
+            config_options['email'] = [config_options.get('email')]
+        
     
     for (name, value) in cmdline_options.items():
                
@@ -119,10 +128,12 @@ def _parameter_validator(config_options, cmdline_options):
                 # Config file includes a list
                 if type(email_list) is list:
                     email_list.extend(cmd_list)
+                    config_options[name] = email_list
                 # Ccnfig file includes only string
                 elif type(email_list) is str:
                     email_list = [email_list]
                     email_list.extend(cmd_list)
+                    config_options[name] = email_list
                 # No email definition in configuration file
                 else:
                     config_options[name] = cmd_list
@@ -167,7 +178,7 @@ def ots_trigger(options):
                                       options)
 
 
-def parse_commandline_arguments():
+def parse_commandline_arguments(cmd_args):
     """
     Parses command line parameters. Makes sure that enough parameters are given.
 
@@ -310,7 +321,7 @@ def parse_commandline_arguments():
     # parser returns options and args even though we only need options
     # Disabling pylint complain about unused variable
     # pylint: disable=W0612
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args(cmd_args)
     
     config_options = {}
     if options.configfile:
@@ -331,14 +342,17 @@ def parse_commandline_arguments():
         print "\nError: Both rootstrap and chrootpackages needs to be defined" \
             " if using one of them."
         print "See --help"
-        sys.exit(-1)
+        return None
 
     return parameters
 
 
 def main():
     """Main function"""
-    options = parse_commandline_arguments()
+    options = parse_commandline_arguments(sys.argv)
+
+    if options is None:
+        sys.exit(1)
 
     log_format = '%(asctime)s %(levelname)s %(message)s'
     logging.basicConfig(level=logging.DEBUG,

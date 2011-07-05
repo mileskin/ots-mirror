@@ -47,6 +47,8 @@ QA_REPORTS_PLUGIN_TESTS="ots.plugin.qareports/ots/plugin/qareports/tests/test_*.
 
 RICHCORE_PLUGIN_TESTS="ots.plugin.conductor.richcore/ots/plugin/conductor/richcore/tests/test_*.py"
 
+TOOLS_TESTS="ots.tools/ots/tools/trigger/tests/test_*.py"
+
 # Run tests
 nosetests \
   $SERVER_TESTS \
@@ -56,5 +58,6 @@ nosetests \
   $EMAIL_PLUGIN_TESTS \
   $QA_REPORTS_PLUGIN_TESTS \
   $RICHCORE_PLUGIN_TESTS \
+  $TOOLS_TESTS \
   -e testrun_queue_name \
   $@
