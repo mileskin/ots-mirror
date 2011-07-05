@@ -57,6 +57,9 @@ def get_latest_testrun_id(log_url):
     """
     Scrape the latest testrun id from the global log
     """
+    proxy_support = urllib2.ProxyHandler({})
+    opener = urllib2.build_opener(proxy_support)
+    urllib2.install_opener(opener)
     file =  urllib2.urlopen(log_url)
     soup = BeautifulSoup(file.read())
     table =  soup.findAll("table")[1]
