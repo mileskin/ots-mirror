@@ -72,7 +72,6 @@ class TestGetCommands(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"
         timeout = "30"
         rootstrap = ""
-        use_libssh2 = True
 
         expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin', 
@@ -89,6 +88,38 @@ class TestGetCommands(unittest.TestCase):
                             test_filter,
                             timeout,
                             use_libssh2=True)
+        
+        self.assertEquals(cmds[0].command, expected_cmds)
+
+    def test_device_tests_with_packages_using_resume(self):
+        """Check conductor command with test packages for device and resume
+        functionality"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_list = {'device':"foo,bar,baz"}
+        emmc_flash_parameter = ""
+        testrun_id = ""
+        storage_address = ""
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "30"
+        rootstrap = ""
+
+        expected_cmds = ['conductor',
+                         '-u', 'http://image/url/image.bin',
+                         '-f', '-testsuite=testrunner-tests',
+                         '-t', "foo,bar,baz", '-m', '30', '--resume=continue']
+        
+        cmds = get_commands(distribution_model, 
+                            image_url,
+                            rootstrap,
+                            test_list,
+                            emmc_flash_parameter,
+                            testrun_id,
+                            storage_address,
+                            test_filter,
+                            timeout,
+                            resume=True)
         
         self.assertEquals(cmds[0].command, expected_cmds)
 
