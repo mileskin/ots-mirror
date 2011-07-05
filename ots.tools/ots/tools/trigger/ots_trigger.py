@@ -276,6 +276,13 @@ def parse_commandline_arguments():
                               default=False,
                               metavar="BOOL")
 
+    optional_group.add_option("-R", "--resume",
+                              dest="resume",
+                              action="store_true",
+                              help="use testrunner-lite resume functionality",
+                              default=False,
+                              metavar="BOOL")
+
     optional_group.add_option("-x", "--options",
                               dest="options",
                               action="store",
@@ -290,13 +297,13 @@ def parse_commandline_arguments():
                             dest="configfile",
                             action="store",
                             type="string",
-                            help="Configuration file for default settings, default empty",
+                            help="configuration file for default settings, default empty",
                             metavar="FILE")
     config_group.add_option("", "--section",
                             dest="configsection",
                             action="store",
                             type="string",
-                            help="Subsection in the configuration file, default empty")
+                            help="subsection in the configuration file, default empty")
     
     parser.add_option_group(config_group)
 
@@ -317,8 +324,8 @@ def parse_commandline_arguments():
              parameters.get('sw_product') and \
              parameters.get('email') and \
              parameters.get('image')):
-        print "\nError: Some of mandatory parameters were missing!"
-        print "See --help"
+        print "Error: Some of mandatory parameters were missing!"
+        print "Try `ots_trigger --help' for more information."
         sys.exit(-1)
     elif not bool(parameters.get('rootstrap')) == bool(parameters.get('chroottest')):
         print "\nError: Both rootstrap and chrootpackages needs to be defined" \
