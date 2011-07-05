@@ -310,6 +310,7 @@ class Hub(object):
                                   self.options.testfilter,
                                   self.options.flasher,
                                   self.options.use_libssh2,
+                                  self.options.resume,
                                   custom_distribution_model,
                                   self.extended_options_dict)
 
