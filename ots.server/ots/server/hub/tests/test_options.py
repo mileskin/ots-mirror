@@ -121,5 +121,11 @@ class TestOptions(unittest.TestCase):
         options = Options(**kwargs)
         self.assertEquals(True, options.use_libssh2)
 
+    def test_resume(self):
+        kwargs = {"image" : "www.nokia.com", "distribution_model": "default",
+                  "resume" : True}
+        options = Options(**kwargs)
+        self.assertEquals(True, options.resume)
+
 if __name__ == "__main__":
     unittest.main()
