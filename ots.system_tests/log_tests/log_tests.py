@@ -65,8 +65,8 @@ class Options(object):
         self.image = CONFIG["image_url"]
         self.testpackages = ""
         self.hosttest = ""
-        self.deviceplan = ""
-        self.hostplan = ""
+        self.hw_testplans = ""
+        self.host_testplans = ""
         self.rootstrap = ""
         self.chroottest = ""
         self.distribution = "default"
@@ -232,7 +232,7 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Finished running tests.",
                     "Environment: Hardware"]
         self.trigger_testrun_expect_pass(options, expected)
-    
+
     def test_hw_based_testrun_with_testplan(self):
         options = Options()
         options.distribution = "default"
@@ -246,7 +246,7 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Beginning to execute test package: echo_system_tests.xml",
                     "Executed 1 cases. Passed 1 Failed 0"]
         self.trigger_testrun_expect_pass(options, expected)
-    
+
     def test_hw_based_testrun_with_multiple_testplan(self):
         options = Options()
         options.distribution = "default"
@@ -522,6 +522,22 @@ class TestMiscSuccessfulTestruns(SystemSingleRunTestCaseBase):
         expected = ["Test case trlitereg01 is filtered",
                     "Test case trlitereg02 is filtered"]
         self.assert_log_doesnt_contain_strings(expected)
+
+    def test_hw_based_testrun_with_resume_parameter(self):
+        options = Options()
+        options.distribution = "default"
+        options.hw_testplans = ["data/shutdown_system_tests.xml"]
+        options.sw_product = CONFIG["sw_product"]
+        options.timeout = 60
+        options.resume = True
+        expected = ["Testrun finished with result: PASS",
+                    "--resume=continue",
+                    "Starting conductor at",
+                    "Finished running tests.",
+                    "Environment: Hardware",
+                    "Beginning to execute test package: shutdown_system_tests.xml",
+                    "Executed 1 cases. Passed 1 Failed 0"]
+        self.trigger_testrun_expect_pass(options, expected)
 
 
 ############################################
