@@ -80,13 +80,16 @@ class ExecutorSignalHandler(object):
             return
 
         try:
-            self._executor.testrun.flasher_module.reboot()
+            LOG.info("SIGUSR1 signal received from testrunner-lite,"
+                     " rebooting...")
+            self._executor.target.reboot()
         except FlashFailed, err:
             LOG.error("Bootup failed: %s" % err)
             trlite_command.send_signal(signal.SIGTERM)
             return
 
         self._executor.save_environment_details()
+        LOG.debug("Sending signal SIGUSR1 to process %s" % trlite_command.pid)
         trlite_command.send_signal(signal.SIGUSR1)
 
 
