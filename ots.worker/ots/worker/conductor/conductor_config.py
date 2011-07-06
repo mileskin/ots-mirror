@@ -44,9 +44,8 @@ CONDUCTOR_WORKDIR = "~"
 TESTRUNNER_WORKDIR = "~"
 
 # Command for testrunner-lite:
-# Last 4 options are: testfilter, httplogger, remotessh, rich-core-dumps
-CMD_TESTRUNNER = 'cd %s; ' + \
-                 '/usr/bin/testrunner-lite -s -v -a -c ' + \
+#CMD_TESTRUNNER = 'cd %s; ' + \
+CMD_TESTRUNNER = '/usr/bin/testrunner-lite -s -vv -a -c ' + \
                  '-f %s ' + \
                  '-o %s ' + \
                  '%s ' + \
