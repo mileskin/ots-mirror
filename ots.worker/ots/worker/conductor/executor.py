@@ -717,7 +717,7 @@ class Executor(object):
                                 hard_timeout=current_timeout + WAIT_SIGKILL)
 
             try:
-                self.trlite_command.execute()
+                self.trlite_command.execute(shell=False)
             except (SoftTimeoutException, HardTimeoutException), error:
                 # testrunner-lite killed by timeout, we need to collect
                 # files, so we don't want to raise ConductorError
@@ -1026,9 +1026,9 @@ class Executor(object):
             else:
                 resume_option = TESTRUNNER_RESUME_EXIT_OPTION
 
-        cmd = CMD_TESTRUNNER % (self.testrun.base_dir, 
-                                self.testrun.dst_testdef_file_path, 
-                                self.testrun.result_file_path, 
+        #cmd = CMD_TESTRUNNER % (self.testrun.base_dir,
+        cmd = CMD_TESTRUNNER % (self.testrun.dst_testdef_file_path,
+                                self.testrun.result_file_path,
                                 filter_option,
                                 http_logger_option,
                                 user_defined_option,
