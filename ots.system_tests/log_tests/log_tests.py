@@ -63,14 +63,14 @@ class Options(object):
         self.build_id = 0
         self.sw_product = CONFIG["sw_product"]
         self.image = CONFIG["image_url"]
-        self.testpackages = ""
+        self.packages = ""
         self.hosttest = ""
-        self.deviceplan = ""
-        self.hostplan = ""
+        self.hw_testplans = ""
+        self.host_testplans = ""
         self.rootstrap = ""
         self.chroottest = ""
-        self.distribution = "default"
-        self.filter = ""
+        self.distribution_model = "default"
+        self.testfilter = ""
         self.input_plugin = ""
         self.device = CONFIG["device"]
         self.email = CONFIG["email"]
@@ -97,10 +97,10 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
         print "SW Product: %s"%(options.sw_product)
         print "Image: %s"%(options.image)
         print "Hosttest: %s"%(options.hosttest)
-        print "Testpackages: %s"%(options.testpackages)
+        print "Testpackages: %s"%(options.packages)
         print "Device: %s" %(options.device)
-        if options.filter:
-            print "Filters: %s" % options.filter
+        if options.testfilter:
+            print "Filters: %s" % options.testfilter
 
     @property
     def testrun_id(self):
@@ -186,7 +186,7 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_hw_based_testrun_with_test_definition_tests(self):
         options = Options()
-        options.testpackages = "test-definition-tests"
+        options.packages = "test-definition-tests"
         options.timeout = 30
         expected = ["Environment: Hardware",
                     "Starting conductor at",
@@ -195,21 +195,21 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_hw_based_testrun_with_test_definition_tests_using_libssh2(self):
         options = Options()
-        options.testpackages = "test-definition-tests"
+        options.packages = "test-definition-tests"
         options.timeout = 30
         options.use_libssh2 = True
         expected = ["Environment: Hardware",
                     "Starting conductor at",
-                    "-t %s -m 1800 --libssh2" % options.testpackages,
+                    "-t %s -m 1800 --libssh2" % options.packages,
                     """Finished running tests."""]
         self.trigger_testrun_expect_pass(options, expected)
 
     def test_hw_based_testrun_split_into_multiple_tasks(self):
         options = Options()
-        options.distribution = "perpackage"
-        options.testpackages = \
+        options.distribution_model = "perpackage"
+        options.packages = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
         expected = ["Starting conductor at",
           "Finished running tests.",
@@ -221,10 +221,10 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_hw_based_testrun_with_multiple_tests(self):
         options = Options()
-        options.distribution = "default"
-        options.testpackages = \
+        options.distribution_model = "default"
+        options.packages = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Testrun finished with result: PASS",
@@ -235,8 +235,8 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     
     def test_hw_based_testrun_with_testplan(self):
         options = Options()
-        options.distribution = "default"
-        options.deviceplan = ["data/echo_system_tests.xml"]
+        options.distribution_model = "default"
+        options.hw_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Testrun finished with result: PASS",
@@ -249,8 +249,8 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     
     def test_hw_based_testrun_with_multiple_testplan(self):
         options = Options()
-        options.distribution = "default"
-        options.deviceplan = ["data/echo_system_tests.xml",
+        options.distribution_model = "default"
+        options.hw_testplans = ["data/echo_system_tests.xml",
                               "data/ls_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
@@ -272,7 +272,7 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     def test_host_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.hosttest = "test-definition-tests"
-        options.testpackages = ""
+        options.packages = ""
         options.timeout = 30
         expected = ["Testrun finished with result: PASS",
                     "Environment: Host_Hardware",
@@ -283,10 +283,10 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_host_based_testrun_split_into_multiple_tasks(self):
         options = Options()
-        options.distribution = "perpackage"
+        options.distribution_model = "perpackage"
         options.hosttest = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
         expected = ["Starting conductor at",
           "Finished running tests.",
@@ -298,10 +298,10 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_host_based_testrun_with_multiple_tests(self):
         options = Options()
-        options.distribution = "default"
+        options.distribution_model = "default"
         options.hosttest = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
         expected = ["Starting conductor at",
                     "Finished running tests.",
@@ -310,8 +310,8 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         
     def test_host_based_testrun_with_testplan(self):
         options = Options()
-        options.distribution = "default"
-        options.hostplan = ["data/echo_system_tests.xml"]
+        options.distribution_model = "default"
+        options.host_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Starting conductor at",
@@ -323,8 +323,8 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     
     def test_host_based_testrun_with_multiple_testplan(self):
         options = Options()
-        options.distribution = "default"
-        options.hostplan = ["data/echo_system_tests.xml",
+        options.distribution_model = "default"
+        options.host_testplans = ["data/echo_system_tests.xml",
                               "data/ls_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
@@ -356,8 +356,8 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_chroot_based_testrun_split_into_multiple_tasks(self):
         options = Options()
-        options.distribution = "perpackage"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.distribution_model = "perpackage"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
         options.rootstrap = CONFIG["rootstrap_url"]
         options.chroottest = \
@@ -374,8 +374,8 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_chroot_based_testrun_with_multiple_tests(self):
         options = Options()
-        options.distribution = "default"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.distribution_model = "default"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
         options.rootstrap = CONFIG["rootstrap_url"]
         options.chroottest = \
@@ -395,7 +395,7 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     def test_hw_and_host_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.hosttest = "test-definition-tests"
-        options.testpackages = "test-definition-tests"
+        options.packages = "test-definition-tests"
         options.timeout = 60
         expected = ["Environment: Hardware",
                     "Environment: Host_Hardware",
@@ -405,12 +405,12 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_hw_and_host_based_testrun_split_into_multiple_tasks(self):
         options = Options()
-        options.distribution = "perpackage"
+        options.distribution_model = "perpackage"
         options.hosttest = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.testpackages = \
+        options.packages = \
             "test-definition-tests testrunner-lite-regression-tests"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 120
         expected = ["Starting conductor at",
           "Environment: Host_Hardware",
@@ -420,9 +420,9 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         
     def test_hw_and_host_based_testplans(self):
         options = Options()
-        options.distribution = "default"
-        options.deviceplan = ["data/ls_system_tests.xml"]
-        options.hostplan = ["data/echo_system_tests.xml"]
+        options.distribution_model = "default"
+        options.hw_testplans = ["data/ls_system_tests.xml"]
+        options.host_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Starting conductor at",
@@ -436,9 +436,9 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         
     def test_hw_test_package_and_test_plan(self):
         options = Options()
-        options.distribution = "default"
-        options.deviceplan = ["data/ls_system_tests.xml"]
-        options.testpackages = "test-definition-tests"
+        options.distribution_model = "default"
+        options.hw_testplans = ["data/ls_system_tests.xml"]
+        options.packages = "test-definition-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Starting conductor at",
@@ -451,8 +451,8 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         
     def test_host_test_package_and_test_plan(self):
         options = Options()
-        options.distribution = "default"
-        options.hostplan = ["data/ls_system_tests.xml"]
+        options.distribution_model = "default"
+        options.host_testplans = ["data/ls_system_tests.xml"]
         options.hosttest = "test-definition-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
@@ -466,10 +466,10 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         
     def test_host_and_hw_test_package_and_test_plan(self):
         options = Options()
-        options.distribution = "default"
-        options.deviceplan = ["data/echo_system_tests.xml"]
-        options.testpackages = "test-definition-tests"
-        options.hostplan = ["data/ls_system_tests.xml"]
+        options.distribution_model = "default"
+        options.hw_testplans = ["data/echo_system_tests.xml"]
+        options.packages = "test-definition-tests"
+        options.host_testplans = ["data/ls_system_tests.xml"]
         options.hosttest = "testrunner-lite-regression-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
@@ -487,7 +487,7 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     def test_hw_host_chroot_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.hosttest = "test-definition-tests"
-        options.testpackages = "test-definition-tests"
+        options.packages = "test-definition-tests"
         options.chroottest = "test-definition-tests"
         options.rootstrap = CONFIG["rootstrap_url"]
         options.timeout = 60
@@ -506,12 +506,12 @@ class TestMiscSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_testrun_with_filter(self):
         options = Options()
-        options.testpackages = "testrunner-lite-regression-tests"
+        options.packages = "testrunner-lite-regression-tests"
         options.timeout = 30
-        options.filter = "testcase=trlitereg01,trlitereg02"
+        options.testfilter = "testcase=trlitereg01,trlitereg02"
         #
         self._print_options(options)
-        result = ots_trigger(options)
+        result = ots_trigger(options.__dict__)
         self.assert_result_is_pass(result)
         self.assert_false_log_has_errors()
         self.assert_log_contains_string("Testrun finished with result: PASS")
@@ -538,14 +538,14 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         installed. It can be found from examples directory.
         """
         options = Options()
-        options.distribution = "example_model"
+        options.distribution_model = "example_model"
         options.timeout = 1
         self.trigger_testrun_expect_error(options, 
                         ["Example distribution model not implemented"])
 
     def test_load_invalid_distribution_model(self):
         options = Options()
-        options.distribution = "invalid_distribution_model"
+        options.distribution_model = "invalid_distribution_model"
         options.timeout = 1
         self.trigger_testrun_expect_error(options,
                         ["ValueError: Invalid distribution model"])
@@ -553,8 +553,8 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
     def test_load_optimized_distribution_model_for_host_packages(self):
         options = Options()
         options.hosttest = "test-definition-tests testrunner-lite-regression-tests"
-        options.distribution = "optimized"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.distribution_model = "optimized"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Beginning to execute test package: test-definition-tests",
@@ -566,9 +566,9 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         
     def test_load_optimized_distribution_model_for_hw_packages(self):
         options = Options()
-        options.testpackages = "test-definition-tests testrunner-lite-regression-tests"
-        options.distribution = "optimized"
-        options.filter = "testcase=trlitereg01,Check-basic-schema"
+        options.packages = "test-definition-tests testrunner-lite-regression-tests"
+        options.distribution_model = "optimized"
+        options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Beginning to execute test package: test-definition-tests",
@@ -580,8 +580,8 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         
     def test_optimized_without_packages(self):
         options = Options()
-        options.distribution = "optimized"
-        options.deviceplan = ["data/echo_system_tests.xml"]
+        options.distribution_model = "optimized"
+        options.hw_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 10
         
@@ -598,7 +598,7 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
     def test_bad_image_url(self):
         options = Options()
         options.image = options.image+"asdfasdfthiswontexistasdfasdf"
-        options.testpackages = "testrunner-lite-regression-tests"
+        options.packages = "testrunner-lite-regression-tests"
         options.timeout = 30
         path = os.path.basename(options.image)
         expected = ["Error: Could not download file %s, Error code: 103" % path,
@@ -607,7 +607,7 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
     
     def test_timeout(self):
         options = Options()
-        options.testpackages = "testrunner-lite-regression-tests"
+        options.packages = "testrunner-lite-regression-tests"
         options.timeout = 1
         expected = ["Error: Timeout while executing test package " \
                     "testrunner-lite-regression-tests, Error code: 1091",
@@ -645,7 +645,7 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
 
     def test_bad_testpackage_names(self):
         options = Options()
-        options.testpackages = "test-definition-tests thisisnotatestpackage"
+        options.packages = "test-definition-tests thisisnotatestpackage"
         options.timeout = 1
         self.trigger_testrun_expect_error(options, 
                             ["Invalid testpackage(s): thisisnotatestpackage"])
@@ -659,14 +659,14 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
 
     def test_bad_distribution_model(self):
         options = Options()
-        options.distribution = "sendalltestrunstowastebin"
+        options.distribution_model = "sendalltestrunstowastebin"
         options.timeout = 1
         self.trigger_testrun_expect_error(options,
                       ["Invalid distribution model: sendalltestrunstowastebin"])
 
     def test_perpackage_distribution_no_packages(self):
         options = Options()
-        options.distribution = "perpackage"
+        options.distribution_model = "perpackage"
         options.timeout = 1
         
         self.trigger_testrun_expect_error(options, 
@@ -693,7 +693,7 @@ class TestDeviceProperties(unittest.TestCase):
 
         old_testrun = get_latest_testrun_id(CONFIG["global_log"])
         print "latest testrun_id before test: %s" % old_testrun
-        result = ots_trigger(options)
+        result = ots_trigger(options.__dict__)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
@@ -743,7 +743,7 @@ class TestDeviceProperties(unittest.TestCase):
             "devicenames."
         
         old_testrun = get_latest_testrun_id(CONFIG["global_log"])
-        result = ots_trigger(options)
+        result = ots_trigger(options.__dict__)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
@@ -794,7 +794,7 @@ class TestDeviceProperties(unittest.TestCase):
             "devicenames."
         
         old_testrun = get_latest_testrun_id(CONFIG["global_log"])
-        result = ots_trigger(options)
+        result = ots_trigger(options.__dict__)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
@@ -843,7 +843,7 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.hosttest = "test-definition-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        options.filter = "testcase=Check-basic-schema"
+        options.testfilter = "testcase=Check-basic-schema"
         expected = ["Plugin: ots.plugin.conductor.richcore loaded",
                     "history data saved",
                     "Using smtp server",
@@ -873,7 +873,7 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         options.hosttest = "test-definition-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        options.filter = "testcase=Check-basic-schema"
+        options.testfilter = "testcase=Check-basic-schema"
         expected = ["Loaded flasher 'meego-ai-flasher-n900'"]
         self.trigger_testrun_expect_pass(options, expected)
         
@@ -882,7 +882,7 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         options.hosttest = "test-definition-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        options.filter = "testcase=Check-basic-schema"
+        options.testfilter = "testcase=Check-basic-schema"
         expected = ["using config file /etc/conductor_1.conf"]
         self.trigger_testrun_expect_pass(options, expected)
 
@@ -897,7 +897,7 @@ class TestConductorPlugin(SystemSingleRunTestCaseBase):
         options.hosttest = "test-definition-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        options.filter = "testcase=Check-basic-schema"
+        options.testfilter = "testcase=Check-basic-schema"
         expected = ["ExampleConductorPlugin before_testrun " \
                     "method called.",
                     "ExampleConductorPlugin after_testrun " \

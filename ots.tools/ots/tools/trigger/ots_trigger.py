@@ -110,8 +110,7 @@ def _parameter_validator(config_options, cmdline_options):
             config_options['email'] = [config_options.get('email')]
         
     
-    for (name, value) in cmdline_options.items():
-               
+    for (name, value) in cmdline_options.items():       
         # Skit not set values
         if value is not None and value is not "" and value is not 0:
             if name == "options":
@@ -152,10 +151,14 @@ def ots_trigger(options):
     server = options.get('server')
     
     # Not needed anymore
-    del options['build_id']
-    del options['sw_product']
-    del options['email']
-    del options['server']
+    if build_id:
+        del options['build_id']
+    if sw_product:
+        del options['sw_product']
+    if email_list:
+        del options['email']
+    if server:
+        del options['server']
 
     if options.get('hw_testplans'):
         testplans = list()
