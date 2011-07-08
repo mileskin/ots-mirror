@@ -164,7 +164,7 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
 
     def trigger_testrun_expect_pass(self, options, strings):
         self._print_options(options)
-        parameters = _parameter_validator(options.__dict__, {})
+        parameters = _parameter_validator({}, options.__dict__)
         result = ots_trigger(parameters)
         self.assert_result_is_pass(result)
         self.assert_false_log_has_errors()
@@ -172,7 +172,7 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
 
     def trigger_testrun_expect_error(self, options, strings):
         self._print_options(options)
-        parameters = _parameter_validator(options.__dict__, {})
+        parameters = _parameter_validator({}, options.__dict__)
         result = ots_trigger(parameters)
         self.assert_result_is_error(result)
         self.assert_true_log_has_errors()
