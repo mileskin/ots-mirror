@@ -1,3 +1,18 @@
+Fri Jul 08 2011 Ville Niutanen <ville.niutanen@digia.com> 0.8.7
+ - OTS 0.8.7 release, BMC#18875
+ - Added Support for testrunner-lite parameter libssh2, BMC#19018
+ - Changed OTS trigger to use config files, BMC#18214
+ - Changed the email plug-in configuration by separating from the OTS server's
+   configuration, BMC#18215
+ - Changed location and grouping of OTS configuration files, BMC#18216
+ - Fixed OTS unit tests fails if configuration files are missing under /etc
+   , BMC#17548
+ - Fixed ots log tests return wrong testrun_id and mark test failed even
+   though it actually passed (thanks to michalgloc), BMC#18236
+ - Fixed Logger index view doesn't work on Ubuntu 10.04
+   (thanks to Oskari Pirttikoski), BMC#20472
+ - Fixed email attachment on/off checking
+ 
 Fri Jun 10 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.6
  - OTS 0.8.6 release, BMC#17933
  - Added pagination support for logger main view, BMC#17735
