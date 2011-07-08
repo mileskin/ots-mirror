@@ -883,7 +883,7 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
-        expected = ["using config file /etc/conductor_1.conf"]
+        expected = ["using config file /etc/ots/conductor_"]
         self.trigger_testrun_expect_pass(options, expected)
 
 class TestConductorPlugin(SystemSingleRunTestCaseBase):
