@@ -277,19 +277,16 @@ def _parse_conductor_config(config_file, current_config_dict=None):
     if not os.path.isfile(config_file):
         raise Exception("Configuration file missing")
 
-    config_dict = parse_config(config_file, "conductor", current_config_dict)
-
     if not current_config_dict:
-        # Parse specified parameters to lists
+        current_config_dict = {}
+        # Make sure these parameters will be parsed as lists.
         for conf_param in ['files_fetched_after_testing', \
                            'pre_test_info_commands_debian', \
                            'pre_test_info_commands_rpm', \
                            'pre_test_info_commands']:
-            if config_dict.has_key(conf_param):
-                config_dict[conf_param] = \
-                    parse_list(config_dict[conf_param])
+            current_config_dict[conf_param] = []
 
-    return config_dict
+    return parse_config(config_file, "conductor", current_config_dict)
 
 
 def _read_configuration_files(config_file, device_n):
