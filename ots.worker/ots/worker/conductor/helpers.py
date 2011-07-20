@@ -95,11 +95,10 @@ def _update_config_items(config_dict, key, value):
     @return: Configuration dictionary
 
     """
-    if key in config_dict:
-        if type(config_dict[key]) is type(list()):
-            config_dict[key] = config_dict[key] + parse_list(value)
-        else:
-            config_dict[key] = value
+    if key in config_dict and type(config_dict[key]) is type(list()):
+        config_dict[key] = config_dict[key] + parse_list(value)
+    else:
+        config_dict[key] = value
 
     return config_dict
 
