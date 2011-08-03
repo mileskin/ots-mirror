@@ -1,6 +1,6 @@
 Summary: Open Test System 
 Name: python-ots
-Version: 0.8.7
+Version: 0.8.8
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: LGPL 2.1
