@@ -60,7 +60,7 @@ class Options(object):
     """
 
     def __init__(self):
-        self.build_id = 0
+        self.build_id = CONFIG["build_id"]
         self.sw_product = CONFIG["sw_product"]
         self.image = CONFIG["image_url"]
         self.packages = ""
