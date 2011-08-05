@@ -1,7 +1,9 @@
 ots (0.8.8-1) unstable; urgency=low
+  * Git ignore file modified to ignore debian packaging artifacts
+    (thanks to Oskari Pirttikoski)
   * Custom config files can now add new options (thanks to Richard Braakman)
 
- -- Elias Luttinen <elias.luttinen@digia.com>  Wed, 03 Aug 2011 10:50:10 +0300
+ -- Elias Luttinen <elias.luttinen@digia.com>  Fri, 05 Aug 2011 12:08:10 +0300
 
 ots (0.8.7-1) unstable; urgency=low
 
