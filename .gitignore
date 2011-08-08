@@ -50,3 +50,4 @@ debian/python-ots-worker.substvars
 debian/python-ots-worker/
 debian/tmp/
 
+ots.system_tests/log_tests/log_tests.local.conf

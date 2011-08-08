@@ -47,8 +47,9 @@ from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
 # CONFIG
 ############################################
 
-CONFIGFILE = "log_tests.conf"
-CONFIG = ConfigObj(CONFIGFILE).get("log_tests")
+common_config = ConfigObj("log_tests.conf")
+common_config.merge(ConfigObj("log_tests.local.conf"))
+CONFIG = common_config.get("log_tests")
 
 ############################################
 # DEFAULT OPTIONS
