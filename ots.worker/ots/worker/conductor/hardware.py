@@ -77,6 +77,11 @@ class Hardware(TestTarget):
         """
         Reboot device.
         """
+        if self.testrun.dontflash:
+            self.log.warning("Skipping rebooting! "
+                             "'dontflash' parameter is in use.")
+            return
+
         try:
             if self.testrun.bootmode:
                 self._flasher.reboot( \
