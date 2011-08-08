@@ -150,14 +150,21 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
 
     def assert_result_is_pass(self, result):
         self.assert_log_contains_string("Testrun finished with result: PASS")
-        self.assertEquals(result, 
+        self.assertEquals(result,
                           "PASS",
                           "Assertion error: result fails testrun_id: '%s'"\
                          % (self.testrun_id))
-        
+
+    def assert_result_is_fail(self, result):
+        self.assert_log_contains_string("Testrun finished with result: FAIL")
+        self.assertEquals(result,
+                          "FAIL",
+                          "Assertion error: result fails testrun_id: '%s'"\
+                         % (self.testrun_id))
+
     def assert_result_is_error(self, result):
         self.assert_log_contains_string("Result set to ERROR")
-        self.assertEquals(result, 
+        self.assertEquals(result,
                           "ERROR",
                           "Assertion error: result fails testrun_id: '%s'"\
                          % (self.testrun_id))
@@ -168,6 +175,13 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
         result = ots_trigger(parameters)
         self.assert_result_is_pass(result)
         self.assert_false_log_has_errors()
+        self.assert_log_contains_strings(self._replace_keywords(strings))
+
+    def trigger_testrun_expect_fail(self, options, strings):
+        self._print_options(options)
+        parameters = _parameter_validator(options.__dict__, {})
+        result = ots_trigger(parameters)
+        self.assert_result_is_fail(result)
         self.assert_log_contains_strings(self._replace_keywords(strings))
 
     def trigger_testrun_expect_error(self, options, strings):
@@ -523,21 +537,24 @@ class TestMiscSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Test case trlitereg02 is filtered"]
         self.assert_log_doesnt_contain_strings(expected)
 
-    def test_hw_based_testrun_with_resume_parameter(self):
+    def test_hw_based_testrun_with_resume_continue(self):
         options = Options()
         options.distribution = "default"
         options.hw_testplans = ["data/shutdown_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.resume = True
-        expected = ["Testrun finished with result: PASS",
-                    "--resume=continue",
+        expected = ["--resume=continue",
                     "Starting conductor at",
                     "Finished running tests.",
                     "Environment: Hardware",
                     "Beginning to execute test package: shutdown_system_tests.xml",
-                    "Executed 1 cases. Passed 1 Failed 0"]
-        self.trigger_testrun_expect_pass(options, expected)
+                    "Executed 4 cases. Passed 2 Failed 2",
+                    "Finished test case echo-before-shutdown Result: PASS",
+                    "Finished test case shutdown Result: FAIL",
+                    "Finished test case echo-after-shutdown Result: FAIL",
+                    "Finished test case echo1 Result: PASS"]
+        self.trigger_testrun_expect_fail(options, expected)
 
 
 ############################################
