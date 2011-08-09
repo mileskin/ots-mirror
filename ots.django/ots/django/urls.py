@@ -1,7 +1,7 @@
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
-# Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+# Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
 # Contact: meego-qa@lists.meego.com
 #
@@ -24,17 +24,25 @@
 Django main url file
 """
 
-from django.conf.urls.defaults import patterns, include, handler500, handler404
+from django.conf.urls.defaults import patterns, include
 from django.conf import settings
 
+def _append_url(url_list, app):
+    try:
+        mod = __import__(app[1])
+    except ImportError:
+        return
+    url_list.append((app[0], include(app[1])))
+
+
 args = ['',
-    (r'^logger/', include('ots.plugin.logger.urls')),
-    (r'^monitor/', include('ots.plugin.monitor.urls')),
-
     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
-
-    (r'^services/$', 'ots.plugin.monitor.views.service'),
 ]
+
+_append_url(args, (r'^logger/', 'ots.plugin.logger.urls'))
+_append_url(args, (r'^monitor/', 'ots.plugin.monitor.urls'))
+_append_url(args, (r'^services/', 'ots.plugin.monitor.views.service'))
+
 
 ##################################################
 # Switch for serving js content in Dev/Production
