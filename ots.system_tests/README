@@ -60,8 +60,10 @@ Start a worker from the the OTS under test
 
 FIXME: This needs to be from ots worker init script
 
-5. Edit the system_tests.conf
------------------------------
+5. Edit the system_tests.local.conf
+-----------------------------------
+
+Copy system_tests.conf to system_tests.local.conf and edit the parameters.
 
 Check that the image_url is correct.
 

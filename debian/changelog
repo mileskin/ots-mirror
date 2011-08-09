@@ -1,10 +1,13 @@
 ots (0.8.8-1) unstable; urgency=low
+  * log_tests.local.conf introduced to avoid saving local parameters to git
+    (thanks to Oskari Pirttikoski)
   * Build ID is now configurable in system tests (thanks to Oskari Pirttikoski)
   * Git ignore file modified to ignore debian packaging artifacts
     (thanks to Oskari Pirttikoski)
-  * Custom config files can now add new options (thanks to Richard Braakman)
+  * Custom config files can now add new options for conductor
+    (thanks to Richard Braakman)
 
- -- Elias Luttinen <elias.luttinen@digia.com>  Mon, 08 Aug 2011 10:03:00 +0300
+ -- Elias Luttinen <elias.luttinen@digia.com>  Mon, 08 Aug 2011 13:18:00 +0300
 
 ots (0.8.7-1) unstable; urgency=low
 
