@@ -337,7 +337,7 @@ def parse_commandline_arguments(cmd_args):
              parameters.get('image')):
         print "Error: Some of mandatory parameters were missing!"
         print "Try `ots_trigger --help' for more information."
-        sys.exit(-1)
+        return None
     elif not bool(parameters.get('rootstrap')) == bool(parameters.get('chroottest')):
         print "\nError: Both rootstrap and chrootpackages needs to be defined" \
             " if using one of them."
