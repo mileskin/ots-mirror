@@ -39,7 +39,7 @@ class TestHelpers(unittest.TestCase):
 
         self.assertEquals(config_dict["device_packaging"], "rpm")
         self.assertEquals(config_dict["custom_config_folder"],
-                          "/etc/conductor")
+                          "/etc/ots/conductor")
         self.assertEquals(config_dict["pre_test_info_commands_debian"],
                           "'initctl list', 'dpkg -l'")
         self.assertEquals(config_dict["pre_test_info_commands_rpm"],
