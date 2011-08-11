@@ -26,7 +26,6 @@ import multiprocessing
 from multiprocessing import Pool
 
 import ots.worker
-from ots.worker.worker import create_amqp_log_handler
 from ots.worker.api import worker_factory
 
 def start_worker(config_filename):
