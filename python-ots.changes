@@ -1,4 +1,6 @@
-Tue Aug 09 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.8
+Tue Aug 11 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.8
+ - Added script for running unit tests in CI environment
+   (thanks to Oskari Pirttikoski)
  - Fixed django urls.py to include application urls dynamically, BMC#20491
  - log_tests.local.conf introduced to avoid saving local parameters to git
    (thanks to Oskari Pirttikoski)

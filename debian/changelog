@@ -1,4 +1,6 @@
 ots (0.8.8-1) unstable; urgency=low
+  * Added script for running unit tests in CI environment
+    (thanks to Oskari Pirttikoski)
   * Fixed django urls.py to include application urls dynamically, BMC#20491
   * log_tests.local.conf introduced to avoid saving local parameters to git
     (thanks to Oskari Pirttikoski)
@@ -8,7 +10,7 @@ ots (0.8.8-1) unstable; urgency=low
   * Custom config files can now add new options for conductor
     (thanks to Richard Braakman)
 
- -- Elias Luttinen <elias.luttinen@digia.com>  Tue, 09 Aug 2011 10:41:00 +0300
+ -- Elias Luttinen <elias.luttinen@digia.com>  Tue, 11 Aug 2011 10:00:00 +0300
 
 ots (0.8.7-1) unstable; urgency=low
 
