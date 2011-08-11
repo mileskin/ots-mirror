@@ -37,7 +37,8 @@ class TestOptionsFactory(unittest.TestCase):
         expected = ('self', 'image', 'rootstrap', 'packages', 'plan',
                     'hosttest', 'chroottest', 'device', 'emmc',
                     'distribution_model', 'flasher', 'testfilter',
-                    'hw_testplans', 'host_testplans', 'timeout', 'use_libssh2')
+                    'hw_testplans', 'host_testplans', 'timeout', 'use_libssh2',
+                    'resume')
         self.assertEquals(expected, names)
 
     def test_extended_options_dict(self):

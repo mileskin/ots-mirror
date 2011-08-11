@@ -62,7 +62,7 @@ class Options(object):
                  hosttest=None, chroottest=None, device=None, emmc=None,
                  distribution_model=None, flasher=None, testfilter=None,
                  hw_testplans=None, host_testplans=None, timeout=None,
-                 use_libssh2=None):
+                 use_libssh2=None, resume=None):
 
         """
         @type image: C{image}
@@ -103,6 +103,9 @@ class Options(object):
 
         @type use_libssh2: C{boolean}
         @param use_libssh2: Use testrunner-lite libssh2 support
+
+        @type resume: C{boolean}
+        @param resume: Use testrunner-lite resume functionality
         """
         self._image = image
         if not packages:
@@ -130,6 +133,7 @@ class Options(object):
         self._flasher = flasher
         self._testfilter = testfilter
         self._use_libssh2 = use_libssh2
+        self._resume = resume
         self._timeout = timeout
 
         self._validate_packages(self.hw_packages)
@@ -273,6 +277,14 @@ class Options(object):
         @rtype: C{boolean}
         """
         return self._use_libssh2
+
+    @property
+    def resume(self):
+        """
+        testrunner-lite resume functionality
+        @rtype: C{boolean}
+        """
+        return self._resume
 
     @property
     def timeout(self):

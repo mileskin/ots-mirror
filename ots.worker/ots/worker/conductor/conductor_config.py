@@ -44,11 +44,11 @@ CONDUCTOR_WORKDIR = "~"
 TESTRUNNER_WORKDIR = "~"
 
 # Command for testrunner-lite:
-# Last 4 options are: testfilter, httplogger, remotessh, rich-core-dumps
-CMD_TESTRUNNER = 'cd %s; ' + \
-                 '/usr/bin/testrunner-lite -s -v -a -c ' + \
+#CMD_TESTRUNNER = 'cd %s; ' + \
+CMD_TESTRUNNER = '/usr/bin/testrunner-lite -s -vv -a -c ' + \
                  '-f %s ' + \
                  '-o %s ' + \
+                 '%s ' + \
                  '%s ' + \
                  '%s ' + \
                  '%s ' + \
@@ -62,6 +62,8 @@ TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
 TESTRUNNER_USER_DEFINED_OPTION = '--logid %s'
 TESTRUNNER_FILTER_OPTION = '-l "%s"'
 TESTRUNNER_RICH_CORE_DUMPS_OPTION = '-d "%s"'
+TESTRUNNER_RESUME_CONTINUE_OPTION = "--resume=continue"
+TESTRUNNER_RESUME_EXIT_OPTION = "--resume=exit"
 
 HTTP_LOGGER_PATH = "/logger/ots/%s/"  # testrun id
 

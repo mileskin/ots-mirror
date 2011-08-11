@@ -65,7 +65,7 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
                       device_properties, image, rootstrap, hw_packages,
                       host_packages, chroot_packages, hw_testplans,
                       host_testplans, emmc, testfilter, flasher, use_libssh2,
-                      custom_distribution_model, extended_options): 
+                      resume, custom_distribution_model, extended_options): 
 
     """
     Get a Taskrunner loaded with Tasks and ready to Run
@@ -113,6 +113,9 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
     @type use_libssh2: C{boolean}
     @param use_libssh2: Use testrunner-lite libssh2 support
 
+    @type resume:  C{boolean}
+    @param resume: Use testrunner-lite resume functionality
+
     @type custom_distribution_model: C{callable}
     @param custom_distribution_model: A callable matching the default models
                                       in default_distribution_models.py
@@ -157,6 +160,7 @@ def primed_taskrunner(testrun_uuid, execution_timeout, distribution_model,
                         flasher,
                         custom_distribution_model,
                         use_libssh2,
+                        resume,
                         extended_options)
     
     if len(cmds) == 0:

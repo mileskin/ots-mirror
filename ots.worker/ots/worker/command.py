@@ -28,6 +28,7 @@ import time
 import signal
 import subprocess
 import threading
+import shlex
 
 from ots.worker.conductor.helpers import get_logger_adapter
 
@@ -123,7 +124,7 @@ class Command(object):
             time.sleep(sleep_between_retries)
         raise FailedAfterRetries
 
-    def execute(self, expected_returnvalue=0):
+    def execute(self, expected_returnvalue=0, shell=True):
         """
         Executes the command and returns its return value.
         Throws an exception if timeout occurs.
@@ -133,12 +134,21 @@ class Command(object):
 
         self._start_timers()
 
-        self.process = subprocess.Popen(self.command,
-                                        shell=True,
-                                        stderr=subprocess.PIPE,
-                                        stdout=subprocess.PIPE,
-                                        stdin=subprocess.PIPE,
-                                        preexec_fn=os.setpgrp)
+        if not shell:
+            self.log.debug("Command arguments: %s" % shlex.split(self.command))
+            self.process = subprocess.Popen(shlex.split(self.command),
+                                            shell=shell,
+                                            stderr=subprocess.PIPE,
+                                            stdout=subprocess.PIPE,
+                                            stdin=subprocess.PIPE,
+                                            preexec_fn=os.setpgrp)
+        else:
+            self.process = subprocess.Popen(self.command,
+                                            shell=shell,
+                                            stderr=subprocess.PIPE,
+                                            stdout=subprocess.PIPE,
+                                            stdin=subprocess.PIPE,
+                                            preexec_fn=os.setpgrp)
 
         self.pid = self.process.pid
 
@@ -235,6 +245,11 @@ class Command(object):
     def already_executed(self):
         """Returns true if command has been executed."""
         return self.execution_time != - 1
+
+    def send_signal(self, sig_num):
+        """Send a signal to command process"""
+        os.killpg(self.pid, sig_num)
+        self.log.debug("Sent signal %d to %d" % (sig_num, self.pid))
 
     def _kill_softly(self):
         """A Callback function to terminate process softly"""

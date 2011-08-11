@@ -73,6 +73,39 @@ class Hardware(TestTarget):
         self._fetch_content_image()
         self._flash()
 
+    def reboot(self):
+        """
+        Reboot device.
+        """
+        if self.testrun.dontflash:
+            self.log.warning("Skipping rebooting! "
+                             "'dontflash' parameter is in use.")
+            return
+
+        try:
+            if self.testrun.bootmode:
+                self._flasher.reboot( \
+                            image_path=self.testrun.image_path,
+                            content_image_path=self.testrun.content_image_path,
+                            boot_mode=self.testrun.bootmode)
+            else:
+                self._flasher.reboot( \
+                            image_path=self.testrun.image_path,
+                            content_image_path=self.testrun.content_image_path)
+        except ConnectionTestFailed:
+            raise ConductorError("Error in preparing hardware: "\
+                                 "Connection test failed!", "2101")
+        except FlashFailed:
+            raise ConductorError("Error in preparing hardware: "\
+                                 "Flashing the image failed!", "210")
+        except InvalidImage:
+            raise ConductorError("Error in preparing hardware: "\
+                                 "Invalid flash image!", "211")
+        except InvalidConfig:
+            self.log.debug("Invalid flasher config! Traceback:", exc_info=True)
+            raise ConductorError("Error in preparing hardware: "\
+                                 "Invalid flasher config file!", "212")
+
     def cleanup(self):
         """Remove flash image files."""
         self.log.debug("Removing flash image files.")

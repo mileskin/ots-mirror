@@ -28,6 +28,7 @@ import os
 import subprocess
 import time
 import pkg_resources
+import signal
 
 from ots.worker.command import Command
 from ots.worker.command import SoftTimeoutException
@@ -44,6 +45,8 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                         TESTRUN_LOG_FILE, TESTRUN_LOG_CLEANER, \
                         TESTRUNNER_WORKDIR, CMD_TESTRUNNER, \
                         TESTRUNNER_SSH_OPTION, TESTRUNNER_SSH_OPTION_LIBSSH2, \
+                        TESTRUNNER_RESUME_CONTINUE_OPTION, \
+                        TESTRUNNER_RESUME_EXIT_OPTION, \
                         TESTRUNNER_LOGGER_OPTION, \
                         TESTRUNNER_FILTER_OPTION, HTTP_LOGGER_PATH, \
                         LOCAL_COMMAND_TO_COPY_FILE, CONDUCTOR_WORKDIR, \
@@ -64,6 +67,7 @@ from ots.worker.conductor.helpers import get_logger_adapter
 
 
 WAIT_SIGKILL = 5
+
 
 class TestRunData(object):
     """
@@ -107,6 +111,7 @@ class TestRunData(object):
         self.is_chrooted = options.chrooted
 
         self.use_libssh2 = options.use_libssh2
+        self.resume = options.resume
 
         self.filter_string = \
                 options.filter_options.replace('"', '\\"').replace("'", '\\"')
@@ -139,7 +144,7 @@ class TestRunData(object):
         self.target_flasher = config.get('default_flasher')
         self.flasher_module = None
         self.device_n = 0
-                
+
         if config.has_key('rich_core_dumps_folder'):
             self.target_rich_core_dumps = config.get('rich_core_dumps_folder')
             self.save_rich_core_dumps = True
@@ -194,6 +199,7 @@ class Executor(object):
         self.hostname = hostname
         self.testrun_timeout = testrun_timeout
         self.chroot = None
+        self.trlite_command = None
 
         self.target = None #Test target object. Implements its own __str__().
         self.env = None    #Test environment name. String.
@@ -246,6 +252,9 @@ class Executor(object):
 
         return errors
 
+    def save_environment_details(self):
+        """Fetch environment details"""
+        self._fetch_environment_details()
 
     # Private methods
 
@@ -612,7 +621,7 @@ class Executor(object):
         except (CommandFailed, SoftTimeoutException, HardTimeoutException), exc:
             self._ssh_command_exception_handler(exc, cmd, task.lower())
         else:
-            self.log.debug("%s finished succesfully" % task.lower())
+            self.log.debug("%s finished successfully" % task.lower())
             return cmd
 
 
@@ -673,6 +682,15 @@ class Executor(object):
         """
         Runs tests in hardware or at host.
         Writes two files (for stderr and stdout) in folder testrun.base_dir
+
+        @type test_package: C{str}
+        @param test_package: Test package to be executed
+
+        @type start_time: C{float}
+        @param start_time: Start time in seconds since the epoch, in UTC
+
+        @type time_current: C{float}
+        @param time_current: Current time in seconds since the epoch, in UTC
         """
 
         ret_value = True
@@ -691,12 +709,15 @@ class Executor(object):
         if not self.testrun_timeout or current_timeout > 0:
             self.log.info("Testrunner-lite command: %s" % cmdstr)
             if not self.testrun_timeout:
-                cmd = Command(cmdstr)
+                self.trlite_command = Command(cmdstr)
             else:                  
-                cmd = Command(cmdstr, soft_timeout=current_timeout, 
-                              hard_timeout= current_timeout + WAIT_SIGKILL)
+                self.trlite_command = Command( \
+                                cmdstr,
+                                soft_timeout=current_timeout,
+                                hard_timeout=current_timeout + WAIT_SIGKILL)
+
             try:
-                cmd.execute()
+                self.trlite_command.execute(shell=False)
             except (SoftTimeoutException, HardTimeoutException), error:
                 # testrunner-lite killed by timeout, we need to collect
                 # files, so we don't want to raise ConductorError
@@ -704,12 +725,15 @@ class Executor(object):
                                % error)
                 ret_value = False
             except CommandFailed:
-                self._testrunner_lite_error_handler(cmdstr, cmd.return_value)
+                self._testrunner_lite_error_handler( \
+                                            cmdstr,
+                                            self.trlite_command.return_value)
             finally:
-                self._create_new_file(path_stdout, cmd.stdout)
-                self._create_new_file(path_stderr, cmd.stderr)
+                self._create_new_file(path_stdout, self.trlite_command.stdout)
+                self._create_new_file(path_stderr, self.trlite_command.stderr)
                 self._store_result_file(path_stdout, test_package)
                 self._store_result_file(path_stderr, test_package)
+                self.trlite_command = None
         else:
             self.log.warning("Testrun timed out while not executing tests")
             ret_value = False
@@ -981,6 +1005,8 @@ class Executor(object):
 
         remote_option = ""
         rich_core_option = ""
+        resume_option = ""
+
         if self.testrun.is_chrooted:
             remote_option = TESTRUNNER_CHROOT_OPTION % self.chroot.path
         elif not self.testrun.is_host_based:
@@ -990,18 +1016,25 @@ class Executor(object):
             else:
                 remote_option = TESTRUNNER_SSH_OPTION % \
                                             self.testrun.target_ip_address
+
             if self.testrun.save_rich_core_dumps:
                 rich_core_option = TESTRUNNER_RICH_CORE_DUMPS_OPTION % \
                                         self.testrun.target_rich_core_dumps
 
-        cmd = CMD_TESTRUNNER % (self.testrun.base_dir, 
-                                self.testrun.dst_testdef_file_path, 
-                                self.testrun.result_file_path, 
+            if self.testrun.resume:
+                resume_option = TESTRUNNER_RESUME_CONTINUE_OPTION
+            else:
+                resume_option = TESTRUNNER_RESUME_EXIT_OPTION
+
+        #cmd = CMD_TESTRUNNER % (self.testrun.base_dir,
+        cmd = CMD_TESTRUNNER % (self.testrun.dst_testdef_file_path,
+                                self.testrun.result_file_path,
                                 filter_option,
                                 http_logger_option,
                                 user_defined_option,
                                 remote_option,
-                                rich_core_option)
+                                rich_core_option,
+                                resume_option)
 
         return cmd
 

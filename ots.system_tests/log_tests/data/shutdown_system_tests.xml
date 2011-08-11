@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testdefinition version="1.0">
+  <description>System tests for OTS</description>
+  <suite domain="Common" component="System Control" timeout="90" type="Functional" name="OTS"
+    level="System">
+    <description>Testrunner-lite resume functionality tests for OTS</description>
+    <set name="Shutdown device">
+      <case name="echo-before-shutdown">
+        <step>echo "This is echo case before shutdown"</step>
+      </case>
+      <case name="shutdown">
+        <step>poweroff -f -n; while true; do date &amp;&amp; sleep 1; done</step>
+      </case>
+      <case name="echo-after-shutdown">
+        <description>This test case should not get executed.</description>
+        <step>echo "This is echo case after shutdown"</step>
+      </case>
+      <get>
+        <file delete_after="false">/home/meego/.bash_logout</file>
+      </get>
+    </set>
+    <set name="After shutdown">
+      <case name="echo1">
+        <step>echo "This case should be executed if resume functionality is enabled"</step>
+      </case>
+      <get>
+        <file delete_after="false">/home/meego/.bash_profile</file>
+      </get>
+    </set>
+  </suite>
+</testdefinition>

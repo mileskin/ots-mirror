@@ -63,6 +63,8 @@ def conductor_command(options, host_testing, chroot_testing):
         cmd.extend(["-b", options['bootmode']])
     if options['use_libssh2']:
         cmd.extend(["--libssh2"])
+    if options['resume']:
+        cmd.extend(["--resume"])
     if options.has_key('testplan_name'):
         cmd.extend(["-p", options['testplan_name']])
 

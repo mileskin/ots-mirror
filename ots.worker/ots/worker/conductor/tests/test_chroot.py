@@ -53,6 +53,7 @@ class Options(object):
         self.rootstrap_path = None
         self.device_n = 0
         self.use_libssh2 = False
+        self.resume = False
 
 
 class TestChroot(unittest.TestCase):

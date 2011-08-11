@@ -72,7 +72,6 @@ class TestGetCommands(unittest.TestCase):
         test_filter = "-testsuite=testrunner-tests"
         timeout = "30"
         rootstrap = ""
-        use_libssh2 = True
 
         expected_cmds = ['conductor', 
                           '-u', 'http://image/url/image.bin', 
@@ -89,6 +88,38 @@ class TestGetCommands(unittest.TestCase):
                             test_filter,
                             timeout,
                             use_libssh2=True)
+        
+        self.assertEquals(cmds[0].command, expected_cmds)
+
+    def test_device_tests_with_packages_using_resume(self):
+        """Check conductor command with test packages for device and resume
+        functionality"""
+
+        distribution_model = "default"
+        image_url = 'http://image/url/image.bin'
+        test_list = {'device':"foo,bar,baz"}
+        emmc_flash_parameter = ""
+        testrun_id = ""
+        storage_address = ""
+        test_filter = "-testsuite=testrunner-tests"
+        timeout = "30"
+        rootstrap = ""
+
+        expected_cmds = ['conductor',
+                         '-u', 'http://image/url/image.bin',
+                         '-f', '-testsuite=testrunner-tests',
+                         '-t', "foo,bar,baz", '-m', '30', '--resume']
+        
+        cmds = get_commands(distribution_model, 
+                            image_url,
+                            rootstrap,
+                            test_list,
+                            emmc_flash_parameter,
+                            testrun_id,
+                            storage_address,
+                            test_filter,
+                            timeout,
+                            resume=True)
         
         self.assertEquals(cmds[0].command, expected_cmds)
 
@@ -853,45 +884,7 @@ class TestGetCommands(unittest.TestCase):
         self.assertEquals(len(commands), 2)
         self.assertEquals(commands[0].command, expected_cmd_1)
         self.assertEquals(commands[1].command, expected_cmd_2)
-        
-    def test_mixed_tests_with_multiple_testplans(self):
-        """Test host test plan based - one test plan"""
 
-        distribution_model = "default"
-        image_url = 'http://image/url/image.bin'
-        test_plan = StringIO("hulapaloo")
-        test_plan.name = "testplan.xml"
-        test_plan2 = StringIO("hulapaloo2")
-        test_plan2.name = "testplan2.xml"
-        test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2]}
-        emmc_flash_parameter = "" 
-        testrun_id = "" 
-        storage_address = "" 
-        test_filter = ""  
-        timeout = "30"
-        rootstrap = ""
-        commands = get_commands(distribution_model, 
-                                image_url,
-                                rootstrap,
-                                test_list,
-                                emmc_flash_parameter,
-                                testrun_id,
-                                storage_address,
-                                test_filter,
-                                timeout)
-
-        expected_cmd_1 = ['conductor', 
-                          '-u', 'http://image/url/image.bin', 
-                          '-m', '30', '-p', 'testplan2.xml']
-        expected_cmd_2 = ['conductor', 
-                          '-u', 'http://image/url/image.bin', 
-                          '-m', '30', '-p', 'testplan.xml', '-o']
-
-
-        self.assertEquals(len(commands), 2)
-        self.assertEquals(commands[0].command, expected_cmd_1)
-        self.assertEquals(commands[1].command, expected_cmd_2)
-        
     def test_mixed_tests_with_multiple_testplans_and_pkgs_perpackage(self):
         """Test host test plan based - one test plan"""
 
