@@ -1,4 +1,5 @@
 Tue Aug 11 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.8
+ - Added support for testrunner-lite's resume functionality, BMC#19021
  - Added script for running unit tests in CI environment
    (thanks to Oskari Pirttikoski)
  - Fixed django urls.py to include application urls dynamically, BMC#20491
