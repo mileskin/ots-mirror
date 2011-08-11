@@ -32,32 +32,11 @@ if [ $# -gt 0 ]; then
     echo "`basename $0` started with parameters: $@"
 fi
 
-# Define tests
-SERVER_TESTS="ots.server/ots/server/allocator/tests/test_*.py ots.server/ots/server/distributor/tests/test_*.py ots.server/ots/server/xmlrpc/tests/test_*.py ots.server/ots/server/hub/tests/test_*.py"
+# These require database, gmail, running OTS server, 
+EXCLUDE_PATHS="ots.plugin.monitor|ots.plugin.logger|ots.plugin.history|test_email_plugin|ots.server/ots/server/xmlrpc/tests/component/test_xmlrpc.py"
+TEST_FILES=$(find . -type f \( -name "tests.py" -o -name "test_*.py" \) | grep -v -E "$EXCLUDE_PATHS")
 
-WORKER_TESTS="ots.worker/ots/worker/tests/test_*.py ots.worker/ots/worker/conductor/tests/test_*.py"
-
-COMMON_TESTS="ots.common/ots/common/framework/tests/test_*.py ots.common/ots/common/amqp/tests/test_*.py ots.common/ots/common/routing/tests/test_*.py ots.common/ots/common/dto/tests/test_*.py"
-
-RESULT_TESTS="ots.results/ots/results/tests/test_*.py"
-
-EMAIL_PLUGIN_TESTS="ots.plugin.email/ots/plugin/email/tests/test_*.py"
-
-QA_REPORTS_PLUGIN_TESTS="ots.plugin.qareports/ots/plugin/qareports/tests/test_*.py"
-
-RICHCORE_PLUGIN_TESTS="ots.plugin.conductor.richcore/ots/plugin/conductor/richcore/tests/test_*.py"
-
-TOOLS_TESTS="ots.tools/ots/tools/trigger/tests/test_*.py"
-
+echo "Running tests in these files: $TEST_FILES"
 # Run tests
-nosetests \
-  $SERVER_TESTS \
-  $WORKER_TESTS \
-  $COMMON_TESTS \
-  $RESULT_TESTS \
-  $EMAIL_PLUGIN_TESTS \
-  $QA_REPORTS_PLUGIN_TESTS \
-  $RICHCORE_PLUGIN_TESTS \
-  $TOOLS_TESTS \
-  -e testrun_queue_name \
-  $@
+# --collect-only 
+nosetests -v $@ $TEST_FILES -e testrun_queue_name
