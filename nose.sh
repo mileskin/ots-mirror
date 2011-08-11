@@ -32,11 +32,9 @@ if [ $# -gt 0 ]; then
     echo "`basename $0` started with parameters: $@"
 fi
 
-# These require database, gmail, running OTS server, 
+# These require database, gmail or running OTS server
 EXCLUDE_PATHS="ots.plugin.monitor|ots.plugin.logger|ots.plugin.history|test_email_plugin|ots.server/ots/server/xmlrpc/tests/component/test_xmlrpc.py"
 TEST_FILES=$(find . -type f \( -name "tests.py" -o -name "test_*.py" \) | grep -v -E "$EXCLUDE_PATHS")
 
-echo "Running tests in these files: $TEST_FILES"
 # Run tests
-# --collect-only 
-nosetests -v $@ $TEST_FILES -e testrun_queue_name
+nosetests $@ $TEST_FILES -e testrun_queue_name
