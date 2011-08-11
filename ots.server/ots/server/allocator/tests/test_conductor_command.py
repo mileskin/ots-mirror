@@ -174,7 +174,7 @@ class TestConductorCommands(unittest.TestCase):
                     '-i', '1',
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf",
-                    '-m', '30', '--resume=continue', '-o']
+                    '-m', '30', '--resume', '-o']
 
         result = conductor_command(options,
                                    host_testing=True,
