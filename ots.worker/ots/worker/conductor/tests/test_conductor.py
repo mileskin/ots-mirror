@@ -542,6 +542,10 @@ class TestExecutor(unittest.TestCase):
     responseclient = None, stand_alone = True
     """
     def setUp(self):
+        # Restore current working directory. 
+        # Executor._create_testrun_folder changes it in some tests. 
+        self._original_cwd = os.getcwd()
+        
         from ots.worker.conductor.executor import Executor as Executor
         from ots.worker.conductor.executor import TestRunData as TestRunData
         self.workdir = tempfile.mkdtemp("_test_conductor")
@@ -562,6 +566,7 @@ class TestExecutor(unittest.TestCase):
 
     def tearDown(self):
         subprocess.call("rm -rf "+self.workdir, shell=True) #created in setUp
+        os.chdir(self._original_cwd)
 
     def test_run_tests_returns_true(self):
         """Test for _run_tests method when testrunner command succeeds"""
