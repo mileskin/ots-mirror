@@ -83,7 +83,7 @@ class ExecutorSignalHandler(object):
             LOG.info("SIGUSR1 signal received from testrunner-lite,"
                      " rebooting...")
             self._executor.target.reboot()
-        except FlashFailed, err:
+        except ConductorError, err:
             LOG.error("Bootup failed: %s" % err)
             trlite_command.send_signal(signal.SIGTERM)
             return
