@@ -170,7 +170,7 @@ class Mock_Executor(TE):
     def _store_test_definition(self, path, test_package):
         pass
     def _get_command_for_testrunner(self):
-        return "" #TODO: self.testrunner_command
+        return "echo %s %s %s %s %s %s %s %s"
 
 
 class Mock_Executor_with_cmd(Mock_Executor):
@@ -225,6 +225,7 @@ class Stub_ResponseClient(object):
 class Mock_Command(Command):
     def __init__(self, value):
         self.signal_sent = None
+        self.pid = 1
     def send_signal(self, sig_num):
         self.signal_sent = sig_num
 
@@ -232,7 +233,7 @@ class Mock_Flasher(FlasherPluginBase):
     def __init__(self, raise_exc=None):
         self.device_rebooted = False
         self.raise_exc = raise_exc
-    def reboot(self, boot_mode=None):
+    def reboot(self, boot_mode=None, image_path=None, content_image_path=None):
         self.device_rebooted = True
         if self.raise_exc:
             raise self.raise_exc
@@ -250,7 +251,7 @@ class TestConductorInternalConstants(unittest.TestCase):
         c.TESTRUN_LOG_CLEANER
         c.CONDUCTOR_WORKDIR
         c.TESTRUNNER_WORKDIR
-        c.CMD_TESTRUNNER   % (1,2,3,4,5,6,7,8,9)
+        c.CMD_TESTRUNNER   % (1,2,3,4,5,6,7,8)
         c.TESTRUNNER_SSH_OPTION % "iippee"
         c.TESTRUNNER_LOGGER_OPTION % 1
         c.TESTRUNNER_FILTER_OPTION   % "xxx"
@@ -920,7 +921,8 @@ class TestExecutorSignalHandler(unittest.TestCase):
                                  stand_alone=True,
                                  responseclient=responseclient,
                                  hostname="hostname")
-        self.executor.target = Stub_Hardware()
+        self.executor.set_target()
+        
         self.executor_signal_handler = ExecutorSignalHandler(self.executor)
         self.process_listed_info_commands_called = False
 
@@ -954,11 +956,9 @@ class TestExecutorSignalHandler(unittest.TestCase):
 
     def test_sends_sigterm_on_connection_test_failed(self):
         self._prepare_executor_mocks()
-        #self.executor.target.software_updater = \
-        #        Mock_SoftwareUpdater(BootupFailed("Testing"))
-        print self.executor.testrun.flasher_module.device_rebooted
         self.executor.testrun.flasher_module = \
                             Mock_Flasher(FlashFailed("Testing"))
+        self.executor.target._flasher = self.executor.testrun.flasher_module
         self._send_sigusr1()
         self.assertTrue(self.executor.testrun.flasher_module.device_rebooted)
         self.assertEquals(self.executor.trlite_command.signal_sent, 
@@ -981,6 +981,7 @@ class TestExecutorSignalHandler(unittest.TestCase):
     def _prepare_executor_mocks(self):
         self.executor.trlite_command = Mock_Command("#echo Mocked Command")
         self.executor.testrun.flasher_module = Mock_Flasher()
+        self.executor.target._flasher = self.executor.testrun.flasher_module
         self.executor.save_environment_details = self._save_env_details_mock
 
     def _save_env_details_mock(self):
