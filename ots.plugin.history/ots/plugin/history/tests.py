@@ -156,6 +156,7 @@ class TestDistributionModel(unittest.TestCase):
         options['testfilter'] = ""
         options['flasherurl'] = ""
         options['bootmode'] = ""
+        options['use_libssh2'] = False
         
         return options
     
