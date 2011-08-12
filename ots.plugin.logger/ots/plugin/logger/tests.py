@@ -87,6 +87,7 @@ class TestLogger(unittest.TestCase):
             'process'           : '24680',      # integer NOT NULL
             'relativeCreated'   : '135.79',     # double precision NOT NULL
             'msecs'             : '123.456',    # double precision NOT NULL
+            'userDefinedId'     : WORKER_ID,            
             }
         self.meta_data = {
             'REMOTE_ADDR'   : '127.0.0.1',
@@ -97,7 +98,7 @@ class TestLogger(unittest.TestCase):
         request.method = 'POST'
         request.POST = self.post_data
         request.META = self.meta_data
-        create_message(request, SERVICENAME, RUN_ID, WORKER_ID)
+        create_message(request, SERVICENAME, RUN_ID)
 
     def tearDown(self):
         """
@@ -205,9 +206,10 @@ class TestLogger(unittest.TestCase):
             self.meta_data['REMOTE_ADDR'])
 
     def testRemotehost(self):
-        self.assertEquals(
-            LogMessage.objects.all()[0].remote_host,
-            self.meta_data['REMOTE_HOST'] + '/' + WORKER_ID)
+        log_message = LogMessage.objects.all()[0]
+        self.assertEquals(log_message.remote_host, 
+                          self.meta_data['REMOTE_HOST'])
+        self.assertEquals(log_message.userDefinedId, WORKER_ID)
 
 class TestLocalHttpHandler(unittest.TestCase):
     """
