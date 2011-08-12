@@ -32,8 +32,15 @@ if [ $# -gt 0 ]; then
     echo "`basename $0` started with parameters: $@"
 fi
 
-# These require database, gmail or running OTS server
-EXCLUDE_PATHS="ots.plugin.monitor|ots.plugin.logger|ots.plugin.history|test_email_plugin|ots.server/ots/server/xmlrpc/tests/component/test_xmlrpc.py"
+# These require database
+EXCLUDE_PATHS="ots.plugin.monitor|ots.plugin.logger|ots.plugin.history"
+# These require gmail
+EXCLUDE_PATHS="$EXCLUDE_PATHS|ots.plugin.email/ots/plugin/email/tests/component/test_email_plugin.py"
+# These require running OTS server
+EXCLUDE_PATHS="$EXCLUDE_PATHS|ots.server/ots/server/xmlrpc/tests/component/test_xmlrpc.py"
+# This directory may contain dependencies and their test
+EXCLUDE_PATHS="$EXCLUDE_PATHS|eggs"
+
 TEST_FILES=$(find . -type f \( -name "tests.py" -o -name "test_*.py" \) | grep -v -E "$EXCLUDE_PATHS")
 
 # Run tests
