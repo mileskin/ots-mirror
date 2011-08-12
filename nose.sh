@@ -32,32 +32,16 @@ if [ $# -gt 0 ]; then
     echo "`basename $0` started with parameters: $@"
 fi
 
-# Define tests
-SERVER_TESTS="ots.server/ots/server/allocator/tests/test_*.py ots.server/ots/server/distributor/tests/test_*.py ots.server/ots/server/xmlrpc/tests/test_*.py ots.server/ots/server/hub/tests/test_*.py"
+# These require database
+EXCLUDE_PATHS="ots.plugin.monitor|ots.plugin.logger|ots.plugin.history"
+# These require gmail
+EXCLUDE_PATHS="$EXCLUDE_PATHS|ots.plugin.email/ots/plugin/email/tests/component/test_email_plugin.py"
+# These require running OTS server
+EXCLUDE_PATHS="$EXCLUDE_PATHS|ots.server/ots/server/xmlrpc/tests/component/test_xmlrpc.py"
+# This directory may contain dependencies and their test
+EXCLUDE_PATHS="$EXCLUDE_PATHS|eggs"
 
-WORKER_TESTS="ots.worker/ots/worker/tests/test_*.py ots.worker/ots/worker/conductor/tests/test_*.py"
-
-COMMON_TESTS="ots.common/ots/common/framework/tests/test_*.py ots.common/ots/common/amqp/tests/test_*.py ots.common/ots/common/routing/tests/test_*.py ots.common/ots/common/dto/tests/test_*.py"
-
-RESULT_TESTS="ots.results/ots/results/tests/test_*.py"
-
-EMAIL_PLUGIN_TESTS="ots.plugin.email/ots/plugin/email/tests/test_*.py"
-
-QA_REPORTS_PLUGIN_TESTS="ots.plugin.qareports/ots/plugin/qareports/tests/test_*.py"
-
-RICHCORE_PLUGIN_TESTS="ots.plugin.conductor.richcore/ots/plugin/conductor/richcore/tests/test_*.py"
-
-TOOLS_TESTS="ots.tools/ots/tools/trigger/tests/test_*.py"
+TEST_FILES=$(find . -type f \( -name "tests.py" -o -name "test_*.py" \) | grep -v -E "$EXCLUDE_PATHS")
 
 # Run tests
-nosetests \
-  $SERVER_TESTS \
-  $WORKER_TESTS \
-  $COMMON_TESTS \
-  $RESULT_TESTS \
-  $EMAIL_PLUGIN_TESTS \
-  $QA_REPORTS_PLUGIN_TESTS \
-  $RICHCORE_PLUGIN_TESTS \
-  $TOOLS_TESTS \
-  -e testrun_queue_name \
-  $@
+nosetests $@ $TEST_FILES -e testrun_queue_name
