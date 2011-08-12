@@ -124,19 +124,23 @@ class Hardware(TestTarget):
                      self.config['pre_test_info_commands']
         commands = []
         for cmd in plain_cmds:
-            commands.append(HW_COMMAND % (self.testrun.target_ip_address, cmd))
+            commands.append(HW_COMMAND % (self.testrun.target_username,
+                                          self.testrun.target_ip_address,
+                                          cmd))
         return zip(commands, plain_cmds)
 
     def get_command_to_copy_file(self, src_path, dest_path):
         """Command used to copy file"""
-        return HW_COMMAND_TO_COPY_FILE  % (self.testrun.target_ip_address, 
+        return HW_COMMAND_TO_COPY_FILE  % (self.testrun.target_username,
+                                           self.testrun.target_ip_address,
                                            src_path, 
                                            dest_path)
 
     def get_command_to_copy_testdef(self):
         """Command used to copy test definition"""
         cmd = HW_COMMAND_TO_COPY_FILE \
-                 % (self.testrun.target_ip_address,
+                 % (self.testrun.target_username,
+                    self.testrun.target_ip_address,
                     self.testrun.testdef_src,
                     self.testrun.testdef_target_dir)
         return cmd
@@ -144,14 +148,16 @@ class Hardware(TestTarget):
     def get_command_to_copy_results(self):
         """Command used to copy test results"""
         cmd = HW_COMMAND_TO_COPY_FILE \
-                 % (self.testrun.target_ip_address, 
+                 % (self.testrun.target_username,
+                    self.testrun.target_ip_address,
                     self.testrun.results_src,
                     self.testrun.results_target_dir)
         return cmd
 
     def get_command_to_find_test_packages(self):
         """Command to find Debian packages with file tests.xml from device."""
-        return HW_COMMAND  % (self.testrun.target_ip_address,
+        return HW_COMMAND  % (self.testrun.target_username,
+                              self.testrun.target_ip_address,
                               "dpkg -S tests.xml")
 
     def parse_packages_with_file(self, lines):
@@ -166,7 +172,9 @@ class Hardware(TestTarget):
 
     def get_command_to_list_installed_packages(self):
         """Command that lists all Debian packages installed in device."""
-        return HW_COMMAND % (self.testrun.target_ip_address, "dpkg -l")
+        return HW_COMMAND % (self.testrun.target_username,
+                             self.testrun.target_ip_address,
+                             "dpkg -l")
 
     def parse_installed_packages(self, lines):
         """
@@ -418,12 +426,15 @@ class RPMHardware(Hardware):
                      self.config['pre_test_info_commands']
         commands = []
         for cmd in plain_cmds:
-            commands.append(HW_COMMAND % (self.testrun.target_ip_address, cmd))
+            commands.append(HW_COMMAND % (self.testrun.target_username,
+                                          self.testrun.target_ip_address,
+                                          cmd))
         return zip(commands, plain_cmds)
 
     def get_command_to_find_test_packages(self):
         """Command that lists rpm test packages with tests.xml from device."""
-        return HW_COMMAND % (self.testrun.target_ip_address,
+        return HW_COMMAND % (self.testrun.target_username,
+                             self.testrun.target_ip_address,
                              "find /usr/share/ -name tests.xml | xargs -r rpm -q --queryformat \"%{NAME}\n\" -f")
 
     def parse_packages_with_file(self, lines):
@@ -444,7 +455,8 @@ class RPMHardware(Hardware):
 
         @return: command for listing installed packages
         """
-        return HW_COMMAND % (self.testrun.target_ip_address,
+        return HW_COMMAND % (self.testrun.target_username,
+                             self.testrun.target_ip_address,
                              "rpm -qa --queryformat \"%{NAME}\n\"")
 
     def parse_installed_packages(self, lines):
@@ -469,7 +481,9 @@ class RPMHardware(Hardware):
         @return: command to list, enable and refresh debug repos
         """
         
-        return HW_COMMAND % (self.testrun.target_ip_address, "route add default gw %s;  echo \"nameserver 8.8.8.8\" > /etc/resolv.conf; %s; zypper lr | grep debuginfo | cut -s -d \"|\" -f 2 | xargs zypper mr --enable; zypper --no-gpg-checks ref")
+        return HW_COMMAND % (self.testrun.target_username,
+                             self.testrun.target_ip_address,
+                             "route add default gw %s;  echo \"nameserver 8.8.8.8\" > /etc/resolv.conf; %s; zypper lr | grep debuginfo | cut -s -d \"|\" -f 2 | xargs zypper mr --enable; zypper --no-gpg-checks ref")
 
     def get_command_to_list_debug_packages(self):
         """
@@ -478,4 +492,6 @@ class RPMHardware(Hardware):
         @return: command to list debugs
         """
         
-        return HW_COMMAND % (self.testrun.target_ip_address, "rpm -qa --queryformat \"%{NAME}-debuginfo \" | xargs zypper se | cut -s -d \"|\" -f 2 | sed \"s/^[ \t]*//\" | grep -v ^Name")
+        return HW_COMMAND % (self.testrun.target_username,
+                             self.testrun.target_ip_address,
+                             "rpm -qa --queryformat \"%{NAME}-debuginfo \" | xargs zypper se | cut -s -d \"|\" -f 2 | sed \"s/^[ \t]*//\" | grep -v ^Name")

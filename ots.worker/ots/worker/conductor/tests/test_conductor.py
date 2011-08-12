@@ -189,6 +189,7 @@ def _conductor_config_simple(config_file = "", default_file = ""):
     config['pre_test_info_commands_rpm'] = ['ls', 'echo "jouni"']
     config['pre_test_info_commands'] = ['ls', 'echo "testing ...."', 'ls -al']
     config['files_fetched_after_testing'] = ['xxx']
+    config['target_username'] = "root"
     config['default_host_ip'] = "192.168.2.14"
     config['default_device_ip'] = "192.168.2.15"
     config['tmp_path'] = "/tmp/"
@@ -252,12 +253,12 @@ class TestConductorInternalConstants(unittest.TestCase):
         c.CONDUCTOR_WORKDIR
         c.TESTRUNNER_WORKDIR
         c.CMD_TESTRUNNER   % (1,2,3,4,5,6,7,8)
-        c.TESTRUNNER_SSH_OPTION % "iippee"
+        c.TESTRUNNER_SSH_OPTION % ("user", "iippee")
         c.TESTRUNNER_LOGGER_OPTION % 1
         c.TESTRUNNER_FILTER_OPTION   % "xxx"
         c.HTTP_LOGGER_PATH % 1
-        c.HW_COMMAND % ("xxx", "bar")
-        c.HW_COMMAND_TO_COPY_FILE    % ("xxx", 1,2)
+        c.HW_COMMAND % ("user", "xxx", "bar")
+        c.HW_COMMAND_TO_COPY_FILE    % ("user", "xxx", 1,2)
         c.LOCAL_COMMAND_TO_COPY_FILE % (1,2)
         c.SSH_CONNECTION_RETRIES
         c.SSH_RETRY_INTERVAL
@@ -277,6 +278,7 @@ class TestConductorConf(unittest.TestCase):
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
         conf = conductor._read_configuration_files(conf_file, 0)
         self.assertTrue(type(conf) == type(dict()))
+        self.assertTrue(conf['target_username'] != "")
         self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['pre_test_info_commands_debian'] != "")
         self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
@@ -287,9 +289,11 @@ class TestConductorConf(unittest.TestCase):
     def test_read_conductor_config_with_optional_configs(self):
         from ots.worker.conductor import conductor
         optional_value = "ps aux"
+        optional_username = "otsuser"
         conf_file = os.path.join(os.path.dirname(__file__), "conductor.conf")
         conf = conductor._read_configuration_files(conf_file,0 )
         self.assertTrue(type(conf) == type(dict()))
+        self.assertTrue(conf['target_username'] != "")
         self.assertTrue(conf['device_packaging'] != "")
         self.assertTrue(conf['pre_test_info_commands_debian'] != "")
         self.assertTrue(conf['pre_test_info_commands_rpm'] != "")
@@ -304,13 +308,17 @@ class TestConductorConf(unittest.TestCase):
         temp_folder = tempfile.mkdtemp("_optional_confs")
         temp_config = tempfile.mktemp(suffix='.conf', dir=temp_folder)
         fp = open(temp_config, 'w')
-        fp.write('[conductor]\npre_test_info_commands: "%s"\n' % \
-                 optional_value)
+        fp.write('[conductor]\n'\
+                 'pre_test_info_commands: "%s"\n'\
+                 'target_username: %s' % (
+                optional_value,
+                optional_username))
         fp.close()
 
         conf['custom_config_folder'] = temp_folder
         conf = conductor._read_optional_config_files(temp_folder, conf)
         self.assertTrue(optional_value in conf['pre_test_info_commands'])
+        self.assertTrue(conf['target_username'] == optional_username)
 
         os.unlink(temp_config)
         os.rmdir(temp_folder)

@@ -55,8 +55,8 @@ CMD_TESTRUNNER = '/usr/bin/testrunner-lite -s -vv -a -c ' + \
                  '%s ' + \
                  '%s '
 
-TESTRUNNER_SSH_OPTION = "-t root@%s"
-TESTRUNNER_SSH_OPTION_LIBSSH2 = "-n root@%s -k /var/opt/eat/sshkey-host/id_eat_dsa"
+TESTRUNNER_SSH_OPTION = "-t %s@%s"
+TESTRUNNER_SSH_OPTION_LIBSSH2 = "-n %s@%s -k /var/opt/eat/sshkey-host/id_eat_dsa"
 TESTRUNNER_CHROOT_OPTION = '-C "%s"'
 TESTRUNNER_LOGGER_OPTION = '-L %s' #"[http://]host[:port][/path/]"
 TESTRUNNER_USER_DEFINED_OPTION = '--logid %s'
@@ -71,8 +71,8 @@ FLASHER_PATH = "/tmp/flasher"
 
 # Command for HW_COMMAND must not contain single quotes (').
 # Note: Backslash-escaping them doesn't work.
-HW_COMMAND = "ssh root@%s '%s'"
-HW_COMMAND_TO_COPY_FILE = "scp root@%s:%s %s"
+HW_COMMAND = "ssh %s@%s '%s'"
+HW_COMMAND_TO_COPY_FILE = "scp %s@%s:%s %s"
 LOCAL_COMMAND_TO_COPY_FILE = "cp %s %s"  #for host-based testing
 
 # Number of retries and sleep interval for SSH connections
