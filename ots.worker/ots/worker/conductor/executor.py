@@ -497,10 +497,19 @@ class Executor(object):
         self.log.info("Installing test package %s" % test_package)
         cmdstr = "apt-get install %s --yes --force-yes" % test_package
         self.log.debug(cmdstr)
-        if subprocess.call(cmdstr, shell=True):
-            self.log.warning("Error installing %s, trying anyways..." \
-                             % test_package)
-
+        retries = 3
+        for i in range(retries):
+            ret = subprocess.call(cmdstr, shell=True)
+            if ret:
+                self.log.warning("Error installing %s, sleeping and trying again..." \
+                                 % test_package)
+                if i >= (retries - 1):
+                    self.log.warning("Error installing %s, continuing anyway..." \
+                                     % test_package)
+                else:
+                    time.sleep(10)
+            else:
+               break
 
     def _remove_package(self, test_package):
         """
