@@ -157,6 +157,7 @@ class TestDistributionModel(unittest.TestCase):
         options['flasherurl'] = ""
         options['bootmode'] = ""
         options['use_libssh2'] = False
+        options['resume'] = False
         
         return options
     
