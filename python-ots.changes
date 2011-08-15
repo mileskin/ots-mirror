@@ -1,4 +1,8 @@
-Tue Aug 11 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.8
+* Mon Aug 15 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.8
+ - Target device username is now configurable, BMC#19477
+ - Now all unit tests are included by nose.sh script by default, few
+   integration tests fixed and provided script running them on Jenkins,
+   (thanks to Oskari Pirttikoski)
  - Added support for testrunner-lite's resume functionality, BMC#19021
  - Added script for running unit tests in CI environment
    (thanks to Oskari Pirttikoski)
@@ -11,22 +15,22 @@ Tue Aug 11 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.8
  - Custom config files can now add new options for conductor
    (thanks to Richard Braakman)
 
-Fri Jul 08 2011 Ville Niutanen <ville.niutanen@digia.com> 0.8.7
+* Fri Jul 08 2011 Ville Niutanen <ville.niutanen@digia.com> 0.8.7
  - OTS 0.8.7 release, BMC#18875
  - Added Support for testrunner-lite parameter libssh2, BMC#19018
  - Changed OTS trigger to use config files, BMC#18214
  - Changed the email plug-in configuration by separating from the OTS server's
    configuration, BMC#18215
  - Changed location and grouping of OTS configuration files, BMC#18216
- - Fixed OTS unit tests fails if configuration files are missing under /etc
-   , BMC#17548
+ - Fixed OTS unit tests fails if configuration files are missing under
+   /etc, BMC#17548
  - Fixed ots log tests return wrong testrun_id and mark test failed even
    though it actually passed (thanks to michalgloc), BMC#18236
  - Fixed Logger index view doesn't work on Ubuntu 10.04
    (thanks to Oskari Pirttikoski), BMC#20472
  - Fixed email attachment on/off checking
  
-Fri Jun 10 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.6
+* Fri Jun 10 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.6
  - OTS 0.8.6 release, BMC#17933
  - Added pagination support for logger main view, BMC#17735
  - Added worker number to log message model, BMC#17996
@@ -36,13 +40,13 @@ Fri Jun 10 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.6
    (by sampos), BMC#18415
  - Added better proxy handling for qa-reports plug-in (by vesse)
 
-Fri May 20 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.5
+* Fri May 20 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.5
  - OTS 0.8.5 release, BMC#16861
  - Added new conductor plug-in for rich-core processing by rikhalon, BMC#17509
  - Added support for flasher module to clean up, BMC#17620
  - Fixed OTS logger view problem when using MySQL, BMC#17765
 
-Thu Apr 28 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.4
+* Thu Apr 28 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.4
  - OTS 0.8.4 release, BMC#13356
  - One worker can support multiple devices in Parallel, BMC#8742
  - Added conductor plug-in interface, BMC#15403

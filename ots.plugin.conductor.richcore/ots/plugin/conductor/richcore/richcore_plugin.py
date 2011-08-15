@@ -58,6 +58,7 @@ class RichCorePlugin(ConductorPluginBase):
         self.process_rich_core_dumps = options.save_rich_core_dumps
         self.result_dir = ""
         self.target = None
+        self.target_username = options.target_username
         self.target_ip_address = options.target_ip_address
         self.host_ip_address = options.host_ip_address
         self.config = self.config_file()
@@ -111,7 +112,9 @@ class RichCorePlugin(ConductorPluginBase):
         self._execute_ssh_command(cmdstr)
 
         # Get build id
-        cmdstr = HW_COMMAND % (self.target_ip_address, GET_BUILD_ID_COMMAND)
+        cmdstr = HW_COMMAND % (self.target_username,
+                               self.target_ip_address,
+                               GET_BUILD_ID_COMMAND)
         LOG.debug("Getting BUILD ID from Device Under Test...")
         cmd = self._execute_ssh_command(cmdstr)
         build_id = cmd.stdout.strip()

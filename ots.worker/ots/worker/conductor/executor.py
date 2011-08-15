@@ -138,6 +138,11 @@ class TestRunData(object):
         self.dst_testdef_file_path = None
         self.result_file_path = None #This is src and dst
 
+        if 'target_username' in config:
+            self.target_username = config.get('target_username')
+        else:
+            self.target_username = 'root'
+
         # Target address, overwritten/updated after flashing
         self.target_ip_address = config.get('default_device_ip')
         self.host_ip_address = config.get('default_host_ip')
@@ -1011,11 +1016,13 @@ class Executor(object):
             remote_option = TESTRUNNER_CHROOT_OPTION % self.chroot.path
         elif not self.testrun.is_host_based:
             if self.testrun.use_libssh2:
-                remote_option = TESTRUNNER_SSH_OPTION_LIBSSH2 % \
-                                            self.testrun.target_ip_address
+                remote_option = TESTRUNNER_SSH_OPTION_LIBSSH2 % (
+                                            self.testrun.target_username,
+                                            self.testrun.target_ip_address)
             else:
-                remote_option = TESTRUNNER_SSH_OPTION % \
-                                            self.testrun.target_ip_address
+                remote_option = TESTRUNNER_SSH_OPTION % (
+                                            self.testrun.target_username,
+                                            self.testrun.target_ip_address)
 
             if self.testrun.save_rich_core_dumps:
                 rich_core_option = TESTRUNNER_RICH_CORE_DUMPS_OPTION % \
