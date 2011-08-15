@@ -1,4 +1,7 @@
 ots (0.8.8-1) unstable; urgency=low
+  * Now all unit tests are included by nose.sh script by default, few 
+    integration tests fixed and provided script running them on Jenkins,
+    (thanks to Oskari Pirttikoski)
   * Added support for testrunner-lite's resume functionality, BMC#19021
   * Added script for running unit tests in CI environment
     (thanks to Oskari Pirttikoski)
@@ -11,7 +14,7 @@ ots (0.8.8-1) unstable; urgency=low
   * Custom config files can now add new options for conductor
     (thanks to Richard Braakman)
 
- -- Elias Luttinen <elias.luttinen@digia.com>  Tue, 11 Aug 2011 13:53:00 +0300
+ -- Elias Luttinen <elias.luttinen@digia.com>  Tue, 15 Aug 2011 09:14:00 +0300
 
 ots (0.8.7-1) unstable; urgency=low
 
