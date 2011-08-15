@@ -1,4 +1,5 @@
 * Mon Aug 15 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.8
+ - Target device username is now configurable, BMC#19477
  - Now all unit tests are included by nose.sh script by default, few
    integration tests fixed and provided script running them on Jenkins,
    (thanks to Oskari Pirttikoski)
