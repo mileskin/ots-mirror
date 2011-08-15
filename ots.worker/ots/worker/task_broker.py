@@ -53,8 +53,8 @@ from ots.common.dto.api import MonitorType
 from ots.common.routing.api import get_queues
 
 from ots.worker.version import __VERSION__
-from ots.worker.command import Command
-from ots.worker.command import CommandFailed
+from ots.common.command import Command
+from ots.common.command import CommandFailed
 from ots.common.dto.ots_exception import OTSException
 from ots.worker.conductor.helpers import get_logger_adapter
 
@@ -234,7 +234,7 @@ class TaskBroker(object):
             self._log.error(error_msg)
 
             # We need to send pure OTSException because server does not know
-            # about ots.worker.command.CommandFailed and unpickle will fail
+            # about ots.common.command.CommandFailed and unpickle will fail
             exception = OTSException(exc.errno, error_msg)
             exception.task_id = task_id
             self._publish_exception(task_id,

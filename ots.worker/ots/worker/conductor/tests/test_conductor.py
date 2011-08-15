@@ -33,11 +33,11 @@ import time
 import signal
 
 from socket import gethostname
-from ots.worker.command import Command
-from ots.worker.command import SoftTimeoutException
-from ots.worker.command import HardTimeoutException
-from ots.worker.command import FailedAfterRetries
-from ots.worker.command import CommandFailed
+from ots.common.command import Command
+from ots.common.command import SoftTimeoutException
+from ots.common.command import HardTimeoutException
+from ots.common.command import FailedAfterRetries
+from ots.common.command import CommandFailed
 from ots.worker.api import ResponseClient
 from ots.worker.conductor.chroot import Chroot, RPMChroot
 
