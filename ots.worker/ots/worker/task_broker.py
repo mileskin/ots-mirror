@@ -79,7 +79,7 @@ def _start_process(command):
     @param command: The CL params for the Process to be run as a Task 
     """
     task = Command(command)
-    task.execute()
+    task.execute_in_shell()
 
 
 ##############################

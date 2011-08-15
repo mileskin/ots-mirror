@@ -61,43 +61,43 @@ class TestCommand(unittest.TestCase):
     def testAlreadyExecuted(self):
         cmd = command.Command("",DUMMY_TIMEOUT_VALUE)
         self.assertFalse(cmd.already_executed())
-        cmd.execute()
+        cmd.execute_in_shell()
         self.assertTrue(cmd.already_executed())
         
     def testGetStdout(self):
         cmd = command.Command("echo jee",DUMMY_TIMEOUT_VALUE)
-        cmd.execute()
+        cmd.execute_in_shell()
         self.assertEquals(cmd.stdout, "jee\n")
 
     def testGetStderr(self):
         cmd = command.Command("echo jee >&2",DUMMY_TIMEOUT_VALUE)
-        cmd.execute()
+        cmd.execute_in_shell()
         self.assertEquals(cmd.stderr, "jee\n")
 
     def testGetExecutionTime(self):
         cmd = command.Command("sleep 0.5")
-        cmd.execute()
+        cmd.execute_in_shell()
         self.assertAlmostEquals(cmd.execution_time, 0.5, 1)
 
     def testGetReturnValue(self):
         cmd = command.Command("echo 0",DUMMY_TIMEOUT_VALUE)
         self.assertEquals(cmd.return_value, None)
-        cmd.execute()
+        cmd.execute_in_shell()
         self.assertEquals(cmd.return_value, 0)
         
     def testSoftTimeout(self):
         cmd = command.Command("sleep 5", 0.5)
-        self.failUnlessRaises(command.SoftTimeoutException, cmd.execute)
+        self.failUnlessRaises(command.SoftTimeoutException, cmd.execute_in_shell)
         
     def testHardTimeout(self):
         cmd = command.Command("sleep 5", 100, 0.5)
-        self.failUnlessRaises(command.HardTimeoutException, cmd.execute)
+        self.failUnlessRaises(command.HardTimeoutException, cmd.execute_in_shell)
         
     def testTimeoutingSubSubProcesses(self):
         cmd = command.Command('echo "sleep 3;exit 5"|bash', 0.1, 1000)
 
         # There should be a timeout
-        self.failUnlessRaises(command.SoftTimeoutException, cmd.execute)
+        self.failUnlessRaises(command.SoftTimeoutException, cmd.execute_in_shell)
 
         # If command is killed properly it should not return 5:
         self.assertNotEquals(cmd.return_value, 5)

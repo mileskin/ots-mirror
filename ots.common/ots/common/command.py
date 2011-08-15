@@ -113,7 +113,7 @@ class Command(object):
         tries = 1
         while tries <= retries:
             try:
-                self.execute(expected_returnvalue)
+                self.execute_in_shell(expected_returnvalue)
                 return tries
 
             except (SoftTimeoutException, HardTimeoutException, CommandFailed):
@@ -124,9 +124,23 @@ class Command(object):
             time.sleep(sleep_between_retries)
         raise FailedAfterRetries
 
-    def execute(self, expected_returnvalue=0, shell=True):
+    def execute(self, expected_returnvalue=0):
         """
-        Executes the command and returns its return value.
+        Executes the command without shell and wait that command returns.
+        Throws an exception if timeout occurs.
+        """
+        self._execute_and_wait(expected_returnvalue, shell=False)
+
+    def execute_in_shell(self, expected_returnvalue=0):
+        """
+        Executes the command in a new shell and wait that command returns.
+        Throws an exception if timeout occurs.
+        """
+        self._execute_and_wait(expected_returnvalue, shell=True)
+
+    def _execute_and_wait(self, expected_returnvalue=0, shell=True):
+        """
+        Executes the command and wait that command returns.
         Throws an exception if timeout occurs.
         """
         self.start_time = time.time()
@@ -151,7 +165,7 @@ class Command(object):
                                             preexec_fn=os.setpgrp)
 
         self.pid = self.process.pid
-
+        # Wait
         self._communicate()
 
     def execute_without_redirection(self, expected_returnvalue=0):
