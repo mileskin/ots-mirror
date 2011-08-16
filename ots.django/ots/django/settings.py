@@ -127,4 +127,5 @@ INSTALLED_APPS = tuple(INSTALLED_APPSlst)
 XMLRPC_METHODS = (
     # Methods available in xmlrpc interface (<method path>, <xml-rpc name>,)
     ('ots.server.xmlrpc.public.request_sync', 'request_sync'),
+    ('ots.server.xmlrpc.public.latest_logs', 'latest_logs'),
     )

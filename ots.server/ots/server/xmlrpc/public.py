@@ -25,6 +25,8 @@ This module provides public interface for OTS server
 """
 
 from ots.server.xmlrpc.request_handler import RequestHandler
+import datetime
+from ots.plugin.logger.models import LogMessage
 
 #############################
 # REQUEST_SYNC
@@ -43,7 +45,7 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
 
     @type notify_list: C{list}
     @param notify_list: Email addresses for notifications
- 
+
     @type options_dict: C{dict}
     @param options_dict: A dictionary of options
     """
@@ -52,3 +54,20 @@ def request_sync(sw_product, request_id, notify_list, options_dict):
 
     req_handler = RequestHandler(sw_product, request_id, **options_dict)
     return req_handler.run()
+
+def latest_logs(seconds):
+    """
+    @param seconds: return logs from this many seconds ago to now
+    @type: C{int}
+
+    @rtype: C{list}
+    @return: [ (run_id, date, module, levelname, message), ... ]
+    """
+    if seconds > 3600: # one hour
+        # Prevent overly large requests that would interfere with production
+        raise ValueError("Can only go back 1 hour (%s seconds requested)." \
+            % seconds)
+    cutoff = datetime.datetime.now() - datetime.timedelta(seconds=seconds)
+    return list(LogMessage.objects.filter(date__gte=cutoff).order_by('date')\
+             .values_list('run_id', 'date', 'module', 'levelname', 'msg'))
+

@@ -41,15 +41,8 @@ from configobj import ConfigObj
 from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
 from log_scraper import has_message, has_errors
 from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
-
-
-############################################
-# CONFIG
-############################################
-
-common_config = ConfigObj("log_tests.conf")
-common_config.merge(ConfigObj("log_tests.local.conf"))
-CONFIG = common_config.get("log_tests")
+from frame import SystemTest, Result
+from helpers import CONFIG, assert_has_messages
 
 ############################################
 # DEFAULT OPTIONS
@@ -76,7 +69,7 @@ class Options(object):
         self.device = CONFIG["device"]
         self.email = CONFIG["email"]
         self.timeout = 30
-        self.server = CONFIG["server"]
+        self.server = CONFIG["server"] + "/xmlrpc"
         self.use_libssh2 = False
         self.resume = False
 
@@ -203,11 +196,11 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     def test_hw_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.packages = "test-definition-tests"
-        options.timeout = 30
-        expected = ["Environment: Hardware",
-                    "Starting conductor at",
-                    """Finished running tests."""]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Hardware",
+            "Testing in Hardware done. No errors."
+        ])
 
     def test_hw_based_testrun_with_test_definition_tests_using_libssh2(self):
         options = Options()
