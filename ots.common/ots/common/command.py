@@ -148,21 +148,17 @@ class Command(object):
 
         self._start_timers()
 
+        command_string = self.command
         if not shell:
-            self.log.debug("Command arguments: %s" % shlex.split(self.command))
-            self.process = subprocess.Popen(shlex.split(self.command),
-                                            shell=shell,
-                                            stderr=subprocess.PIPE,
-                                            stdout=subprocess.PIPE,
-                                            stdin=subprocess.PIPE,
-                                            preexec_fn=os.setpgrp)
-        else:
-            self.process = subprocess.Popen(self.command,
-                                            shell=shell,
-                                            stderr=subprocess.PIPE,
-                                            stdout=subprocess.PIPE,
-                                            stdin=subprocess.PIPE,
-                                            preexec_fn=os.setpgrp)
+            command_string = shlex.split(self.command)
+            self.log.debug("Command arguments: %s" % command_string)
+
+        self.process = subprocess.Popen(command_string,
+                                        shell=shell,
+                                        stderr=subprocess.PIPE,
+                                        stdout=subprocess.PIPE,
+                                        stdin=subprocess.PIPE,
+                                        preexec_fn=os.setpgrp)
 
         self.pid = self.process.pid
         # Wait
