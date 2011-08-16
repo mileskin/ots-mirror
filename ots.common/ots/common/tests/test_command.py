@@ -67,7 +67,7 @@ class TestCommand(unittest.TestCase):
     def testGetStdout(self):
         cmd = command.Command("echo jee",DUMMY_TIMEOUT_VALUE)
         cmd.execute_in_shell()
-        self.assertEquals(cmd.stdout, "jee\n")
+        self._assertStdout(cmd, "jee\n")
 
     def testGetStderr(self):
         cmd = command.Command("echo jee >&2",DUMMY_TIMEOUT_VALUE)
@@ -124,14 +124,15 @@ class TestCommand(unittest.TestCase):
     def testThisIsParentOfShellWithExecuteInShell(self):
         cmd = command.Command("echo $PPID", DUMMY_TIMEOUT_VALUE)
         cmd.execute_in_shell()
-        self.assertEquals(cmd.stdout, "%s\n" % os.getpid())
+        self._assertStdout(cmd, "%s\n" % os.getpid())
 
     def testThisIsParentOfCommandWhenWithoutShell(self):
         cmd = command.Command("ps -o ppid= -C ps", DUMMY_TIMEOUT_VALUE)
         cmd.execute()
-        self.assertEquals(cmd.stdout, "%s\n" % os.getpid())
+        self._assertStdout(cmd, "%s\n" % os.getpid())
 
-
+    def _assertStdout(self, command, expected_value):
+        self.assertEquals(command.stdout.strip(" "), expected_value)
 
 if __name__ == '__main__':
     unittest.main()
