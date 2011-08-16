@@ -78,6 +78,7 @@ class Options(object):
         self.timeout = 30
         self.server = CONFIG["server"]
         self.use_libssh2 = False
+        self.resume = False
 
 ############################################
 #  BASE
@@ -655,9 +656,9 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options.timeout = 1
         expected = [
           "No queue for this_should_not_exist",
-          "Incoming request: program: %s, request: 0, " \
+          "Incoming request: program: %s, request: %s, " \
           "notify_list: ['%s'], options: {" \
-              % (CONFIG["sw_product"], CONFIG["email"]),
+              % (CONFIG["sw_product"], CONFIG["build_id"], CONFIG["email"]),
           "'image': '%s'" % (CONFIG["image_url"]),
           "'distribution_model': 'default'",
           "'timeout': 1",
@@ -670,8 +671,9 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options.timeout = 1
         expected = [
            "'this_should_not_exist' not found",
-           "Incoming request: program: this_should_not_exist, request: 0, " \
-           "notify_list: ['%s'], options: {"  % (CONFIG["email"]),
+           "Incoming request: program: this_should_not_exist, request: %s, " \
+           "notify_list: ['%s'], options: {"  % (CONFIG["build_id"],
+                                                 CONFIG["email"]),
            "'image': '%s'" % (CONFIG["image_url"]),
            "'distribution_model': 'default'",
            "'timeout': 1"]
