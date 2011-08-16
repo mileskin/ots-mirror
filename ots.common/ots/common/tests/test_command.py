@@ -121,6 +121,16 @@ class TestCommand(unittest.TestCase):
         cmd = command.Command("echo jee")
         self.assertAlmostEquals(cmd.execute_with_retries(5, 0), 1)
 
+    def testThisIsParentOfShellWithExecuteInShell(self):
+        cmd = command.Command("echo $PPID", DUMMY_TIMEOUT_VALUE)
+        cmd.execute_in_shell()
+        self.assertEquals(cmd.stdout, "%s\n" % os.getpid())
+
+    def testThisIsParentOfCommandWhenWithoutShell(self):
+        cmd = command.Command("ps -o ppid= -C ps", DUMMY_TIMEOUT_VALUE)
+        cmd.execute()
+        self.assertEquals(cmd.stdout, "%s\n" % os.getpid())
+
 
 
 if __name__ == '__main__':
