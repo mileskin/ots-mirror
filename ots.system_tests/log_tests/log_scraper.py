@@ -28,17 +28,14 @@ import urllib2
 
 from configuration import CONFIG
 from BeautifulSoup import BeautifulSoup
+from custom_exceptions import SystemTestException
 
 def has_errors(testrun_id):
     """
     Checks if testrun has any error messages
     """
-    log_url = CONFIG["global_log"]
     ret_val = False
-    file =  urllib2.urlopen(log_url + "testrun/%s/" % testrun_id)
-    soup = BeautifulSoup(file.read(), 
-                         convertEntities=BeautifulSoup.ALL_ENTITIES)
-
+    soup = _load_testrun_log_page(testrun_id)
     table =  soup.findAll("table")[1]
     rows = table.findAll("tr")
     for tr in rows:
@@ -94,13 +91,9 @@ def has_message(testrun_id, string, times=None):
     If times parameter given returns True if string is found as many times
     as defined by count.
     """
-    log_url = CONFIG["global_log"]
     ret_val = False
     count = 0
-    file =  urllib2.urlopen(log_url + "testrun/%s/" % testrun_id)
-    soup = BeautifulSoup(file.read(),
-                         convertEntities=BeautifulSoup.ALL_ENTITIES)
-
+    soup = _load_testrun_log_page(testrun_id)
     table =  soup.findAll("table")[1]
     rows = table.findAll("tr")
     for tr in rows:
@@ -119,7 +112,7 @@ def has_message(testrun_id, string, times=None):
                         break
                     else:
                         count += 1
-    
+
     if times == None:
         return ret_val
     else:
@@ -128,5 +121,21 @@ def has_message(testrun_id, string, times=None):
         else:
             return False
 
+
+def _load_testrun_log_page(testrun_id):
+    url = CONFIG["global_log"] + "testrun/%s/" % testrun_id
+    try:
+        file = urllib2.urlopen(url)
+    except Exception, e:
+        raise SystemTestException("failed opening URL '%s'" % url, e)
+    soup = BeautifulSoup(file.read(),
+                         convertEntities=BeautifulSoup.ALL_ENTITIES)
+    return soup
+
+
+###############################################################################
+
 if __name__ == "__main__":
     unittest.main()
+
+
