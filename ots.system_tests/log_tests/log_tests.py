@@ -36,13 +36,13 @@ Please check that system_tests.conf is up to date!
 import unittest
 import os
 import configobj
-from configobj import ConfigObj
 
 from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
 from log_scraper import has_message, has_errors
 from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
 from frame import SystemTest, Result
-from helpers import CONFIG, assert_has_messages
+from configuration import CONFIG
+from helpers import assert_has_messages
 
 ############################################
 # DEFAULT OPTIONS
@@ -102,12 +102,10 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
         return get_latest_testrun_id(CONFIG["global_log"])
 
     def _has_errors(self):
-        return has_errors(CONFIG["global_log"], self.testrun_id)
+        return has_errors(self.testrun_id)
 
     def _has_message(self, string):
-        return has_message(CONFIG["global_log"],
-                           self.testrun_id, 
-                           string)
+        return has_message(self.testrun_id, string)
 
     def _replace_keywords(self, strings):
         new_string = []
@@ -735,29 +733,19 @@ class TestDeviceProperties(unittest.TestCase):
         # Make sure we are not reading logs from previous runs
         self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
 
-        self.assertTrue(has_errors(CONFIG["global_log"],
-                                   testrun_id1))
-        self.assertTrue(has_errors(CONFIG["global_log"],
-                                   testrun_id2))
+        self.assertTrue(has_errors(testrun_id1))
+        self.assertTrue(has_errors(testrun_id2))
 
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
         string1 = """No queue for this_should_not_exist_1"""
         string2 = """No queue for this_should_not_exist_either"""
-        
-        if (has_message(CONFIG["global_log"], 
-                        testrun_id1, 
-                        string1)):
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id2, 
-                                        string2))
+
+        if (has_message(testrun_id1, string1)):
+            self.assertTrue(has_message(testrun_id2, string2))
         else:
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id2, 
-                                        string1))
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id1, 
-                                        string2))
+            self.assertTrue(has_message(testrun_id2, string1))
+            self.assertTrue(has_message(testrun_id1, string2))
 
     def test_one_devicegroup_multiple_devicenames(self):
         options = Options()
@@ -770,7 +758,7 @@ class TestDeviceProperties(unittest.TestCase):
         print "Please make sure the system does not have the devicegroup."
         print "Checking that a separate testrun gets created for all " \
             "devicenames."
-        
+
         old_testrun = get_latest_testrun_id(CONFIG["global_log"])
         result = ots_trigger(options.__dict__)
 
@@ -787,26 +775,20 @@ class TestDeviceProperties(unittest.TestCase):
         # Make sure we are not reading logs from previous runs
         self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
 
-        self.assertTrue(has_errors(CONFIG["global_log"], testrun_id1))
-        self.assertTrue(has_errors(CONFIG["global_log"], testrun_id2))
+        self.assertTrue(has_errors(testrun_id1))
+        self.assertTrue(has_errors(testrun_id2))
 
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
 
         string1 = """No queue for this_should_not_exist.device1"""
         string2 = """No queue for this_should_not_exist.device2"""
-        
-        if (has_message(CONFIG["global_log"], testrun_id1, string1)):
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id2, 
-                                        string2))
+
+        if (has_message(testrun_id1, string1)):
+            self.assertTrue(has_message(testrun_id2, string2))
         else:
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id2, 
-                                        string1))
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id1, 
-                                        string2))
+            self.assertTrue(has_message(testrun_id2, string1))
+            self.assertTrue(has_message(testrun_id1, string2))
 
 
     def test_one_devicegroup_one_devicename_multiple_device_ids(self):
@@ -821,7 +803,7 @@ class TestDeviceProperties(unittest.TestCase):
         print "Please make sure the system does not have the devicegroup."
         print "Checking that a separate testrun gets created for all " \
             "devicenames."
-        
+
         old_testrun = get_latest_testrun_id(CONFIG["global_log"])
         result = ots_trigger(options.__dict__)
 
@@ -839,27 +821,19 @@ class TestDeviceProperties(unittest.TestCase):
         # Make sure we are not reading logs from previous runs
         self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
 
-        self.assertTrue(has_errors(CONFIG["global_log"], testrun_id1))
-        self.assertTrue(has_errors(CONFIG["global_log"], testrun_id2))
-        
+        self.assertTrue(has_errors(testrun_id1))
+        self.assertTrue(has_errors(testrun_id2))
+
 
         # Make sure correct routing keys are used
         string1 = """No queue for this_should_not_exist.device1.id1"""
         string2 = """No queue for this_should_not_exist.device1.id2"""
-        
-        if (has_message(CONFIG["global_log"],
-                        testrun_id1, 
-                        string1)):
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id2, 
-                                        string2))
+
+        if (has_message(testrun_id1, string1)):
+            self.assertTrue(has_message(testrun_id2, string2))
         else:
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id2, 
-                                        string1))
-            self.assertTrue(has_message(CONFIG["global_log"],
-                                        testrun_id1, 
-                                        string2))
+            self.assertTrue(has_message(testrun_id2, string1))
+            self.assertTrue(has_message(testrun_id1, string2))
 
 ########################################
 # TestPlugins
@@ -878,7 +852,7 @@ class TestPlugins(SystemSingleRunTestCaseBase):
                     "Using smtp server",
                     "Email sent"]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_email_invalid_address(self):
         options = Options()
         options.sw_product = CONFIG["sw_product"]

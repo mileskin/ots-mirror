@@ -4,7 +4,8 @@ import threading
 import xmlrpclib
 import time
 from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
-from helpers import CONFIG, base_url, assert_has_messages
+from configuration import CONFIG
+from helpers import base_url, assert_has_messages
 from log_scraper import has_errors
 
 class Result:
@@ -50,7 +51,7 @@ class SystemTest(object):
                 "Email sent",
                 "Testrun finished with result: PASS"
             ])
-            self.test.assertFalse(has_errors(CONFIG["global_log"], id), "Found errors in log %s" % id)
+            self.test.assertFalse(has_errors(id), "Found errors in log %s" % id)
         else:
             raise Exception('Unknown expected result \'%s\'. Actual result: %s'
                             % (expected_result, self.result))

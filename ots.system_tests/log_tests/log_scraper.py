@@ -26,12 +26,14 @@ Scrapes the testrun logs
 
 import urllib2
 
+from configuration import CONFIG
 from BeautifulSoup import BeautifulSoup
 
-def has_errors(log_url, testrun_id):
+def has_errors(testrun_id):
     """
     Checks if testrun has any error messages
     """
+    log_url = CONFIG["global_log"]
     ret_val = False
     file =  urllib2.urlopen(log_url + "testrun/%s/" % testrun_id)
     soup = BeautifulSoup(file.read(), 
@@ -85,13 +87,14 @@ def get_second_latest_testrun_id(log_url):
                 return a
     return None
 
-def has_message(log_url, testrun_id, string, times=None):
+def has_message(testrun_id, string, times=None):
     """
     Tries to find a message in the log for the given testrun.
     Returns True if message was found.
     If times parameter given returns True if string is found as many times
     as defined by count.
     """
+    log_url = CONFIG["global_log"]
     ret_val = False
     count = 0
     file =  urllib2.urlopen(log_url + "testrun/%s/" % testrun_id)
