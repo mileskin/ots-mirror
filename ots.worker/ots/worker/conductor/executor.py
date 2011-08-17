@@ -631,7 +631,7 @@ class Executor(object):
 
         cmd = Command(cmdstr, soft_timeout = timeout, hard_timeout = timeout+5)
         try:
-            cmd.execute()
+            cmd.execute_in_shell()
         except (CommandFailed, SoftTimeoutException, HardTimeoutException), exc:
             self._ssh_command_exception_handler(exc, cmd, task.lower())
         else:
@@ -731,7 +731,7 @@ class Executor(object):
                                 hard_timeout=current_timeout + WAIT_SIGKILL)
 
             try:
-                self.trlite_command.execute(shell=False)
+                self.trlite_command.execute()
             except (SoftTimeoutException, HardTimeoutException), error:
                 # testrunner-lite killed by timeout, we need to collect
                 # files, so we don't want to raise ConductorError
@@ -906,7 +906,7 @@ class Executor(object):
                           soft_timeout = TIMEOUT_FETCH_ENVIRONMENT_DETAILS,
                           hard_timeout = TIMEOUT_FETCH_ENVIRONMENT_DETAILS + 5)
             try:
-                cmd.execute()
+                cmd.execute_in_shell()
             except (SoftTimeoutException, HardTimeoutException):
                 self.log.warning("Command '%s' timed out!" % cmdstr)
                 content += "Command timed out\n\n"
@@ -946,7 +946,7 @@ class Executor(object):
             while error_counter < SSH_CONNECTION_RETRIES:
                 error_counter += 1
                 try:
-                    cmd.execute()
+                    cmd.execute_in_shell()
                 except (SoftTimeoutException, HardTimeoutException):
                     self.log.warning("Failed to fetch file %s (command %s "\
                         "timed out)" % (src_path, cmdstr))

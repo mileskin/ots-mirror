@@ -245,7 +245,7 @@ class RichCorePlugin(ConductorPluginBase):
                       hard_timeout = self.command_timeout + 5)
 
         try:
-            cmd.execute()
+            cmd.execute_in_shell()
         except (SoftTimeoutException, HardTimeoutException):
             LOG.warning("Failed to execute ssh command. (command %s " \
                         "timed out)" % (cmdstr))
