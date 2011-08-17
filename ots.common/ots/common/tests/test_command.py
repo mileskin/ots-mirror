@@ -20,11 +20,11 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-"""Unit tests for ots.worker.command"""
+"""Unit tests for ots.common.command"""
 
 import unittest
 import time
-from ots.worker import command
+from ots.common import command
 import os
 import subprocess
 

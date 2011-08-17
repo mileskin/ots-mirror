@@ -34,9 +34,9 @@ from ots.common.routing.routing import get_queues, DEVICE_GROUP, DEVICE_NAME
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
 
-from ots.worker.command import SoftTimeoutException
-from ots.worker.command import HardTimeoutException
-from ots.worker.command import CommandFailed
+from ots.common.command import SoftTimeoutException
+from ots.common.command import HardTimeoutException
+from ots.common.command import CommandFailed
 
 from StringIO import StringIO
 

@@ -30,10 +30,10 @@ import time
 import pkg_resources
 import signal
 
-from ots.worker.command import Command
-from ots.worker.command import SoftTimeoutException
-from ots.worker.command import HardTimeoutException
-from ots.worker.command import CommandFailed
+from ots.common.command import Command
+from ots.common.command import SoftTimeoutException
+from ots.common.command import HardTimeoutException
+from ots.common.command import CommandFailed
 from ots.worker.conductor.conductor_plugins import ConductorPlugins
 from ots.common.dto.api import MonitorType
 

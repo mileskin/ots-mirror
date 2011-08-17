@@ -32,10 +32,10 @@ import subprocess
 import re
 
 from ots.common.framework.api import ConductorPluginBase
-from ots.worker.command import Command
-from ots.worker.command import SoftTimeoutException
-from ots.worker.command import HardTimeoutException
-from ots.worker.command import CommandFailed
+from ots.common.command import Command
+from ots.common.command import SoftTimeoutException
+from ots.common.command import HardTimeoutException
+from ots.common.command import CommandFailed
 from ots.worker.conductor.conductor_config import HW_COMMAND
 from ots.worker.conductor.helpers import get_logger_adapter
 
@@ -239,7 +239,7 @@ class RichCorePlugin(ConductorPluginBase):
 
         @type command: C{string}
         @param command: Command string to execute
-        @return ots.worker.command
+        @return ots.common.command
         """
         cmd = Command(cmdstr, soft_timeout = self.command_timeout,
                       hard_timeout = self.command_timeout + 5)
