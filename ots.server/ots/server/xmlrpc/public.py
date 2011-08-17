@@ -24,8 +24,9 @@
 This module provides public interface for OTS server
 """
 
-from ots.server.xmlrpc.request_handler import RequestHandler
 import datetime
+
+from ots.server.xmlrpc.request_handler import RequestHandler
 from ots.plugin.logger.models import LogMessage
 
 #############################
