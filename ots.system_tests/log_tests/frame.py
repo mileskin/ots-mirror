@@ -8,6 +8,13 @@ from configuration import CONFIG
 from helpers import base_url, assert_has_messages
 from log_scraper import has_errors
 
+COMMON_SUCCESS_MESSAGES = [
+    "Finished running tests.",
+    "All Tasks completed",
+    "Publishing results",
+    "Email sent",
+    "Testrun finished with result: PASS"]
+
 class Result:
     PASS = "PASS"
     FAIL = "FAIL"
@@ -44,13 +51,7 @@ class SystemTest(object):
             self.test.assertEquals(self.result, Result.PASS,
                 "Result should be '%s', was '%s'." % (Result.PASS, self.result))
             id = self.id()
-            assert_has_messages(self.test, id, [
-                "Finished running tests.",
-                "All Tasks completed",
-                "Publishing results",
-                "Email sent",
-                "Testrun finished with result: PASS"
-            ])
+            assert_has_messages(self.test, id, COMMON_SUCCESS_MESSAGES)
             self.test.assertFalse(has_errors(id), "Found errors in log %s" % id)
         else:
             raise Exception('Unknown expected result \'%s\'. Actual result: %s'
