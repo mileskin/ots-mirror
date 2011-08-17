@@ -1,4 +1,6 @@
 ots (0.8.9-1) unstable; urgency=low
+  * Added public methods for Command class for executing command in a shell or
+    without a shell (thanks to Oskari Pirttikoski)
   * Command class moved under ots.common (thanks to Oskari Pirttikoski)
 
  -- Elias Luttinen <elias.luttinen@digia.com>  Wed, 17 Aug 2011 09:38:00 +0300
