@@ -32,20 +32,55 @@ Export table:
 <table id="testrun_list">
     <thead>
         <tr>
-            <th style="width:25%"><a href="?orderby={{ orderby|format_orderby:'device_group' }}">Device Group
-                <img class="order" src="/media/{{ orderby|order_dir:'device_group' }}.png" alt="{{ orderby|order_dir:'device_group' }}" border="0"/></a></th>
-            <th style="width:25%"><a href="?orderby={{ orderby|format_orderby:'top_requestor' }}">Top Requestor
-                <img class="order" src="/media/{{ orderby|order_dir:'top_requestor' }}.png" alt="{{ orderby|order_dir:'top_requestor' }}" border="0"/></a></th>
-            <th style="width:5%"><a href="?orderby={{ orderby|format_orderby:'runs' }}">Runs
-                <img class="order" src="/media/{{ orderby|order_dir:'runs' }}.png" alt="{{ orderby|order_dir:'runs' }}" border="0"/></a></th>
-            <th style="width:5%"><a href="?orderby={{ orderby|format_orderby:'finished' }}">Finished
-                <img class="order" src="/media/{{ orderby|order_dir:'finished' }}.png" alt="{{ orderby|order_dir:'finished' }}" border="0"/></a></th>
-            <th style="width:5%"><a href="?orderby={{ orderby|format_orderby:'waiting' }}">Waiting
-                <img class="order" src="/media/{{ orderby|order_dir:'waiting' }}.png" alt="{{ orderby|order_dir:'waiting' }}" border="0"/></a></th>
-            <th style="width:5%"><a href="?orderby={{ orderby|format_orderby:'ongoing' }}">Ongoing
-                <img class="order" src="/media/{{ orderby|order_dir:'ongoing' }}.png" alt="{{ orderby|order_dir:'ongoing' }}" border="0"/></a></th>
-            <th style="width:5%"><a href="?orderby={{ orderby|format_orderby:'errors' }}">Error
-                <img class="order" src="/media/{{ orderby|order_dir:'errors' }}.png" alt="{{ orderby|order_dir:'errors' }}" border="0"/></a></th>
+            <th style="width:25%">
+                <a href="?orderby={{ orderby|format_orderby:'device_group' }}">Device Group
+                    {% if orderby|order_dir:'device_group' %}
+                    <img class="order" src="/media/{{ orderby|order_dir:'device_group' }}.png" alt="{{ orderby|order_dir:'device_group' }}" border="0"/>
+                    {% endif %}
+                </a>
+            </th>
+            <th style="width:25%">
+                <a href="?orderby={{ orderby|format_orderby:'top_requestor' }}">Top Requestor
+                    {% if orderby|order_dir:'top_requestor' %}
+                    <img class="order" src="/media/{{ orderby|order_dir:'top_requestor' }}.png" alt="{{ orderby|order_dir:'top_requestor' }}" border="0"/>
+                    {% endif %}
+                </a>
+            </th>
+            <th style="width:5%">
+                <a href="?orderby={{ orderby|format_orderby:'runs' }}">Runs
+                    {% if orderby|order_dir:'runs' %}
+                    <img class="order" src="/media/{{ orderby|order_dir:'runs' }}.png" alt="{{ orderby|order_dir:'runs' }}" border="0"/>
+                    {% endif %}
+                </a>
+            </th>
+            <th style="width:5%">
+                <a href="?orderby={{ orderby|format_orderby:'finished' }}">Finished
+                    {% if orderby|order_dir:'finished' %}
+                    <img class="order" src="/media/{{ orderby|order_dir:'finished' }}.png" alt="{{ orderby|order_dir:'finished' }}" border="0"/>
+                    {% endif %}
+                </a>
+            </th>
+            <th style="width:5%">
+                <a href="?orderby={{ orderby|format_orderby:'waiting' }}">Waiting
+                    {% if orderby|order_dir:'waiting' %}
+                    <img class="order" src="/media/{{ orderby|order_dir:'waiting' }}.png" alt="{{ orderby|order_dir:'waiting' }}" border="0"/>
+                    {% endif %}
+                </a>
+            </th>
+            <th style="width:5%">
+                <a href="?orderby={{ orderby|format_orderby:'ongoing' }}">Ongoing
+                    {% if orderby|order_dir:'ongoing' %}
+                    <img class="order" src="/media/{{ orderby|order_dir:'ongoing' }}.png" alt="{{ orderby|order_dir:'ongoing' }}" border="0"/>
+                    {% endif %}
+                </a>
+            </th>
+            <th style="width:5%">
+                <a href="?orderby={{ orderby|format_orderby:'errors' }}">Error
+                    {% if orderby|order_dir:'errors' %}
+                    <img class="order" src="/media/{{ orderby|order_dir:'errors' }}.png" alt="{{ orderby|order_dir:'errors' }}" border="0"/>
+                    {% endif %}
+                </a>
+            </th>
         </tr>
     </thead>
     <tbody>
