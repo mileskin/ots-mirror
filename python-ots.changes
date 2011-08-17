@@ -1,3 +1,6 @@
+* Wed Aug 17 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.9
+ - Command class moved under ots.common (thanks to Oskari Pirttikoski)
+
 * Tue Aug 16 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.8
  - OTS 0.8.8 release, BMC#20753
  - Target device username is now configurable, BMC#19477
