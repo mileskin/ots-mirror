@@ -1,9 +1,10 @@
 ots (0.8.9-1) unstable; urgency=low
+  * Fixed broken image links of monitor view, BMC#22292
   * Added public methods for Command class for executing command in a shell or
     without a shell (thanks to Oskari Pirttikoski)
   * Command class moved under ots.common (thanks to Oskari Pirttikoski)
 
- -- Elias Luttinen <elias.luttinen@digia.com>  Wed, 17 Aug 2011 09:38:00 +0300
+ -- Elias Luttinen <elias.luttinen@digia.com>  Wed, 17 Aug 2011 14:03:00 +0300
 
 ots (0.8.8-1) unstable; urgency=low
   * OTS 0.8.8 release, BMC#20753

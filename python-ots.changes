@@ -1,4 +1,5 @@
 * Wed Aug 17 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.9
+ - Fixed broken image links of monitor view, BMC#22292
  - Added public methods for Command class for executing command in a shell or
    without a shell (thanks to Oskari Pirttikoski)
  - Command class moved under ots.common (thanks to Oskari Pirttikoski)
