@@ -397,6 +397,9 @@ class Hardware(TestTarget):
                 flasher.flash(image_path=self.testrun.image_path,
                         content_image_path=self.testrun.content_image_path)
 
+        except BootupFailed, exc:
+            raise ConductorError("Device preparation failed at bootup: %s" \
+                                 % exc, "2101")
         except ConnectionTestFailed:
             raise ConductorError("Error in preparing hardware: "\
                                  "Connection test failed!", "2101")

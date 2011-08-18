@@ -59,6 +59,9 @@ class ConnectionTestFailed(Exception):
     """Connection test failed exception"""
     pass
 
+class BootupFailed(ConnectionTestFailed):
+    """Bootup failed exception"""
+    pass
 
 class FlasherPluginBase(object):
     """ Default class for SoftwareUpdater """
