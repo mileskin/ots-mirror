@@ -7,6 +7,7 @@ from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
 from configuration import CONFIG
 from helpers import base_url, assert_has_messages
 from log_scraper import has_errors
+from logging_conf import log
 
 COMMON_SUCCESS_MESSAGES = [
     "Finished running tests.",
@@ -27,12 +28,13 @@ class SystemTest(object):
 
     def run(self, options):
         testname = inspect.stack()[1][3]
-        print "Starting system test '%s' against server %s..." % (testname, CONFIG['server'])
+        log.info("Starting system test '%s' against server %s..." % (testname,
+            CONFIG['server']))
         cookie = str(uuid.uuid4())
         options.system_test_cookie = cookie
         fetch_testrun_id_thread = threading.Thread(
             target=self._fetch_testrun_ids,
-            args=(testname, options.server, cookie, self.testrun_ids))
+            args=(testname, options.server, cookie, self.testrun_ids, log))
         fetch_testrun_id_thread.start()
         parameters = _parameter_validator({}, options.__dict__)
         result = ots_trigger(parameters)
@@ -63,7 +65,7 @@ class SystemTest(object):
         self.test.assertEquals(len(self.testrun_ids), 1, "system test had more than one testrun")
         return self.testrun_ids[0]
 
-    def _fetch_testrun_ids(self, testname, server, cookie, ids):
+    def _fetch_testrun_ids(self, testname, server, cookie, ids, log1):
         rpc = xmlrpclib.Server("http://%s/" % server)
         max_num_retries = 3
         interval = 5
@@ -79,11 +81,12 @@ class SystemTest(object):
             if ids:
                 break
         if not ids:
-            print "ERROR: New test run not found on server after %d seconds, server: %s, cookie: %s" % (max_num_retries * interval, CONFIG['server'], cookie)
+            log1.error("ERROR: New test run not found on server after %d " \
+                "seconds, server: %s, cookie: %s" % \
+                (max_num_retries * interval, CONFIG['server'], cookie))
         for id in ids:
-            print "Testrun: %s" % {
+            log1.info("Testrun: %s" % {
                 "id": id,
                 "name": testname,
-                "url": "%s/logger/view/testrun/%s/" % (base_url(), id)
-            }
+                "url": "%s/logger/view/testrun/%s/" % (base_url(), id)})
 
