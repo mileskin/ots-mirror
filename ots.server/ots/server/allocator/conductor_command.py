@@ -59,15 +59,16 @@ def conductor_command(options, host_testing, chroot_testing):
     # Use global timeout as conductor testrun timeout
     if options['timeout']:
         cmd.extend(["-m", str(options['timeout'])])
-    if options['bootmode']:
-        cmd.extend(["-b", options['bootmode']])
     if options['use_libssh2']:
         cmd.extend(["--libssh2"])
     if options['resume']:
         cmd.extend(["--resume"])
     if options.has_key('testplan_name'):
         cmd.extend(["-p", options['testplan_name']])
-
+    if options.has_key('bootmode'):
+        cmd.extend(["-b", options['bootmode']])
+    if options.has_key('flasher_options'):
+        cmd.extend(['--flasher_options', options['flasher_options']])
     if host_testing == True:
         cmd.extend(['-o'])
 

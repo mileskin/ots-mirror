@@ -98,6 +98,8 @@ class TestRunData(object):
 
         self.flasher_url = options.flasher_url
 
+        self.flasher_options = options.flasher_options
+
         # XML file
         self.xml_file = options.testplan
 

@@ -380,7 +380,8 @@ class Hardware(TestTarget):
             flasher = self.testrun.flasher_module(flasher = flasher_path,
                                                   device_n = self.testrun.device_n,
                                                   host_ip = self.testrun.host_ip_address,
-                                                  device_ip = self.testrun.target_ip_address)
+                                                  device_ip = self.testrun.target_ip_address,
+                                                  options = self.testrun.flasher_options)
             
             self._flasher = flasher
 

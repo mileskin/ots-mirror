@@ -57,6 +57,7 @@ def get_commands(distribution_model,
 
     if extended_options:
         options['bootmode'] = extended_options.get("bootmode", None)
+        options['flasher_options'] = extended_options.get("flasher_options", None)
 
     cmds = []
 
