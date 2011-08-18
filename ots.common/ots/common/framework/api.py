@@ -34,3 +34,4 @@ from ots.common.framework.flasher_plugin_base import FlashFailed
 from ots.common.framework.flasher_plugin_base import InvalidImage
 from ots.common.framework.flasher_plugin_base import InvalidConfig
 from ots.common.framework.flasher_plugin_base import ConnectionTestFailed
+from ots.common.framework.flasher_plugin_base import BootupFailed

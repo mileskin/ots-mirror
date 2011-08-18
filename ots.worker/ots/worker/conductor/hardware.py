@@ -36,6 +36,7 @@ from ots.common.framework.api import FlashFailed
 from ots.common.framework.api import InvalidImage
 from ots.common.framework.api import InvalidConfig
 from ots.common.framework.api import ConnectionTestFailed
+from ots.common.framework.api import BootupFailed
 
 import os
 import shutil
