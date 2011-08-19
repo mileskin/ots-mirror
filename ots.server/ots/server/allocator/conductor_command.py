@@ -44,8 +44,6 @@ def conductor_command(options, host_testing, chroot_testing):
     """
     cmd = ["conductor"]
     cmd.extend(["-u", options['image_url']])
-    if options['emmc_flash_parameter']:
-        cmd.extend(["-e", options['emmc_flash_parameter']])
     if options['testrun_id']:
         cmd.extend(["-i", str(options['testrun_id'])])
     if options['storage_address']:
@@ -65,8 +63,6 @@ def conductor_command(options, host_testing, chroot_testing):
         cmd.extend(["--resume"])
     if options.has_key('testplan_name'):
         cmd.extend(["-p", options['testplan_name']])
-    if options.has_key('bootmode'):
-        cmd.extend(["-b", options['bootmode']])
     if options.has_key('flasher_options'):
         cmd.extend(['--flasher_options=%s' % options['flasher_options']])
     if host_testing == True:
