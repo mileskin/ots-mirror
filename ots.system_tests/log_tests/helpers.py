@@ -8,6 +8,13 @@ def assert_has_messages(test, testrun_id, messages):
     for message in messages:
         assert_has_message(test, testrun_id, message)
 
+def assert_has_not_messages(test, testrun_id, messages):
+    for message in messages:
+        assert_has_not_message(test, testrun_id, message)
+
 def assert_has_message(test, testrun_id, string):
     test.assertTrue(has_message(testrun_id, string), "Missing text: " + string)
+
+def assert_has_not_message(test, testrun_id, string):
+    test.assertFalse(has_message(testrun_id, string), "Found text: " + string)
 

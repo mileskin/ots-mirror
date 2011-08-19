@@ -10,6 +10,7 @@ from log_scraper import has_errors
 from logging_conf import log
 
 COMMON_SUCCESS_MESSAGES = [
+    "Starting conductor at",
     "Finished running tests.",
     "All Tasks completed",
     "Publishing results",
@@ -28,8 +29,7 @@ class SystemTest(object):
 
     def run(self, options):
         testname = inspect.stack()[1][3]
-        log.info("Starting system test '%s' against server %s..." % (testname,
-            CONFIG['server']))
+        self._show_start_info(testname, options)
         cookie = str(uuid.uuid4())
         options.system_test_cookie = cookie
         fetch_testrun_id_thread = threading.Thread(
@@ -89,4 +89,15 @@ class SystemTest(object):
                 "id": id,
                 "name": testname,
                 "url": "%s/logger/view/testrun/%s/" % (base_url(), id)})
+
+    def _show_start_info(self, testname, options):
+        log.info("Starting system test '%s' against server %s..." % (testname,
+            CONFIG['server']))
+        log.info("SW Product: %s" % options.sw_product)
+        log.info("Image: %s" % options.image)
+        log.info("Hosttest: %s" % options.hosttest)
+        log.info("Testpackages: %s" % options.packages)
+        log.info("Device: %s" % options.device)
+        if options.testfilter:
+            log.info("Filters: %s" % options.testfilter)
 

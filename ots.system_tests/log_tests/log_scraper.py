@@ -84,13 +84,14 @@ def get_second_latest_testrun_id():
                 return a
     return None
 
-def has_message(testrun_id, string, times=None):
+def has_message(testrun_id, original_string, times=None):
     """
     Tries to find a message in the log for the given testrun.
     Returns True if message was found.
     If times parameter given returns True if string is found as many times
     as defined by count.
     """
+    string = _replace_keywords(original_string, testrun_id)
     ret_val = False
     count = 0
     soup = _load_testrun_log_page(testrun_id)
@@ -121,6 +122,9 @@ def has_message(testrun_id, string, times=None):
         else:
             return False
 
+
+def _replace_keywords(string, testrun_id):
+    return string.replace("__TESTRUN_ID__", testrun_id)
 
 def _load_testrun_log_page(testrun_id):
     url = global_log_url() + "/testrun/%s/" % testrun_id

@@ -42,7 +42,7 @@ from log_scraper import has_message, has_errors
 from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
 from frame import SystemTest, Result
 from configuration import CONFIG
-from helpers import assert_has_messages
+from helpers import assert_has_messages, assert_has_not_message
 
 ############################################
 # DEFAULT OPTIONS
@@ -107,12 +107,6 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
     def _has_message(self, string):
         return has_message(self.testrun_id, string)
 
-    def _replace_keywords(self, strings):
-        new_string = []
-        for string in strings:
-            new_string.append(string.replace("__TESTRUN_ID__", self.testrun_id))
-        return new_string
-
     def assert_log_contains_string(self, string): 
         self.assertTrue(self._has_message(string), 
                         "'%s' not found on log for testrun_id: '%s'" \
@@ -162,14 +156,6 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
                           "Assertion error: result fails testrun_id: '%s'"\
                          % (self.testrun_id))
 
-    def trigger_testrun_expect_pass(self, options, strings):
-        self._print_options(options)
-        parameters = _parameter_validator({}, options.__dict__)
-        result = ots_trigger(parameters)
-        self.assert_result_is_pass(result)
-        self.assert_false_log_has_errors()
-        self.assert_log_contains_strings(self._replace_keywords(strings))
-
     def trigger_testrun_expect_fail(self, options, strings):
         self._print_options(options)
         parameters = _parameter_validator(options.__dict__, {})
@@ -196,18 +182,17 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
         assert_has_messages(self, tid, [
             "Environment: Hardware",
-            "Testing in Hardware done. No errors."
-        ])
+            "Testing in Hardware done. No errors."])
 
     def test_hw_based_testrun_with_test_definition_tests_using_libssh2(self):
         options = Options()
         options.timeout = 30
         options.use_libssh2 = True
-        expected = ["Environment: Hardware",
-                    "Starting conductor at",
-                    "-t %s -m 1800 --libssh2" % options.packages,
-                    """Finished running tests."""]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Hardware",
+            "Starting conductor at",
+            "-t %s -m 1800 --libssh2" % options.packages])
 
     def test_hw_based_testrun_split_into_multiple_tasks(self):
         options = Options()
@@ -216,13 +201,12 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
             "test-definition-tests testrunner-lite-regression-tests"
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
-        expected = ["Starting conductor at",
-          "Finished running tests.",
-          "Testrun ID: __TESTRUN_ID__  Environment: Hardware",
-          "Beginning to execute test package: test-definition-tests",
-          "Beginning to execute test package: testrunner-lite-regression-test",
-          "Executed 1 cases. Passed 1 Failed 0"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Testrun ID: __TESTRUN_ID__  Environment: Hardware",
+            "Beginning to execute test package: test-definition-tests",
+            "Beginning to execute test package: testrunner-lite-regression-test",
+            "Executed 1 cases. Passed 1 Failed 0"])
 
     def test_hw_based_testrun_with_multiple_tests(self):
         options = Options()
@@ -232,11 +216,9 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Testrun finished with result: PASS",
-                    "Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Hardware"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Hardware"])
 
     def test_hw_based_testrun_with_testplan(self):
         options = Options()
@@ -244,13 +226,11 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.hw_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Testrun finished with result: PASS",
-                    "Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Hardware",
-                    "Beginning to execute test package: echo_system_tests.xml",
-                    "Executed 1 cases. Passed 1 Failed 0"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Hardware",
+            "Beginning to execute test package: echo_system_tests.xml",
+            "Executed 1 cases. Passed 1 Failed 0"])
 
     def test_hw_based_testrun_with_multiple_testplan(self):
         options = Options()
@@ -259,14 +239,12 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                               "data/ls_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Testrun finished with result: PASS",
-                    "Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Hardware",
-                    "Beginning to execute test package: echo_system_tests.xml",
-                    "Executed 1 cases. Passed 1 Failed 0",
-                    "Beginning to execute test package: ls_system_tests.xml"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Hardware",
+            "Beginning to execute test package: echo_system_tests.xml",
+            "Executed 1 cases. Passed 1 Failed 0",
+            "Beginning to execute test package: ls_system_tests.xml"])
 
 ############################################
 # TestHostBasedSuccessfulTestruns
@@ -279,12 +257,9 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.hosttest = "test-definition-tests"
         options.packages = ""
         options.timeout = 30
-        expected = ["Testrun finished with result: PASS",
-                    "Environment: Host_Hardware",
-                    "Starting conductor at",
-                    """Finished running tests."""]
-        self.trigger_testrun_expect_pass(options, expected)
-        self.assert_log_doesnt_contain_string("Environment: Hardware")
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_not_messages(self, tid, [
+            "Environment: Hardware"])
 
     def test_host_based_testrun_split_into_multiple_tasks(self):
         options = Options()
@@ -293,13 +268,12 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
             "test-definition-tests testrunner-lite-regression-tests"
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
-        expected = ["Starting conductor at",
-          "Finished running tests.",
-          "Testrun ID: __TESTRUN_ID__  Environment: Host_Hardware",
-          "Beginning to execute test package: test-definition-tests",
-          "Beginning to execute test package: testrunner-lite-regression-test",
-          "Executed 1 cases. Passed 1 Failed 0"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Testrun ID: __TESTRUN_ID__  Environment: Host_Hardware",
+            "Beginning to execute test package: test-definition-tests",
+            "Beginning to execute test package: testrunner-lite-regression-test",
+            "Executed 1 cases. Passed 1 Failed 0"])
 
     def test_host_based_testrun_with_multiple_tests(self):
         options = Options()
@@ -308,10 +282,9 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
             "test-definition-tests testrunner-lite-regression-tests"
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
-        expected = ["Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Host_Hardware"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Host_Hardware"])
 
     def test_host_based_testrun_with_testplan(self):
         options = Options()
@@ -319,12 +292,11 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.host_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Host_Hardware",
-                    "Beginning to execute test package: echo_system_tests.xml",
-                    "Executed 1 cases. Passed 1 Failed 0"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Host_Hardware",
+            "Beginning to execute test package: echo_system_tests.xml",
+            "Executed 1 cases. Passed 1 Failed 0"])
 
     def test_host_based_testrun_with_multiple_testplan(self):
         options = Options()
@@ -333,13 +305,12 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                               "data/ls_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Host_Hardware",
-                    "Beginning to execute test package: echo_system_tests.xml",
-                    "Executed 1 cases. Passed 1 Failed 0",
-                    "Beginning to execute test package: ls_system_tests.xml"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Host_Hardware",
+            "Beginning to execute test package: echo_system_tests.xml",
+            "Executed 1 cases. Passed 1 Failed 0",
+            "Beginning to execute test package: ls_system_tests.xml"])
 
 ############################################
 # TestChrootBasedSuccessfulTestruns
@@ -352,12 +323,10 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.timeout = 30
         options.rootstrap = CONFIG["rootstrap_url"]
         options.chroottest = "test-definition-tests"
-        expected = ["Environment: chroot",
-                    "Starting conductor at",
-                    "Finished running tests.",
-                    "Testrun finished with result: PASS",
-                    "Testing in chroot done. No errors."]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: chroot",
+            "Testing in chroot done. No errors."])
 
     def test_chroot_based_testrun_split_into_multiple_tasks(self):
         options = Options()
@@ -367,15 +336,13 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.rootstrap = CONFIG["rootstrap_url"]
         options.chroottest = \
             "test-definition-tests testrunner-lite-regression-tests"
-
-        expected = ["Starting conductor at",
-          "Finished running tests.",
-          "Testrun ID: __TESTRUN_ID__  Environment: chroot",
-          "Beginning to execute test package: test-definition-tests",
-          "Beginning to execute test package: testrunner-lite-regression-test",
-          "Executed 1 cases. Passed 1 Failed 0",
-          "Testing in chroot done. No errors."]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Testrun ID: __TESTRUN_ID__  Environment: chroot",
+            "Beginning to execute test package: test-definition-tests",
+            "Beginning to execute test package: testrunner-lite-regression-test",
+            "Executed 1 cases. Passed 1 Failed 0",
+            "Testing in chroot done. No errors."])
 
     def test_chroot_based_testrun_with_multiple_tests(self):
         options = Options()
@@ -385,11 +352,10 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.rootstrap = CONFIG["rootstrap_url"]
         options.chroottest = \
             "test-definition-tests testrunner-lite-regression-tests"
-        expected = ["Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: chroot",
-                    "Testing in chroot done. No errors."]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: chroot",
+            "Testing in chroot done. No errors."])
 
 ############################################
 # TestMixedSuccessfulTestruns
@@ -401,11 +367,10 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options = Options()
         options.hosttest = "test-definition-tests"
         options.timeout = 60
-        expected = ["Environment: Hardware",
-                    "Environment: Host_Hardware",
-                    "Starting conductor at",
-                    """Finished running tests."""]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Hardware",
+            "Environment: Host_Hardware"])
 
     def test_hw_and_host_based_testrun_split_into_multiple_tasks(self):
         options = Options()
@@ -416,11 +381,10 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
             "test-definition-tests testrunner-lite-regression-tests"
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 120
-        expected = ["Starting conductor at",
-          "Environment: Host_Hardware",
-          "Environment: Hardware",
-          "Finished running tests."]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Host_Hardware",
+            "Environment: Hardware"])
 
     def test_hw_and_host_based_testplans(self):
         options = Options()
@@ -429,14 +393,13 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.host_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Host_Hardware",
-                    "Environment: Hardware",
-                    "Beginning to execute test package: echo_system_tests.xml",
-                    "Executed 1 cases. Passed 1 Failed 0",
-                    "Beginning to execute test package: ls_system_tests.xml"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Host_Hardware",
+            "Environment: Hardware",
+            "Beginning to execute test package: echo_system_tests.xml",
+            "Executed 1 cases. Passed 1 Failed 0",
+            "Beginning to execute test package: ls_system_tests.xml"])
 
     def test_hw_test_package_and_test_plan(self):
         options = Options()
@@ -444,13 +407,12 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.hw_testplans = ["data/ls_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Hardware",
-                    "Beginning to execute test package: ls_system_tests.xml",
-                    "Executed 1 cases. Passed 1 Failed 0",
-                    "Beginning to execute test package: test-definition-tests"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Hardware",
+            "Beginning to execute test package: ls_system_tests.xml",
+            "Executed 1 cases. Passed 1 Failed 0",
+            "Beginning to execute test package: test-definition-tests"])
 
     def test_host_test_package_and_test_plan(self):
         options = Options()
@@ -459,13 +421,12 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.hosttest = "test-definition-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Host_Hardware",
-                    "Beginning to execute test package: ls_system_tests.xml",
-                    "Executed 1 cases. Passed 1 Failed 0",
-                    "Beginning to execute test package: test-definition-tests"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Host_Hardware",
+            "Beginning to execute test package: ls_system_tests.xml",
+            "Executed 1 cases. Passed 1 Failed 0",
+            "Beginning to execute test package: test-definition-tests"])
 
     def test_host_and_hw_test_package_and_test_plan(self):
         options = Options()
@@ -475,16 +436,14 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.hosttest = "testrunner-lite-regression-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Host_Hardware",
-                    "Environment: Hardware",
-                    "Beginning to execute test package: ls_system_tests.xml",
-                    "Beginning to execute test package: echo_system_tests.xml",
-                    "Beginning to execute test package: test-definition-tests",
-                    "Beginning to execute test package: testrunner-lite-regression-tests"]
-        self.trigger_testrun_expect_pass(options, expected)
-
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Host_Hardware",
+            "Environment: Hardware",
+            "Beginning to execute test package: ls_system_tests.xml",
+            "Beginning to execute test package: echo_system_tests.xml",
+            "Beginning to execute test package: test-definition-tests",
+            "Beginning to execute test package: testrunner-lite-regression-tests"])
 
     def test_hw_host_chroot_based_testrun_with_test_definition_tests(self):
         options = Options()
@@ -492,12 +451,11 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.chroottest = "test-definition-tests"
         options.rootstrap = CONFIG["rootstrap_url"]
         options.timeout = 60
-        expected = ["Environment: Hardware",
-                    "Environment: Host_Hardware",
-                    "Environment: chroot",
-                    "Starting conductor at",
-                    """Finished running tests."""]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Environment: Hardware",
+            "Environment: Host_Hardware",
+            "Environment: chroot"])
 
 ############################################
 # TestMiscSuccessfulTestruns
@@ -577,12 +535,12 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Beginning to execute test package: test-definition-tests",
-                    "Beginning to execute test package: testrunner-lite-regression-tests",
-                    "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
-                    "Environment: Host_Hardware",
-                    ]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Beginning to execute test package: test-definition-tests",
+            "Beginning to execute test package: testrunner-lite-regression-tests",
+            "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
+            "Environment: Host_Hardware"])
 
     def test_load_optimized_distribution_model_for_hw_packages(self):
         options = Options()
@@ -591,12 +549,12 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
-        expected = ["Beginning to execute test package: test-definition-tests",
-                    "Beginning to execute test package: testrunner-lite-regression-tests",
-                    "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
-                    "Environment: Hardware",
-                    ]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Beginning to execute test package: test-definition-tests",
+            "Beginning to execute test package: testrunner-lite-regression-tests",
+            "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
+            "Environment: Hardware"])
 
     def test_optimized_without_packages(self):
         options = Options()
@@ -841,11 +799,12 @@ class TestPlugins(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
-        expected = ["Plugin: ots.plugin.conductor.richcore loaded",
-                    "history data saved",
-                    "Using smtp server",
-                    "Email sent"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Plugin: ots.plugin.conductor.richcore loaded",
+            "history data saved",
+            "Using smtp server",
+            "Email sent"])
 
     def test_email_invalid_address(self):
         options = Options()
@@ -870,8 +829,9 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
-        expected = ["Loaded flasher 'meego-ai-flasher-n900'"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Loaded flasher 'meego-ai-flasher-n900'"])
 
     def test_load_separated_settings(self):
         options = Options()
@@ -879,8 +839,9 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
-        expected = ["using config file /etc/ots/conductor_"]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "using config file /etc/ots/conductor_"])
 
 class TestConductorPlugin(SystemSingleRunTestCaseBase):
     """Tests for conductor plug-ins"""
@@ -894,17 +855,13 @@ class TestConductorPlugin(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
-        expected = ["ExampleConductorPlugin before_testrun " \
-                    "method called.",
-                    "ExampleConductorPlugin after_testrun " \
-                    "method called.",
-                    "ExampleConductorPlugin set_target method " \
-                    "called.",
-                    "ExampleConductorPlugin set_result_dir method " \
-                    "called.",
-                    "ExampleConductorPlugin get_result_files method " \
-                    "called."]
-        self.trigger_testrun_expect_pass(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "ExampleConductorPlugin before_testrun method called.",
+            "ExampleConductorPlugin after_testrun method called.",
+            "ExampleConductorPlugin set_target method called.",
+            "ExampleConductorPlugin set_result_dir method called.",
+            "ExampleConductorPlugin get_result_files method called."])
 
 
 if __name__ == "__main__":
