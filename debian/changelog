@@ -1,10 +1,12 @@
 ots (0.8.9-1) unstable; urgency=low
+  * BootupFailed exception added to the flasher interface
+    (thanks to Oskari Pirttikoski)
   * Fixed broken image links of monitor view, BMC#22292
   * Added public methods for Command class for executing command in a shell or
     without a shell (thanks to Oskari Pirttikoski)
   * Command class moved under ots.common (thanks to Oskari Pirttikoski)
 
- -- Elias Luttinen <elias.luttinen@digia.com>  Wed, 17 Aug 2011 14:03:00 +0300
+ -- Elias Luttinen <elias.luttinen@digia.com>  Fri, 19 Aug 2011 14:25:00 +0300
 
 ots (0.8.8-1) unstable; urgency=low
   * OTS 0.8.8 release, BMC#20753

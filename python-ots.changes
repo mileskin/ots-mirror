@@ -1,4 +1,6 @@
-* Wed Aug 17 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.9
+* Fri Aug 19 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.9
+ - BootupFailed exception added to the flasher interface
+   (thanks to Oskari Pirttikoski)
  - Fixed broken image links of monitor view, BMC#22292
  - Added public methods for Command class for executing command in a shell or
    without a shell (thanks to Oskari Pirttikoski)
