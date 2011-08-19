@@ -81,7 +81,7 @@ class SystemTest(object):
             if ids:
                 break
         if not ids:
-            log1.error("ERROR: New test run not found on server after %d " \
+            log1.error("New test run not found on server after %d " \
                 "seconds, server: %s, cookie: %s" % \
                 (max_num_retries * interval, CONFIG['server'], cookie))
         for id in ids:
