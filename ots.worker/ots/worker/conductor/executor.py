@@ -98,7 +98,7 @@ class TestRunData(object):
 
         self.flasher_url = options.flasher_url
 
-        self.flasher_options = options.flasher_options
+        self.flasher_options = self._extract_flasher_options(options.flasher_options)
 
         # XML file
         self.xml_file = options.testplan
@@ -160,6 +160,13 @@ class TestRunData(object):
 
         if options.device_n:
             self.device_n = options.device_n
+
+    def _extract_flasher_options(self, flasher_options):
+        """
+        Extract flasher options from string to dict
+        """
+        return dict([pair.split(':', 1) \
+               for pair in options.split(",") if ':' in pair])
 
     def _parse_image_filename_from_url(self):
         """ 

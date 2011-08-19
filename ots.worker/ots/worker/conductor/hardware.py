@@ -381,7 +381,7 @@ class Hardware(TestTarget):
                                                   device_n = self.testrun.device_n,
                                                   host_ip = self.testrun.host_ip_address,
                                                   device_ip = self.testrun.target_ip_address,
-                                                  options = self.testrun.flasher_options)
+                                                  flasher_options = self.testrun.flasher_options)
             
             self._flasher = flasher
 
