@@ -99,7 +99,7 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
 
     @property
     def testrun_id(self):
-        return get_latest_testrun_id(CONFIG["global_log"])
+        return get_latest_testrun_id()
 
     def _has_errors(self):
         return has_errors(self.testrun_id)
@@ -718,15 +718,15 @@ class TestDeviceProperties(unittest.TestCase):
         print "Checking that a separate testrun gets created for all " \
             "devicegroups."
 
-        old_testrun = get_latest_testrun_id(CONFIG["global_log"])
+        old_testrun = get_latest_testrun_id()
         print "latest testrun_id before test: %s" % old_testrun
         result = ots_trigger(options.__dict__)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
 
-        testrun_id1 = get_second_latest_testrun_id(CONFIG["global_log"])
-        testrun_id2 = get_latest_testrun_id(CONFIG["global_log"])
+        testrun_id1 = get_second_latest_testrun_id()
+        testrun_id2 = get_latest_testrun_id()
         print "testrun_id1: %s" %testrun_id1
         print "testrun_id2: %s" %testrun_id2
 
@@ -759,14 +759,14 @@ class TestDeviceProperties(unittest.TestCase):
         print "Checking that a separate testrun gets created for all " \
             "devicenames."
 
-        old_testrun = get_latest_testrun_id(CONFIG["global_log"])
+        old_testrun = get_latest_testrun_id()
         result = ots_trigger(options.__dict__)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
 
-        testrun_id1 = get_second_latest_testrun_id(CONFIG["global_log"])
-        testrun_id2 = get_latest_testrun_id(CONFIG["global_log"])
+        testrun_id1 = get_second_latest_testrun_id()
+        testrun_id2 = get_latest_testrun_id()
 
         print "latest testrun_id before test: %s" % old_testrun
         print "testrun_id1: %s" %testrun_id1
@@ -804,14 +804,14 @@ class TestDeviceProperties(unittest.TestCase):
         print "Checking that a separate testrun gets created for all " \
             "devicenames."
 
-        old_testrun = get_latest_testrun_id(CONFIG["global_log"])
+        old_testrun = get_latest_testrun_id()
         result = ots_trigger(options.__dict__)
 
         # Check the return value
         self.assertEquals(result, "ERROR")
 
-        testrun_id1 = get_second_latest_testrun_id(CONFIG["global_log"])
-        testrun_id2 = get_latest_testrun_id(CONFIG["global_log"])
+        testrun_id1 = get_second_latest_testrun_id()
+        testrun_id2 = get_latest_testrun_id()
 
         print "latest testrun_id before test: %s" % old_testrun
         print "testrun_id1: %s" %testrun_id1

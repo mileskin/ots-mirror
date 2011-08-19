@@ -26,7 +26,7 @@ Scrapes the testrun logs
 
 import urllib2
 
-from configuration import CONFIG
+from configuration import CONFIG, global_log_url
 from BeautifulSoup import BeautifulSoup
 from custom_exceptions import SystemTestException
 
@@ -52,14 +52,14 @@ def has_errors(testrun_id):
     return ret_val
 
 
-def get_latest_testrun_id(log_url):
+def get_latest_testrun_id():
     """
     Scrape the latest testrun id from the global log
     """
     proxy_support = urllib2.ProxyHandler({})
     opener = urllib2.build_opener(proxy_support)
     urllib2.install_opener(opener)
-    file =  urllib2.urlopen(log_url)
+    file =  urllib2.urlopen(global_log_url())
     soup = BeautifulSoup(file.read())
     table =  soup.findAll("table")[1]
     row1 = table.findAll("tr")[1]
@@ -67,12 +67,12 @@ def get_latest_testrun_id(log_url):
     a = td.findAll("a")[0].string
     return a
 
-def get_second_latest_testrun_id(log_url):
+def get_second_latest_testrun_id():
     """
     Scrape the second latest testrun id from the global log
     """
-    latest = get_latest_testrun_id(log_url)
-    file =  urllib2.urlopen(log_url)
+    latest = get_latest_testrun_id()
+    file =  urllib2.urlopen(global_log_url())
     soup = BeautifulSoup(file.read())
     table =  soup.findAll("table")[1]
     rows = table.findAll("tr")
@@ -123,7 +123,7 @@ def has_message(testrun_id, string, times=None):
 
 
 def _load_testrun_log_page(testrun_id):
-    url = CONFIG["global_log"] + "testrun/%s/" % testrun_id
+    url = global_log_url() + "/testrun/%s/" % testrun_id
     try:
         file = urllib2.urlopen(url)
     except Exception, e:
