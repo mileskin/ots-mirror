@@ -57,7 +57,7 @@ class Options(object):
         self.build_id = CONFIG["build_id"]
         self.sw_product = CONFIG["sw_product"]
         self.image = CONFIG["image_url"]
-        self.packages = ""
+        self.packages = "test-definition-tests"
         self.hosttest = ""
         self.hw_testplans = ""
         self.host_testplans = ""
@@ -193,7 +193,6 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_hw_based_testrun_with_test_definition_tests(self):
         options = Options()
-        options.packages = "test-definition-tests"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
         assert_has_messages(self, tid, [
             "Environment: Hardware",
@@ -202,7 +201,6 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 
     def test_hw_based_testrun_with_test_definition_tests_using_libssh2(self):
         options = Options()
-        options.packages = "test-definition-tests"
         options.timeout = 30
         options.use_libssh2 = True
         expected = ["Environment: Hardware",
@@ -314,7 +312,7 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Finished running tests.",
                     "Environment: Host_Hardware"]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_host_based_testrun_with_testplan(self):
         options = Options()
         options.distribution_model = "default"
@@ -327,7 +325,7 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Beginning to execute test package: echo_system_tests.xml",
                     "Executed 1 cases. Passed 1 Failed 0"]
         self.trigger_testrun_expect_pass(options, expected)
-    
+
     def test_host_based_testrun_with_multiple_testplan(self):
         options = Options()
         options.distribution_model = "default"
@@ -402,7 +400,6 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     def test_hw_and_host_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.hosttest = "test-definition-tests"
-        options.packages = "test-definition-tests"
         options.timeout = 60
         expected = ["Environment: Hardware",
                     "Environment: Host_Hardware",
@@ -424,7 +421,7 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
           "Environment: Hardware",
           "Finished running tests."]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_hw_and_host_based_testplans(self):
         options = Options()
         options.distribution_model = "default"
@@ -440,12 +437,11 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Executed 1 cases. Passed 1 Failed 0",
                     "Beginning to execute test package: ls_system_tests.xml"]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_hw_test_package_and_test_plan(self):
         options = Options()
         options.distribution_model = "default"
         options.hw_testplans = ["data/ls_system_tests.xml"]
-        options.packages = "test-definition-tests"
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         expected = ["Starting conductor at",
@@ -455,7 +451,7 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Executed 1 cases. Passed 1 Failed 0",
                     "Beginning to execute test package: test-definition-tests"]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_host_test_package_and_test_plan(self):
         options = Options()
         options.distribution_model = "default"
@@ -470,12 +466,11 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
                     "Executed 1 cases. Passed 1 Failed 0",
                     "Beginning to execute test package: test-definition-tests"]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_host_and_hw_test_package_and_test_plan(self):
         options = Options()
         options.distribution_model = "default"
         options.hw_testplans = ["data/echo_system_tests.xml"]
-        options.packages = "test-definition-tests"
         options.host_testplans = ["data/ls_system_tests.xml"]
         options.hosttest = "testrunner-lite-regression-tests"
         options.sw_product = CONFIG["sw_product"]
@@ -494,7 +489,6 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
     def test_hw_host_chroot_based_testrun_with_test_definition_tests(self):
         options = Options()
         options.hosttest = "test-definition-tests"
-        options.packages = "test-definition-tests"
         options.chroottest = "test-definition-tests"
         options.rootstrap = CONFIG["rootstrap_url"]
         options.timeout = 60
@@ -575,7 +569,7 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         options.timeout = 1
         self.trigger_testrun_expect_error(options,
                         ["ValueError: Invalid distribution model"])
-        
+
     def test_load_optimized_distribution_model_for_host_packages(self):
         options = Options()
         options.hosttest = "test-definition-tests testrunner-lite-regression-tests"
@@ -589,7 +583,7 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
                     "Environment: Host_Hardware",
                     ]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_load_optimized_distribution_model_for_hw_packages(self):
         options = Options()
         options.packages = "test-definition-tests testrunner-lite-regression-tests"
@@ -603,14 +597,14 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
                     "Environment: Hardware",
                     ]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_optimized_without_packages(self):
         options = Options()
         options.distribution_model = "optimized"
         options.hw_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 10
-        
+
         self.trigger_testrun_expect_error(options, 
                     ["No commands created"])
 
@@ -630,7 +624,7 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         expected = ["Error: Could not download file %s, Error code: 103" % path,
                     "Starting conductor at"]
         self.trigger_testrun_expect_error(options, expected)
-    
+
     def test_timeout(self):
         options = Options()
         options.packages = "testrunner-lite-regression-tests"
@@ -695,7 +689,7 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options = Options()
         options.distribution_model = "perpackage"
         options.timeout = 1
-        
+
         self.trigger_testrun_expect_error(options, 
                     ["Test packages must be defined for specified " \
                      "distribution model 'perpackage'"])
@@ -864,13 +858,12 @@ class TestPlugins(SystemSingleRunTestCaseBase):
 
 
 class TestMultiDevice(SystemSingleRunTestCaseBase):
-    
     #
     # These tests are requiring that one ots-worker
     # is started as number 1 and uses meego-ai-flasher-n900
     # flasher.
     #
-    
+
     def test_load_flasher_plugin(self):
         options = Options()
         options.hosttest = "test-definition-tests"
@@ -879,7 +872,7 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         options.testfilter = "testcase=Check-basic-schema"
         expected = ["Loaded flasher 'meego-ai-flasher-n900'"]
         self.trigger_testrun_expect_pass(options, expected)
-        
+
     def test_load_separated_settings(self):
         options = Options()
         options.hosttest = "test-definition-tests"
