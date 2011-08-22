@@ -434,19 +434,14 @@ class TestMiscSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.packages = "testrunner-lite-regression-tests"
         options.timeout = 30
         options.testfilter = "testcase=trlitereg01,trlitereg02"
-        #
-        self._print_options(options)
-        result = ots_trigger(options.__dict__)
-        self.assert_result_is_pass(result)
-        self.assert_false_log_has_errors()
-        self.assert_log_contains_string("Testrun finished with result: PASS")
-        expected = ["Test case quoting_01 is filtered",
-                    "Test case quoting_01 is filtered",
-                    "Executed 2 cases. Passed 2 Failed 0"]
-        self.assert_log_contains_strings(expected)
-        expected = ["Test case trlitereg01 is filtered",
-                    "Test case trlitereg02 is filtered"]
-        self.assert_log_doesnt_contain_strings(expected)
+        tid = SystemTest(self).run(options).verify(Result.PASS).id()
+        assert_has_messages(self, tid, [
+            "Test case quoting_01 is filtered",
+            "Test case quoting_01 is filtered",
+            "Executed 2 cases. Passed 2 Failed 0"])
+        assert_has_not_messages(self, tid, [
+            "Test case trlitereg01 is filtered",
+            "Test case trlitereg02 is filtered"])
 
     def test_hw_based_testrun_with_resume_continue(self):
         options = Options()
