@@ -609,43 +609,19 @@ class TestDeviceProperties(unittest.TestCase):
             "device1 deviceid:id1;devicegroup:this_should_not_exist " \
             "devicename:device1 deviceid:id2"
         options.timeout = 1
-        print "****************************"
-        print "Calling ots xmlrpc with one devicegroup, one devicename, " \
-            "multiple device ids: '%s'" % options.device
-        print "Please make sure the system does not have the devicegroup."
-        print "Checking that a separate testrun gets created for all " \
-            "devicenames."
-
-        old_testrun = get_latest_testrun_id()
-        result = ots_trigger(options.__dict__)
-
-        # Check the return value
-        self.assertEquals(result, "ERROR")
-
-        testrun_id1 = get_second_latest_testrun_id()
-        testrun_id2 = get_latest_testrun_id()
-
-        print "latest testrun_id before test: %s" % old_testrun
-        print "testrun_id1: %s" %testrun_id1
-        print "testrun_id2: %s" %testrun_id2
-
-
-        # Make sure we are not reading logs from previous runs
-        self.assertTrue(old_testrun not in (testrun_id1, testrun_id2))
-
+        test = SystemTest(self).run(options).verify(Result.ERROR)
+        testrun_id1 = test.testrun_ids[0]
+        testrun_id2 = test.testrun_ids[1]
         self.assertTrue(has_errors(testrun_id1))
         self.assertTrue(has_errors(testrun_id2))
-
-
         # Make sure correct routing keys are used
         string1 = """No queue for this_should_not_exist.device1.id1"""
         string2 = """No queue for this_should_not_exist.device1.id2"""
-
         if (has_message(testrun_id1, string1)):
-            self.assertTrue(has_message(testrun_id2, string2))
+            assert_has_message(self, testrun_id2, string2)
         else:
-            self.assertTrue(has_message(testrun_id2, string1))
-            self.assertTrue(has_message(testrun_id1, string2))
+            assert_has_message(self, testrun_id2, string1)
+            assert_has_message(self, testrun_id1, string2)
 
 ########################################
 # TestPlugins
