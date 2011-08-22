@@ -37,9 +37,7 @@ import unittest
 import os
 import configobj
 
-from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
 from log_scraper import has_message, has_errors
-from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
 from frame import SystemTest, Result
 from configuration import CONFIG
 from helpers import assert_has_message, assert_has_messages, assert_has_not_messages
@@ -566,7 +564,6 @@ class TestDeviceProperties(unittest.TestCase):
         options.device = "devicegroup:this_should_not_exist_1;devicegroup:" \
             "this_should_not_exist_either"
         options.timeout = 1
-        old_testrun = get_latest_testrun_id()
         test = SystemTest(self).run(options).verify(Result.ERROR)
         testrun_id1 = test.testrun_ids[0]
         testrun_id2 = test.testrun_ids[1]
