@@ -125,11 +125,6 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
         for string in strings:
             self.assert_log_doesnt_contain_string(string)
 
-    def assert_true_log_has_errors(self):
-        self.assertTrue(self._has_errors(),
-                        "Error messages no found for testrun_id: '%s'" \
-                        % (self.testrun_id))
-
     def assert_false_log_has_errors(self):
         self.assertFalse(self._has_errors(),
                         "Error messages no found for testrun_id: '%s'" \
@@ -141,21 +136,6 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
                           "PASS",
                           "Assertion error: result fails testrun_id: '%s'"\
                          % (self.testrun_id))
-
-    def assert_result_is_error(self, result):
-        self.assert_log_contains_string("Result set to ERROR")
-        self.assertEquals(result,
-                          "ERROR",
-                          "Assertion error: result fails testrun_id: '%s'"\
-                         % (self.testrun_id))
-
-    def trigger_testrun_expect_error(self, options, strings):
-        self._print_options(options)
-        parameters = _parameter_validator({}, options.__dict__)
-        result = ots_trigger(parameters)
-        self.assert_result_is_error(result)
-        self.assert_true_log_has_errors()
-        self.assert_log_contains_strings(self._replace_keywords(strings))
 
 ############################################
 # TestHWBasedSuccessfulTestruns
@@ -503,15 +483,17 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         options = Options()
         options.distribution_model = "example_model"
         options.timeout = 1
-        self.trigger_testrun_expect_error(options, 
-                        ["Example distribution model not implemented"])
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "Example distribution model not implemented"])
 
     def test_load_invalid_distribution_model(self):
         options = Options()
         options.distribution_model = "invalid_distribution_model"
         options.timeout = 1
-        self.trigger_testrun_expect_error(options,
-                        ["ValueError: Invalid distribution model"])
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "ValueError: Invalid distribution model"])
 
     def test_load_optimized_distribution_model_for_host_packages(self):
         options = Options()
@@ -547,9 +529,9 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
         options.hw_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 10
-
-        self.trigger_testrun_expect_error(options, 
-                    ["No commands created"])
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "No commands created"])
 
 
 ##########################################
@@ -564,78 +546,83 @@ class TestErrorConditions(SystemSingleRunTestCaseBase):
         options.packages = "testrunner-lite-regression-tests"
         options.timeout = 30
         path = os.path.basename(options.image)
-        expected = ["Error: Could not download file %s, Error code: 103" % path,
-                    "Starting conductor at"]
-        self.trigger_testrun_expect_error(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "Error: Could not download file %s, Error code: 103" % path,
+            "Starting conductor at"])
 
     def test_timeout(self):
         options = Options()
         options.packages = "testrunner-lite-regression-tests"
         options.timeout = 1
-        expected = ["Error: Timeout while executing test package " \
-                    "testrunner-lite-regression-tests, Error code: 1091",
-                    "Test execution error: Timeout while executing test " \
-                    "package testrunner-lite-regression-tests"]
-        self.trigger_testrun_expect_error(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "Error: Timeout while executing test package " \
+            "testrunner-lite-regression-tests, Error code: 1091",
+            "Test execution error: Timeout while executing test " \
+            "package testrunner-lite-regression-tests"])
 
     def test_non_existing_devicegroup(self):
         options = Options()
         options.device = "devicegroup:this_should_not_exist"
         options.timeout = 1
-        expected = [
-          "No queue for this_should_not_exist",
-          "Incoming request: program: %s, request: %s, " \
-          "notify_list: ['%s'], options: {" \
-              % (CONFIG["sw_product"], CONFIG["build_id"], CONFIG["email"]),
-          "'image': '%s'" % (CONFIG["image_url"]),
-          "'distribution_model': 'default'",
-          "'timeout': 1",
-          "'device': 'devicegroup:this_should_not_exist'"]
-        self.trigger_testrun_expect_error(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "No queue for this_should_not_exist",
+            "Incoming request: program: %s, request: %s, " \
+            "notify_list: ['%s'], options: {" \
+                % (CONFIG["sw_product"], CONFIG["build_id"], CONFIG["email"]),
+            "'image': '%s'" % (CONFIG["image_url"]),
+            "'distribution_model': 'default'",
+            "'timeout': 1",
+            "'device': 'devicegroup:this_should_not_exist'"])
 
     def test_non_existing_sw_product(self):
         options = Options()
         options.sw_product = "this_should_not_exist"
         options.timeout = 1
-        expected = [
-           "'this_should_not_exist' not found",
-           "Incoming request: program: this_should_not_exist, request: %s, " \
-           "notify_list: ['%s'], options: {"  % (CONFIG["build_id"],
-                                                 CONFIG["email"]),
-           "'image': '%s'" % (CONFIG["image_url"]),
-           "'distribution_model': 'default'",
-           "'timeout': 1"]
-        self.trigger_testrun_expect_error(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "'this_should_not_exist' not found",
+            "Incoming request: program: this_should_not_exist, request: %s, " \
+            "notify_list: ['%s'], options: {"  % (CONFIG["build_id"],
+                                                  CONFIG["email"]),
+            "'image': '%s'" % (CONFIG["image_url"]),
+            "'distribution_model': 'default'",
+            "'timeout': 1"])
 
     def test_bad_testpackage_names(self):
         options = Options()
         options.packages = "test-definition-tests thisisnotatestpackage"
         options.timeout = 1
-        self.trigger_testrun_expect_error(options, 
-                            ["Invalid testpackage(s): thisisnotatestpackage"])
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "Invalid testpackage(s): thisisnotatestpackage"])
 
     def test_no_image_url(self):
         options = Options()
         options.timeout = 1
         options.image = ""
-        self.trigger_testrun_expect_error(options, 
-                            ["Missing `image` parameter"])
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "Missing `image` parameter"])
 
     def test_bad_distribution_model(self):
         options = Options()
         options.distribution_model = "sendalltestrunstowastebin"
         options.timeout = 1
-        self.trigger_testrun_expect_error(options,
-                      ["Invalid distribution model: sendalltestrunstowastebin"])
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "Invalid distribution model: sendalltestrunstowastebin"])
 
     def test_perpackage_distribution_no_packages(self):
         options = Options()
         options.distribution_model = "perpackage"
         options.timeout = 1
-
-        self.trigger_testrun_expect_error(options, 
-                    ["Test packages must be defined for specified " \
-                     "distribution model 'perpackage'"])
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "Test packages must be defined for specified " \
+            "distribution model 'perpackage'"])
 
 ########################################
 # TestDeviceProperties
@@ -794,11 +781,13 @@ class TestPlugins(SystemSingleRunTestCaseBase):
     def test_email_invalid_address(self):
         options = Options()
         options.sw_product = CONFIG["sw_product"]
-        options.timeout = 60
+        options.timeout = 1
         options.image = ""
         options.email = "invalid_email_address"
-        expected = ["Missing `image` parameter"]
-        self.trigger_testrun_expect_error(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.ERROR).id()
+        assert_has_messages(self, tid, [
+            "Missing `image` parameter",
+            "Error in sending mail to following addresses: ['invalid_email_address']"])
 
 
 class TestMultiDevice(SystemSingleRunTestCaseBase):
