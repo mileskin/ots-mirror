@@ -86,7 +86,6 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
 
     def test_hw_based_testrun_with_test_definition_tests_using_libssh2(self):
         options = Options()
-        options.timeout = 30
         options.use_libssh2 = True
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
         assert_has_messages(self, tid, [
@@ -156,7 +155,6 @@ class TestHostBasedSuccessfulTestruns(unittest.TestCase):
         options = Options()
         options.hosttest = "test-definition-tests"
         options.packages = ""
-        options.timeout = 30
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
         assert_has_not_messages(self, tid, [
             "Environment: Hardware"])
@@ -220,7 +218,6 @@ class TestChrootBasedSuccessfulTestruns(unittest.TestCase):
 
     def test_chroot_based_testrun_with_test_definition_tests(self):
         options = Options()
-        options.timeout = 30
         options.rootstrap = CONFIG["rootstrap_url"]
         options.chroottest = "test-definition-tests"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
@@ -366,7 +363,6 @@ class TestMiscSuccessfulTestruns(unittest.TestCase):
     def test_testrun_with_filter(self):
         options = Options()
         options.packages = "testrunner-lite-regression-tests"
-        options.timeout = 30
         options.testfilter = "testcase=trlitereg01,trlitereg02"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
         assert_has_messages(self, tid, [
@@ -473,7 +469,6 @@ class TestErrorConditions(unittest.TestCase):
         options = Options()
         options.image = options.image+"asdfasdfthiswontexistasdfasdf"
         options.packages = "testrunner-lite-regression-tests"
-        options.timeout = 30
         path = os.path.basename(options.image)
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
         assert_has_messages(self, tid, [
