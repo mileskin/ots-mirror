@@ -645,7 +645,7 @@ class TestGetCommands(unittest.TestCase):
                                 test_filter,
                                 timeout)
 
-        expected_cmd_1 = 'conductor', 
+        expected_cmd_1 = ['conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-m', '30', '-p', 'testplan2.xml']
         expected_cmd_2 = ['conductor', 
