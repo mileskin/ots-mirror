@@ -24,19 +24,42 @@
 A module for generating conductor commands based on testrun options
 """
 
+def _options_to_string(options):
+    """
+    Converts an option dict to string format for inclusion in
+    a conductor command line.
+
+    @type options: C{dict}
+    @param options: A dictionary with option name as the dict key
+       and option value as the dict value.
+
+    @rtype: C{string}
+    @return: A string to include in a command line argument.   
+    """
+
+    option_list = []
+
+    for key in options.keys():
+        option_list = option_list + "%s:%s" % key, options[key]:
+
+    return option_list.join(",")
+
 def conductor_command(options, host_testing, chroot_testing):
     """
     Creates a conductor command from the arguments.
 
     @type options: C{dict}
-    @param options: String with test package names.
-        Multiple packages must be separated by comma, without
-        spaces. String may be empty.
+    @param options: Options dict with option name as the dict key
+        and option value as the dict value.
         Packages are either for device or for host.
 
     @type host_testing: C{bool}
     @param host_testing: Whether options[test_packages]
         is assumed to contain tests for host. True or False.
+
+    @type chroot_testing: C{bool}
+    @param chroot_testing: Whether options[test_packages]
+        is assumed to contain tests for chroot. True or False.
 
     @rtype: C{list}
     @return: A list. First item is shell executable.
@@ -64,7 +87,7 @@ def conductor_command(options, host_testing, chroot_testing):
     if options.has_key('testplan_name'):
         cmd.extend(["-p", options['testplan_name']])
     if options.has_key('flasher_options'):
-        cmd.extend(['--flasher_options=%s' % options['flasher_options']])
+        cmd.extend(['--flasher_options=%s' % _options_to_string(options['flasher_options'])])
     if host_testing == True:
         cmd.extend(['-o'])
 
