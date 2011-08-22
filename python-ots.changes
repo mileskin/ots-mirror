@@ -1,4 +1,6 @@
-* Fri Aug 19 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.9
+* Mon Aug 22 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.9
+ - Added unit tests for flasher interface exception handling
+   (thanks to Oskari Pirttikoski)
  - BootupFailed exception added to the flasher interface
    (thanks to Oskari Pirttikoski)
  - Fixed broken image links of monitor view, BMC#22292

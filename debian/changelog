@@ -1,4 +1,6 @@
 ots (0.8.9-1) unstable; urgency=low
+  * Added unit tests for flasher interface exception handling
+    (thanks to Oskari Pirttikoski)
   * BootupFailed exception added to the flasher interface
     (thanks to Oskari Pirttikoski)
   * Fixed broken image links of monitor view, BMC#22292
@@ -6,7 +8,7 @@ ots (0.8.9-1) unstable; urgency=low
     without a shell (thanks to Oskari Pirttikoski)
   * Command class moved under ots.common (thanks to Oskari Pirttikoski)
 
- -- Elias Luttinen <elias.luttinen@digia.com>  Fri, 19 Aug 2011 14:25:00 +0300
+ -- Elias Luttinen <elias.luttinen@digia.com>  Mon, 22 Aug 2011 13:05:00 +0300
 
 ots (0.8.8-1) unstable; urgency=low
   * OTS 0.8.8 release, BMC#20753
