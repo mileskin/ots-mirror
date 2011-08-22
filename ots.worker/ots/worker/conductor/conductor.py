@@ -221,7 +221,7 @@ def _parse_command_line(args):
     parser.add_option("--flasher_options", dest="flasher_options", action="store",
                       type="string",
                       help="Options to pass to the flasher module",
-                      METAVAR="FLASHER_OPTIONS")
+                      metavar="FLASHER_OPTIONS")
 
     (options, args) = parser.parse_args(args)
 
