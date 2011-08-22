@@ -142,26 +142,12 @@ class SystemSingleRunTestCaseBase(unittest.TestCase):
                           "Assertion error: result fails testrun_id: '%s'"\
                          % (self.testrun_id))
 
-    def assert_result_is_fail(self, result):
-        self.assert_log_contains_string("Testrun finished with result: FAIL")
-        self.assertEquals(result,
-                          "FAIL",
-                          "Assertion error: result fails testrun_id: '%s'"\
-                         % (self.testrun_id))
-
     def assert_result_is_error(self, result):
         self.assert_log_contains_string("Result set to ERROR")
         self.assertEquals(result,
                           "ERROR",
                           "Assertion error: result fails testrun_id: '%s'"\
                          % (self.testrun_id))
-
-    def trigger_testrun_expect_fail(self, options, strings):
-        self._print_options(options)
-        parameters = _parameter_validator(options.__dict__, {})
-        result = ots_trigger(parameters)
-        self.assert_result_is_fail(result)
-        self.assert_log_contains_strings(self._replace_keywords(strings))
 
     def trigger_testrun_expect_error(self, options, strings):
         self._print_options(options)
@@ -489,17 +475,16 @@ class TestMiscSuccessfulTestruns(SystemSingleRunTestCaseBase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         options.resume = True
-        expected = ["--resume=continue",
-                    "Starting conductor at",
-                    "Finished running tests.",
-                    "Environment: Hardware",
-                    "Beginning to execute test package: shutdown_system_tests.xml",
-                    "Executed 4 cases. Passed 2 Failed 2",
-                    "Finished test case echo-before-shutdown Result: PASS",
-                    "Finished test case shutdown Result: FAIL",
-                    "Finished test case echo-after-shutdown Result: FAIL",
-                    "Finished test case echo1 Result: PASS"]
-        self.trigger_testrun_expect_fail(options, expected)
+        tid = SystemTest(self).run(options).verify(Result.FAIL).id()
+        assert_has_messages(self, tid, [
+            "--resume=continue",
+            "Environment: Hardware",
+            "Beginning to execute test package: shutdown_system_tests.xml",
+            "Executed 4 cases. Passed 2 Failed 2",
+            "Finished test case echo-before-shutdown Result: PASS",
+            "Finished test case shutdown Result: FAIL",
+            "Finished test case echo-after-shutdown Result: FAIL",
+            "Finished test case echo1 Result: PASS"])
 
 
 ############################################
