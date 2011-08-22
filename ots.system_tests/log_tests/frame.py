@@ -5,7 +5,7 @@ import xmlrpclib
 import time
 from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
 from configuration import CONFIG
-from helpers import base_url, assert_has_messages
+from helpers import testrun_log_url, assert_has_messages
 from log_scraper import has_errors
 from logging_conf import log
 
@@ -88,7 +88,7 @@ class SystemTest(object):
             log1.info("Testrun: %s" % {
                 "id": id,
                 "name": testname,
-                "url": "%s/logger/view/testrun/%s/" % (base_url(), id)})
+                "url": testrun_log_url(id)})
 
     def _show_start_info(self, testname, options):
         log.info("Starting system test '%s' against server %s..." % (testname,
