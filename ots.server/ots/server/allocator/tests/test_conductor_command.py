@@ -29,7 +29,7 @@ from ots.server.allocator.conductor_command import conductor_command
 class TestConductorCommands(unittest.TestCase):
 
     def test_conductor_command_without_testpackages(self):
-        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'emmc_flash_parameter':""}, 
+        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'content_flash_parameter':""}, 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"", 'timeout':"30",
                    'use_libssh2': False, 'resume': False}
@@ -42,8 +42,8 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(expected, result) 
 
 
-    def test_conductor_command_with_emmc_flash(self):
-        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'emmc_flash_parameter':"Gordon"}, 
+    def test_conductor_command_with_content_flash(self):
+        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'content_flash_parameter':"Gordon"}, 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"", 'timeout':"30",
                    'use_libssh2': False, 'resume': False}
@@ -57,7 +57,7 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_conductor_command_with_flasher_no_pkgs(self):
-        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'emmc_flash_parameter':""}, 
+        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'content_flash_parameter':""}, 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"", 
                    'timeout':"30", 'use_libssh2': False, 'resume': False}
@@ -73,7 +73,7 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_flasher_device_pkgs(self):
-        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'emmc_flash_parameter':""}, 
+        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'content_flash_parameter':""}, 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
                    'timeout':"30", 'use_libssh2': False, 'resume': False}
@@ -90,7 +90,7 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_flasher_reboot_mode(self):
-        options = {'image_url':"www.nokia.com", 'flasher_options':{'emmc_flash_parameter':"", 'bootmode':"normal"},
+        options = {'image_url':"www.nokia.com", 'flasher_options':{'content_flash_parameter':"", 'bootmode':"normal"},
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
                    'timeout':"30", 'use_libssh2': False,
@@ -108,7 +108,7 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_testplan(self):
-        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'emmc_flash_parameter':""},
+        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'content_flash_parameter':""},
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'testplan_name' : "testplan.xml",
                    'timeout':"30", 'test_packages':'', 'use_libssh2': False,
@@ -126,7 +126,7 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_testplan_host(self):
-        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'emmc_flash_parameter':""},
+        options = {'bootmode': None, 'image_url':"www.nokia.com", 'flasher_options':{'content_flash_parameter':""},
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'testplan_name' : "testplan.xml",
                    'timeout':"30", 'test_packages':'', 'use_libssh2': False,
@@ -145,7 +145,7 @@ class TestConductorCommands(unittest.TestCase):
 
     def test_conductor_command_with_libssh2(self):
         options = {'bootmode': None, 'image_url':"www.nokia.com",
-                   'flasher_options':{'emmc_flash_parameter':""}, 'testrun_id':1,
+                   'flasher_options':{'content_flash_parameter':""}, 'testrun_id':1,
                    'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf",
                    'use_libssh2': True, 'resume': False,
@@ -164,7 +164,7 @@ class TestConductorCommands(unittest.TestCase):
 
     def test_conductor_command_with_resume(self):
         options = {'bootmode': None, 'image_url':"www.nokia.com",
-                   'flasher_options':{'emmc_flash_parameter':""}, 'testrun_id':1,
+                   'flasher_options':{'content_flash_parameter':""}, 'testrun_id':1,
                    'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf",
                    'use_libssh2': False, 'resume': True,

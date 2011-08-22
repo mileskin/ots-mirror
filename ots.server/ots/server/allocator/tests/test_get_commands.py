@@ -36,7 +36,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar,baz"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
@@ -52,7 +51,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -66,7 +64,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar,baz"}
-        emmc_flash_parameter = ""
         testrun_id = ""
         storage_address = ""
         test_filter = "-testsuite=testrunner-tests"
@@ -82,7 +79,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -98,7 +94,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar,baz"}
-        emmc_flash_parameter = ""
         testrun_id = ""
         storage_address = ""
         test_filter = "-testsuite=testrunner-tests"
@@ -114,7 +109,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -134,7 +128,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "custom1"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar,baz"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"
@@ -147,7 +140,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -163,7 +155,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
@@ -178,7 +169,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -200,7 +190,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {'host':"foo,bar,baz"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"
@@ -211,7 +200,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -231,7 +219,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {'chroot':"foo,bar,baz"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"
@@ -242,7 +229,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -268,7 +254,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar,baz",'host':"foo,bar,baz"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
@@ -279,7 +264,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -312,7 +296,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "default"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar,baz",'host':"foo,bar,baz"}
-        emmc_flash_parameter = ""
         testrun_id = ""
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"
@@ -324,7 +307,6 @@ class TestGetCommands(unittest.TestCase):
                             image_url,
                             rootstrap,
                             test_list,
-                            emmc_flash_parameter,
                             testrun_id,
                             storage_address,
                             test_filter,
@@ -350,7 +332,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
@@ -361,7 +342,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -383,7 +363,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
@@ -394,7 +373,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -421,7 +399,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
         test_list = {'host':"foo,bar"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
@@ -432,7 +409,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -468,7 +444,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
         test_list = {'device':"foo,bar",'host':"baz,yaz"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = ""
         timeout = "10"
@@ -479,7 +454,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -498,7 +472,6 @@ class TestGetCommands(unittest.TestCase):
         distribution_model = "perpackage"
         image_url = 'http://image/url/image.bin'
         test_list = {} #no packages
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = "-testsuite=testrunner-tests"  
@@ -511,7 +484,6 @@ class TestGetCommands(unittest.TestCase):
                           image_url,
                           rootstrap,
                           test_list,
-                          emmc_flash_parameter,
                           testrun_id,
                           storage_address,
                           test_filter,
@@ -525,7 +497,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan = StringIO("hulapaloo")
         test_plan.name = "testplan.xml"
         test_list = {'hw_testplans': [test_plan]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -535,7 +506,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url, 
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -559,7 +529,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan2 = StringIO("hulapaloo2")
         test_plan2.name = "testplan2.xml"
         test_list = {'hw_testplans': [test_plan, test_plan2]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -569,7 +538,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url, 
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -595,7 +563,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan = StringIO("hulapaloo")
         test_plan.name = "testplan.xml"
         test_list = {'host_testplans': [test_plan]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -605,7 +572,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url, 
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -629,7 +595,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan2 = StringIO("hulapaloo2")
         test_plan2.name = "testplan2.xml"
         test_list = {'host_testplans': [test_plan, test_plan2]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -639,7 +604,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url, 
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -667,7 +631,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan2 = StringIO("hulapaloo2")
         test_plan2.name = "testplan2.xml"
         test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -677,13 +640,12 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
                                 timeout)
 
-        expected_cmd_1 = ['conductor', 
+        expected_cmd_1 = 'conductor', 
                           '-u', 'http://image/url/image.bin', 
                           '-m', '30', '-p', 'testplan2.xml']
         expected_cmd_2 = ['conductor', 
@@ -706,7 +668,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan2.name = "testplan2.xml"
         test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2],
                      'device':"foo,bar",'host':"baz,yaz"}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -716,7 +677,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url, 
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -753,7 +713,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan = StringIO("hulapaloo")
         test_plan.name = "testplan.xml"
         test_list = {'hw_testplans': [test_plan]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -763,7 +722,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url, 
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -787,7 +745,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan2 = StringIO("hulapaloo2")
         test_plan2.name = "testplan2.xml"
         test_list = {'hw_testplans': [test_plan, test_plan2]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -797,7 +754,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -823,7 +779,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan = StringIO("hulapaloo")
         test_plan.name = "testplan.xml"
         test_list = {'host_testplans': [test_plan]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -833,7 +788,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url, 
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -857,7 +811,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan2 = StringIO("hulapaloo2")
         test_plan2.name = "testplan2.xml"
         test_list = {'host_testplans': [test_plan, test_plan2]}
-        emmc_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -867,7 +820,7 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
+                                content_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -896,7 +849,7 @@ class TestGetCommands(unittest.TestCase):
         test_plan2.name = "testplan2.xml"
         test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2],
                      'device':"foo",'host':"baz"}
-        emmc_flash_parameter = "" 
+        content_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
@@ -906,7 +859,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                emmc_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,

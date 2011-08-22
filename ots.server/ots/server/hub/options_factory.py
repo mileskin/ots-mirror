@@ -76,7 +76,7 @@ class OptionsFactory(object):
     """
 
     aliases = {"image" : "image_url",
-               "emmc" : "emmc_flash_parameter",
+               "emmc" : "content_flash_parameter",
                "flasher" : "flasherurl",
                "hosttest" : "host_packages",
                "packages" : "test_packages"}
