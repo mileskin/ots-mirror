@@ -41,6 +41,13 @@ from ots.common.command import CommandFailed
 from ots.worker.api import ResponseClient
 from ots.worker.conductor.chroot import Chroot, RPMChroot
 
+from ots.common.framework.api import FlashFailed
+from ots.common.framework.api import InvalidImage
+from ots.common.framework.api import InvalidConfig
+from ots.common.framework.api import ConnectionTestFailed
+from ots.common.framework.api import BootupFailed
+
+
 # Send log messages to stdout (by default)
 logging.basicConfig(stream = sys.stdout, level = logging.DEBUG,
                     format = '%(asctime)s %(levelname)s %(message)s')
@@ -238,6 +245,10 @@ class Mock_Flasher(FlasherPluginBase):
         self.device_rebooted = True
         if self.raise_exc:
             raise self.raise_exc
+    def flash(self, image_path="", content_image_path="", boot_mode=""):
+        if self.raise_exc:
+            raise self.raise_exc
+        
 ##############################################################################
 # Tests
 ##############################################################################
@@ -541,6 +552,46 @@ class TestHardware(unittest.TestCase):
         lines = "somepackage: /usr/share/somepackage/tests.xml\n"+\
                 "mypackage-tests: /usr/share/mypackage-tests/tests.xml\n"
         self.assertEquals(self.real_hw.parse_packages_with_file(lines), ["mypackage-tests"])
+
+    def _mock_flash_using_software_updater(self, error):
+        def _mocked_flasher_module(flasher = "", device_n = "", host_ip = "",
+                                   device_ip = ""):
+            return Mock_Flasher(error)
+        self.real_hw.testrun.flasher_module = _mocked_flasher_module        
+        self.real_hw.flasher_path = None
+
+    def _assert_message_raised_by_flash(self, message):        
+        try:
+            self.real_hw._flash()
+        except ConductorError, conductor_error:
+            self.assertEqual(conductor_error.error_info, message)
+        else:
+            self.assertTrue(False, "ConductorError should be raised!")
+
+    def test_error_message_for_booting_failure(self):
+        self._mock_flash_using_software_updater(BootupFailed("Failed to boot!"))
+        self._assert_message_raised_by_flash("Device preparation failed at bootup: Failed to boot!")
+
+    def test_error_message_for_connection_failure(self):
+        self._mock_flash_using_software_updater(ConnectionTestFailed("konnektion"))
+        self._assert_message_raised_by_flash("Error in preparing hardware: Connection test failed!")
+
+    def test_error_message_for_flashing_failure(self):
+        self._mock_flash_using_software_updater(FlashFailed("Failed to flash!"))
+        self._assert_message_raised_by_flash("Error in preparing hardware: "\
+                                             "Flashing the image failed!")
+
+    def test_error_message_for_invalid_image(self):
+        self._mock_flash_using_software_updater(InvalidImage("Image is invalid!"))
+        self._assert_message_raised_by_flash("Error in preparing hardware: "\
+                                             "Invalid flash image!")
+
+    def test_error_message_for_invalid_config(self):
+        self._mock_flash_using_software_updater(InvalidConfig("Error message that will be lost!"))
+        self._assert_message_raised_by_flash("Error in preparing hardware: "\
+                                             "Invalid flasher config file!")
+
+
 
 
 class TestRPMHardware(unittest.TestCase):
