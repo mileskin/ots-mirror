@@ -820,7 +820,6 @@ class TestGetCommands(unittest.TestCase):
                                 image_url,
                                 rootstrap,
                                 test_list,
-                                content_flash_parameter,
                                 testrun_id,
                                 storage_address,
                                 test_filter,
@@ -849,7 +848,6 @@ class TestGetCommands(unittest.TestCase):
         test_plan2.name = "testplan2.xml"
         test_list = {'host_testplans': [test_plan], 'hw_testplans' : [test_plan2],
                      'device':"foo",'host':"baz"}
-        content_flash_parameter = "" 
         testrun_id = "" 
         storage_address = "" 
         test_filter = ""  
