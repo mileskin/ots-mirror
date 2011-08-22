@@ -74,74 +74,10 @@ class Options(object):
         self.resume = False
 
 ############################################
-#  BASE
-############################################
-
-class SystemSingleRunTestCaseBase(unittest.TestCase):
-    """
-    Base class for a single run 
-    where log of the last testrun are scraped
-    and compared against the expected strings
-
-    Helpers add descriptive error formatting
-    """
-    @staticmethod
-    def _print_options(options):
-        print "************************"
-        print "Triggering Testrun with Options:"
-        print "SW Product: %s"%(options.sw_product)
-        print "Image: %s"%(options.image)
-        print "Hosttest: %s"%(options.hosttest)
-        print "Testpackages: %s"%(options.packages)
-        print "Device: %s" %(options.device)
-        if options.testfilter:
-            print "Filters: %s" % options.testfilter
-
-    @property
-    def testrun_id(self):
-        return get_latest_testrun_id()
-
-    def _has_errors(self):
-        return has_errors(self.testrun_id)
-
-    def _has_message(self, string):
-        return has_message(self.testrun_id, string)
-
-    def assert_log_contains_string(self, string): 
-        self.assertTrue(self._has_message(string), 
-                        "'%s' not found on log for testrun_id: '%s'" \
-                        % (string, self.testrun_id))
-
-    def assert_log_doesnt_contain_string(self, string):
-        self.assertFalse(self._has_message(string), 
-                        "'%s' not found on log for testrun_id: '%s'" \
-                        % (string, self.testrun_id))
-
-    def assert_log_contains_strings(self, strings):
-        for string in strings:
-            self.assert_log_contains_string(string)
-
-    def assert_log_doesnt_contain_strings(self, strings):
-        for string in strings:
-            self.assert_log_doesnt_contain_string(string)
-
-    def assert_false_log_has_errors(self):
-        self.assertFalse(self._has_errors(),
-                        "Error messages no found for testrun_id: '%s'" \
-                        % (self.testrun_id))
-
-    def assert_result_is_pass(self, result):
-        self.assert_log_contains_string("Testrun finished with result: PASS")
-        self.assertEquals(result,
-                          "PASS",
-                          "Assertion error: result fails testrun_id: '%s'"\
-                         % (self.testrun_id))
-
-############################################
 # TestHWBasedSuccessfulTestruns
 ############################################
 
-class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
+class TestHWBasedSuccessfulTestruns(unittest.TestCase):
 
     def test_hw_based_testrun_with_test_definition_tests(self):
         options = Options()
@@ -216,7 +152,7 @@ class TestHWBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 # TestHostBasedSuccessfulTestruns
 ############################################
 
-class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
+class TestHostBasedSuccessfulTestruns(unittest.TestCase):
 
     def test_host_based_testrun_with_test_definition_tests(self):
         options = Options()
@@ -282,7 +218,7 @@ class TestHostBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 # TestChrootBasedSuccessfulTestruns
 ############################################
 
-class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
+class TestChrootBasedSuccessfulTestruns(unittest.TestCase):
 
     def test_chroot_based_testrun_with_test_definition_tests(self):
         options = Options()
@@ -327,7 +263,7 @@ class TestChrootBasedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 # TestMixedSuccessfulTestruns
 ############################################
 
-class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
+class TestMixedSuccessfulTestruns(unittest.TestCase):
 
     def test_hw_and_host_based_testrun_with_test_definition_tests(self):
         options = Options()
@@ -427,7 +363,7 @@ class TestMixedSuccessfulTestruns(SystemSingleRunTestCaseBase):
 # TestMiscSuccessfulTestruns
 ############################################
 
-class TestMiscSuccessfulTestruns(SystemSingleRunTestCaseBase):
+class TestMiscSuccessfulTestruns(unittest.TestCase):
 
     def test_testrun_with_filter(self):
         options = Options()
@@ -466,7 +402,7 @@ class TestMiscSuccessfulTestruns(SystemSingleRunTestCaseBase):
 # TestCustomDistributionModels
 ############################################
 
-class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
+class TestCustomDistributionModels(unittest.TestCase):
 
     def test_load_example_distribution_model(self):
         """
@@ -533,7 +469,7 @@ class TestCustomDistributionModels(SystemSingleRunTestCaseBase):
 # TestErrorConditions
 ##########################################
 
-class TestErrorConditions(SystemSingleRunTestCaseBase):
+class TestErrorConditions(unittest.TestCase):
 
     def test_bad_image_url(self):
         options = Options()
@@ -758,7 +694,7 @@ class TestDeviceProperties(unittest.TestCase):
 # TestPlugins
 ########################################
 
-class TestPlugins(SystemSingleRunTestCaseBase):
+class TestPlugins(unittest.TestCase):
 
     def test_plugins_loaded(self):
         options = Options()
@@ -785,7 +721,7 @@ class TestPlugins(SystemSingleRunTestCaseBase):
             "Error in sending mail to following addresses: ['invalid_email_address']"])
 
 
-class TestMultiDevice(SystemSingleRunTestCaseBase):
+class TestMultiDevice(unittest.TestCase):
     #
     # These tests are requiring that one ots-worker
     # is started as number 1 and uses meego-ai-flasher-n900
@@ -812,7 +748,7 @@ class TestMultiDevice(SystemSingleRunTestCaseBase):
         assert_has_messages(self, tid, [
             "using config file /etc/ots/conductor_"])
 
-class TestConductorPlugin(SystemSingleRunTestCaseBase):
+class TestConductorPlugin(unittest.TestCase):
     """Tests for conductor plug-ins"""
 
     def test_example_conductor_plugin(self):
