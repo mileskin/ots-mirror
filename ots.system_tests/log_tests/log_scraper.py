@@ -52,38 +52,6 @@ def has_errors(testrun_id):
     return ret_val
 
 
-def get_latest_testrun_id():
-    """
-    Scrape the latest testrun id from the global log
-    """
-    proxy_support = urllib2.ProxyHandler({})
-    opener = urllib2.build_opener(proxy_support)
-    urllib2.install_opener(opener)
-    file =  urllib2.urlopen(global_log_url())
-    soup = BeautifulSoup(file.read())
-    table =  soup.findAll("table")[1]
-    row1 = table.findAll("tr")[1]
-    td = row1.findAll("td")[0]
-    a = td.findAll("a")[0].string
-    return a
-
-def get_second_latest_testrun_id():
-    """
-    Scrape the second latest testrun id from the global log
-    """
-    latest = get_latest_testrun_id()
-    file =  urllib2.urlopen(global_log_url())
-    soup = BeautifulSoup(file.read())
-    table =  soup.findAll("table")[1]
-    rows = table.findAll("tr")
-    for row in rows:
-        if row.findAll("td"):
-            td = row.findAll("td")[0]
-            a = td.findAll("a")[0].string
-            if a != latest:
-                return a
-    return None
-
 def has_message(testrun_id, original_string, times=None):
     """
     Tries to find a message in the log for the given testrun.
@@ -141,5 +109,4 @@ def _load_testrun_log_page(testrun_id):
 
 if __name__ == "__main__":
     unittest.main()
-
 
