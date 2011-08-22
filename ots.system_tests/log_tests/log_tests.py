@@ -42,7 +42,7 @@ from log_scraper import has_message, has_errors
 from log_scraper import get_latest_testrun_id, get_second_latest_testrun_id
 from frame import SystemTest, Result
 from configuration import CONFIG
-from helpers import assert_has_messages, assert_has_not_message
+from helpers import assert_has_messages, assert_has_not_messages
 
 ############################################
 # DEFAULT OPTIONS
