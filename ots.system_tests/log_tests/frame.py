@@ -45,13 +45,15 @@ class SystemTest(object):
         return self
 
     def verify(self, expected_result):
+        id = self.id()
         if expected_result == Result.ERROR:
             self._assert_result(expected_result, Result.ERROR)
+            self.test.assertTrue(has_errors(id),
+                "There should be errors in testrun %s." % testrun_log_url(id))
         elif expected_result == Result.FAIL:
             self._assert_result(expected_result, Result.FAIL)
         elif expected_result == Result.PASS:
             self._assert_result(expected_result, Result.PASS)
-            id = self.id()
             assert_has_messages(self.test, id, COMMON_SUCCESS_MESSAGES)
             self.test.assertFalse(has_errors(id), "Found errors in log %s" % id)
         else:
