@@ -32,7 +32,7 @@ from ots.common.amqp.api import pack_message
 from ots.common.amqp.api import testrun_queue_name
 from ots.common.dto.api import Results, Packages, Monitor
 from ots.common.dto.ots_exception import OTSException
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 
 class ResponseClient(object):

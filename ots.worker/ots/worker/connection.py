@@ -31,7 +31,7 @@ FIXME: retries need adding to this class
 import logging
 from amqplib import client_0_8 as amqp
 
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 
 class Connection(object):

@@ -39,7 +39,7 @@ from optparse import OptionParser
 
 from ots.worker.connection import Connection
 from ots.worker.task_broker import TaskBroker
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 
 STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
