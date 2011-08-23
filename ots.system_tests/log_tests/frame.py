@@ -5,7 +5,7 @@ import xmlrpclib
 import time
 from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
 from configuration import CONFIG
-from helpers import testrun_log_url, assert_has_messages
+from helpers import testrun_log_url, testrun_log_urls, assert_has_messages
 from log_scraper import has_errors
 from logging_conf import log
 
@@ -46,12 +46,11 @@ class SystemTest(object):
 
     def verify(self, expected_result):
         if expected_result == Result.ERROR:
-            self.test.assertEquals(self.result, Result.ERROR)
+            self._assert_result(expected_result, Result.ERROR)
         elif expected_result == Result.FAIL:
-            self.test.assertEquals(self.result, Result.FAIL)
+            self._assert_result(expected_result, Result.FAIL)
         elif expected_result == Result.PASS:
-            self.test.assertEquals(self.result, Result.PASS,
-                "Result should be '%s', was '%s'." % (Result.PASS, self.result))
+            self._assert_result(expected_result, Result.PASS)
             id = self.id()
             assert_has_messages(self.test, id, COMMON_SUCCESS_MESSAGES)
             self.test.assertFalse(has_errors(id), "Found errors in log %s" % id)
@@ -59,6 +58,11 @@ class SystemTest(object):
             raise Exception('Unknown expected result \'%s\'. Actual result: %s'
                             % (expected_result, self.result))
         return self
+
+    def _assert_result(self, actual, expected):
+        self.test.assertEquals(actual, expected,
+            "Expected result '%s' but was '%s' for testrun(s) %s." %
+            (expected, actual, testrun_log_urls(self.testrun_ids)))
 
     def id(self):
         self.test.assertTrue(self.testrun_ids, "testrun id not known")
