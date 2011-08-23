@@ -6,6 +6,3 @@ local_cfg = ConfigObj("log_tests.local.conf")
 common_cfg.merge(local_cfg)
 CONFIG = common_cfg.get("log_tests")
 
-def global_log_url():
-    return "http://" + CONFIG["server"] + "/logger/view"
-

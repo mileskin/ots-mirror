@@ -5,8 +5,8 @@ import xmlrpclib
 import time
 from ots.tools.trigger.ots_trigger import ots_trigger, _parameter_validator
 from configuration import CONFIG
-from helpers import testrun_log_url, testrun_log_urls, assert_has_messages
-from log_scraper import has_errors
+from assertions import assert_has_messages
+from log_scraper import testrun_log_url, testrun_log_urls, has_errors
 from logging_conf import log
 
 COMMON_SUCCESS_MESSAGES = [

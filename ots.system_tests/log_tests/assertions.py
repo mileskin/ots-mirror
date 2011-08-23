@@ -1,14 +1,4 @@
-from log_scraper import has_message
-from configuration import CONFIG
-
-def testrun_log_urls(testrun_ids):
-    return map(testrun_log_url, testrun_ids)
-
-def testrun_log_url(testrun_id):
-    return "%s/logger/view/testrun/%s/" % (base_url(), testrun_id)
-
-def base_url():
-    return "http://" + CONFIG["server"]
+from log_scraper import testrun_log_url, has_message
 
 def assert_has_messages(test, testrun_id, messages):
     for message in messages:

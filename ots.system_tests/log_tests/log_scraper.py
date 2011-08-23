@@ -26,9 +26,18 @@ Scrapes the testrun logs
 
 import urllib2
 
-from configuration import CONFIG, global_log_url
+from configuration import CONFIG
 from BeautifulSoup import BeautifulSoup
 from custom_exceptions import SystemTestException
+
+def testrun_log_urls(testrun_ids):
+    return map(testrun_log_url, testrun_ids)
+
+def testrun_log_url(testrun_id):
+    return "%s/testrun/%s/" % (global_log_url(), testrun_id)
+
+def global_log_url():
+    return "http://" + CONFIG["server"] + "/logger/view"
 
 def has_errors(testrun_id):
     """
