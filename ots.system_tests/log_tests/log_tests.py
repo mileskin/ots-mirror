@@ -38,7 +38,7 @@ import os
 import configobj
 
 from log_scraper import has_message, has_errors
-from frame import SystemTest, Result
+from base import SystemTest, Result
 from configuration import CONFIG
 from helpers import assert_has_message, assert_has_messages, assert_has_not_messages
 
