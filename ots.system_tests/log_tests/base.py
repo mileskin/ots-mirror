@@ -45,17 +45,18 @@ class SystemTest(object):
         return self
 
     def verify(self, expected_result):
-        id = self.id()
         if expected_result == Result.ERROR:
-            self._assert_result(expected_result, Result.ERROR)
-            self.test.assertTrue(has_errors(id),
-                "There should be errors in testrun %s." % testrun_log_url(id))
+            for id in self.testrun_ids:
+                self._assert_result(expected_result, Result.ERROR)
+                self.test.assertTrue(has_errors(id),
+                    "There should be errors in testrun %s." % testrun_log_url(id))
         elif expected_result == Result.FAIL:
             self._assert_result(expected_result, Result.FAIL)
         elif expected_result == Result.PASS:
-            self._assert_result(expected_result, Result.PASS)
-            assert_has_messages(self.test, id, COMMON_SUCCESS_MESSAGES)
-            self.test.assertFalse(has_errors(id), "Found errors in log %s" % id)
+            for id in self.testrun_ids:
+                self._assert_result(expected_result, Result.PASS)
+                assert_has_messages(self.test, id, COMMON_SUCCESS_MESSAGES)
+                self.test.assertFalse(has_errors(id), "Found errors in log %s" % id)
         else:
             raise Exception('Unknown expected result \'%s\'. Actual result: %s'
                             % (expected_result, self.result))
@@ -65,11 +66,6 @@ class SystemTest(object):
         self.test.assertEquals(actual, expected,
             "Expected result '%s' but was '%s' for testrun(s) %s." %
             (expected, actual, testrun_log_urls(self.testrun_ids)))
-
-    def id(self):
-        self.test.assertTrue(self.testrun_ids, "testrun id not known")
-        self.test.assertEquals(len(self.testrun_ids), 1, "system test had more than one testrun")
-        return self.testrun_ids[0]
 
     def _fetch_testrun_ids(self, testname, server, cookie, ids, log1):
         rpc = xmlrpclib.Server("http://%s/" % server)
