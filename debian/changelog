@@ -1,4 +1,5 @@
 ots (0.8.9-1) unstable; urgency=low
+  * Support for running system tests parallel (thanks to Miki Leskinen)
   * Added unit tests for flasher interface exception handling
     (thanks to Oskari Pirttikoski)
   * BootupFailed exception added to the flasher interface
@@ -8,7 +9,7 @@ ots (0.8.9-1) unstable; urgency=low
     without a shell (thanks to Oskari Pirttikoski)
   * Command class moved under ots.common (thanks to Oskari Pirttikoski)
 
- -- Elias Luttinen <elias.luttinen@digia.com>  Mon, 22 Aug 2011 13:05:00 +0300
+ -- Elias Luttinen <elias.luttinen@digia.com>  Wed, 24 Aug 2011 09:27:00 +0300
 
 ots (0.8.8-1) unstable; urgency=low
   * OTS 0.8.8 release, BMC#20753
