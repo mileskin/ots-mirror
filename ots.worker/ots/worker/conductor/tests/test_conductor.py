@@ -948,11 +948,11 @@ class TestDefaultFlasher(unittest.TestCase):
         sw_updater = FlasherPluginBase()
         sw_updater.flash("image1", "image2")
 
-    def test_softwareupdater_flash_with_bootmode(self):
-        sw_updater = FlasherPluginBase()
-        sw_updater.flash(image_path = "image1",
-                         content_image_path = "image2",
-                         options_dict = {'boot_mode':"normal"})
+    #def test_softwareupdater_flash_with_bootmode(self):
+    #    sw_updater = FlasherPluginBase()
+    #    sw_updater.flash(image_path = "image1",
+    #                     content_image_path = "image2",
+    #                     options_dict = {'boot_mode':"normal"})
 
     def test_softwareupdater_flash_with_ip_options(self):
         sw_updater = FlasherPluginBase(host_ip = "192.168.2.14",
