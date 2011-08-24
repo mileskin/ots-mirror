@@ -28,14 +28,14 @@ class SystemTest(object):
         self.testrun_ids = []
 
     def run(self, options):
-        testname = inspect.stack()[1][3]
-        self._show_start_info(testname, options)
+        test_name = inspect.stack()[1][3]
+        self._show_start_info(test_name, options)
         cookie = str(uuid.uuid4())
-        options.test_name = testname
+        options.test_name = test_name
         options.system_test_cookie = cookie
         fetch_testrun_id_thread = threading.Thread(
             target=self._fetch_testrun_ids,
-            args=(testname, options.server, cookie, self.testrun_ids, log))
+            args=(test_name, options.server, cookie, self.testrun_ids, log))
         fetch_testrun_id_thread.start()
         parameters = _parameter_validator({}, options.__dict__)
         result = ots_trigger(parameters)
@@ -68,7 +68,7 @@ class SystemTest(object):
             "Expected result '%s' but was '%s' for testrun(s) %s." %
             (expected, actual, testrun_log_urls(self.testrun_ids)))
 
-    def _fetch_testrun_ids(self, testname, server, cookie, ids, log1):
+    def _fetch_testrun_ids(self, test_name, server, cookie, ids, log1):
         rpc = xmlrpclib.Server("http://%s/" % server)
         max_num_retries = 3
         interval = 5
@@ -90,11 +90,11 @@ class SystemTest(object):
         for id in ids:
             log1.info("Testrun: %s" % {
                 "id": id,
-                "name": testname,
+                "name": test_name,
                 "url": testrun_log_url(id)})
 
-    def _show_start_info(self, testname, options):
-        log.info("Starting system test '%s' against server %s..." % (testname,
+    def _show_start_info(self, test_name, options):
+        log.info("Starting system test '%s' against server %s..." % (test_name,
             CONFIG['server']))
         log.info("SW Product: %s" % options.sw_product)
         log.info("Image: %s" % options.image)
