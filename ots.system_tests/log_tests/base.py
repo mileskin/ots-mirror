@@ -29,7 +29,8 @@ class SystemTest(object):
 
     def run(self, options):
         test_name = inspect.stack()[1][3]
-        self._show_start_info(test_name, options)
+        log.info("Starting system test '%s' against server %s..." % (test_name,
+            CONFIG['server']))
         cookie = str(uuid.uuid4())
         options.test_name = test_name
         options.system_test_cookie = cookie
@@ -92,15 +93,4 @@ class SystemTest(object):
                 "id": id,
                 "name": test_name,
                 "url": testrun_log_url(id)})
-
-    def _show_start_info(self, test_name, options):
-        log.info("Starting system test '%s' against server %s..." % (test_name,
-            CONFIG['server']))
-        log.info("SW Product: %s" % options.sw_product)
-        log.info("Image: %s" % options.image)
-        log.info("Hosttest: %s" % options.hosttest)
-        log.info("Testpackages: %s" % options.packages)
-        log.info("Device: %s" % options.device)
-        if options.testfilter:
-            log.info("Filters: %s" % options.testfilter)
 
