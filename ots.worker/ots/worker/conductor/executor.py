@@ -88,9 +88,6 @@ class TestRunData(object):
         #content_image_path may later get overwritten.
         self.content_image_path = options.content_image_path
 
-        # Bootmode for flasher
-        self.bootmode = options.bootmode
-
         # rootstrap_url is preferred over rootstrap_path
         self.rootstrap_url = options.rootstrap_url
         # rootstrap_path may later get overwritten

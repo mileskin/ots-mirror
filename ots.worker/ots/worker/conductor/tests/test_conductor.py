@@ -144,7 +144,6 @@ class Options(object):
         self.verbose = False
         self.otsserver = None
         self.flasher_url = None
-        self.bootmode = None
         self.testplan = None
         self.rootstrap_url = None
         self.chrooted = None
@@ -390,7 +389,6 @@ class TestConductor(unittest.TestCase):
         self.assertEquals(options.verbose, False)
         self.assertEquals(options.otsserver, None)
         self.assertEquals(options.flasher_url, None)
-        self.assertEquals(options.bootmode, None)
         self.assertEquals(options.testplan, None)
         self.assertEquals(options.use_libssh2, False)
         self.assertEquals(options.resume, False)
@@ -954,7 +952,7 @@ class TestDefaultFlasher(unittest.TestCase):
         sw_updater = FlasherPluginBase()
         sw_updater.flash(image_path = "image1",
                          content_image_path = "image2",
-                         boot_mode = "normal")
+                         options = {'boot_mode',"normal"})
 
     def test_softwareupdater_flash_with_ip_options(self):
         sw_updater = FlasherPluginBase(host_ip = "192.168.2.14",

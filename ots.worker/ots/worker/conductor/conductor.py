@@ -194,11 +194,6 @@ def _parse_command_line(args):
                     help="Path to configuration file",
                     metavar="PATH")
 
-    parser.add_option("-b", "--bootmode", dest="bootmode", action="store",
-                      type="string",
-                      help="Bootmode for flasher",
-                      metavar="BOOTMODE")
-    
     parser.add_option("-p", "--testplan", dest="testplan", action="store",
                       type="string",
                       help="Test plan file",
