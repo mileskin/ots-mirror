@@ -31,6 +31,7 @@ class SystemTest(object):
         testname = inspect.stack()[1][3]
         self._show_start_info(testname, options)
         cookie = str(uuid.uuid4())
+        options.test_name = testname
         options.system_test_cookie = cookie
         fetch_testrun_id_thread = threading.Thread(
             target=self._fetch_testrun_ids,
