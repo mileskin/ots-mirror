@@ -1,6 +1,9 @@
 #!/bin/bash
 #
-# Run all system tests in parallel using nose > 1.1.0.
+# Run all system tests in parallel using nosetests-2.6.
+#
+# You need nosetests >= 1.1.2. Install it by running
+# $ sudo easy_install "nose>=1.1.2"
 #
 # For best speed the number of processes should be equal to the number
 # of devices available. It should not be higher, that causes timeouts.
