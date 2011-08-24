@@ -28,7 +28,7 @@
 
 import logging
 
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 class TestTarget(object):
     """Base class for different types of test targets."""

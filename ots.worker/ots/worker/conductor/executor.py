@@ -63,7 +63,7 @@ from ots.worker.conductor.conductor_config import TEST_DEFINITION_FILE_NAME, \
                         TESTRUNNER_USER_DEFINED_OPTION
 
 from ots.worker.conductor.conductorerror import ConductorError
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 
 WAIT_SIGKILL = 5

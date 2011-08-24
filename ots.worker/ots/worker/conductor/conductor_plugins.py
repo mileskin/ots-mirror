@@ -36,7 +36,7 @@ import logging
 from ots.common.framework.api import ConductorPluginBase
 from ots.common.framework.api import plugins_iter
 from ots.common.framework.api import plugin_exception_policy
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 LOG = get_logger_adapter(__name__)
 

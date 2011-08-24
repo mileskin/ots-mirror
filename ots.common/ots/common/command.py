@@ -30,7 +30,7 @@ import subprocess
 import threading
 import shlex
 
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 from ots.common.dto.ots_exception import OTSException
 

@@ -41,7 +41,7 @@ from ots.worker.conductor.executor import TestRunData
 from ots.worker.conductor.executor import Executor
 from ots.worker.conductor.conductorerror import ConductorError
 from ots.worker.api import ResponseClient
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 from ots.common.framework.flasher_plugin_base import FlashFailed
 
 DEFAULT_CONFIG = "/etc/ots/conductor.conf"

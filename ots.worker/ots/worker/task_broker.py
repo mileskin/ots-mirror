@@ -56,7 +56,7 @@ from ots.worker.version import __VERSION__
 from ots.common.command import Command
 from ots.common.command import CommandFailed
 from ots.common.dto.ots_exception import OTSException
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 STOP_SIGNAL_FILE = "/tmp/stop_ots_worker"
 

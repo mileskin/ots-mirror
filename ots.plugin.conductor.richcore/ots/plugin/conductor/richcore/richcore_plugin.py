@@ -37,7 +37,7 @@ from ots.common.command import SoftTimeoutException
 from ots.common.command import HardTimeoutException
 from ots.common.command import CommandFailed
 from ots.worker.conductor.conductor_config import HW_COMMAND
-from ots.worker.conductor.helpers import get_logger_adapter
+from ots.common.helpers import get_logger_adapter
 
 DEFAULT_CONFIG_FILE = "/etc/ots/plugins/conductor_richcore.conf"
 RICH_CORE_FILE_SUFFIX = ".rcore.lzo"
