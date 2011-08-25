@@ -87,7 +87,8 @@ def conductor_command(options, host_testing, chroot_testing):
     if options.has_key('testplan_name'):
         cmd.extend(["-p", options['testplan_name']])
     if options.has_key('flasher_options'):
-        cmd.extend(['--flasher_options=%s' % _options_to_string(options['flasher_options'])])
+        if options['flasher_options']:
+            cmd.extend(['--flasher_options=%s' % _options_to_string(options['flasher_options'])])
     if host_testing == True:
         cmd.extend(['-o'])
 
