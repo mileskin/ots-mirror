@@ -40,9 +40,9 @@ def _options_to_string(options):
     option_list = []
 
     for key in options.keys():
-        option_list = option_list + "%s:%s" % (key, options[key])
+        option_list.append("%s:%s" % (key, options[key]))
 
-    return option_list.join(",")
+    return ",".join(option_list)
 
 def conductor_command(options, host_testing, chroot_testing):
     """

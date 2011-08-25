@@ -48,8 +48,8 @@ class TestConductorCommands(unittest.TestCase):
                    'flasherurl':"", 'test_packages':"", 'timeout':"30",
                    'use_libssh2': False, 'resume': False}
         expected = ['conductor',  
-                    '-u', 'www.nokia.com', '-e', 'Gordon', 
-                    '-i', '1', '-c', 'foo', '-m', '30']
+                    '-u', 'www.nokia.com', '-i', '1', '-c', 'foo', '-m', '30',
+                    '--flasher_options=content_parameter:Gordon']
 
         result = conductor_command(options, 
                                    host_testing = False,
@@ -100,7 +100,7 @@ class TestConductorCommands(unittest.TestCase):
                     '-i', '1',
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf",
-                    "-t", "my-tests", '-m', '30', '--flasher_options=bootmode:normal', 'normal']
+                    "-t", "my-tests", '-m', '30', '--flasher_options=bootmode:normal']
 
         result = conductor_command(options,
                                    host_testing = False,
@@ -120,7 +120,7 @@ class TestConductorCommands(unittest.TestCase):
                     '-c', 'foo',
                     '--flasherurl', "asdfasdf/asdf",
                     "-t", "my-tests", '-m', '30', 
-                    '--flasher_options=content_parameter:Gordon,bootmode:normal', 'normal']
+                    '--flasher_options=bootmode:normal,content_parameter:Gordon']
 
         result = conductor_command(options,
                                    host_testing = False,
