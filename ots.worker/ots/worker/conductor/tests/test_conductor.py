@@ -152,6 +152,7 @@ class Options(object):
         self.target_flasher = ""
         self.use_libssh2 = False
         self.resume = False
+        self.flasher_options = "foo:bar,bog:us"
 
 
 class Stub_Executor(object):

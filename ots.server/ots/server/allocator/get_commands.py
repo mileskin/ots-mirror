@@ -53,7 +53,7 @@ def get_commands(distribution_model,
     options['resume'] = resume
 
     if extended_options:
-        options['flasher_options'] = extended_options.get("flasher_options", dict())
+        options['flasher_options'] = extended_options.get("flasher_options", None)
 
     cmds = []
 
