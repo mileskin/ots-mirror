@@ -64,6 +64,13 @@ class SystemTest(object):
                             % (expected_result, self.result))
         return self
 
+    def id(self):
+        self.test.assertTrue(self.testrun_ids, "Could not resolve testrun id.")
+        self.test.assertEquals(len(self.testrun_ids), 1,
+            "Found more than one testrun id (expected exactly one). All testrun URLs: %s" %
+            testrun_log_urls(self.testrun_ids))
+        return self.testrun_ids[0]
+
     def _assert_result(self, actual, expected):
         self.test.assertEquals(actual, expected,
             "Expected result '%s' but was '%s' for testrun(s) %s." %
