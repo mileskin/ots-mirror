@@ -166,7 +166,7 @@ class TestRunData(object):
         Extract flasher options from string to dict
         """
         return dict([pair.split(':', 1) \
-               for pair in options.split(",") if ':' in pair])
+               for pair in flasher_options.split(",") if ':' in pair])
 
     def _parse_image_filename_from_url(self):
         """ 
