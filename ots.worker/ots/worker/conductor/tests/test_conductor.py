@@ -244,7 +244,7 @@ class Mock_Flasher(FlasherPluginBase):
         self.device_rebooted = True
         if self.raise_exc:
             raise self.raise_exc
-    def flash(self, image_path="", content_image_path="", boot_mode=""):
+    def flash(self, image_path="", content_image_path="", custom_options=dict()):
         if self.raise_exc:
             raise self.raise_exc
         
@@ -553,7 +553,7 @@ class TestHardware(unittest.TestCase):
 
     def _mock_flash_using_software_updater(self, error):
         def _mocked_flasher_module(flasher = "", device_n = "", host_ip = "",
-                                   device_ip = ""):
+                                   device_ip = "", custom_options=dict()):
             return Mock_Flasher(error)
         self.real_hw.testrun.flasher_module = _mocked_flasher_module        
         self.real_hw.flasher_path = None
