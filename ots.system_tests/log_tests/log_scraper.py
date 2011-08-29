@@ -84,12 +84,14 @@ def has_message(testrun_id, original_string, times=None):
                 else:
                     count += 1
             elif td[5].string == None: # Check also <pre> messages </pre>
-                if td[5].findAll("pre")[0].string.count(string):
-                    if times == None:
-                        ret_val = True
-                        break
-                    else:
-                        count += 1
+                pre_tag = td[5].findAll("pre")
+                if pre_tag:
+                    if pre_tag[0].string.count(string):
+                        if times == None:
+                            ret_val = True
+                            break
+                        else:
+                            count += 1
 
     if times == None:
         return ret_val
