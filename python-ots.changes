@@ -1,5 +1,5 @@
 * Mon Aug 29 2011 Elias Luttinen <elias.luttinen@digia.com> 0.8.9
- - AMQP queue management tools refactorings
+ - AMQP queue management tools refactorings (thanks to Miki Leskinen)
  - Fixed pre tag parsing for system tests
  - Log adapter functionality moved to ots.common (thanks to Oskari Pirttikoski)
  - Support for running system tests parallel (thanks to Miki Leskinen)
