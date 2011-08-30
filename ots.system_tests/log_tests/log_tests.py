@@ -450,6 +450,7 @@ class TestCustomDistributionModels(unittest.TestCase):
 
     def test_optimized_without_packages(self):
         options = Options()
+        options.packages = ""
         options.distribution_model = "optimized"
         options.hw_testplans = ["data/echo_system_tests.xml"]
         options.sw_product = CONFIG["sw_product"]
@@ -541,6 +542,7 @@ class TestErrorConditions(unittest.TestCase):
 
     def test_perpackage_distribution_no_packages(self):
         options = Options()
+        options.packages = ""
         options.distribution_model = "perpackage"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
