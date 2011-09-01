@@ -95,10 +95,9 @@ class TestRunData(object):
 
         self.flasher_url = options.flasher_url
 
-        if hasattr(options, "flasher_options"):
+        self.flasher_options = dict()
+        if hasattr(options, "flasher_options") and options.flasher_options:
             self.flasher_options = self._extract_flasher_options(options.flasher_options)
-        else:
-            self.flasher_options = dict()
 
         # XML file
         self.xml_file = options.testplan
