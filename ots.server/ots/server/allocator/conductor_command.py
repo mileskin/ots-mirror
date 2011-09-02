@@ -24,26 +24,6 @@
 A module for generating conductor commands based on testrun options
 """
 
-def _options_to_string(options):
-    """
-    Converts an option dict to string format for inclusion in
-    a conductor command line.
-
-    @type options: C{dict}
-    @param options: A dictionary with option name as the dict key
-       and option value as the dict value.
-
-    @rtype: C{string}
-    @return: A string to include in a command line argument.   
-    """
-
-    option_list = []
-
-    for key in options.keys():
-        option_list.append("%s:%s" % (key, options[key]))
-
-    return ",".join(option_list)
-
 def conductor_command(options, host_testing, chroot_testing):
     """
     Creates a conductor command from the arguments.
