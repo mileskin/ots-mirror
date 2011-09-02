@@ -68,7 +68,7 @@ class Options(object):
         self.email = CONFIG["email"]
         self.timeout = 30
         self.server = CONFIG["server"] + "/xmlrpc"
-        self.extended_options = ""
+        self.flasher_options = ""
         self.use_libssh2 = False
         self.resume = False
 
@@ -96,10 +96,10 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
 
     def test_hw_based_testrun_with_flasher_options(self):
         options = Options()
-        options.extended_options = "flasher_options:just:testing"
+        options.flasher_options = "just:testing"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
         assert_has_messages(self, tid, [
-            "extended_options': 'flasher_options:just:testing" % options.packages])
+            "flasher_options': 'just:testing" % options.packages])
 
     def test_hw_based_testrun_split_into_multiple_tasks(self):
         options = Options()
