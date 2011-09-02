@@ -43,7 +43,7 @@ class TestConductorCommands(unittest.TestCase):
 
 
     def test_conductor_command_with_flasher_content_parameter(self):
-        options = {'image_url':"www.nokia.com", 'flasher_options':{'content_parameter':"Gordon"}, 
+        options = {'image_url':"www.nokia.com", 'flasher_options':"content_parameter:Gordon", 
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"", 
                    'flasherurl':"", 'test_packages':"", 'timeout':"30",
                    'use_libssh2': False, 'resume': False}
@@ -90,7 +90,7 @@ class TestConductorCommands(unittest.TestCase):
         self.assertEquals(result, expected)
 
     def test_conductor_command_with_flasher_bootmode_set(self):
-        options = {'image_url':"www.nokia.com", 'flasher_options':{'bootmode':"normal"},
+        options = {'image_url':"www.nokia.com", 'flasher_options':"bootmode:normal"},
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
                    'timeout':"30", 'use_libssh2': False,
@@ -109,7 +109,7 @@ class TestConductorCommands(unittest.TestCase):
 
     def test_conductor_command_with_flasher_bootmode_and_content_parameter_set(self):
         options = {'image_url':"www.nokia.com", 
-                   'flasher_options':{'content_parameter':"Gordon", 'bootmode':"normal"},
+                   'flasher_options':"content_parameter:Gordon,bootmode:normal"},
                    'testrun_id':1, 'storage_address':"foo", 'testfilter':"",
                    'flasherurl':"asdfasdf/asdf", 'test_packages':"my-tests",
                    'timeout':"30", 'use_libssh2': False,
