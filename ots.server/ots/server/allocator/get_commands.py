@@ -39,6 +39,7 @@ def get_commands(distribution_model,
                  custom_distribution_model=None,
                  use_libssh2=False,
                  resume=False,
+                 flasher_options=None,
                  extended_options=None):
     """Returns a list of conductor commands based on the options"""
     options = dict()
@@ -51,9 +52,7 @@ def get_commands(distribution_model,
     options['rootstrap'] = rootstrap
     options['use_libssh2'] = use_libssh2
     options['resume'] = resume
-
-    if extended_options:
-        options['flasher_options'] = extended_options.get("flasher_options", None)
+    options['flasher_options'] = flasher_options
 
     cmds = []
 
