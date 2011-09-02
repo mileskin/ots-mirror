@@ -312,7 +312,7 @@ class Hub(object):
                                   self.options.use_libssh2,
                                   self.options.resume,
                                   custom_distribution_model,
-                                  self.flasher_options,
+                                  self.options.flasher_options,
                                   self.extended_options_dict)
 
         return self._taskrunner
