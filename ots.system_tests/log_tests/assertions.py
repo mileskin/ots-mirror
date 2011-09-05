@@ -1,4 +1,4 @@
-from log_scraper import testrun_log_url, has_message
+from log_scraper import testrun_log_url, log_page_contains_message
 
 def assert_log_page_contains_messages(test, testrun_id, messages):
     for message in messages:

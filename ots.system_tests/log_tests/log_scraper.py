@@ -115,7 +115,7 @@ def log_page_contains_regexp_pattern(testrun_id, original_string, pattern):
     for tr in rows:
         td = tr.findAll("td")
         if td:
-            if td[5].string and pattern_to_search.search(td[5].string)
+            if td[5].string and pattern_to_search.search(td[5].string):
                 ret_val = True
                 break
 
@@ -123,7 +123,6 @@ def log_page_contains_regexp_pattern(testrun_id, original_string, pattern):
                 and pattern_to_search.search(td[5].findAll("pre")[0].string):
                     ret_val = True
                     break
-
     return ret_val
 
 def _replace_keywords(string, testrun_id):
