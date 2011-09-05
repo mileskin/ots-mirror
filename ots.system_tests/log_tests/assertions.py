@@ -2,11 +2,11 @@ from log_scraper import testrun_log_url, log_page_contains_message
 
 def assert_log_page_contains_messages(test, testrun_id, messages):
     for message in messages:
-        assert_has_message(test, testrun_id, message)
+        assert_log_page_contains_message(test, testrun_id, message)
 
 def assert_log_page_does_not_contain_messages(test, testrun_id, messages):
     for message in messages:
-        assert_has_not_message(test, testrun_id, message)
+        assert_log_page_does_not_contain_message(test, testrun_id, message)
 
 def assert_log_page_contains_message(test, testrun_id, string):
     test.assertTrue(log_page_contains_message(testrun_id, string),
