@@ -99,7 +99,8 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
         options.flasher_options = "just:testing"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
         assert_has_messages(self, tid, [
-            "flasher_options': 'just:testing" % options.packages])
+            "flasher_options': 'just:testing",    
+            "--flasher_options=just:testing", % options.packages])
 
     def test_hw_based_testrun_split_into_multiple_tasks(self):
         options = Options()
