@@ -25,6 +25,7 @@ Scrapes the testrun logs
 """
 
 import urllib2
+import re
 
 from configuration import CONFIG
 from BeautifulSoup import BeautifulSoup
@@ -39,7 +40,7 @@ def testrun_log_url(testrun_id):
 def global_log_url():
     return "http://" + CONFIG["server"] + "/logger/view"
 
-def has_errors(testrun_id):
+def log_page_contains_errors(testrun_id):
     """
     Checks if testrun has any error messages
     """
@@ -61,7 +62,7 @@ def has_errors(testrun_id):
     return ret_val
 
 
-def has_message(testrun_id, original_string, times=None):
+def log_page_contains_message(testrun_id, original_string, times=None):
     """
     Tries to find a message in the log for the given testrun.
     Returns True if message was found.
@@ -99,6 +100,31 @@ def has_message(testrun_id, original_string, times=None):
         else:
             return False
 
+def log_page_contains_regexp_pattern(testrun_id, original_string, pattern):
+    """
+    Tries to match a regular expression with a message in the log for
+    the given testrun. Returns True if a matching message was found.
+    """
+    pattern_to_search = re.compile(pattern)
+
+    string = _replace_keywords(original_string, testrun_id)
+    ret_val = False
+    soup = _load_testrun_log_page(testrun_id)
+    table =  soup.findAll("table")[1]
+    rows = table.findAll("tr")
+    for tr in rows:
+        td = tr.findAll("td")
+        if td:
+            if td[5].string and pattern_to_search.search(td[5].string)
+                ret_val = True
+                break
+
+            elif td[5].string == None and len(td[5].findAll("pre")) > 0 \
+                and pattern_to_search.search(td[5].findAll("pre")[0].string):
+                    ret_val = True
+                    break
+
+    return ret_val
 
 def _replace_keywords(string, testrun_id):
     return string.replace("__TESTRUN_ID__", testrun_id)

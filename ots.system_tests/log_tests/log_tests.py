@@ -37,10 +37,11 @@ import unittest
 import os
 import configobj
 
-from log_scraper import has_message, has_errors
+from log_scraper import log_page_contains_message, log_page_contains_errors
 from base import SystemTest, Result
 from configuration import CONFIG
-from assertions import assert_has_message, assert_has_messages, assert_has_not_messages
+from assertions import assert_log_page_contains_message, assert_log_page_contains_messages, \
+         assert_log_page_does_not_contain_messages, assert_log_page_contains_regexp_pattern
 
 ############################################
 # DEFAULT OPTIONS
@@ -81,7 +82,7 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
     def test_hw_based_testrun_with_test_definition_tests(self):
         options = Options()
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Hardware",
             "Testing in Hardware done. No errors."])
 
@@ -89,7 +90,7 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
         options = Options()
         options.use_libssh2 = True
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Hardware",
             "Starting conductor at",
             "-t %s -m 1800 --libssh2" % options.packages])
@@ -98,9 +99,8 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
         options = Options()
         options.flasher_options = "just:testing"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
-            "flasher_options': 'just:testing",    
-            "--flasher_options=just:testing", % options.packages])
+        assert_log_page_contains_regexp_pattern(self, tid,
+            "^Incoming command line parameters\:.+\-\-flasher\-options\=just\:testing")
 
     def test_hw_based_testrun_split_into_multiple_tasks(self):
         options = Options()
@@ -110,7 +110,7 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Testrun ID: __TESTRUN_ID__  Environment: Hardware",
             "Beginning to execute test package: test-definition-tests",
             "Beginning to execute test package: testrunner-lite-regression-test",
@@ -125,7 +125,7 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Hardware"])
 
     def test_hw_based_testrun_with_testplan(self):
@@ -135,7 +135,7 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Hardware",
             "Beginning to execute test package: echo_system_tests.xml",
             "Executed 1 cases. Passed 1 Failed 0"])
@@ -148,7 +148,7 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Hardware",
             "Beginning to execute test package: echo_system_tests.xml",
             "Executed 1 cases. Passed 1 Failed 0",
@@ -165,7 +165,7 @@ class TestHostBasedSuccessfulTestruns(unittest.TestCase):
         options.hosttest = "test-definition-tests"
         options.packages = ""
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_not_messages(self, tid, [
+        assert_log_page_does_not_contain_messages(self, tid, [
             "Environment: Hardware"])
 
     def test_host_based_testrun_split_into_multiple_tasks(self):
@@ -176,7 +176,7 @@ class TestHostBasedSuccessfulTestruns(unittest.TestCase):
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Testrun ID: __TESTRUN_ID__  Environment: Host_Hardware",
             "Beginning to execute test package: test-definition-tests",
             "Beginning to execute test package: testrunner-lite-regression-test",
@@ -190,7 +190,7 @@ class TestHostBasedSuccessfulTestruns(unittest.TestCase):
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Host_Hardware"])
 
     def test_host_based_testrun_with_testplan(self):
@@ -200,7 +200,7 @@ class TestHostBasedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Host_Hardware",
             "Beginning to execute test package: echo_system_tests.xml",
             "Executed 1 cases. Passed 1 Failed 0"])
@@ -213,7 +213,7 @@ class TestHostBasedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Host_Hardware",
             "Beginning to execute test package: echo_system_tests.xml",
             "Executed 1 cases. Passed 1 Failed 0",
@@ -230,7 +230,7 @@ class TestChrootBasedSuccessfulTestruns(unittest.TestCase):
         options.rootstrap = CONFIG["rootstrap_url"]
         options.chroottest = "test-definition-tests"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: chroot",
             "Testing in chroot done. No errors."])
 
@@ -243,7 +243,7 @@ class TestChrootBasedSuccessfulTestruns(unittest.TestCase):
         options.chroottest = \
             "test-definition-tests testrunner-lite-regression-tests"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Testrun ID: __TESTRUN_ID__  Environment: chroot",
             "Beginning to execute test package: test-definition-tests",
             "Beginning to execute test package: testrunner-lite-regression-test",
@@ -259,7 +259,7 @@ class TestChrootBasedSuccessfulTestruns(unittest.TestCase):
         options.chroottest = \
             "test-definition-tests testrunner-lite-regression-tests"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: chroot",
             "Testing in chroot done. No errors."])
 
@@ -274,7 +274,7 @@ class TestMixedSuccessfulTestruns(unittest.TestCase):
         options.hosttest = "test-definition-tests"
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Hardware",
             "Environment: Host_Hardware"])
 
@@ -288,7 +288,7 @@ class TestMixedSuccessfulTestruns(unittest.TestCase):
         options.testfilter = "testcase=trlitereg01,Check-basic-schema"
         options.timeout = 120
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Host_Hardware",
             "Environment: Hardware"])
 
@@ -300,7 +300,7 @@ class TestMixedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Host_Hardware",
             "Environment: Hardware",
             "Beginning to execute test package: echo_system_tests.xml",
@@ -314,7 +314,7 @@ class TestMixedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Hardware",
             "Beginning to execute test package: ls_system_tests.xml",
             "Executed 1 cases. Passed 1 Failed 0",
@@ -328,7 +328,7 @@ class TestMixedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Host_Hardware",
             "Beginning to execute test package: ls_system_tests.xml",
             "Executed 1 cases. Passed 1 Failed 0",
@@ -343,7 +343,7 @@ class TestMixedSuccessfulTestruns(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Host_Hardware",
             "Environment: Hardware",
             "Beginning to execute test package: ls_system_tests.xml",
@@ -358,7 +358,7 @@ class TestMixedSuccessfulTestruns(unittest.TestCase):
         options.rootstrap = CONFIG["rootstrap_url"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Environment: Hardware",
             "Environment: Host_Hardware",
             "Environment: chroot"])
@@ -374,11 +374,11 @@ class TestMiscSuccessfulTestruns(unittest.TestCase):
         options.packages = "testrunner-lite-regression-tests"
         options.testfilter = "testcase=trlitereg01,trlitereg02"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_conatins_messages(self, tid, [
             "Test case quoting_01 is filtered",
             "Test case quoting_01 is filtered",
             "Executed 2 cases. Passed 2 Failed 0"])
-        assert_has_not_messages(self, tid, [
+        assert_log_page_does_not_contain_messages(self, tid, [
             "Test case trlitereg01 is filtered",
             "Test case trlitereg02 is filtered"])
 
@@ -390,7 +390,7 @@ class TestMiscSuccessfulTestruns(unittest.TestCase):
         options.timeout = 60
         options.resume = True
         tid = SystemTest(self).run(options).verify(Result.FAIL).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "--resume=continue",
             "Environment: Hardware",
             "Beginning to execute test package: shutdown_system_tests.xml",
@@ -418,7 +418,7 @@ class TestCustomDistributionModels(unittest.TestCase):
         options.distribution_model = "example_model"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Example distribution model not implemented"])
 
     def test_load_invalid_distribution_model(self):
@@ -426,7 +426,7 @@ class TestCustomDistributionModels(unittest.TestCase):
         options.distribution_model = "invalid_distribution_model"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "ValueError: Invalid distribution model"])
 
     def test_load_optimized_distribution_model_for_host_packages(self):
@@ -437,7 +437,7 @@ class TestCustomDistributionModels(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Beginning to execute test package: test-definition-tests",
             "Beginning to execute test package: testrunner-lite-regression-tests",
             "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
@@ -451,7 +451,7 @@ class TestCustomDistributionModels(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 60
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Beginning to execute test package: test-definition-tests",
             "Beginning to execute test package: testrunner-lite-regression-tests",
             "Loaded custom distribution model 'ots.plugin.history.distribution_model'",
@@ -464,7 +464,7 @@ class TestCustomDistributionModels(unittest.TestCase):
         options.sw_product = CONFIG["sw_product"]
         options.timeout = 10
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "No commands created"])
 
 
@@ -480,7 +480,7 @@ class TestErrorConditions(unittest.TestCase):
         options.packages = "testrunner-lite-regression-tests"
         path = os.path.basename(options.image)
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Error: Could not download file %s, Error code: 103" % path,
             "Starting conductor at"])
 
@@ -489,7 +489,7 @@ class TestErrorConditions(unittest.TestCase):
         options.packages = "testrunner-lite-regression-tests"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Error: Timeout while executing test package " \
             "testrunner-lite-regression-tests, Error code: 1091",
             "Test execution error: Timeout while executing test " \
@@ -500,7 +500,7 @@ class TestErrorConditions(unittest.TestCase):
         options.device = "devicegroup:this_should_not_exist"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "No queue for this_should_not_exist",
             "Incoming request: program: %s, request: %s, " \
             "notify_list: ['%s'], options: {" \
@@ -515,7 +515,7 @@ class TestErrorConditions(unittest.TestCase):
         options.sw_product = "this_should_not_exist"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "'this_should_not_exist' not found",
             "Incoming request: program: this_should_not_exist, request: %s, " \
             "notify_list: ['%s'], options: {"  % (CONFIG["build_id"],
@@ -529,7 +529,7 @@ class TestErrorConditions(unittest.TestCase):
         options.packages = "test-definition-tests thisisnotatestpackage"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Invalid testpackage(s): thisisnotatestpackage"])
 
     def test_no_image_url(self):
@@ -537,7 +537,7 @@ class TestErrorConditions(unittest.TestCase):
         options.timeout = 1
         options.image = ""
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Missing `image` parameter"])
 
     def test_bad_distribution_model(self):
@@ -545,7 +545,7 @@ class TestErrorConditions(unittest.TestCase):
         options.distribution_model = "sendalltestrunstowastebin"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Invalid distribution model: sendalltestrunstowastebin"])
 
     def test_perpackage_distribution_no_packages(self):
@@ -553,7 +553,7 @@ class TestErrorConditions(unittest.TestCase):
         options.distribution_model = "perpackage"
         options.timeout = 1
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Test packages must be defined for specified " \
             "distribution model 'perpackage'"])
 
@@ -577,11 +577,11 @@ class TestDeviceProperties(unittest.TestCase):
         # we need to do check both ways)
         string1 = """No queue for this_should_not_exist_1"""
         string2 = """No queue for this_should_not_exist_either"""
-        if (has_message(testrun_id1, string1)):
-            assert_has_message(self, testrun_id2, string2)
+        if (log_page_contains_message(testrun_id1, string1)):
+            assert_log_page_contains_message(self, testrun_id2, string2)
         else:
-            assert_has_message(self, testrun_id2, string1)
-            assert_has_message(self, testrun_id1, string2)
+            assert_log_page_contains_message(self, testrun_id2, string1)
+            assert_log_page_contains_message(self, testrun_id1, string2)
 
     def test_one_devicegroup_multiple_devicenames(self):
         options = Options()
@@ -597,11 +597,11 @@ class TestDeviceProperties(unittest.TestCase):
         # we need to do check both ways)
         string1 = """No queue for this_should_not_exist.device1"""
         string2 = """No queue for this_should_not_exist.device2"""
-        if (has_message(testrun_id1, string1)):
-            assert_has_message(self, testrun_id2, string2)
+        if (log_page_contains_message(testrun_id1, string1)):
+            assert_log_page_contains_message(self, testrun_id2, string2)
         else:
-            assert_has_message(self, testrun_id2, string1)
-            assert_has_message(self, testrun_id1, string2)
+            assert_log_page_contains_message(self, testrun_id2, string1)
+            assert_log_page_contains_message(self, testrun_id1, string2)
 
 
     def test_one_devicegroup_one_devicename_multiple_device_ids(self):
@@ -618,11 +618,11 @@ class TestDeviceProperties(unittest.TestCase):
         # Make sure correct routing keys are used
         string1 = """No queue for this_should_not_exist.device1.id1"""
         string2 = """No queue for this_should_not_exist.device1.id2"""
-        if (has_message(testrun_id1, string1)):
-            assert_has_message(self, testrun_id2, string2)
+        if (log_page_contains_message(testrun_id1, string1)):
+            assert_log_page_contains_message(self, testrun_id2, string2)
         else:
-            assert_has_message(self, testrun_id2, string1)
-            assert_has_message(self, testrun_id1, string2)
+            assert_log_page_contains_message(self, testrun_id2, string1)
+            assert_log_page_contains_message(self, testrun_id1, string2)
 
 ########################################
 # TestPlugins
@@ -637,7 +637,7 @@ class TestPlugins(unittest.TestCase):
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Plugin: ots.plugin.conductor.richcore loaded",
             "history data saved",
             "Using smtp server",
@@ -650,7 +650,7 @@ class TestPlugins(unittest.TestCase):
         options.image = ""
         options.email = "invalid_email_address"
         tid = SystemTest(self).run(options).verify(Result.ERROR).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Missing `image` parameter",
             "Error in sending mail to following addresses: ['invalid_email_address']"])
 
@@ -669,7 +669,7 @@ class TestMultiDevice(unittest.TestCase):
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Loaded flasher 'meego-ai-flasher-n900'"])
 
     def test_load_separated_settings(self):
@@ -679,7 +679,7 @@ class TestMultiDevice(unittest.TestCase):
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "using config file /etc/ots/conductor_"])
 
 class TestConductorPlugin(unittest.TestCase):
@@ -695,7 +695,7 @@ class TestConductorPlugin(unittest.TestCase):
         options.timeout = 60
         options.testfilter = "testcase=Check-basic-schema"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_has_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "ExampleConductorPlugin before_testrun method called.",
             "ExampleConductorPlugin after_testrun method called.",
             "ExampleConductorPlugin set_target method called.",
