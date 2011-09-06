@@ -571,8 +571,8 @@ class TestDeviceProperties(unittest.TestCase):
         test = SystemTest(self).run(options).verify(Result.ERROR)
         testrun_id1 = test.testrun_ids[0]
         testrun_id2 = test.testrun_ids[1]
-        self.assertTrue(has_errors(testrun_id1))
-        self.assertTrue(has_errors(testrun_id2))
+        self.assertTrue(log_page_contains_errors(testrun_id1))
+        self.assertTrue(log_page_contains_errors(testrun_id2))
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
         string1 = """No queue for this_should_not_exist_1"""
@@ -591,8 +591,8 @@ class TestDeviceProperties(unittest.TestCase):
         test = SystemTest(self).run(options).verify(Result.ERROR)
         testrun_id1 = test.testrun_ids[0]
         testrun_id2 = test.testrun_ids[1]
-        self.assertTrue(has_errors(testrun_id1))
-        self.assertTrue(has_errors(testrun_id2))
+        self.assertTrue(log_page_contains_errors(testrun_id1))
+        self.assertTrue(log_page_contains_errors(testrun_id2))
         # Make sure correct routing keys are used (We don't know the order so
         # we need to do check both ways)
         string1 = """No queue for this_should_not_exist.device1"""
@@ -613,8 +613,8 @@ class TestDeviceProperties(unittest.TestCase):
         test = SystemTest(self).run(options).verify(Result.ERROR)
         testrun_id1 = test.testrun_ids[0]
         testrun_id2 = test.testrun_ids[1]
-        self.assertTrue(has_errors(testrun_id1))
-        self.assertTrue(has_errors(testrun_id2))
+        self.assertTrue(log_page_contains_errors(testrun_id1))
+        self.assertTrue(log_page_contains_errors(testrun_id2))
         # Make sure correct routing keys are used
         string1 = """No queue for this_should_not_exist.device1.id1"""
         string2 = """No queue for this_should_not_exist.device1.id2"""
