@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # ***** BEGIN LICENCE BLOCK *****
 # This file is part of OTS
 #
@@ -22,16 +20,12 @@
 # 02110-1301 USA
 # ***** END LICENCE BLOCK *****
 
-import queue_operations as operations
-import input_handler
-
-def empty_queue(host, queue_name):
-    operations.EmptyQueue(host, queue_name)
-
-def main():
-    host, queue_name = input_handler.handle_input()
-    empty_queue(host, queue_name)
-
-if __name__ == "__main__":
-    main()
+def handle_input():
+    import sys
+    import os
+    if len(sys.argv) != 3:
+        script = os.path.basename(sys.argv[0])
+        print "Usage: %s <host> <queue name>" % script
+        sys.exit()
+    return (sys.argv[1], sys.argv[2])
 

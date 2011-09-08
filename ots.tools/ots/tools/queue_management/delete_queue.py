@@ -23,5 +23,15 @@
 # ***** END LICENCE BLOCK *****
 
 import queue_operations as operations
-operations.DeleteQueue()
+import input_handler
+
+def delete_queue(host, queue_name):
+  operations.DeleteQueue(host, queue_name)
+
+def main():
+    host, queue_name = input_handler.handle_input()
+    delete_queue(host, queue_name)
+
+if __name__ == "__main__":
+    main()
 

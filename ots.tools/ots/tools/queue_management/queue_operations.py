@@ -28,11 +28,10 @@ password = "guest"
 virtual_host = "/"
 
 class QueueProcessor:
-    def __init__(self):
-        self.process_queue()
+    def __init__(self, host, queue_name):
+        self.process_queue(host, queue_name)
 
-    def process_queue(self):
-        host, queue_name = self._handle_input()
+    def process_queue(self, host, queue_name):
         print "Processing queue '%s' on host '%s'..." % (queue_name, host)
         connection = amqp.Connection(
             host = ("%s:%s" %(host,port)),
@@ -42,15 +41,6 @@ class QueueProcessor:
             insist = False)
         self.process_channel(connection.channel(), queue_name)
         print "Done."
-
-    def _handle_input(self):
-        import sys
-        import os
-        if len(sys.argv) != 3:
-            script = os.path.basename(sys.argv[0])
-            print "Usage: %s <host> <queue name>" % script
-            sys.exit()
-        return (sys.argv[1], sys.argv[2])
 
 class EmptyQueue(QueueProcessor):
     def process_channel(self, channel, queue_name):
