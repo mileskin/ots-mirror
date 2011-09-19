@@ -84,15 +84,9 @@ class Hardware(TestTarget):
             return
 
         try:
-            if self.testrun.bootmode:
-                self._flasher.reboot( \
-                            image_path=self.testrun.image_path,
-                            content_image_path=self.testrun.content_image_path,
-                            boot_mode=self.testrun.bootmode)
-            else:
-                self._flasher.reboot( \
-                            image_path=self.testrun.image_path,
-                            content_image_path=self.testrun.content_image_path)
+            self._flasher.reboot( \
+                        image_path=self.testrun.image_path,
+                        content_image_path=self.testrun.content_image_path)
         except ConnectionTestFailed:
             raise ConductorError("Error in preparing hardware: "\
                                  "Connection test failed!", "2101")
@@ -380,7 +374,8 @@ class Hardware(TestTarget):
             flasher = self.testrun.flasher_module(flasher = flasher_path,
                                                   device_n = self.testrun.device_n,
                                                   host_ip = self.testrun.host_ip_address,
-                                                  device_ip = self.testrun.target_ip_address)
+                                                  device_ip = self.testrun.target_ip_address,
+                                                  custom_options = self.testrun.flasher_options)
             
             self._flasher = flasher
 
@@ -390,13 +385,8 @@ class Hardware(TestTarget):
 
             #Run flasher. Note: one of paths (image_path OR content_image_path)
             #may be None
-            if self.testrun.bootmode:
-                flasher.flash(image_path=self.testrun.image_path,
-                        content_image_path=self.testrun.content_image_path,
-                        boot_mode=self.testrun.bootmode)
-            else:
-                flasher.flash(image_path=self.testrun.image_path,
-                        content_image_path=self.testrun.content_image_path)
+            flasher.flash(image_path=self.testrun.image_path,
+                    content_image_path=self.testrun.content_image_path)
 
         except BootupFailed, exc:
             raise ConductorError("Device preparation failed at bootup: %s" \

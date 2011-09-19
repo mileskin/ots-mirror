@@ -62,7 +62,7 @@ class Options(object):
                  hosttest=None, chroottest=None, device=None, emmc=None,
                  distribution_model=None, flasher=None, testfilter=None,
                  hw_testplans=None, host_testplans=None, timeout=None,
-                 use_libssh2=None, resume=None):
+                 use_libssh2=None, resume=None, flasher_options=None):
 
         """
         @type image: C{image}
@@ -106,6 +106,10 @@ class Options(object):
 
         @type resume: C{boolean}
         @param resume: Use testrunner-lite resume functionality
+
+        @type flasher_options: C{string}
+        @param flasher_options: Custom options for flasher
+
         """
         self._image = image
         if not packages:
@@ -135,6 +139,7 @@ class Options(object):
         self._use_libssh2 = use_libssh2
         self._resume = resume
         self._timeout = timeout
+        self._flasher_options = flasher_options
 
         self._validate_packages(self.hw_packages)
         self._validate_packages(self.host_packages)
@@ -259,6 +264,14 @@ class Options(object):
         @rtype: C{str}
         """
         return self._flasher
+
+    @property
+    def flasher_options(self):
+        """
+        Custom flasher options
+        @rtype: C{string}
+        """
+        return self._flasher_options
 
     @property
     def testfilter(self):

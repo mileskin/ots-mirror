@@ -144,7 +144,6 @@ class Options(object):
         self.verbose = False
         self.otsserver = None
         self.flasher_url = None
-        self.bootmode = None
         self.testplan = None
         self.rootstrap_url = None
         self.chrooted = None
@@ -153,6 +152,7 @@ class Options(object):
         self.target_flasher = ""
         self.use_libssh2 = False
         self.resume = False
+        self.flasher_options = "foo:bar,bog:us"
 
 
 class Stub_Executor(object):
@@ -245,7 +245,7 @@ class Mock_Flasher(FlasherPluginBase):
         self.device_rebooted = True
         if self.raise_exc:
             raise self.raise_exc
-    def flash(self, image_path="", content_image_path="", boot_mode=""):
+    def flash(self, image_path="", content_image_path="", custom_options=dict()):
         if self.raise_exc:
             raise self.raise_exc
         
@@ -390,7 +390,6 @@ class TestConductor(unittest.TestCase):
         self.assertEquals(options.verbose, False)
         self.assertEquals(options.otsserver, None)
         self.assertEquals(options.flasher_url, None)
-        self.assertEquals(options.bootmode, None)
         self.assertEquals(options.testplan, None)
         self.assertEquals(options.use_libssh2, False)
         self.assertEquals(options.resume, False)
@@ -555,7 +554,7 @@ class TestHardware(unittest.TestCase):
 
     def _mock_flash_using_software_updater(self, error):
         def _mocked_flasher_module(flasher = "", device_n = "", host_ip = "",
-                                   device_ip = ""):
+                                   device_ip = "", custom_options=dict()):
             return Mock_Flasher(error)
         self.real_hw.testrun.flasher_module = _mocked_flasher_module        
         self.real_hw.flasher_path = None
@@ -950,11 +949,11 @@ class TestDefaultFlasher(unittest.TestCase):
         sw_updater = FlasherPluginBase()
         sw_updater.flash("image1", "image2")
 
-    def test_softwareupdater_flash_with_bootmode(self):
-        sw_updater = FlasherPluginBase()
-        sw_updater.flash(image_path = "image1",
-                         content_image_path = "image2",
-                         boot_mode = "normal")
+    #def test_softwareupdater_flash_with_bootmode(self):
+    #    sw_updater = FlasherPluginBase()
+    #    sw_updater.flash(image_path = "image1",
+    #                     content_image_path = "image2",
+    #                     options_dict = {'boot_mode':"normal"})
 
     def test_softwareupdater_flash_with_ip_options(self):
         sw_updater = FlasherPluginBase(host_ip = "192.168.2.14",

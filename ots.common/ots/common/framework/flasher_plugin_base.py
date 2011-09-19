@@ -71,6 +71,7 @@ class FlasherPluginBase(object):
                  device_n=None,
                  host_ip=None,
                  device_ip=None,
+                 custom_options=dict(),
                  **kwargs):
         """
         @type flasher: C{str}
@@ -84,6 +85,9 @@ class FlasherPluginBase(object):
 
         @type device_ip: C{string}
         @param device_ip: Device IP for flasher
+
+        @type custom_options: C{dict}
+        @param custom_options: Custom options for flasher
         """
         super(FlasherPluginBase, self).__init__()
 

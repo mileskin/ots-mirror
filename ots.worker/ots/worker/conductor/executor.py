@@ -88,15 +88,16 @@ class TestRunData(object):
         #content_image_path may later get overwritten.
         self.content_image_path = options.content_image_path
 
-        # Bootmode for flasher
-        self.bootmode = options.bootmode
-
         # rootstrap_url is preferred over rootstrap_path
         self.rootstrap_url = options.rootstrap_url
         # rootstrap_path may later get overwritten
         self.rootstrap_path = options.rootstrap_path
 
         self.flasher_url = options.flasher_url
+
+        self.flasher_options = dict()
+        if hasattr(options, "flasher_options") and options.flasher_options:
+            self.flasher_options = self._extract_flasher_options(options.flasher_options)
 
         # XML file
         self.xml_file = options.testplan
@@ -158,6 +159,13 @@ class TestRunData(object):
 
         if options.device_n:
             self.device_n = options.device_n
+
+    def _extract_flasher_options(self, flasher_options):
+        """
+        Extract flasher options from string to dict
+        """
+        return dict([pair.split(':', 1) \
+               for pair in flasher_options.split(",") if ':' in pair])
 
     def _parse_image_filename_from_url(self):
         """ 

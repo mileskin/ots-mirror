@@ -29,14 +29,17 @@ def conductor_command(options, host_testing, chroot_testing):
     Creates a conductor command from the arguments.
 
     @type options: C{dict}
-    @param options: String with test package names.
-        Multiple packages must be separated by comma, without
-        spaces. String may be empty.
+    @param options: Options dict with option name as the dict key
+        and option value as the dict value.
         Packages are either for device or for host.
 
     @type host_testing: C{bool}
     @param host_testing: Whether options[test_packages]
         is assumed to contain tests for host. True or False.
+
+    @type chroot_testing: C{bool}
+    @param chroot_testing: Whether options[test_packages]
+        is assumed to contain tests for chroot. True or False.
 
     @rtype: C{list}
     @return: A list. First item is shell executable.
@@ -44,8 +47,6 @@ def conductor_command(options, host_testing, chroot_testing):
     """
     cmd = ["conductor"]
     cmd.extend(["-u", options['image_url']])
-    if options['emmc_flash_parameter']:
-        cmd.extend(["-e", options['emmc_flash_parameter']])
     if options['testrun_id']:
         cmd.extend(["-i", str(options['testrun_id'])])
     if options['storage_address']:
@@ -59,15 +60,15 @@ def conductor_command(options, host_testing, chroot_testing):
     # Use global timeout as conductor testrun timeout
     if options['timeout']:
         cmd.extend(["-m", str(options['timeout'])])
-    if options['bootmode']:
-        cmd.extend(["-b", options['bootmode']])
     if options['use_libssh2']:
         cmd.extend(["--libssh2"])
     if options['resume']:
         cmd.extend(["--resume"])
     if options.has_key('testplan_name'):
         cmd.extend(["-p", options['testplan_name']])
-
+    if options.has_key('flasher_options'):
+        if options['flasher_options']:
+            cmd.extend(['--flasher_options=%s' % options['flasher_options']])
     if host_testing == True:
         cmd.extend(['-o'])
 

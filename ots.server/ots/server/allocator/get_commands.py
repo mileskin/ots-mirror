@@ -31,7 +31,6 @@ def get_commands(distribution_model,
                  image_url,
                  rootstrap,
                  test_list,
-                 emmc_flash_parameter,
                  testrun_id,
                  storage_address,
                  test_filter,
@@ -40,23 +39,20 @@ def get_commands(distribution_model,
                  custom_distribution_model=None,
                  use_libssh2=False,
                  resume=False,
+                 flasher_options=None,
                  extended_options=None):
     """Returns a list of conductor commands based on the options"""
     options = dict()
     options['image_url'] = image_url
-    options['emmc_flash_parameter'] = emmc_flash_parameter
     options['testrun_id'] = testrun_id
     options['storage_address'] = storage_address
     options['testfilter'] = test_filter
     options['flasherurl'] = flasher
     options['timeout'] = str(timeout)
-    options['bootmode'] = None
     options['rootstrap'] = rootstrap
     options['use_libssh2'] = use_libssh2
     options['resume'] = resume
-
-    if extended_options:
-        options['bootmode'] = extended_options.get("bootmode", None)
+    options['flasher_options'] = flasher_options
 
     cmds = []
 

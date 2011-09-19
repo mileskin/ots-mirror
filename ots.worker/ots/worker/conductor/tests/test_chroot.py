@@ -46,7 +46,6 @@ class Options(object):
         self.verbose = False
         self.otsserver = None
         self.flasher_url = None
-        self.bootmode = None
         self.testplan = None
         self.rootstrap_url = None
         self.chrooted = None
