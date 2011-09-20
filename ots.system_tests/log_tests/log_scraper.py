@@ -102,14 +102,13 @@ def log_page_contains_message(testrun_id, original_string, times=None):
         else:
             return False
 
-def log_page_contains_regexp_pattern(testrun_id, original_string, pattern):
+def log_page_contains_regexp_pattern(testrun_id, pattern):
     """
     Tries to match a regular expression with a message in the log for
     the given testrun. Returns True if a matching message was found.
     """
     pattern_to_search = re.compile(pattern)
 
-    string = _replace_keywords(original_string, testrun_id)
     ret_val = False
     soup = _load_testrun_log_page(testrun_id)
     table =  soup.findAll("table")[1]

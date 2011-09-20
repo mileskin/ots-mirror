@@ -100,7 +100,7 @@ class TestHWBasedSuccessfulTestruns(unittest.TestCase):
         options.flasher_options = "just:testing"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
         assert_log_page_contains_regexp_pattern(self, tid,
-            "^Incoming command line parameters\:.+\-\-flasher\-options\=just\:testing")
+            "^Incoming command line parameters\:.+\-\-flasher_options\=just\:testing")
 
     def test_hw_based_testrun_split_into_multiple_tasks(self):
         options = Options()
@@ -374,7 +374,7 @@ class TestMiscSuccessfulTestruns(unittest.TestCase):
         options.packages = "testrunner-lite-regression-tests"
         options.testfilter = "testcase=trlitereg01,trlitereg02"
         tid = SystemTest(self).run(options).verify(Result.PASS).id()
-        assert_log_page_conatins_messages(self, tid, [
+        assert_log_page_contains_messages(self, tid, [
             "Test case quoting_01 is filtered",
             "Test case quoting_01 is filtered",
             "Executed 2 cases. Passed 2 Failed 0"])
